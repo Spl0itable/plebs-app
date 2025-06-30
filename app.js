@@ -1286,11 +1286,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize theme
     initTheme();
 
+    // Check localStorage for saved login state
+    const savedPubkey = localStorage.getItem('currentUserPubkey');
+    if (savedPubkey) {
+        currentUser = { pubkey: savedPubkey };
+        console.log('User restored from localStorage:', savedPubkey);
+    }
+
     // Listen for login events
     window.addEventListener('nlAuth', async (e) => {
         console.log('Auth event received:', e.detail);
         if (e.detail.type === 'login' || e.detail.type === 'signup') {
             currentUser = e.detail;
+            // Save to localStorage
+            localStorage.setItem('currentUserPubkey', e.detail.pubkey);
             console.log('User logged in:', currentUser);
             handleRoute();
         }
@@ -1300,6 +1309,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('nlLogout', async () => {
         console.log('User logged out');
         currentUser = null;
+        // Clear from localStorage
+        localStorage.removeItem('currentUserPubkey');
         handleRoute();
     });
 
