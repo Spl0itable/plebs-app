@@ -1557,7 +1557,7 @@ function parseVideoEvent(event) {
     return videoData.title ? videoData : null;
 }
 
-// Function to load trending videos
+// Function to load trending videos with streaming
 async function loadTrendingVideos(period = 'today') {
     // Calculate time boundaries
     const now = Math.floor(Date.now() / 1000);
@@ -1574,40 +1574,92 @@ async function loadTrendingVideos(period = 'today') {
     const filter = {
         kinds: [30023],
         '#t': ['video'],
-        since: since
+        since: since,
+        limit: 100
     };
 
-    const videoEvents = [];
-    const videoScores = new Map(); // videoId -> score
-    const globalReactions = new Map(); // videoId -> Map(userId -> {reaction, timestamp})
+    return new Promise((resolve) => {
+        const videoEvents = [];
+        const videoScores = new Map();
+        const globalReactions = new Map();
+        const processedVideos = new Set();
+        let trendingVideos = [];
+        let hasStartedReactions = false;
+        let videosComplete = false;
+        let reactionsComplete = false;
 
-    // First, collect all video events from the time period
-    await new Promise((resolve) => {
-        requestEventsStream(filter, (event) => {
-            // Check if it's a video event
-            const tags = event.tags || [];
-            if (tags.some(tag => tag[0] === 'x')) {
-                videoEvents.push(event);
-                allEvents.set(event.id, event);
+        // Process and return trending videos
+        const processTrending = () => {
+            trendingVideos = [];
+            
+            videoEvents.forEach(event => {
+                const reactions = { likes: 0, dislikes: 0 };
+                const videoReactions = globalReactions.get(event.id);
+
+                if (videoReactions) {
+                    videoReactions.forEach((data) => {
+                        if (data.reaction === '👍') {
+                            reactions.likes++;
+                        } else if (data.reaction === '👎') {
+                            reactions.dislikes++;
+                        }
+                    });
+                }
+
+                // Store reactions in cache
+                reactionsCache.set(event.id, reactions);
+
+                // Skip if video is ratioed
+                if (isVideoRatioed(reactions)) {
+                    return;
+                }
+
+                // Calculate trending score
+                const ageHours = (now - event.created_at) / 3600;
+                const timeWeight = Math.max(0, 24 - ageHours) / 24;
+                const score = reactions.likes - (reactions.dislikes * 2) + (timeWeight * 10);
+
+                // Only include videos with positive engagement
+                if (reactions.likes > 0 && score > 0) {
+                    videoScores.set(event.id, score);
+                    trendingVideos.push(event);
+                }
+            });
+
+            // Sort by score
+            trendingVideos.sort((a, b) => {
+                const scoreA = videoScores.get(a.id) || 0;
+                const scoreB = videoScores.get(b.id) || 0;
+                return scoreB - scoreA;
+            });
+            
+            // Limit to top 12
+            trendingVideos = trendingVideos.slice(0, 12);
+            
+            // If both streams are complete, resolve
+            if (videosComplete && reactionsComplete) {
+                resolve(trendingVideos);
             }
-        }, resolve);
-    });
-
-    // Load reactions for all videos
-    if (videoEvents.length > 0) {
-        const videoIds = videoEvents.map(e => e.id);
-
-        const reactionFilter = {
-            kinds: [7],
-            '#e': videoIds,
-            since: since // Only count reactions from the same period
         };
 
-        await new Promise((resolve) => {
+        // Load reactions for collected videos
+        const loadReactions = () => {
+            if (videoEvents.length === 0) {
+                reactionsComplete = true;
+                resolve([]);
+                return;
+            }
+            
+            const videoIds = videoEvents.map(e => e.id);
+            const reactionFilter = {
+                kinds: [7],
+                '#e': videoIds,
+                since: since
+            };
+            
             requestEventsStream(reactionFilter, (reactionEvent) => {
                 const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
                 if (videoId && videoIds.includes(videoId)) {
-                    // Initialize video reactions map if needed
                     if (!globalReactions.has(videoId)) {
                         globalReactions.set(videoId, new Map());
                     }
@@ -1616,7 +1668,6 @@ async function loadTrendingVideos(period = 'today') {
                     const userPubkey = reactionEvent.pubkey;
                     const timestamp = reactionEvent.created_at;
 
-                    // Only update if this is newer than existing reaction from this user
                     const existingReaction = videoReactions.get(userPubkey);
                     if (!existingReaction || existingReaction.timestamp < timestamp) {
                         videoReactions.set(userPubkey, {
@@ -1625,57 +1676,46 @@ async function loadTrendingVideos(period = 'today') {
                         });
                     }
                 }
-            }, resolve);
-        });
-    }
-
-    // Calculate scores and filter out ratioed videos
-    const trendingVideos = [];
-
-    videoEvents.forEach(event => {
-        const reactions = { likes: 0, dislikes: 0 };
-        const videoReactions = globalReactions.get(event.id);
-
-        if (videoReactions) {
-            videoReactions.forEach((data) => {
-                if (data.reaction === '👍') {
-                    reactions.likes++;
-                } else if (data.reaction === '👎') {
-                    reactions.dislikes++;
-                }
+            }, () => {
+                // Reactions complete
+                reactionsComplete = true;
+                processTrending();
             });
-        }
+        };
 
-        // Store reactions in cache
-        reactionsCache.set(event.id, reactions);
+        // Start collecting video events
+        requestEventsStream(filter, (event) => {
+            const tags = event.tags || [];
+            if (tags.some(tag => tag[0] === 'x') && !processedVideos.has(event.id)) {
+                processedVideos.add(event.id);
+                videoEvents.push(event);
+                allEvents.set(event.id, event);
+                
+                // Start loading reactions after we have 5 videos
+                if (videoEvents.length === 5 && !hasStartedReactions) {
+                    hasStartedReactions = true;
+                    loadReactions();
+                }
+            }
+        }, () => {
+            // Videos complete
+            videosComplete = true;
+            
+            // Start loading reactions if not started yet
+            if (!hasStartedReactions) {
+                hasStartedReactions = true;
+                loadReactions();
+            }
+        });
 
-        // Skip if video is ratioed
-        if (isVideoRatioed(reactions)) {
-            return;
-        }
-
-        // Calculate trending score
-        // Score = likes - (dislikes * 2) + time_weight
-        const ageHours = (now - event.created_at) / 3600;
-        const timeWeight = Math.max(0, 24 - ageHours) / 24; // Newer videos get higher weight
-        const score = reactions.likes - (reactions.dislikes * 2) + (timeWeight * 10);
-
-        // Only include videos with positive engagement
-        if (reactions.likes > 0 && score > 0) {
-            videoScores.set(event.id, score);
-            trendingVideos.push(event);
-        }
+        // Timeout after 5 seconds with whatever we have
+        setTimeout(() => {
+            if (!videosComplete || !reactionsComplete) {
+                processTrending();
+                resolve(trendingVideos);
+            }
+        }, 5000);
     });
-
-    // Sort by score
-    trendingVideos.sort((a, b) => {
-        const scoreA = videoScores.get(a.id) || 0;
-        const scoreB = videoScores.get(b.id) || 0;
-        return scoreB - scoreA;
-    });
-
-    // Return top 12 trending videos
-    return trendingVideos.slice(0, 12);
 }
 
 // Load home feed with trending section
@@ -1683,58 +1723,39 @@ async function loadHomeFeed() {
     currentView = 'home';
 
     const mainContent = document.getElementById('mainContent');
-    mainContent.innerHTML = '<div class="spinner"></div>';
 
-    // Load trending videos first
-    const trendingVideos = await loadTrendingVideos(currentTrendingPeriod);
-
-    // Load profiles for trending videos
-    if (trendingVideos.length > 0) {
-        const trendingPubkeys = [...new Set(trendingVideos.map(v => v.pubkey))];
-        await loadUserProfiles(trendingPubkeys);
-    }
-
-    // Create the trending section HTML
-    let trendingHTML = '';
-    if (trendingVideos.length > 0) {
-        trendingHTML = `
-                    <div class="trending-section">
-                        <div class="trending-header">
-                            <h2>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19.48,12.35c-1.57-4.08-7.16-4.3-5.81-10.23c0.1-0.44-0.37-0.78-0.75-0.55C9.29,3.71,6.68,8,8.87,13.62 c0.18,0.46-0.36,0.89-0.75,0.59c-1.81-1.37-2-3.34-1.84-4.75c0.06-0.52-0.62-0.77-0.91-0.34C4.69,10.16,4,11.84,4,14.37 c0.38,5.6,5.11,7.32,6.81,7.54c2.43,0.31,5.06-0.14,6.95-1.87C19.84,18.11,20.6,15.03,19.48,12.35z"/>
-                                </svg>
-                                Trending
-                            </h2>
-                            <div class="trending-tabs">
-                                <button class="trending-tab ${currentTrendingPeriod === 'today' ? 'active' : ''}" 
-                                        onclick="switchTrendingPeriod('today')">Today</button>
-                                <button class="trending-tab ${currentTrendingPeriod === 'week' ? 'active' : ''}" 
-                                        onclick="switchTrendingPeriod('week')">This Week</button>
-                            </div>
-                        </div>
-                        <div class="trending-grid">
-                            ${trendingVideos.map((event, index) => {
-            const profile = profileCache.get(event.pubkey);
-            const reactions = reactionsCache.get(event.id);
-            return createVideoCard(event, profile, reactions, true, index + 1);
-        }).join('')}
-                        </div>
-                    </div>
-                    <hr class="section-divider">
-                `;
-    }
-
-    // Set up the page with trending section
+    // Immediately show the page structure with placeholders
     mainContent.innerHTML = `
-                ${trendingHTML}
-                <h2 style="margin-bottom: 1.5rem;">Latest Videos</h2>
-                <div class="video-grid" id="videoGrid">
-                    <div class="spinner"></div>
+        <div class="trending-section" id="trendingSection">
+            <div class="trending-header">
+                <h2>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.48,12.35c-1.57-4.08-7.16-4.3-5.81-10.23c0.1-0.44-0.37-0.78-0.75-0.55C9.29,3.71,6.68,8,8.87,13.62 c0.18,0.46-0.36,0.89-0.75,0.59c-1.81-1.37-2-3.34-1.84-4.75c0.06-0.52-0.62-0.77-0.91-0.34C4.69,10.16,4,11.84,4,14.37 c0.38,5.6,5.11,7.32,6.81,7.54c2.43,0.31,5.06-0.14,6.95-1.87C19.84,18.11,20.6,15.03,19.48,12.35z"/>
+                    </svg>
+                    Trending
+                </h2>
+                <div class="trending-tabs">
+                    <button class="trending-tab ${currentTrendingPeriod === 'today' ? 'active' : ''}" 
+                            onclick="switchTrendingPeriod('today')">Today</button>
+                    <button class="trending-tab ${currentTrendingPeriod === 'week' ? 'active' : ''}" 
+                            onclick="switchTrendingPeriod('week')">This Week</button>
                 </div>
-            `;
+            </div>
+            <div class="trending-grid" id="trendingGrid">
+                <div class="spinner"></div>
+            </div>
+        </div>
+        <hr class="section-divider">
+        <h2 style="margin-bottom: 1.5rem;">Latest Videos</h2>
+        <div class="video-grid" id="videoGrid">
+            <div class="spinner"></div>
+        </div>
+    `;
 
-    // Load latest videos using the streaming approach
+    // Load trending videos in the background
+    loadTrendingSection();
+
+    // Immediately start loading latest videos
     const filter = {
         kinds: [30023],
         limit: 50,
@@ -1961,6 +1982,64 @@ async function loadHomeFeed() {
     });
 }
 
+// Function to load trending section asynchronously
+async function loadTrendingSection() {
+    const trendingGrid = document.getElementById('trendingGrid');
+    let hasRendered = false;
+    
+    try {
+        // Start loading trending videos
+        const trendingPromise = loadTrendingVideos(currentTrendingPeriod);
+        
+        // Check for early results every 500ms
+        const checkInterval = setInterval(async () => {
+            // Try to get current state without blocking
+            const trendingVideos = await Promise.race([
+                trendingPromise,
+                new Promise(resolve => setTimeout(() => resolve(null), 10))
+            ]);
+            
+            if (trendingVideos && trendingVideos.length > 0 && !hasRendered) {
+                hasRendered = true;
+                clearInterval(checkInterval);
+                await renderTrendingVideos(trendingVideos);
+            }
+        }, 500);
+        
+        // Wait for final results
+        const trendingVideos = await trendingPromise;
+        clearInterval(checkInterval);
+        
+        if (trendingVideos.length > 0) {
+            await renderTrendingVideos(trendingVideos);
+        } else if (!hasRendered) {
+            trendingGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No trending videos found.</p>';
+        }
+    } catch (error) {
+        console.error('Failed to load trending videos:', error);
+        const trendingSection = document.getElementById('trendingSection');
+        if (trendingSection) {
+            trendingSection.style.display = 'none';
+        }
+    }
+}
+
+// Helper function to render trending videos
+async function renderTrendingVideos(trendingVideos) {
+    const trendingGrid = document.getElementById('trendingGrid');
+    
+    // Load profiles for trending videos
+    const trendingPubkeys = [...new Set(trendingVideos.map(v => v.pubkey))];
+    await loadUserProfiles(trendingPubkeys);
+    
+    // Render trending videos
+    trendingGrid.innerHTML = trendingVideos.map((event, index) => {
+        const profile = profileCache.get(event.pubkey);
+        const reactions = reactionsCache.get(event.id);
+        return createVideoCard(event, profile, reactions, true, index + 1);
+    }).join('');
+}
+
 // Function to switch trending period
 async function switchTrendingPeriod(period) {
     currentTrendingPeriod = period;
@@ -1971,28 +2050,14 @@ async function switchTrendingPeriod(period) {
     });
     event.target.classList.add('active');
 
-    // Reload trending videos
-    const trendingVideos = await loadTrendingVideos(period);
-
-    // Load profiles for trending videos
-    if (trendingVideos.length > 0) {
-        const trendingPubkeys = [...new Set(trendingVideos.map(v => v.pubkey))];
-        await loadUserProfiles(trendingPubkeys);
-    }
-
-    // Update trending grid
+    // Show spinner while loading
     const trendingGrid = document.querySelector('.trending-grid');
     if (trendingGrid) {
-        if (trendingVideos.length > 0) {
-            trendingGrid.innerHTML = trendingVideos.map((event, index) => {
-                const profile = profileCache.get(event.pubkey);
-                const reactions = reactionsCache.get(event.id);
-                return createVideoCard(event, profile, reactions, true, index + 1);
-            }).join('');
-        } else {
-            trendingGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No trending videos found for this period.</p>';
-        }
+        trendingGrid.innerHTML = '<div class="spinner"></div>';
     }
+
+    // Load trending section with new period
+    await loadTrendingSection();
 }
 
 // Load subscriptions
