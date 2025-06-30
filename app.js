@@ -2698,6 +2698,30 @@ function updateSidebarActive() {
     });
 }
 
+// Function to fetch a single video event and return immediately when found
+async function fetchVideoEvent(eventId) {
+    return new Promise((resolve) => {
+        let found = false;
+        const filter = {
+            ids: [eventId]
+        };
+
+        requestEventsStream(filter, (event) => {
+            // Return immediately on first match
+            if (!found && event.id === eventId) {
+                found = true;
+                allEvents.set(event.id, event);
+                resolve(event);
+            }
+        }, () => {
+            // If no event found after all relays complete
+            if (!found) {
+                resolve(null);
+            }
+        });
+    });
+}
+
 // Play video
 async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = false) {
     const mainContent = document.getElementById('mainContent');
@@ -2708,18 +2732,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         let event = allEvents.get(eventId);
 
         if (!event) {
-            const filter = {
-                ids: [eventId]
-            };
-
-            await new Promise((resolve) => {
-                requestEventsStream(filter, (e) => {
-                    if (!event) {
-                        event = e;
-                        allEvents.set(e.id, e);
-                    }
-                }, resolve);
-            });
+            // Use the new fetchVideoEvent function that returns immediately
+            event = await fetchVideoEvent(eventId);
         }
 
         if (!event) {
@@ -2733,19 +2747,21 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             return;
         }
 
-        // Load reactions
-        const reactions = (await loadReactionsForVideos([eventId]))[eventId] || { likes: 0, dislikes: 0, userReaction: null };
-        const isRatioed = isVideoRatioed(reactions);
-
-        // Check NSFW status
+        // Start loading reactions in parallel but don't wait
+        const reactionsPromise = loadReactionsForVideos([eventId]).then(r => r[eventId] || { likes: 0, dislikes: 0, userReaction: null });
+        
+        // Check NSFW status immediately
         const isNSFW = isVideoNSFW(event);
         if (!skipNSFWCheck && isNSFW && !shouldShowNSFW()) {
             showNSFWModal('playVideo', eventId);
             return;
         }
 
-        // Check ratioed status
-        if (!skipRatioedCheck && isRatioed && !sessionRatioedAllowed.has(eventId)) {
+        // For initial ratioed check, use cached reactions or default to not ratioed
+        const cachedReactions = reactionsCache.get(eventId) || { likes: 0, dislikes: 0 };
+        const isCachedRatioed = isVideoRatioed(cachedReactions);
+        
+        if (!skipRatioedCheck && isCachedRatioed && !sessionRatioedAllowed.has(eventId)) {
             showRatioedModal(eventId);
             return;
         }
@@ -2757,11 +2773,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         document.querySelector('meta[property="og:title"]').content = `${videoData.title} - Plebs`;
         document.querySelector('meta[property="og:description"]').content = metaDescription;
 
-        // Load author profile
-        const profile = await loadUserProfile(event.pubkey);
-        const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
-        const avatarUrl = profile?.picture || profile?.avatar || '';
-        const nip05 = profile?.nip05 || '';
+        // Start loading author profile in parallel
+        const profilePromise = loadUserProfile(event.pubkey);
 
         // Convert pubkey to npub
         const authorNpub = window.NostrTools.nip19.npubEncode(event.pubkey);
@@ -2769,105 +2782,112 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         // Try to get working video URL
         const videoUrl = await getVideoUrl(videoData.hash) || videoData.url;
 
-        // Load zaps for the video
-        const zapData = await loadZapsForVideo(eventId);
+        // Start loading zaps in parallel
+        const zapPromise = loadZapsForVideo(eventId);
 
         // Create naddr for comments
         const naddr = createNaddr(event);
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
 
+        // Wait for profile (usually fast if cached)
+        const profile = await profilePromise;
+        const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
+        const avatarUrl = profile?.picture || profile?.avatar || '';
+        const nip05 = profile?.nip05 || '';
+
+        // Initial render with placeholder reaction/zap data
         mainContent.innerHTML = `
-                    <div class="video-player-container">
-                        <div class="video-player">
-                            <video controls>
-                                <source src="${videoUrl}" type="video/mp4">
-                                <source src="${videoUrl}" type="video/webm">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                        <div class="video-details">
-                            <h1>${videoData.title}</h1>
-                            <div class="video-meta">
-                                ${formatTimestamp(event.created_at)}
-                                ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
-                                ${isRatioed ? ' • <span style="color: #ff9800;">Community Warning</span>' : ''}
+            <div class="video-player-container">
+                <div class="video-player">
+                    <video controls>
+                        <source src="${videoUrl}" type="video/mp4">
+                        <source src="${videoUrl}" type="video/webm">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+                <div class="video-details">
+                    <h1>${videoData.title}</h1>
+                    <div class="video-meta">
+                        ${formatTimestamp(event.created_at)}
+                        ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
+                        <span class="ratioed-indicator" style="display: none;"> • <span style="color: #ff9800;">Community Warning</span></span>
+                    </div>
+                    <div class="video-channel-info">
+                        <a href="#/profile/${event.pubkey}" class="channel-info" style="text-decoration: none;">
+                            <div class="channel-avatar">
+                                ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}">` : ''}
                             </div>
-                            <div class="video-channel-info">
-                                <a href="#/profile/${event.pubkey}" class="channel-info" style="text-decoration: none;">
-                                    <div class="channel-avatar">
-                                        ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}">` : ''}
-                                    </div>
-                                    <div class="channel-details">
-                                        <div class="channel-name">${displayName}</div>
-                                        ${nip05 ? `<div class="channel-nip05">${nip05}</div>` : ''}
-                                    </div>
-                                </a>
+                            <div class="channel-details">
+                                <div class="channel-name">${displayName}</div>
+                                ${nip05 ? `<div class="channel-nip05">${nip05}</div>` : ''}
                             </div>
-                            <div class="video-actions">
-                                <button class="action-btn like ${reactions.userReaction === 'like' ? 'active' : ''}" 
-                                        onclick="handleLike('${event.id}')"
-                                        ${currentUser ? '' : 'disabled'}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-                                    </svg>
-                                    <span class="count">${formatNumber(reactions.likes)}</span>
-                                </button>
-                                <button class="action-btn dislike ${reactions.userReaction === 'dislike' ? 'active' : ''}" 
-                                        onclick="handleDislike('${event.id}')"
-                                        ${currentUser ? '' : 'disabled'}>
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
-                                    </svg>
-                                    <span class="count">${formatNumber(reactions.dislikes)}</span>
-                                </button>
-                                <button class="action-btn zap ${zapData.totalZaps > 0 ? 'active' : ''}"
-                                        onclick="handleZap('${authorNpub}', 1000, '${event.id}')">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
-                                    </svg>
-                                    <span class="count">${zapData.totalZaps > 0 ? formatSats(zapData.totalZaps) : 'Zap'}</span>
-                                </button>
-                                <button class="action-btn" onclick="shareVideo('${event.id}')">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
-                                    </svg>
-                                    Share
-                                </button>
-                                ${currentUser && currentUser.pubkey === event.pubkey ? `
-                                    <button class="action-btn delete" onclick="handleDelete('${event.id}')">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
-                                        </svg>
-                                        Delete
-                                    </button>
-                                ` : ''}
-                            </div>
-                            
-                            <div style="margin-top: 1.5rem;">
-                                <h3>Description</h3>
-                                <p style="white-space: pre-wrap; margin-top: 0.5rem;">${videoData.description}</p>
-                            </div>
-                            ${videoData.tags.length > 0 ? `
-                                <div class="tags">
-                                    ${videoData.tags.map(tag => `<span class="tag" onclick="navigateTo('/tag/${tag}')">#${tag}</span>`).join('')}
-                                </div>
-                            ` : ''}
-                        </div>
-                        
-                        ${naddr ? `
-                            <div class="comments-section">
-                                <h3>Comments</h3>
-                                <zap-threads
-                                    anchor="${naddr}"
-                                    ${userNpub ? `user="${userNpub}"` : ''}
-                                    author="${authorNpub}"
-                                    relays="${RELAY_URLS.join(',')}"
-                                    disable="likes"
-                                ></zap-threads>
-                            </div>
+                        </a>
+                    </div>
+                    <div class="video-actions">
+                        <button class="action-btn like" 
+                                onclick="handleLike('${event.id}')"
+                                ${currentUser ? '' : 'disabled'}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                            </svg>
+                            <span class="count">-</span>
+                        </button>
+                        <button class="action-btn dislike" 
+                                onclick="handleDislike('${event.id}')"
+                                ${currentUser ? '' : 'disabled'}>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                            </svg>
+                            <span class="count">-</span>
+                        </button>
+                        <button class="action-btn zap"
+                                onclick="handleZap('${authorNpub}', 1000, '${event.id}')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+                            </svg>
+                            <span class="count">Zap</span>
+                        </button>
+                        <button class="action-btn" onclick="shareVideo('${event.id}')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
+                            </svg>
+                            Share
+                        </button>
+                        ${currentUser && currentUser.pubkey === event.pubkey ? `
+                            <button class="action-btn delete" onclick="handleDelete('${event.id}')">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                </svg>
+                                Delete
+                            </button>
                         ` : ''}
                     </div>
-                `;
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <h3>Description</h3>
+                        <p style="white-space: pre-wrap; margin-top: 0.5rem;">${videoData.description}</p>
+                    </div>
+                    ${videoData.tags.length > 0 ? `
+                        <div class="tags">
+                            ${videoData.tags.map(tag => `<span class="tag" onclick="navigateTo('/tag/${tag}')">#${tag}</span>`).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+                
+                ${naddr ? `
+                    <div class="comments-section">
+                        <h3>Comments</h3>
+                        <zap-threads
+                            anchor="${naddr}"
+                            ${userNpub ? `user="${userNpub}"` : ''}
+                            author="${authorNpub}"
+                            relays="${RELAY_URLS.join(',')}"
+                            disable="likes"
+                        ></zap-threads>
+                    </div>
+                ` : ''}
+            </div>
+        `;
 
         // Handle video error with fallback
         const video = mainContent.querySelector('video');
@@ -2879,6 +2899,30 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                 mainContent.innerHTML = '<div class="error-message">Failed to load video. The file may have been removed.</div>';
             }
         };
+
+        // Update reactions when they arrive
+        reactionsPromise.then(reactions => {
+            updateReactionButtons(eventId, reactions);
+            
+            // Check if video became ratioed after loading full reactions
+            const isRatioed = isVideoRatioed(reactions);
+            if (isRatioed && !skipRatioedCheck && !sessionRatioedAllowed.has(eventId)) {
+                // Update the indicator
+                const indicator = mainContent.querySelector('.ratioed-indicator');
+                if (indicator) {
+                    indicator.style.display = 'inline';
+                }
+            }
+            
+            // Cache the reactions
+            reactionsCache.set(eventId, reactions);
+        }).catch(console.error);
+
+        // Update zaps when they arrive
+        zapPromise.then(zapData => {
+            updateZapButton(eventId, zapData.totalZaps);
+        }).catch(console.error);
+
     } catch (error) {
         console.error('Failed to play video:', error);
         mainContent.innerHTML = '<div class="error-message">Failed to load video. Please try again.</div>';
