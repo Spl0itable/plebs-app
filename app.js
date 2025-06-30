@@ -1303,17 +1303,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         handleRoute();
     });
 
-    // Check if already logged in
-    if (window.nostr) {
-        try {
-            const pubkey = await window.nostr.getPublicKey();
-            currentUser = { pubkey };
-            console.log('User already logged in:', pubkey);
-        } catch (e) {
-            console.log('No user logged in');
-        }
-    }
-
     // Handle hash changes
     window.addEventListener('hashchange', handleRoute);
 
