@@ -592,7 +592,8 @@ function showZapSuccess(amount) {
 
 // Update the video player zap button
 function updateZapButton(eventId, totalZaps) {
-    const zapBtn = document.querySelector('.action-btn.zap');
+    // Find the zap button using data attribute
+    const zapBtn = document.querySelector(`.action-btn.zap[data-event-id="${eventId}"]`);
     if (zapBtn) {
         zapBtn.querySelector('.count').textContent = totalZaps > 0 ? formatSats(totalZaps) : 'Zap';
         // Add active class if zapped
@@ -987,7 +988,7 @@ async function displayVideosStream(title, filter) {
 }
 
 // Load reactions for videos (non-streaming version for playVideo)
-async function loadReactionsForVideos(videoIds) {
+async function loadReactionsForVideos(videoIds, onUpdate = null) {
     const filter = {
         kinds: [7],
         '#e': videoIds
@@ -1001,7 +1002,7 @@ async function loadReactionsForVideos(videoIds) {
         userReactions.set(id, new Map());
     });
 
-    await new Promise((resolve) => {
+    return new Promise((resolve) => {
         requestEventsStream(filter, (event) => {
             const videoId = event.tags.find(tag => tag[0] === 'e')?.[1];
             if (videoId && videoIds.includes(videoId)) {
@@ -1016,45 +1017,64 @@ async function loadReactionsForVideos(videoIds) {
                         reaction: event.content,
                         timestamp: timestamp
                     });
+
+                    // Calculate current reactions for this video
+                    const reactions = { likes: 0, dislikes: 0, userReaction: null };
+                    videoReactionMap.forEach((data, pubkey) => {
+                        if (data.reaction === '👍') {
+                            reactions.likes++;
+                            if (currentUser && pubkey === currentUser.pubkey) {
+                                reactions.userReaction = 'like';
+                            }
+                        } else if (data.reaction === '👎') {
+                            reactions.dislikes++;
+                            if (currentUser && pubkey === currentUser.pubkey) {
+                                reactions.userReaction = 'dislike';
+                            }
+                        }
+                    });
+
+                    // Update cache
+                    reactionsCache.set(videoId, reactions);
+
+                    // Call update callback if provided
+                    if (onUpdate) {
+                        onUpdate(videoId, reactions);
+                    }
                 }
             }
         }, () => {
-            // All events received
-            resolve();
+            // All events received - final calculation
+            const reactions = {};
+            videoIds.forEach(id => {
+                reactions[id] = { likes: 0, dislikes: 0, userReaction: null };
+
+                const videoReactionMap = userReactions.get(id);
+                videoReactionMap.forEach((data, userPubkey) => {
+                    if (data.reaction === '👍') {
+                        reactions[id].likes++;
+                        if (currentUser && userPubkey === currentUser.pubkey) {
+                            reactions[id].userReaction = 'like';
+                        }
+                    } else if (data.reaction === '👎') {
+                        reactions[id].dislikes++;
+                        if (currentUser && userPubkey === currentUser.pubkey) {
+                            reactions[id].userReaction = 'dislike';
+                        }
+                    }
+                });
+
+                // Update cache with final values
+                reactionsCache.set(id, reactions[id]);
+            });
+
+            resolve(reactions);
         });
     });
-
-    // Count unique reactions
-    const reactions = {};
-    videoIds.forEach(id => {
-        reactions[id] = { likes: 0, dislikes: 0, userReaction: null };
-
-        const videoReactionMap = userReactions.get(id);
-        videoReactionMap.forEach((data, userPubkey) => {
-            if (data.reaction === '👍') {
-                reactions[id].likes++;
-                if (currentUser && userPubkey === currentUser.pubkey) {
-                    reactions[id].userReaction = 'like';
-                }
-            } else if (data.reaction === '👎') {
-                reactions[id].dislikes++;
-                if (currentUser && userPubkey === currentUser.pubkey) {
-                    reactions[id].userReaction = 'dislike';
-                }
-            }
-        });
-    });
-
-    // Update cache
-    Object.entries(reactions).forEach(([videoId, data]) => {
-        reactionsCache.set(videoId, data);
-    });
-
-    return reactions;
 }
 
 // Load zaps for videos
-async function loadZapsForVideo(eventId) {
+async function loadZapsForVideo(eventId, onUpdate = null) {
     const filter = {
         kinds: [9735], // Zap receipts
         '#e': [eventId]
@@ -1063,7 +1083,7 @@ async function loadZapsForVideo(eventId) {
     let totalZaps = 0;
     const zaps = [];
 
-    await new Promise((resolve) => {
+    return new Promise((resolve) => {
         requestEventsStream(filter, (event) => {
             try {
                 // Extract zap amount from bolt11 tag
@@ -1074,15 +1094,20 @@ async function loadZapsForVideo(eventId) {
                     if (amount > 0) {
                         totalZaps += amount;
                         zaps.push({ amount, event });
+
+                        // Call update callback if provided
+                        if (onUpdate) {
+                            onUpdate(totalZaps, zaps.length);
+                        }
                     }
                 }
             } catch (e) {
                 console.error('Failed to parse zap:', e);
             }
-        }, resolve);
+        }, () => {
+            resolve({ totalZaps, zaps, count: zaps.length });
+        });
     });
-
-    return { totalZaps, zaps, count: zaps.length };
 }
 
 // Extract amount from bolt11 invoice
@@ -1591,7 +1616,7 @@ async function loadTrendingVideos(period = 'today') {
         // Process and return trending videos
         const processTrending = () => {
             trendingVideos = [];
-            
+
             videoEvents.forEach(event => {
                 const reactions = { likes: 0, dislikes: 0 };
                 const videoReactions = globalReactions.get(event.id);
@@ -1632,10 +1657,10 @@ async function loadTrendingVideos(period = 'today') {
                 const scoreB = videoScores.get(b.id) || 0;
                 return scoreB - scoreA;
             });
-            
+
             // Limit to top 12
             trendingVideos = trendingVideos.slice(0, 12);
-            
+
             // If both streams are complete, resolve
             if (videosComplete && reactionsComplete) {
                 resolve(trendingVideos);
@@ -1649,14 +1674,14 @@ async function loadTrendingVideos(period = 'today') {
                 resolve([]);
                 return;
             }
-            
+
             const videoIds = videoEvents.map(e => e.id);
             const reactionFilter = {
                 kinds: [7],
                 '#e': videoIds,
                 since: since
             };
-            
+
             requestEventsStream(reactionFilter, (reactionEvent) => {
                 const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
                 if (videoId && videoIds.includes(videoId)) {
@@ -1690,7 +1715,7 @@ async function loadTrendingVideos(period = 'today') {
                 processedVideos.add(event.id);
                 videoEvents.push(event);
                 allEvents.set(event.id, event);
-                
+
                 // Start loading reactions after we have 5 videos
                 if (videoEvents.length === 5 && !hasStartedReactions) {
                     hasStartedReactions = true;
@@ -1700,7 +1725,7 @@ async function loadTrendingVideos(period = 'today') {
         }, () => {
             // Videos complete
             videosComplete = true;
-            
+
             // Start loading reactions if not started yet
             if (!hasStartedReactions) {
                 hasStartedReactions = true;
@@ -1986,11 +2011,11 @@ async function loadHomeFeed() {
 async function loadTrendingSection() {
     const trendingGrid = document.getElementById('trendingGrid');
     let hasRendered = false;
-    
+
     try {
         // Start loading trending videos
         const trendingPromise = loadTrendingVideos(currentTrendingPeriod);
-        
+
         // Check for early results every 500ms
         const checkInterval = setInterval(async () => {
             // Try to get current state without blocking
@@ -1998,18 +2023,18 @@ async function loadTrendingSection() {
                 trendingPromise,
                 new Promise(resolve => setTimeout(() => resolve(null), 10))
             ]);
-            
+
             if (trendingVideos && trendingVideos.length > 0 && !hasRendered) {
                 hasRendered = true;
                 clearInterval(checkInterval);
                 await renderTrendingVideos(trendingVideos);
             }
         }, 500);
-        
+
         // Wait for final results
         const trendingVideos = await trendingPromise;
         clearInterval(checkInterval);
-        
+
         if (trendingVideos.length > 0) {
             await renderTrendingVideos(trendingVideos);
         } else if (!hasRendered) {
@@ -2027,11 +2052,11 @@ async function loadTrendingSection() {
 // Helper function to render trending videos
 async function renderTrendingVideos(trendingVideos) {
     const trendingGrid = document.getElementById('trendingGrid');
-    
+
     // Load profiles for trending videos
     const trendingPubkeys = [...new Set(trendingVideos.map(v => v.pubkey))];
     await loadUserProfiles(trendingPubkeys);
-    
+
     // Render trending videos
     trendingGrid.innerHTML = trendingVideos.map((event, index) => {
         const profile = profileCache.get(event.pubkey);
@@ -2747,9 +2772,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             return;
         }
 
-        // Start loading reactions in parallel but don't wait
-        const reactionsPromise = loadReactionsForVideos([eventId]).then(r => r[eventId] || { likes: 0, dislikes: 0, userReaction: null });
-        
         // Check NSFW status immediately
         const isNSFW = isVideoNSFW(event);
         if (!skipNSFWCheck && isNSFW && !shouldShowNSFW()) {
@@ -2760,7 +2782,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         // For initial ratioed check, use cached reactions or default to not ratioed
         const cachedReactions = reactionsCache.get(eventId) || { likes: 0, dislikes: 0 };
         const isCachedRatioed = isVideoRatioed(cachedReactions);
-        
+
         if (!skipRatioedCheck && isCachedRatioed && !sessionRatioedAllowed.has(eventId)) {
             showRatioedModal(eventId);
             return;
@@ -2782,9 +2804,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         // Try to get working video URL
         const videoUrl = await getVideoUrl(videoData.hash) || videoData.url;
 
-        // Start loading zaps in parallel
-        const zapPromise = loadZapsForVideo(eventId);
-
         // Create naddr for comments
         const naddr = createNaddr(event);
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
@@ -2795,7 +2814,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const avatarUrl = profile?.picture || profile?.avatar || '';
         const nip05 = profile?.nip05 || '';
 
-        // Initial render with placeholder reaction/zap data
+        // Initial render with cached or default reaction/zap data
         mainContent.innerHTML = `
             <div class="video-player-container">
                 <div class="video-player">
@@ -2823,25 +2842,28 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             </div>
                         </a>
                     </div>
-                    <div class="video-actions">
-                        <button class="action-btn like" 
+                    <div class="video-actions" id="video-actions-${eventId}">
+                        <button class="action-btn like ${cachedReactions.userReaction === 'like' ? 'active' : ''}" 
                                 onclick="handleLike('${event.id}')"
-                                ${currentUser ? '' : 'disabled'}>
+                                ${currentUser ? '' : 'disabled'}
+                                data-event-id="${event.id}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
                             </svg>
-                            <span class="count">-</span>
+                            <span class="count">${formatNumber(cachedReactions.likes || 0)}</span>
                         </button>
-                        <button class="action-btn dislike" 
+                        <button class="action-btn dislike ${cachedReactions.userReaction === 'dislike' ? 'active' : ''}" 
                                 onclick="handleDislike('${event.id}')"
-                                ${currentUser ? '' : 'disabled'}>
+                                ${currentUser ? '' : 'disabled'}
+                                data-event-id="${event.id}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
                             </svg>
-                            <span class="count">-</span>
+                            <span class="count">${formatNumber(cachedReactions.dislikes || 0)}</span>
                         </button>
                         <button class="action-btn zap"
-                                onclick="handleZap('${authorNpub}', 1000, '${event.id}')">
+                                onclick="handleZap('${authorNpub}', 1000, '${event.id}')"
+                                data-event-id="${event.id}">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
                             </svg>
@@ -2900,28 +2922,26 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             }
         };
 
-        // Update reactions when they arrive
-        reactionsPromise.then(reactions => {
-            updateReactionButtons(eventId, reactions);
-            
-            // Check if video became ratioed after loading full reactions
+        // Load reactions with streaming updates
+        loadReactionsForVideos([eventId], (videoId, reactions) => {
+            // Update UI immediately when reactions come in
+            updateReactionButtons(videoId, reactions);
+
+            // Check if video became ratioed
             const isRatioed = isVideoRatioed(reactions);
             if (isRatioed && !skipRatioedCheck && !sessionRatioedAllowed.has(eventId)) {
-                // Update the indicator
                 const indicator = mainContent.querySelector('.ratioed-indicator');
                 if (indicator) {
                     indicator.style.display = 'inline';
                 }
             }
-            
-            // Cache the reactions
-            reactionsCache.set(eventId, reactions);
-        }).catch(console.error);
+        });
 
-        // Update zaps when they arrive
-        zapPromise.then(zapData => {
-            updateZapButton(eventId, zapData.totalZaps);
-        }).catch(console.error);
+        // Load zaps with streaming updates
+        loadZapsForVideo(eventId, (totalZaps, count) => {
+            // Update zap button immediately when zaps come in
+            updateZapButton(eventId, totalZaps);
+        });
 
     } catch (error) {
         console.error('Failed to play video:', error);
@@ -2951,13 +2971,14 @@ async function handleDislike(eventId) {
 
 // Update reaction buttons UI
 function updateReactionButtons(eventId, reactions) {
-    const likeBtn = document.querySelector('.action-btn.like');
-    const dislikeBtn = document.querySelector('.action-btn.dislike');
+    // Use data attributes to find the correct buttons
+    const likeBtn = document.querySelector(`.action-btn.like[data-event-id="${eventId}"]`);
+    const dislikeBtn = document.querySelector(`.action-btn.dislike[data-event-id="${eventId}"]`);
 
     if (likeBtn && dislikeBtn) {
         // Update counts with formatting
-        likeBtn.querySelector('.count').textContent = formatNumber(reactions.likes);
-        dislikeBtn.querySelector('.count').textContent = formatNumber(reactions.dislikes);
+        likeBtn.querySelector('.count').textContent = formatNumber(reactions.likes || 0);
+        dislikeBtn.querySelector('.count').textContent = formatNumber(reactions.dislikes || 0);
 
         // Update active states
         likeBtn.classList.toggle('active', reactions.userReaction === 'like');
