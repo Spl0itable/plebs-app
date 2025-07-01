@@ -1199,35 +1199,46 @@ async function sendReaction(eventId, reaction) {
     return false;
 }
 
-// Load user profile
-async function loadUserProfile(pubkey) {
+// Function to fetch a single profile and return immediately when found
+async function fetchUserProfile(pubkey) {
     // Check cache first
     if (profileCache.has(pubkey)) {
         return profileCache.get(pubkey);
     }
 
-    // Request profile from relays
-    const filter = {
-        kinds: [0],
-        authors: [pubkey],
-        limit: 1
-    };
+    return new Promise((resolve) => {
+        let found = false;
+        const filter = {
+            kinds: [0],
+            authors: [pubkey],
+            limit: 1
+        };
 
-    let profile = null;
-    await new Promise((resolve) => {
         requestEventsStream(filter, (event) => {
-            if (!profile) {
+            // Return immediately on first match
+            if (!found && event.pubkey === pubkey) {
+                found = true;
                 try {
-                    profile = JSON.parse(event.content);
+                    const profile = JSON.parse(event.content);
                     profileCache.set(event.pubkey, profile);
+                    resolve(profile);
                 } catch (e) {
                     console.error('Failed to parse profile:', e);
+                    resolve(null);
                 }
             }
-        }, resolve);
+        }, () => {
+            // If no profile found after all relays complete
+            if (!found) {
+                resolve(null);
+            }
+        });
     });
+}
 
-    return profile;
+// Load user profile
+async function loadUserProfile(pubkey) {
+    return fetchUserProfile(pubkey);
 }
 
 // Load multiple user profiles
@@ -2356,8 +2367,8 @@ async function loadProfile(pubkey) {
     mainContent.innerHTML = '<div class="spinner"></div>';
 
     try {
-        // Load profile
-        const profile = await loadUserProfile(pubkey);
+        // Load profile using the new streaming function
+        const profile = await fetchUserProfile(pubkey);
         const displayName = profile?.name || profile?.display_name || `User ${pubkey.slice(0, 8)}`;
         const avatarUrl = profile?.picture || profile?.avatar || '';
         const nip05 = profile?.nip05 || '';
@@ -2373,71 +2384,141 @@ async function loadProfile(pubkey) {
         // Convert pubkey to npub
         const npub = window.NostrTools.nip19.npubEncode(pubkey);
 
-        // Load user's videos using streaming with proper completion
+        // Check following status in parallel
+        const isFollowingPromise = isFollowing(pubkey);
+        const isOwnProfile = currentUser && currentUser.pubkey === pubkey;
+
+        // Show profile header immediately
+        mainContent.innerHTML = `
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}">` : ''}
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name">${displayName}</h1>
+                    ${nip05 ? `<div class="profile-nip05">${nip05}</div>` : ''}
+                    ${about ? `<div class="profile-bio">${about}</div>` : ''}
+                </div>
+                <div class="profile-actions" id="profile-actions-${pubkey}">
+                    <button class="profile-zap-btn" 
+                            onclick="handleZap('${npub}', 1000)">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+                        </svg>
+                        Zap
+                    </button>
+                </div>
+            </div>
+            <h2 style="margin-bottom: 1.5rem;">Videos</h2>
+            <div class="video-grid" id="profileVideoGrid">
+                <div class="spinner"></div>
+            </div>
+        `;
+
+        // Update follow button when status is determined
+        isFollowingPromise.then(isFollowingUser => {
+            const actionsDiv = document.getElementById(`profile-actions-${pubkey}`);
+            if (actionsDiv && !isOwnProfile && currentUser) {
+                const followBtn = document.createElement('button');
+                followBtn.className = `profile-follow-btn ${isFollowingUser ? 'following' : ''}`;
+                followBtn.onclick = () => handleFollow(pubkey, isFollowingUser);
+                followBtn.textContent = isFollowingUser ? 'Unfollow' : 'Follow';
+                actionsDiv.insertBefore(followBtn, actionsDiv.firstChild);
+            }
+        });
+
+        // Load videos with streaming
         const filter = {
             kinds: [30023],
             authors: [pubkey],
             '#t': ['video']
         };
 
+        const videoGrid = document.getElementById('profileVideoGrid');
         const videoEvents = [];
+        const reactionQueue = new Set();
+        let reactionTimer = null;
 
-        await new Promise((resolve) => {
-            requestEventsStream(filter, (event) => {
-                // Check if it's a video event
-                const tags = event.tags || [];
-                if (tags.some(tag => tag[0] === 'x')) {
-                    videoEvents.push(event);
+        // Handle incoming video events
+        await requestEventsStream(filter, (event) => {
+            // Check if it's a video event
+            const tags = event.tags || [];
+            if (!tags.some(tag => tag[0] === 'x')) return;
+
+            videoEvents.push(event);
+            allEvents.set(event.id, event);
+
+            // Remove spinner on first video
+            const spinner = videoGrid.querySelector('.spinner');
+            if (spinner) spinner.remove();
+
+            // Render video card immediately
+            const cachedReactions = reactionsCache.get(event.id);
+            const cardHTML = createVideoCard(event, profile, cachedReactions);
+
+            // Insert in correct position (newest first)
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = cardHTML;
+
+            if (tempDiv.firstElementChild) {
+                let inserted = false;
+                const existingCards = videoGrid.querySelectorAll('.video-card');
+
+                for (let i = 0; i < existingCards.length; i++) {
+                    const cardEvent = videoEvents.find(e =>
+                        existingCards[i].innerHTML.includes(e.id)
+                    );
+                    if (cardEvent && event.created_at > cardEvent.created_at) {
+                        existingCards[i].parentNode.insertBefore(tempDiv.firstElementChild, existingCards[i]);
+                        inserted = true;
+                        break;
+                    }
                 }
-            }, () => {
-                // All events have been received
-                resolve();
-            });
+
+                if (!inserted) {
+                    videoGrid.appendChild(tempDiv.firstElementChild);
+                }
+            }
+
+            // Queue reaction load
+            reactionQueue.add(event.id);
+            clearTimeout(reactionTimer);
+            reactionTimer = setTimeout(async () => {
+                if (reactionQueue.size > 0) {
+                    const videoIds = Array.from(reactionQueue);
+                    reactionQueue.clear();
+
+                    await loadReactionsForVideos(videoIds, (videoId, reactions) => {
+                        // Update the specific video card
+                        const updatedCard = createVideoCard(
+                            videoEvents.find(e => e.id === videoId),
+                            profile,
+                            reactions
+                        );
+
+                        // Find and replace the card
+                        const cards = videoGrid.querySelectorAll('.video-card');
+                        for (const card of cards) {
+                            if (card.innerHTML.includes(videoId)) {
+                                const newDiv = document.createElement('div');
+                                newDiv.innerHTML = updatedCard;
+                                if (newDiv.firstElementChild) {
+                                    card.parentNode.replaceChild(newDiv.firstElementChild, card);
+                                }
+                                break;
+                            }
+                        }
+                    });
+                }
+            }, 200);
+
+        }, () => {
+            // All events received
+            if (videoEvents.length === 0) {
+                videoGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No videos uploaded yet.</p>';
+            }
         });
 
-        // Sort by timestamp, newest first
-        videoEvents.sort((a, b) => b.created_at - a.created_at);
-
-        // Load reactions for videos
-        const videoIds = videoEvents.map(event => event.id);
-        const reactions = videoIds.length > 0 ? await loadReactionsForVideos(videoIds) : {};
-        const isFollowingUser = await isFollowing(pubkey);
-        const isOwnProfile = currentUser && currentUser.pubkey === pubkey;
-
-        mainContent.innerHTML = `
-                <div class="profile-header">
-                    <div class="profile-avatar">
-                        ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}">` : ''}
-                    </div>
-                    <div class="profile-info">
-                        <h1 class="profile-name">${displayName}</h1>
-                        ${nip05 ? `<div class="profile-nip05">${nip05}</div>` : ''}
-                        ${about ? `<div class="profile-bio">${about}</div>` : ''}
-                    </div>
-                    <div class="profile-actions">
-                        ${!isOwnProfile && currentUser ? `
-                            <button class="profile-follow-btn ${isFollowingUser ? 'following' : ''}" 
-                                    onclick="handleFollow('${pubkey}', ${isFollowingUser})">
-                                ${isFollowingUser ? 'Unfollow' : 'Follow'}
-                            </button>
-                        ` : ''}
-                        <button class="profile-zap-btn" 
-                                onclick="handleZap('${npub}', 1000)">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
-                            </svg>
-                            Zap
-                        </button>
-                    </div>
-                </div>
-                <h2 style="margin-bottom: 1.5rem;">Videos</h2>
-                <div class="video-grid">
-                    ${videoEvents.length > 0 ?
-                videoEvents.map(event => createVideoCard(event, profile, reactions[event.id])).join('') :
-                '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No videos uploaded yet.</p>'
-            }
-                </div>
-            `;
     } catch (error) {
         console.error('Failed to load profile:', error);
         mainContent.innerHTML = '<div class="error-message">Failed to load profile. Please try again.</div>';
