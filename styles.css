@@ -198,16 +198,16 @@ header {
     transition: background-color 0.3s ease;
 }
 
-/* Trending Section */
+/* Trending Section with Carousel */
 .trending-section {
-    margin-bottom: 3rem;
+    position: relative;
 }
 
 .trending-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
 }
 
 .trending-header h2 {
@@ -243,11 +243,93 @@ header {
     border-color: var(--accent);
 }
 
+/* Carousel Container */
+.trending-carousel-container {
+    position: relative;
+    overflow: hidden;
+    padding-top: 4px;
+}
+
 .trending-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    display: flex;
     gap: 1.5rem;
-    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+    scroll-behavior: smooth;
+}
+
+.trending-grid .video-card {
+    flex: 0 0 calc(33.333% - 1rem);
+    max-width: calc(33.333% - 1rem);
+}
+
+/* Carousel Navigation Buttons */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    border: none;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.carousel-btn:hover {
+    background: var(--accent);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.carousel-btn:disabled:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%);
+}
+
+.carousel-btn.prev {
+    left: -20px;
+}
+
+.carousel-btn.next {
+    right: -20px;
+}
+
+.carousel-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Carousel Dots */
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.carousel-dot.active {
+    background: var(--accent);
+    width: 24px;
+    border-radius: 4px;
 }
 
 .trending-badge {
@@ -1014,9 +1096,27 @@ zap-threads {
         height: calc(100vh - var(--header-height, 100px));
     }
 
-    .video-grid,
-    .trending-grid {
+    .video-grid {
         grid-template-columns: 1fr;
+    }
+
+    /* Carousel adjustments for mobile */
+    .trending-grid .video-card {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .carousel-btn {
+        width: 35px;
+        height: 35px;
+    }
+
+    .carousel-btn.prev {
+        left: 10px;
+    }
+
+    .carousel-btn.next {
+        right: 10px;
     }
 
     .header-content {

@@ -608,6 +608,59 @@ function shouldShowNSFW() {
     return localStorage.getItem('allowNSFW') === 'true' || sessionNSFWAllowed;
 }
 
+// Scroll carousel
+function scrollCarousel(direction) {
+    const trendingGrid = document.getElementById('trendingGrid');
+    if (!trendingGrid) return;
+    
+    const currentPage = parseInt(trendingGrid.dataset.currentPage || '0');
+    const totalPages = parseInt(trendingGrid.dataset.totalPages || '1');
+    const itemsPerPage = parseInt(trendingGrid.dataset.itemsPerPage || '3');
+    
+    const newPage = Math.max(0, Math.min(currentPage + direction, totalPages - 1));
+    
+    if (newPage !== currentPage) {
+        goToPage(newPage);
+    }
+}
+
+// Go to specific page
+function goToPage(page) {
+    const trendingGrid = document.getElementById('trendingGrid');
+    const carouselDots = document.getElementById('carouselDots');
+    if (!trendingGrid || !carouselDots) return;
+    
+    const itemsPerPage = parseInt(trendingGrid.dataset.itemsPerPage || '3');
+    const cardWidth = 100 / itemsPerPage;
+    const translateX = -page * 100;
+    
+    trendingGrid.style.transform = `translateX(${translateX}%)`;
+    trendingGrid.dataset.currentPage = page;
+    
+    // Update dots
+    carouselDots.querySelectorAll('.carousel-dot').forEach((dot, index) => {
+        dot.classList.toggle('active', index === page);
+    });
+    
+    // Update buttons
+    updateCarouselButtons();
+}
+
+// Update carousel button states
+function updateCarouselButtons() {
+    const trendingGrid = document.getElementById('trendingGrid');
+    const prevBtn = document.querySelector('.carousel-btn.prev');
+    const nextBtn = document.querySelector('.carousel-btn.next');
+    
+    if (!trendingGrid || !prevBtn || !nextBtn) return;
+    
+    const currentPage = parseInt(trendingGrid.dataset.currentPage || '0');
+    const totalPages = parseInt(trendingGrid.dataset.totalPages || '1');
+    
+    prevBtn.disabled = currentPage === 0;
+    nextBtn.disabled = currentPage === totalPages - 1;
+}
+
 // Calculate if video is ratioed
 function isVideoRatioed(reactions) {
     const likes = reactions.likes || 0;
@@ -1777,8 +1830,21 @@ async function loadHomeFeed() {
                             onclick="switchTrendingPeriod('week')">This Week</button>
                 </div>
             </div>
-            <div class="trending-grid" id="trendingGrid">
-                <div class="spinner"></div>
+            <div class="trending-carousel-container">
+                <button class="carousel-btn prev" onclick="scrollCarousel(-1)" disabled>
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                    </svg>
+                </button>
+                <button class="carousel-btn next" onclick="scrollCarousel(1)">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </button>
+                <div class="trending-grid" id="trendingGrid">
+                    <div class="spinner"></div>
+                </div>
+                <div class="carousel-dots" id="carouselDots"></div>
             </div>
         </div>
         <hr class="section-divider">
@@ -2018,6 +2084,52 @@ async function loadHomeFeed() {
     });
 }
 
+// Initialize carousel functionality
+function initializeCarousel() {
+    const trendingGrid = document.getElementById('trendingGrid');
+    const carouselDots = document.getElementById('carouselDots');
+    const prevBtn = document.querySelector('.carousel-btn.prev');
+    const nextBtn = document.querySelector('.carousel-btn.next');
+    
+    if (!trendingGrid || !carouselDots) return;
+    
+    const cards = trendingGrid.querySelectorAll('.video-card');
+    const totalCards = cards.length;
+    
+    if (totalCards === 0) return;
+    
+    // Calculate items per page based on screen width
+    const itemsPerPage = window.innerWidth <= 768 ? 1 : 3;
+    const totalPages = Math.ceil(totalCards / itemsPerPage);
+    
+    // Create dots
+    carouselDots.innerHTML = '';
+    for (let i = 0; i < totalPages; i++) {
+        const dot = document.createElement('div');
+        dot.className = `carousel-dot ${i === 0 ? 'active' : ''}`;
+        dot.onclick = () => goToPage(i);
+        carouselDots.appendChild(dot);
+    }
+    
+    // Store current page in grid element
+    trendingGrid.dataset.currentPage = '0';
+    trendingGrid.dataset.totalPages = totalPages;
+    trendingGrid.dataset.itemsPerPage = itemsPerPage;
+    
+    // Update button states
+    updateCarouselButtons();
+}
+
+// Handle window resize for carousel
+window.addEventListener('resize', () => {
+    const trendingGrid = document.getElementById('trendingGrid');
+    if (trendingGrid && trendingGrid.querySelector('.video-card')) {
+        initializeCarousel();
+        // Reset to first page on resize
+        goToPage(0);
+    }
+});
+
 // Function to load trending section asynchronously
 async function loadTrendingSection() {
     const trendingGrid = document.getElementById('trendingGrid');
@@ -2074,6 +2186,8 @@ async function renderTrendingVideos(trendingVideos) {
         const reactions = reactionsCache.get(event.id);
         return createVideoCard(event, profile, reactions, true, index + 1);
     }).join('');
+    // Initialize carousel after rendering
+    initializeCarousel();
 }
 
 // Function to switch trending period
