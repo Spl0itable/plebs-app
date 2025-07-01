@@ -260,6 +260,7 @@ header {
 .trending-grid .video-card {
     flex: 0 0 calc(33.333% - 1rem);
     max-width: calc(33.333% - 1rem);
+    min-width: 280px;
 }
 
 /* Carousel Navigation Buttons */
@@ -1102,8 +1103,9 @@ zap-threads {
 
     /* Carousel adjustments for mobile */
     .trending-grid .video-card {
-        flex: 0 0 100%;
-        max-width: 100%;
+        flex: 0 0 calc(100% - 1rem);
+        max-width: calc(100% - 1rem);
+        min-width: unset;
     }
 
     .carousel-btn {
@@ -1179,6 +1181,15 @@ zap-threads {
 }
 
 @media (max-width: 480px) {
+    .trending-grid .video-card {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+    
+    .trending-grid {
+        gap: 0;
+    }
+
     .video-actions .action-btn {
         min-width: calc(33.333% - 0.333rem);
     }
