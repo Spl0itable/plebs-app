@@ -1299,3 +1299,81 @@ zap-threads {
     margin-top: 1rem;
     line-height: 1.6;
 }
+
+/* Notification toggle */
+.notification-toggle {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.notification-toggle:hover {
+  background: var(--border);
+}
+
+/* Notifications Modal */
+.notifications-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1500;
+  padding: 1rem;
+}
+
+.notifications-modal.active {
+  display: flex;
+}
+
+.notifications-modal-content {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+.notifications-list {
+  max-height: 60vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.notification-item {
+  padding: 0.75rem 1rem;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.notification-item:hover {
+  background: var(--bg-secondary);
+}
+
+.notification-item a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.notification-item a:hover {
+  color: var(--text-primary);
+}

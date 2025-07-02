@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plebs - Uncensorable, Decentralized Video Platform</title>
+    <title>Plebs - Decentralized Video Platform</title>
     <meta name="description"
-        content="Plebs is an uncensorable, decentralized video platform powered by the Nostr social protocol">
+        content="Plebs is a censorship-resistant, decentralized video platform powered by the Nostr social protocol">
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="Plebs - Uncensorable, Decentralized Video Platform">
+    <meta property="og:title" content="Watch Uncensorable, Decentralized Videos">
     <meta property="og:description"
-        content="Plebs is an uncensorable, decentralized video platform powered by the Nostr social protocol">
+        content="Plebs is a censorship-resistant, decentralized video platform powered by the Nostr social protocol">
     <meta property="og:image" content="https://plebs.app/images/plebs-og.png">
     <meta property="og:url" content="https://plebs.app">
     <meta property="og:type" content="website">
@@ -68,6 +68,14 @@
                     </svg>
                 </button>
 
+                <button class="notification-toggle" onclick="loadNotifications()" title="Notifications">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                </button>
+
                 <button class="upload-btn" onclick="showUploadModal()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
                         style="display: inline-block; vertical-align: middle;">
@@ -106,6 +114,14 @@
                         d="M3 5v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.11 0-2 .9-2 2zm12 4c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3 3 1.34 3 3zm-9 8c0-2 4-3.1 6-3.1s6 1.1 6 3.1v1H6v-1z" />
                 </svg>
                 My Videos
+            </a>
+            <a href="#/liked" class="sidebar-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
+                    style="display: inline-block; vertical-align: middle; margin-right: 8px;">
+                    <path
+                        d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z" />
+                </svg>
+                Liked
             </a>
             <hr style="border: none; border-top: 1px solid var(--border); margin: 1rem 0;">
             <div style="padding: 0 1rem; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">TAGS
@@ -256,6 +272,19 @@
                     Publish Video
                 </button>
             </form>
+        </div>
+    </div>
+
+    <!-- Notifications Modal -->
+    <div class="notifications-modal" id="notificationsModal">
+        <div class="notifications-modal-content">
+            <div class="modal-header">
+                <h2>Notifications</h2>
+                <button class="close-modal" onclick="hideNotificationsModal()">&times;</button>
+            </div>
+            <div class="notifications-list" id="notificationsList">
+                <div class="spinner"></div>
+            </div>
         </div>
     </div>
 

@@ -35,7 +35,9 @@ Visit the live application at [https://plebs.app](https://plebs.app)
 - **Kind 3**: Contact lists (following)
 - **Kind 5**: Video deletion requests
 - **Kind 7**: Video reactions (likes/dislikes)
-- **Kind 30023**: Long-form video content
+- **Kind 1**: Normal post content
+- **Kind 21**: Normal video content
+- **Kind 34235**: Video event
 - **Kind 9734**: Zap requests
 - **Kind 9735**: Zap receipts
 - **Kind 10063**: User server lists

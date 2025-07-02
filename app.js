@@ -78,57 +78,384 @@ function navigateTo(path) {
     window.location.hash = path;
 }
 
-function handleRoute() {
+async function handleRoute() {
+    // Hide notifications modal on route change
+    hideNotificationsModal();
     const hash = window.location.hash.slice(1) || '/';
     const pathParts = hash.split('/').filter(p => p);
 
+    // Enhanced meta tag update with structured data
+    const updateMetaTags = (title, description, image = null, type = 'website') => {
+        // Use default image if none provided
+        const ogImage = image || './images/plebs-og.png';
+
+        // Update basic meta tags
+        document.title = title;
+
+        // Update or create meta tags
+        const setMetaTag = (selector, attribute, value) => {
+            let tag = document.querySelector(selector);
+            if (!tag && selector.includes('property')) {
+                tag = document.createElement('meta');
+                tag.setAttribute('property', selector.match(/property="([^"]+)"/)[1]);
+                document.head.appendChild(tag);
+            } else if (!tag && selector.includes('name')) {
+                tag = document.createElement('meta');
+                tag.setAttribute('name', selector.match(/name="([^"]+)"/)[1]);
+                document.head.appendChild(tag);
+            }
+            if (tag) tag.setAttribute('content', value);
+        };
+
+        setMetaTag('meta[name="description"]', 'content', description);
+        setMetaTag('meta[property="og:title"]', 'content', title);
+        setMetaTag('meta[property="og:description"]', 'content', description);
+        setMetaTag('meta[property="og:type"]', 'content', type);
+        setMetaTag('meta[property="og:site_name"]', 'content', 'Plebs');
+        setMetaTag('meta[property="og:image"]', 'content', ogImage);
+
+        // Set URL without hash for better sharing
+        const canonicalUrl = window.location.origin + window.location.pathname;
+        setMetaTag('meta[property="og:url"]', 'content', canonicalUrl);
+
+        // Twitter Card tags
+        setMetaTag('meta[name="twitter:card"]', 'content', image ? 'summary_large_image' : 'summary');
+        setMetaTag('meta[name="twitter:title"]', 'content', title);
+        setMetaTag('meta[name="twitter:description"]', 'content', description);
+        setMetaTag('meta[name="twitter:image"]', 'content', ogImage);
+
+        // Update canonical URL
+        let canonical = document.querySelector('link[rel="canonical"]');
+        if (!canonical) {
+            canonical = document.createElement('link');
+            canonical.setAttribute('rel', 'canonical');
+            document.head.appendChild(canonical);
+        }
+        canonical.setAttribute('href', canonicalUrl);
+    };
+
+    // Add JSON-LD structured data
+    const setStructuredData = (data) => {
+        let script = document.querySelector('script[type="application/ld+json"]');
+        if (!script) {
+            script = document.createElement('script');
+            script.type = 'application/ld+json';
+            document.head.appendChild(script);
+        }
+        script.textContent = JSON.stringify(data);
+    };
+
     // Reset to default meta tags first
-    document.title = 'Plebs - Uncensorable, Decentralized Video Platform';
-    document.querySelector('meta[name="description"]').content = 'Plebs is an uncensorable, decentralized video platform powered by the Nostr social protocol';
-    document.querySelector('meta[property="og:title"]').content = 'Plebs - Uncensorable, Decentralized Video Platform';
-    document.querySelector('meta[property="og:description"]').content = 'Plebs is an uncensorable, decentralized video platform powered by the Nostr social protocol';
+    updateMetaTags(
+        'Plebs - Uncensorable, Decentralized Video Platform',
+        'Plebs is an uncensorable, decentralized video platform powered by the Nostr social protocol'
+    );
+
+    // Default structured data
+    setStructuredData({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Plebs",
+        "description": "Uncensorable, decentralized video platform powered by Nostr",
+        "url": window.location.origin
+    });
 
     if (pathParts.length === 0) {
         loadHomeFeed();
     } else if (pathParts[0] === 'video' && pathParts[1]) {
-        // Video SEO is handled in playVideo function
+        // For video pages, fetch metadata first for SEO
+        const eventId = pathParts[1];
+
+        // Show loading immediately
+        document.getElementById('mainContent').innerHTML = '<div class="spinner"></div>';
+
+        // Fetch video metadata for SEO
+        try {
+            const event = await fetchVideoEvent(eventId);
+            if (event) {
+                const videoData = parseVideoEvent(event);
+                const profile = await fetchUserProfile(event.pubkey);
+
+                if (videoData) {
+                    const authorName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
+
+                    // Update meta tags with video data
+                    updateMetaTags(
+                        `${videoData.title} - Plebs`,
+                        videoData.description ? videoData.description.slice(0, 155) : `Watch "${videoData.title}" by ${authorName} on Plebs`,
+                        videoData.thumbnail,
+                        'video.other'
+                    );
+
+                    // Add video structured data
+                    setStructuredData({
+                        "@context": "https://schema.org",
+                        "@type": "VideoObject",
+                        "name": videoData.title,
+                        "description": videoData.description || `Watch "${videoData.title}" on Plebs`,
+                        "thumbnailUrl": videoData.thumbnail || undefined,
+                        "uploadDate": new Date(event.created_at * 1000).toISOString(),
+                        "duration": videoData.duration ? `PT${Math.floor(videoData.duration / 60)}M${videoData.duration % 60}S` : undefined,
+                        "author": {
+                            "@type": "Person",
+                            "name": authorName,
+                            "url": `${window.location.origin}/#/profile/${event.pubkey}`
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Failed to fetch video metadata:', error);
+        }
+
+        // Play video after metadata is set
         playVideo(pathParts[1]);
     } else if (pathParts[0] === 'profile' && pathParts[1]) {
-        loadProfile(pathParts[1]);
+        const pubkey = pathParts[1];
+
+        // Fetch profile metadata for SEO
+        try {
+            const profile = await fetchUserProfile(pubkey);
+            if (profile) {
+                const displayName = profile?.name || profile?.display_name || `User ${pubkey.slice(0, 8)}`;
+                const about = profile?.about || '';
+                const avatarUrl = profile?.picture || profile?.avatar || '';
+
+                updateMetaTags(
+                    `${displayName} - Plebs`,
+                    about ? about.slice(0, 155) : `Watch videos from ${displayName} on Plebs`,
+                    avatarUrl,
+                    'profile'
+                );
+
+                // Add person structured data
+                setStructuredData({
+                    "@context": "https://schema.org",
+                    "@type": "Person",
+                    "name": displayName,
+                    "description": about,
+                    "image": avatarUrl || undefined,
+                    "url": `${window.location.origin}/#/profile/${pubkey}`
+                });
+            }
+        } catch (error) {
+            console.error('Failed to fetch profile metadata:', error);
+        }
+
+        loadProfile(pubkey);
     } else if (pathParts[0] === 'tag' && pathParts[1]) {
         const tag = pathParts[1];
-        // Set tag-specific meta tags
-        document.title = `${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos - Plebs`;
-        document.querySelector('meta[name="description"]').content = `Watch ${tag} videos on Plebs, the uncensorable decentralized video platform`;
-        document.querySelector('meta[property="og:title"]').content = `${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos - Plebs`;
-        document.querySelector('meta[property="og:description"]').content = `Watch ${tag} videos on Plebs, the uncensorable decentralized video platform`;
+        updateMetaTags(
+            `${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos - Plebs`,
+            `Watch ${tag} videos on Plebs, the uncensorable decentralized video platform`
+        );
         loadTag(tag);
     } else if (pathParts[0] === 'search' && pathParts[1]) {
         const query = decodeURIComponent(pathParts[1]);
-        // Set search-specific meta tags
-        document.title = `Search: ${query} - Plebs`;
-        document.querySelector('meta[name="description"]').content = `Search results for "${query}" on Plebs`;
-        document.querySelector('meta[property="og:title"]').content = `Search: ${query} - Plebs`;
-        document.querySelector('meta[property="og:description"]').content = `Search results for "${query}" on Plebs`;
+        updateMetaTags(
+            `Search: ${query} - Plebs`,
+            `Search results for "${query}" on Plebs`
+        );
         document.getElementById('searchInput').value = query;
         performSearch(pathParts[1]);
     } else if (pathParts[0] === 'subscriptions') {
-        document.title = 'Subscriptions - Plebs';
-        document.querySelector('meta[name="description"]').content = 'Watch videos from creators you follow on Plebs';
-        document.querySelector('meta[property="og:title"]').content = 'Subscriptions - Plebs';
-        document.querySelector('meta[property="og:description"]').content = 'Watch videos from creators you follow on Plebs';
+        updateMetaTags(
+            'Subscriptions - Plebs',
+            'Watch videos from creators you follow on Plebs'
+        );
         loadSubscriptions();
     } else if (pathParts[0] === 'my-videos') {
-        document.title = 'My Videos - Plebs';
-        document.querySelector('meta[name="description"]').content = 'Manage your videos on Plebs';
-        document.querySelector('meta[property="og:title"]').content = 'My Videos - Plebs';
-        document.querySelector('meta[property="og:description"]').content = 'Manage your videos on Plebs';
+        updateMetaTags(
+            'My Videos - Plebs',
+            'Manage your videos on Plebs'
+        );
         loadMyVideos();
+    } else if (pathParts[0] === 'liked') {
+        loadLikedVideos();
     } else {
         loadHomeFeed();
     }
 
     updateSidebarActive();
+}
+
+// Show notifications modal and fetch notifications
+async function loadNotifications() {
+    if (!currentUser) {
+        alert("Please log in to view notifications");
+        return;
+    }
+
+    const modal = document.getElementById("notificationsModal");
+    const list = document.getElementById("notificationsList");
+    list.innerHTML = '<div class="spinner"></div>';
+    modal.classList.add("active");
+
+    try {
+        // Get user's videos
+        const userVideosFilter = {
+            kinds: [1],
+            authors: [currentUser.pubkey],
+            '#t': ['pv69420']
+        };
+
+        const userVideos = await fetchEvents(userVideosFilter);
+        const videoIds = userVideos.map(e => e.id);
+
+        if (videoIds.length === 0) {
+            list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No videos found to monitor.</p>';
+            return;
+        }
+
+        // Fetch reactions to user's videos
+        const reactions = [];
+        const reactionFilter = {
+            kinds: [7],
+            '#e': videoIds,
+            '#t': ['pv69420']
+        };
+
+        await new Promise((resolve) => {
+            requestEventsStream(reactionFilter, (reactionEvent) => {
+                const videoId = reactionEvent.tags.find(t => t[0] === 'e')?.[1];
+                if (
+                    videoId &&
+                    videoIds.includes(videoId) &&
+                    reactionEvent.pubkey !== currentUser.pubkey
+                ) {
+                    reactions.push(reactionEvent);
+                }
+            }, resolve);
+        });
+
+        // Fetch replies to user's videos
+        const replies = [];
+        const repliesFilter = {
+            kinds: [1],
+            '#e': videoIds
+        };
+
+        await new Promise((resolve) => {
+            requestEventsStream(repliesFilter, (event) => {
+                const videoId = event.tags.find(t => t[0] === 'e')?.[1];
+                if (
+                    videoId &&
+                    videoIds.includes(videoId) &&
+                    event.pubkey !== currentUser.pubkey
+                ) {
+                    replies.push(event);
+                }
+            }, resolve);
+        });
+
+        // Combine and sort notifications
+        const notifications = [...reactions, ...replies].sort((a, b) => b.created_at - a.created_at);
+
+        if (notifications.length === 0) {
+            list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No recent activity.</p>';
+            return;
+        }
+
+        list.innerHTML = '';
+
+        notifications.forEach(event => {
+            const isReaction = event.kind === 7;
+            const isReply = event.kind === 1;
+            const videoId = event.tags.find(t => t[0] === 'e')?.[1];
+            const video = userVideos.find(v => v.id === videoId);
+            const videoTitle = video ? parseVideoEvent(video).title : 'Unknown Video';
+
+            const from = event.pubkey.slice(0, 8);
+            const timestamp = formatTimestamp(event.created_at);
+            const content = isReaction
+                ? `Reacted: ${event.content}`
+                : `Replied: "${event.content.slice(0, 40)}${event.content.length > 40 ? '...' : ''}"`;
+
+            const item = document.createElement('div');
+            item.className = 'notification-item';
+            item.innerHTML = `
+                <div>
+                    <div style="font-weight: 500;">${from}</div>
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">${timestamp}</div>
+                    <div style="margin-top: 0.25rem;">${content}</div>
+                </div>
+                <a href="#/video/${videoId}" onclick="hideNotificationsModal();">▶</a>
+            `;
+            list.appendChild(item);
+        });
+
+    } catch (error) {
+        console.error("Failed to load notifications:", error);
+        list.innerHTML = '<div class="error-message">Failed to load notifications</div>';
+    }
+}
+
+// Utility: Fetch events via stream
+function fetchEvents(filter) {
+    return new Promise((resolve, reject) => {
+        const results = [];
+        requestEventsStream(filter, (event) => {
+            results.push(event);
+        }, () => resolve(results));
+    });
+}
+
+// Utility: Close modal
+function hideNotificationsModal() {
+    document.getElementById("notificationsModal").classList.remove("active");
+}
+
+// Function to load liked videos
+async function loadLikedVideos() {
+    if (!currentUser) {
+        document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your liked videos.</p>';
+        return;
+    }
+
+    currentView = 'liked';
+
+    const mainContent = document.getElementById('mainContent');
+    mainContent.innerHTML = `
+        <h2 style="margin-bottom: 1.5rem;">Liked Videos</h2>
+        <div class="video-grid" id="videoGrid">
+            <div class="spinner"></div>
+        </div>
+    `;
+
+    const videoGrid = document.getElementById('videoGrid');
+    const likedVideoIds = new Set();
+
+    // Create filter to get all like reactions from current user
+    const reactionFilter = {
+        kinds: [7],
+        authors: [currentUser.pubkey],
+        '#t': ['pv69420']
+    };
+
+    // Get all liked video IDs
+    await new Promise((resolve) => {
+        requestEventsStream(reactionFilter, (event) => {
+            const videoIdTag = event.tags.find(tag => tag[0] === 'e');
+            if (videoIdTag) {
+                likedVideoIds.add(videoIdTag[1]);
+            }
+        }, resolve);
+    });
+
+    if (likedVideoIds.size === 0) {
+        videoGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">You haven\'t liked any videos yet.</p>';
+        return;
+    }
+
+    // Create filter to get the video events
+    const videoFilter = {
+        kinds: [1],
+        '#t': ['pv69420'],
+        ids: Array.from(likedVideoIds)
+    };
+
+    // Use displayVideosStream to show these videos
+    await displayVideosStream('Liked Videos', videoFilter);
 }
 
 // Function to handle zaps manually
@@ -612,13 +939,13 @@ function shouldShowNSFW() {
 function scrollCarousel(direction) {
     const trendingGrid = document.getElementById('trendingGrid');
     if (!trendingGrid) return;
-    
+
     const currentPage = parseInt(trendingGrid.dataset.currentPage || '0');
     const totalPages = parseInt(trendingGrid.dataset.totalPages || '1');
     const itemsPerPage = parseInt(trendingGrid.dataset.itemsPerPage || '3');
-    
+
     const newPage = Math.max(0, Math.min(currentPage + direction, totalPages - 1));
-    
+
     if (newPage !== currentPage) {
         goToPage(newPage);
     }
@@ -629,19 +956,19 @@ function goToPage(page) {
     const trendingGrid = document.getElementById('trendingGrid');
     const carouselDots = document.getElementById('carouselDots');
     if (!trendingGrid || !carouselDots) return;
-    
+
     const itemsPerPage = parseInt(trendingGrid.dataset.itemsPerPage || '3');
     const cardWidth = 100 / itemsPerPage;
     const translateX = -page * 100;
-    
+
     trendingGrid.style.transform = `translateX(${translateX}%)`;
     trendingGrid.dataset.currentPage = page;
-    
+
     // Update dots
     carouselDots.querySelectorAll('.carousel-dot').forEach((dot, index) => {
         dot.classList.toggle('active', index === page);
     });
-    
+
     // Update buttons
     updateCarouselButtons();
 }
@@ -651,12 +978,12 @@ function updateCarouselButtons() {
     const trendingGrid = document.getElementById('trendingGrid');
     const prevBtn = document.querySelector('.carousel-btn.prev');
     const nextBtn = document.querySelector('.carousel-btn.next');
-    
+
     if (!trendingGrid || !prevBtn || !nextBtn) return;
-    
+
     const currentPage = parseInt(trendingGrid.dataset.currentPage || '0');
     const totalPages = parseInt(trendingGrid.dataset.totalPages || '1');
-    
+
     prevBtn.disabled = currentPage === 0;
     nextBtn.disabled = currentPage === totalPages - 1;
 }
@@ -951,7 +1278,8 @@ async function displayVideosStream(title, filter) {
 
         const filter = {
             kinds: [7],
-            '#e': videoIds
+            '#e': videoIds,
+            '#t': ['pv69420']
         };
 
         await requestEventsStream(filter, (reactionEvent) => {
@@ -1044,7 +1372,8 @@ async function displayVideosStream(title, filter) {
 async function loadReactionsForVideos(videoIds, onUpdate = null) {
     const filter = {
         kinds: [7],
-        '#e': videoIds
+        '#e': videoIds,
+        '#t': ['pv69420']
     };
 
     // Use a Map to track user reactions properly
@@ -1215,7 +1544,8 @@ async function sendReaction(eventId, reaction) {
         kind: 7,
         tags: [
             ['e', eventId],
-            ['p', allEvents.get(eventId)?.pubkey || '']
+            ['p', allEvents.get(eventId)?.pubkey || ''],
+            ['t', 'pv69420']
         ],
         content: reaction,
         created_at: Math.floor(Date.now() / 1000)
@@ -1343,8 +1673,8 @@ async function publishEvent(event) {
     return published;
 }
 
-// Create naddr from event
-function createNaddr(event) {
+// Create note identifier from event
+function createNote(event) {
     if (!window.NostrTools) {
         console.error('NostrTools not loaded');
         return null;
@@ -1352,22 +1682,10 @@ function createNaddr(event) {
 
     const { nip19 } = window.NostrTools;
 
-    // Find the 'd' tag
-    const dTag = event.tags.find(tag => tag[0] === 'd');
-    if (!dTag || !dTag[1]) {
-        console.error('No d tag found in event');
-        return null;
-    }
+    // Encode as note (just the event id)
+    const note = nip19.noteEncode(event.id);
 
-    // Encode as naddr
-    const naddr = nip19.naddrEncode({
-        identifier: dTag[1],
-        pubkey: event.pubkey,
-        kind: event.kind,
-        relays: RELAY_URLS.slice(0, 2) // Use first two relays
-    });
-
-    return naddr;
+    return note;
 }
 
 // Initialize app
@@ -1603,7 +1921,16 @@ function cancelRatioed() {
 
 // Parse video event
 function parseVideoEvent(event) {
+    if (event.kind !== 1) {
+        return null;
+    }
+
     const tags = event.tags || [];
+
+    if (!tags.some(tag => tag[0] === 't' && tag[1] === 'pv69420')) {
+        return null;
+    }
+
     const videoData = {
         title: '',
         description: event.content || '',
@@ -1633,15 +1960,33 @@ function parseVideoEvent(event) {
                 videoData.duration = parseInt(tag[1]);
                 break;
             case 't':
-                videoData.tags.push(tag[1]);
+                if (tag[1] && tag[1] !== 'pv69420') {
+                    videoData.tags.push(tag[1]);
+                }
                 break;
         }
     }
 
-    // If no URL but we have hash, construct URL
-    if (!videoData.url && videoData.hash) {
-        videoData.url = `${BLOSSOM_SERVERS[0]}/${videoData.hash}`;
+    if (!videoData.title && videoData.description) {
+        const lines = videoData.description.split('\n');
+        if (lines[0].startsWith('🎬 ')) {
+            videoData.title = lines[0].substring(2).trim();
+            videoData.description = lines.slice(2).join('\n').trim();
+        }
     }
+
+    // List of allowed video extensions
+    const videoExtensions = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv'];
+    const extensionsPattern = videoExtensions.join('|');
+
+    // Regex pattern: matches URLs with a 64-char hex string and a video extension
+    const urlRegex = new RegExp(
+        `https?:\\/\\/[^\\s]*([a-f0-9]{64})\\.(${extensionsPattern})(\\?[^\\s]*)?`,
+        'gi'
+    );
+
+    // Replace matching URLs
+    videoData.description = videoData.description.replace(urlRegex, '').trim();
 
     return videoData.title ? videoData : null;
 }
@@ -1661,8 +2006,8 @@ async function loadTrendingVideos(period = 'today') {
     }
 
     const filter = {
-        kinds: [30023],
-        '#t': ['video'],
+        kinds: [1],
+        '#t': ['pv69420'],
         since: since,
         limit: 100
     };
@@ -1859,9 +2204,9 @@ async function loadHomeFeed() {
 
     // Immediately start loading latest videos
     const filter = {
-        kinds: [30023],
+        kinds: [1],
         limit: 50,
-        '#t': ['video']
+        '#t': ['pv69420']
     };
 
     // Use the existing streaming display logic
@@ -1995,7 +2340,8 @@ async function loadHomeFeed() {
 
         const filter = {
             kinds: [7],
-            '#e': videoIds
+            '#e': videoIds,
+            '#t': ['pv69420']
         };
 
         await requestEventsStream(filter, (reactionEvent) => {
@@ -2090,18 +2436,18 @@ function initializeCarousel() {
     const carouselDots = document.getElementById('carouselDots');
     const prevBtn = document.querySelector('.carousel-btn.prev');
     const nextBtn = document.querySelector('.carousel-btn.next');
-    
+
     if (!trendingGrid || !carouselDots) return;
-    
+
     const cards = trendingGrid.querySelectorAll('.video-card');
     const totalCards = cards.length;
-    
+
     if (totalCards === 0) return;
-    
+
     // Calculate items per page based on screen width
     const itemsPerPage = window.innerWidth <= 768 ? 1 : 3;
     const totalPages = Math.ceil(totalCards / itemsPerPage);
-    
+
     // Create dots
     carouselDots.innerHTML = '';
     for (let i = 0; i < totalPages; i++) {
@@ -2110,12 +2456,12 @@ function initializeCarousel() {
         dot.onclick = () => goToPage(i);
         carouselDots.appendChild(dot);
     }
-    
+
     // Store current page in grid element
     trendingGrid.dataset.currentPage = '0';
     trendingGrid.dataset.totalPages = totalPages;
     trendingGrid.dataset.itemsPerPage = itemsPerPage;
-    
+
     // Update button states
     updateCarouselButtons();
 }
@@ -2249,9 +2595,9 @@ async function loadSubscriptions() {
 
         // Load videos from followed users
         const filter = {
-            kinds: [30023],
+            kinds: [1],
             authors: followingList,
-            '#t': ['video'],
+            '#t': ['pv69420'],
             limit: 50
         };
 
@@ -2273,9 +2619,9 @@ async function loadMyVideos() {
     currentView = 'my-videos';
 
     const filter = {
-        kinds: [30023],
+        kinds: [1],
         authors: [currentUser.pubkey],
-        '#t': ['video']
+        '#t': ['pv69420']
     };
 
     await displayVideosStream('My Videos', filter);
@@ -2286,7 +2632,7 @@ async function loadTag(tag) {
     currentView = `tag-${tag}`;
 
     const filter = {
-        kinds: [30023],
+        kinds: [1],
         '#t': [tag],
         limit: 50
     };
@@ -2310,7 +2656,8 @@ async function handleDelete(eventId) {
         const deleteEvent = {
             kind: 5,
             tags: [
-                ['e', eventId]
+                ['e', eventId],
+                ['t', 'pv69420']
             ],
             content: 'Deletion request',
             created_at: Math.floor(Date.now() / 1000)
@@ -2488,12 +2835,7 @@ async function loadProfile(pubkey) {
         const nip05 = profile?.nip05 || '';
         const about = profile?.about || '';
 
-        // Set profile-specific meta tags
-        document.title = `${displayName} - Plebs`;
-        const metaDescription = about ? about.slice(0, 155) : `Watch videos from ${displayName} on Plebs`;
-        document.querySelector('meta[name="description"]').content = metaDescription;
-        document.querySelector('meta[property="og:title"]').content = `${displayName} - Plebs`;
-        document.querySelector('meta[property="og:description"]').content = metaDescription;
+        // Meta tags are already updated in handleRoute, no need to update again
 
         // Convert pubkey to npub
         const npub = window.NostrTools.nip19.npubEncode(pubkey);
@@ -2529,6 +2871,7 @@ async function loadProfile(pubkey) {
             </div>
         `;
 
+        // Rest of the function remains the same...
         // Update follow button when status is determined
         isFollowingPromise.then(isFollowingUser => {
             const actionsDiv = document.getElementById(`profile-actions-${pubkey}`);
@@ -2543,9 +2886,9 @@ async function loadProfile(pubkey) {
 
         // Load videos with streaming
         const filter = {
-            kinds: [30023],
+            kinds: [1],
             authors: [pubkey],
-            '#t': ['video']
+            '#t': ['pv69420']
         };
 
         const videoGrid = document.getElementById('profileVideoGrid');
@@ -2806,7 +3149,8 @@ async function performSearch(query) {
 
         const filter = {
             kinds: [7],
-            '#e': videoIds
+            '#e': videoIds,
+            '#t': ['pv69420']
         };
 
         await requestEventsStream(filter, (reactionEvent) => {
@@ -2846,9 +3190,9 @@ async function performSearch(query) {
 
     // Search all video events
     const filter = {
-        kinds: [30023],
-        '#t': ['video'],
-        limit: 200 // Increase limit for search
+        kinds: [1],
+        '#t': ['pv69420'],
+        limit: 200
     };
 
     await requestEventsStream(filter, (event) => {
@@ -2923,7 +3267,8 @@ async function fetchVideoEvent(eventId) {
     return new Promise((resolve) => {
         let found = false;
         const filter = {
-            ids: [eventId]
+            ids: [eventId],
+            '#t': ['pv69420'],
         };
 
         requestEventsStream(filter, (event) => {
@@ -2945,7 +3290,11 @@ async function fetchVideoEvent(eventId) {
 // Play video
 async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = false) {
     const mainContent = document.getElementById('mainContent');
-    mainContent.innerHTML = '<div class="spinner"></div>';
+
+    // Don't show spinner if we're already showing one from handleRoute
+    if (!mainContent.querySelector('.spinner')) {
+        mainContent.innerHTML = '<div class="spinner"></div>';
+    }
 
     try {
         // Get event from cache or request it
@@ -2983,12 +3332,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             return;
         }
 
-        // Update SEO meta tags for the video
-        document.title = `${videoData.title} - Plebs`;
-        const metaDescription = videoData.description ? videoData.description.slice(0, 155) : `Watch "${videoData.title}" on Plebs`;
-        document.querySelector('meta[name="description"]').content = metaDescription;
-        document.querySelector('meta[property="og:title"]').content = `${videoData.title} - Plebs`;
-        document.querySelector('meta[property="og:description"]').content = metaDescription;
+        // Meta tags are already updated in handleRoute, no need to update again
 
         // Start loading author profile in parallel
         const profilePromise = loadUserProfile(event.pubkey);
@@ -2999,8 +3343,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         // Try to get working video URL
         const videoUrl = await getVideoUrl(videoData.hash) || videoData.url;
 
-        // Create naddr for comments
-        const naddr = createNaddr(event);
+        // Create note for comments
+        const note = createNote(event);
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
 
         // Wait for profile (usually fast if cached)
@@ -3009,7 +3353,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const avatarUrl = profile?.picture || profile?.avatar || '';
         const nip05 = profile?.nip05 || '';
 
-        // Initial render with cached or default reaction/zap data
+        // Rest of the function remains the same...
         mainContent.innerHTML = `
             <div class="video-player-container">
                 <div class="video-player">
@@ -3091,11 +3435,11 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     ` : ''}
                 </div>
                 
-                ${naddr ? `
+                ${note ? `
                     <div class="comments-section">
                         <h3>Comments</h3>
                         <zap-threads
-                            anchor="${naddr}"
+                            anchor="${note}"
                             ${userNpub ? `user="${userNpub}"` : ''}
                             author="${authorNpub}"
                             relays="${RELAY_URLS.join(',')}"
@@ -3185,7 +3529,7 @@ function updateReactionButtons(eventId, reactions) {
 function shareVideo(eventId) {
     const isLocal = window.location.protocol === 'file:';
     const baseUrl = isLocal ? window.location.href.split('#')[0] : window.location.origin;
-    const shareUrl = `${baseUrl}#/video/${eventId}`;
+    const shareUrl = `${baseUrl}/#/video/${eventId}`;
     document.getElementById('shareUrlInput').value = shareUrl;
     document.getElementById('shareModal').classList.add('active');
 }
@@ -3262,7 +3606,8 @@ async function createBlossomAuthEvent(hash, server) {
         tags: [
             ['t', 'upload'],
             ['x', hash],
-            ['expiration', expiration.toString()]
+            ['expiration', expiration.toString()],
+            ['client', 'Plebs']
         ],
         created_at: Math.floor(Date.now() / 1000)
     };
@@ -3394,16 +3739,13 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
 
         const videoDuration = Math.floor(video.duration);
 
-        // Create Nostr event for the video (using kind 30023 for long-form content)
+        // Create and sign kind 1 event (original video post)
         const eventContent = {
-            kind: 30023,
+            kind: 1,
             tags: [
-                ['d', `video-${Date.now()}`],
                 ['title', title],
-                ['summary', description],
-                ['published_at', Math.floor(Date.now() / 1000).toString()],
-                ['t', 'video'], // Mark as video content
-                ...tags.map(tag => ['t', tag]),
+                ['t', 'pv69420'],
+                ...tags.map(tag => ['t', tag]),  // User tags
                 ['x', videoResult.hash],
                 ['url', videoResult.url],
                 ['m', videoFile.type],
@@ -3417,37 +3759,111 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
                 // Add NIP-89 client tag
                 ['client', 'Plebs']
             ],
-            content: description,
+            content: `${description}\n\n${videoResult.url}`,
             created_at: Math.floor(Date.now() / 1000)
         };
 
-        // Sign and publish event
+        // Sign and publish kind 1 event
         const signedEvent = await window.nostr.signEvent(eventContent);
-
-        // Publish to relays
         const published = await publishEvent(signedEvent);
 
         if (!published) {
             throw new Error('Failed to publish to any relay');
         }
 
-        document.getElementById('progressFill').style.width = '100%';
-        document.getElementById('uploadStatus').textContent = 'Video published successfully!';
+        // Generate UUID for kind 34235
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                const r = (Math.random() * 16) | 0;
+                const v = c === 'x' ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+            });
+        }
+        const uuid = generateUUID();
 
-        // Also publish a User Server List event (kind 10063) per BUD-03 for all mirrors
+        // Build imeta parts for kind 21
+        const imetaParts = [
+            `url ${videoResult.url}`,
+            `x ${videoResult.hash}`,
+            `m ${videoFile.type}`,
+        ];
+        if (thumbnailUrl) imetaParts.push(`image ${thumbnailUrl}`);
+        if (videoResult.mirrors && videoResult.mirrors.length > 0) {
+            videoResult.mirrors.forEach(mirror => {
+                imetaParts.push(`fallback ${mirror.url}`);
+            });
+        }
+        imetaParts.push('service nip96');
+
+        // Build tags for kind 21
+        const kind21Tags = [
+            ['title', title],
+            ['published_at', signedEvent.created_at.toString()],
+            ['imeta', imetaParts.join(' ')],
+            ['duration', videoDuration.toString()],
+            ...tags.map(tag => ['t', tag]),
+            ['p', currentUser.pubkey],
+        ];
+        if (isNSFW) kind21Tags.push(['content-warning', 'nsfw']);
+
+        // Create and sign kind 21 event
+        const kind21Event = {
+            kind: 21,
+            tags: kind21Tags,
+            content: description || `New video: ${title}`,
+            created_at: signedEvent.created_at,
+        };
+
+        const signedKind21 = await window.nostr.signEvent(kind21Event);
+        await publishEvent(signedKind21);
+
+        // Build tags for kind 34235
+        const kind34235Tags = [
+            ['d', uuid],
+            ['title', title],
+            ['summary', description],
+            ['src', videoResult.url],
+            ['m', videoFile.type],
+            ['image', thumbnailUrl || ''],
+            ...(isNSFW ? [['content-warning', 'nsfw']] : []),
+            ...tags.map(tag => ['t', tag]),
+            ['p', currentUser.pubkey],
+        ];
+
+        // Create and sign kind 34235 event
+        const kind34235Event = {
+            kind: 34235,
+            tags: kind34235Tags,
+            content: JSON.stringify({
+                title: title,
+                description: description,
+                tags: tags,
+                thumbnail: thumbnailUrl,
+                mirrors: videoResult.mirrors.map(m => m.url),
+            }),
+            created_at: signedEvent.created_at,
+        };
+
+        const signedKind34235 = await window.nostr.signEvent(kind34235Event);
+        await publishEvent(signedKind34235);
+
+        // Publish User Server List (kind 10063) for mirrors
         if (videoResult.mirrors && videoResult.mirrors.length > 0) {
             const serverListEvent = {
                 kind: 10063,
                 tags: videoResult.mirrors.map(mirror => ['server', mirror.server]),
                 content: '',
-                created_at: Math.floor(Date.now() / 1000)
+                created_at: Math.floor(Date.now() / 1000),
             };
 
             const signedServerListEvent = await window.nostr.signEvent(serverListEvent);
             await publishEvent(signedServerListEvent);
         }
 
-        // Close modal and navigate to my videos
+        document.getElementById('progressFill').style.width = '100%';
+        document.getElementById('uploadStatus').textContent = 'Video published successfully!';
+
+        // Close modal and navigate
         setTimeout(() => {
             hideUploadModal();
             navigateTo('/my-videos');

@@ -1,3 +1,9 @@
+## v1.1.2 - 2025-07-03
+
+- New: added liked videos page
+- New: added notifications
+- New: supports kinds 1 and 21 and 34235
+
 ## v1.0.2 - 2025-07-01
 
 - New: added carousel to trending
