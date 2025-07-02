@@ -2088,6 +2088,7 @@ async function loadTrendingVideos(period = 'today') {
             const reactionFilter = {
                 kinds: [7],
                 '#e': videoIds,
+                '#t': ['pv69420'],
                 since: since
             };
 
