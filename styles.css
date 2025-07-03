@@ -792,6 +792,38 @@ zap-threads {
     --ztr-icon-color: var(--text-secondary);
     --ztr-login-button-color: var(--accent);
     max-width: 100%;
+    display: block;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Additional styles for zap-threads child elements */
+zap-threads * {
+    max-width: 100%;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+}
+
+/* Target zap-threads content containers */
+zap-threads [class*="comment"],
+zap-threads [class*="thread"],
+zap-threads [class*="content"],
+zap-threads [class*="text"] {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+}
+
+/* Ensure pre-formatted text also wraps */
+zap-threads pre,
+zap-threads code {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 /* Upload Modal */
