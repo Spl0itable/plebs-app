@@ -196,6 +196,8 @@ header {
     flex: 1;
     padding: 1.5rem;
     transition: background-color 0.3s ease;
+    overflow-x: hidden;
+    max-width: 100%;
 }
 
 /* Trending Section with Carousel */
@@ -258,8 +260,7 @@ header {
 }
 
 .trending-grid .video-card {
-    flex: 0 0 calc(33.333% - 0.67rem);
-    max-width: calc(33.333% - 0.67rem);
+    flex-shrink: 0;
 }
 
 /* Carousel Navigation Buttons */
@@ -1119,8 +1120,7 @@ zap-threads {
 
     /* Carousel adjustments for mobile */
     .trending-grid .video-card {
-        flex: 0 0 calc(50% - 0.5rem);
-        max-width: calc(50% - 0.5rem);
+        flex-shrink: 0;
     }
 
     .carousel-btn {
@@ -1210,8 +1210,7 @@ zap-threads {
     }
     
     .trending-grid .video-card {
-        flex: 0 0 100%;
-        max-width: 100%;
+        flex-shrink: 0;
     }
 
     .video-actions .action-btn {

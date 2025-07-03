@@ -1724,6 +1724,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Handle hash changes
     window.addEventListener('hashchange', handleRoute);
 
+    // Handle window resize for carousel
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            const trendingGrid = document.getElementById('trendingGrid');
+            if (trendingGrid && trendingGrid.querySelector('.video-card')) {
+                initializeCarousel();
+            }
+        }, 250);
+    });
+
     // Handle initial route
     handleRoute();
 });
@@ -2557,6 +2569,22 @@ function initializeCarousel() {
     
     const totalPages = Math.ceil(totalCards / itemsPerPage);
 
+    // Update CSS for proper card sizing based on items per page
+    const gapRem = 1; // 1rem gap
+    const gapPixels = gapRem * 16; // Convert rem to pixels (assuming 16px base)
+    const totalGaps = itemsPerPage - 1;
+    const totalGapWidth = totalGaps * gapPixels;
+    
+    // Calculate the percentage width for each card
+    const cardWidthPercent = (100 - (totalGapWidth / trendingGrid.offsetWidth * 100)) / itemsPerPage;
+    
+    // Apply the calculated width to all cards
+    cards.forEach(card => {
+        card.style.flex = `0 0 ${cardWidthPercent}%`;
+        card.style.maxWidth = `${cardWidthPercent}%`;
+        card.style.width = `${cardWidthPercent}%`;
+    });
+
     // Create dots
     carouselDots.innerHTML = '';
     for (let i = 0; i < totalPages; i++) {
@@ -2577,14 +2605,6 @@ function initializeCarousel() {
     // Ensure initial layout is correct
     goToPage(0);
 }
-
-// Handle window resize for carousel
-window.addEventListener('resize', () => {
-    const trendingGrid = document.getElementById('trendingGrid');
-    if (trendingGrid && trendingGrid.querySelector('.video-card')) {
-        initializeCarousel();
-    }
-});
 
 // Function to load trending section asynchronously
 async function loadTrendingSection() {
