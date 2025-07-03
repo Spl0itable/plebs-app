@@ -1,3 +1,7 @@
+## v1.1.3 - 2025-07-03
+
+- Hotfix: altered the way new accounts flagged
+
 ## v1.1.2 - 2025-07-03
 
 - New: added liked videos page

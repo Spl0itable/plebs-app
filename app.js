@@ -1783,7 +1783,7 @@ function isVideoNSFW(event) {
     return tags.some(tag => tag[0] === 'content-warning' && tag[1] === 'nsfw');
 }
 
-// Create video card HTML with trending badge support
+// Function to create cards for videos
 function createVideoCard(event, profile, reactions, isTrending = false, trendingRank = null) {
     const videoData = parseVideoEvent(event);
     if (!videoData) return '';
@@ -1793,19 +1793,25 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
     const nip05 = profile?.nip05 || '';
     const isNSFW = isVideoNSFW(event);
     const isRatioed = isVideoRatioed(reactions || {});
-    const showBlurred = (isNSFW && !shouldShowNSFW()) || (isRatioed && !sessionRatioedAllowed.has(event.id));
+    const isSuspiciousProfile = !avatarUrl || !nip05; // Check for missing avatar or nip05
+    const showBlurred = (isNSFW && !shouldShowNSFW()) || (isRatioed && !sessionRatioedAllowed.has(event.id)) || (isSuspiciousProfile && !sessionRatioedAllowed.has(event.id));
+    
+    // If this is a trending video and it has a community warning, don't render it
+    if (isTrending && (isRatioed || isSuspiciousProfile)) {
+        return '';
+    }
 
     return `
                 <div class="video-card">
-                    <div class="video-thumbnail ${showBlurred ? (isRatioed ? 'ratioed' : 'nsfw') : ''}" 
-                         onclick="${showBlurred ? (isRatioed ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">
+                    <div class="video-thumbnail ${showBlurred ? (isRatioed || isSuspiciousProfile ? 'ratioed' : 'nsfw') : ''}" 
+                         onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">
                         ${videoData.thumbnail ?
             `<img src="${videoData.thumbnail}" alt="${videoData.title}" onerror="this.style.display='none'">` :
             `<video src="${videoData.url}" preload="metadata"></video>`
         }
                         ${showBlurred ? `
-                            <div class="${isRatioed ? 'ratioed-overlay' : 'nsfw-overlay'}">
-                                <div class="${isRatioed ? 'ratioed-badge' : 'nsfw-badge'}">${isRatioed ? 'COMMUNITY WARNING' : 'NSFW'}</div>
+                            <div class="${(isRatioed || isSuspiciousProfile) ? 'ratioed-overlay' : 'nsfw-overlay'}">
+                                <div class="${(isRatioed || isSuspiciousProfile) ? 'ratioed-badge' : 'nsfw-badge'}">${(isRatioed || isSuspiciousProfile) ? 'COMMUNITY WARNING' : 'NSFW'}</div>
                                 <div>Click to view</div>
                             </div>
                         ` : ''}
@@ -1841,11 +1847,11 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
                                 ${nip05 ? `<div class="channel-nip05">${nip05}</div>` : ''}
                             </div>
                         </a>
-                        <h3 class="video-title" onclick="${showBlurred ? (isRatioed ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">${videoData.title}</h3>
+                        <h3 class="video-title" onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">${videoData.title}</h3>
                         <div class="video-meta">
                             ${formatTimestamp(event.created_at)}
                             ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
-                            ${isRatioed ? ' • <span style="color: #ff9800;">Community Warning</span>' : ''}
+                            ${(isRatioed || isSuspiciousProfile) ? ' • <span style="color: #ff9800;">Community Warning</span>' : ''}
                         </div>
                     </div>
                 </div>
@@ -2016,17 +2022,32 @@ async function loadTrendingVideos(period = 'today') {
         const videoEvents = [];
         const videoScores = new Map();
         const globalReactions = new Map();
+        const globalZaps = new Map();
         const processedVideos = new Set();
         let trendingVideos = [];
-        let hasStartedReactions = false;
         let videosComplete = false;
         let reactionsComplete = false;
+        let zapsComplete = false;
+        let lastProcessTime = 0;
+        let processTimer = null;
+        let resolveTimer = null;
+        let hasResolved = false;
 
-        // Process and return trending videos
-        const processTrending = () => {
-            trendingVideos = [];
+        // Process trending videos incrementally
+        const processTrending = (force = false) => {
+            // Debounce processing to avoid too frequent updates
+            const now = Date.now();
+            if (!force && now - lastProcessTime < 200) {
+                clearTimeout(processTimer);
+                processTimer = setTimeout(() => processTrending(true), 200);
+                return;
+            }
+            lastProcessTime = now;
+
+            const newTrendingVideos = [];
 
             videoEvents.forEach(event => {
+                // Calculate reactions
                 const reactions = { likes: 0, dislikes: 0 };
                 const videoReactions = globalReactions.get(event.id);
 
@@ -2048,39 +2069,59 @@ async function loadTrendingVideos(period = 'today') {
                     return;
                 }
 
-                // Calculate trending score
+                // Get zap count
+                const zapTotal = globalZaps.get(event.id) || 0;
+
+                // Calculate trending score including zaps
                 const ageHours = (now - event.created_at) / 3600;
                 const timeWeight = Math.max(0, 24 - ageHours) / 24;
-                const score = reactions.likes - (reactions.dislikes * 2) + (timeWeight * 10);
+                
+                const zapScore = (zapTotal / 1000) * 5;
+                const score = reactions.likes - (reactions.dislikes * 2) + zapScore + (timeWeight * 10);
 
-                // Only include videos with positive engagement
-                if (reactions.likes > 0 && score > 0) {
+                // Include videos with positive score
+                if (score > 0) {
                     videoScores.set(event.id, score);
-                    trendingVideos.push(event);
+                    newTrendingVideos.push(event);
                 }
             });
 
             // Sort by score
-            trendingVideos.sort((a, b) => {
+            newTrendingVideos.sort((a, b) => {
                 const scoreA = videoScores.get(a.id) || 0;
                 const scoreB = videoScores.get(b.id) || 0;
                 return scoreB - scoreA;
             });
 
-            // Limit to top 12
-            trendingVideos = trendingVideos.slice(0, 12);
+            // Update trending videos (limit to top 12)
+            trendingVideos = newTrendingVideos.slice(0, 12);
 
-            // If both streams are complete, resolve
-            if (videosComplete && reactionsComplete) {
+            // Update the UI if we have the trending section loaded
+            const trendingGrid = document.getElementById('trendingGrid');
+            if (trendingGrid && trendingVideos.length > 0 && !hasResolved) {
+                // Remove spinner if present
+                const spinner = trendingGrid.querySelector('.spinner');
+                if (spinner) {
+                    renderTrendingVideos(trendingVideos).then(() => {
+                        // Rendered successfully
+                    });
+                }
+            }
+
+            // If all streams are complete, resolve with final results
+            if (videosComplete && reactionsComplete && zapsComplete && !hasResolved) {
+                clearTimeout(processTimer);
+                clearTimeout(resolveTimer);
+                hasResolved = true;
                 resolve(trendingVideos);
             }
         };
 
-        // Load reactions for collected videos
+        // Load reactions for ALL collected videos
         const loadReactions = () => {
             if (videoEvents.length === 0) {
                 reactionsComplete = true;
-                resolve([]);
+                processTrending(true);
                 return;
             }
 
@@ -2109,16 +2150,56 @@ async function loadTrendingVideos(period = 'today') {
                             reaction: reactionEvent.content,
                             timestamp: timestamp
                         });
+                        // Reprocess trending when new reactions arrive
+                        processTrending();
                     }
                 }
             }, () => {
-                // Reactions complete
                 reactionsComplete = true;
-                processTrending();
+                processTrending(true);
             });
         };
 
-        // Start collecting video events
+        // Load zaps for ALL collected videos
+        const loadZaps = () => {
+            if (videoEvents.length === 0) {
+                zapsComplete = true;
+                processTrending(true);
+                return;
+            }
+
+            const videoIds = videoEvents.map(e => e.id);
+            const zapFilter = {
+                kinds: [9735],
+                '#e': videoIds,
+                since: since
+            };
+
+            requestEventsStream(zapFilter, (zapEvent) => {
+                try {
+                    const videoId = zapEvent.tags.find(tag => tag[0] === 'e')?.[1];
+                    if (videoId && videoIds.includes(videoId)) {
+                        const bolt11Tag = zapEvent.tags.find(tag => tag[0] === 'bolt11');
+                        if (bolt11Tag && bolt11Tag[1]) {
+                            const amount = extractAmountFromBolt11(bolt11Tag[1]);
+                            if (amount > 0) {
+                                const currentTotal = globalZaps.get(videoId) || 0;
+                                globalZaps.set(videoId, currentTotal + amount);
+                                // Reprocess trending when new zaps arrive
+                                processTrending();
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to parse zap:', e);
+                }
+            }, () => {
+                zapsComplete = true;
+                processTrending(true);
+            });
+        };
+
+        // Start collecting video events - wait for ALL relays
         requestEventsStream(filter, (event) => {
             const tags = event.tags || [];
             if (tags.some(tag => tag[0] === 'x') && !processedVideos.has(event.id)) {
@@ -2126,30 +2207,46 @@ async function loadTrendingVideos(period = 'today') {
                 videoEvents.push(event);
                 allEvents.set(event.id, event);
 
-                // Start loading reactions after we have 5 videos
-                if (videoEvents.length === 5 && !hasStartedReactions) {
-                    hasStartedReactions = true;
-                    loadReactions();
-                }
+                // Process trending with each new video
+                processTrending();
             }
         }, () => {
-            // Videos complete
+            // All relays have responded with videos
             videosComplete = true;
 
-            // Start loading reactions if not started yet
-            if (!hasStartedReactions) {
-                hasStartedReactions = true;
+            console.log(`Trending: Found ${videoEvents.length} videos from all relays`);
+
+            // NOW start loading reactions and zaps for ALL videos
+            if (videoEvents.length > 0) {
                 loadReactions();
+                loadZaps();
+            } else {
+                reactionsComplete = true;
+                zapsComplete = true;
+                processTrending(true);
             }
         });
 
-        // Timeout after 5 seconds with whatever we have
-        setTimeout(() => {
-            if (!videosComplete || !reactionsComplete) {
-                processTrending();
+        // Set up progressive resolution
+        // After 3 seconds, resolve with whatever we have if we have good results
+        resolveTimer = setTimeout(() => {
+            if (trendingVideos.length >= 6 && !hasResolved) {
+                hasResolved = true;
                 resolve(trendingVideos);
             }
-        }, 5000);
+        }, 3000);
+
+        // Final timeout after 7 seconds
+        setTimeout(() => {
+            if (!hasResolved) {
+                videosComplete = true;
+                reactionsComplete = true;
+                zapsComplete = true;
+                processTrending(true);
+                hasResolved = true;
+                resolve(trendingVideos);
+            }
+        }, 7000);
     });
 }
 
@@ -2446,7 +2543,18 @@ function initializeCarousel() {
     if (totalCards === 0) return;
 
     // Calculate items per page based on screen width
-    const itemsPerPage = window.innerWidth <= 768 ? 1 : 3;
+    let itemsPerPage;
+    if (window.innerWidth <= 480) { // Mobile
+        itemsPerPage = 1;
+    } else if (window.innerWidth <= 768) { // Tablet
+        itemsPerPage = 2;
+    } else { // Desktop
+        itemsPerPage = 3;
+    }
+
+    // Ensure we don't exceed the total number of cards
+    itemsPerPage = Math.min(itemsPerPage, totalCards);
+    
     const totalPages = Math.ceil(totalCards / itemsPerPage);
 
     // Create dots
@@ -2465,6 +2573,9 @@ function initializeCarousel() {
 
     // Update button states
     updateCarouselButtons();
+
+    // Ensure initial layout is correct
+    goToPage(0);
 }
 
 // Handle window resize for carousel
@@ -2472,8 +2583,6 @@ window.addEventListener('resize', () => {
     const trendingGrid = document.getElementById('trendingGrid');
     if (trendingGrid && trendingGrid.querySelector('.video-card')) {
         initializeCarousel();
-        // Reset to first page on resize
-        goToPage(0);
     }
 });
 
@@ -2527,14 +2636,21 @@ async function renderTrendingVideos(trendingVideos) {
     const trendingPubkeys = [...new Set(trendingVideos.map(v => v.pubkey))];
     await loadUserProfiles(trendingPubkeys);
 
-    // Render trending videos
-    trendingGrid.innerHTML = trendingVideos.map((event, index) => {
+    // Render trending videos and filter out any empty cards
+    const renderedCards = trendingVideos.map((event, index) => {
         const profile = profileCache.get(event.pubkey);
         const reactions = reactionsCache.get(event.id);
         return createVideoCard(event, profile, reactions, true, index + 1);
-    }).join('');
-    // Initialize carousel after rendering
-    initializeCarousel();
+    }).filter(card => card !== ''); // Filter out empty strings
+
+    // Only update if we have cards to show
+    if (renderedCards.length > 0) {
+        trendingGrid.innerHTML = renderedCards.join('');
+        // Initialize carousel after rendering
+        initializeCarousel();
+    } else {
+        trendingGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No trending videos found.</p>';
+    }
 }
 
 // Function to switch trending period
@@ -3324,16 +3440,19 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             return;
         }
 
+        // Get profile early to check for suspicious profile
+        const cachedProfile = profileCache.get(event.pubkey);
+        const isSuspiciousProfile = cachedProfile && (!cachedProfile.picture && !cachedProfile.avatar || !cachedProfile.nip05);
+
         // For initial ratioed check, use cached reactions or default to not ratioed
         const cachedReactions = reactionsCache.get(eventId) || { likes: 0, dislikes: 0 };
         const isCachedRatioed = isVideoRatioed(cachedReactions);
 
-        if (!skipRatioedCheck && isCachedRatioed && !sessionRatioedAllowed.has(eventId)) {
+        // Check both ratioed and suspicious profile conditions
+        if (!skipRatioedCheck && (isCachedRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId)) {
             showRatioedModal(eventId);
             return;
         }
-
-        // Meta tags are already updated in handleRoute, no need to update again
 
         // Start loading author profile in parallel
         const profilePromise = loadUserProfile(event.pubkey);
@@ -3348,13 +3467,14 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const note = createNote(event);
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
 
-        // Wait for profile (usually fast if cached)
+        // Wait for profile
         const profile = await profilePromise;
         const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
         const avatarUrl = profile?.picture || profile?.avatar || '';
         const nip05 = profile?.nip05 || '';
+        const isProfileSuspicious = !avatarUrl || !nip05; // Re-check with fresh profile data
 
-        // Rest of the function remains the same...
+        // Video page
         mainContent.innerHTML = `
             <div class="video-player-container">
                 <div class="video-player">
@@ -3369,7 +3489,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     <div class="video-meta">
                         ${formatTimestamp(event.created_at)}
                         ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
-                        <span class="ratioed-indicator" style="display: none;"> • <span style="color: #ff9800;">Community Warning</span></span>
+                        <span class="ratioed-indicator" style="${isProfileSuspicious ? '' : 'display: none;'}"> • <span style="color: #ff9800;">Community Warning</span></span>
                     </div>
                     <div class="video-channel-info">
                         <a href="#/profile/${event.pubkey}" class="channel-info" style="text-decoration: none;">
