@@ -19,7 +19,7 @@ let pendingNSFWAction = null; // Store pending action when NSFW modal is shown
 let pendingRatioedAction = null; // Store pending action when ratioed modal is shown
 let sessionNSFWAllowed = false; // Track NSFW permission for current session
 let sessionRatioedAllowed = new Set(); // Track ratioed videos allowed in session
-let currentTrendingPeriod = 'today'; // Track current trending period
+let currentTrendingPeriod = 'week'; // Track current trending period
 
 // Define relay URLs
 const RELAY_URLS = [
@@ -2460,10 +2460,10 @@ async function loadHomeFeed() {
                     Trending
                 </h2>
                 <div class="trending-tabs">
-                    <button class="trending-tab ${currentTrendingPeriod === 'today' ? 'active' : ''}" 
-                            onclick="switchTrendingPeriod('today')">Today</button>
                     <button class="trending-tab ${currentTrendingPeriod === 'week' ? 'active' : ''}" 
                             onclick="switchTrendingPeriod('week')">This Week</button>
+                    <button class="trending-tab ${currentTrendingPeriod === 'today' ? 'active' : ''}" 
+                            onclick="switchTrendingPeriod('today')">Today</button>
                 </div>
             </div>
             <div class="trending-carousel-container">
