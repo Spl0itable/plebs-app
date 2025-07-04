@@ -2,7 +2,7 @@
 
 # Plebs
 
-**An uncensorable, decentralized video platform powered by the Nostr protocol**
+**A censorship-resistant, decentralized video platform powered by the Nostr protocol**
 
 Plebs is a revolutionary video platform that leverages the [Nostr](https://github.com/nostr-protocol/nostr) protocol and [Blossom](https://github.com/hzrd149/blossom) storage servers to create a truly decentralized and censorship-resistant video sharing experience. Built with privacy and freedom of expression at its core, Plebs ensures that content creators maintain full control over their videos.
 
