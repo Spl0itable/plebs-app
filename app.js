@@ -148,8 +148,8 @@ async function handleRoute() {
 
     // Reset to default meta tags first
     updateMetaTags(
-        'Plebs - Uncensorable, Decentralized Video Platform',
-        'Plebs is an uncensorable, decentralized video platform powered by the Nostr social protocol'
+        'Plebs - Decentralized Video Platform',
+        'Plebs is a censorship-resistant, decentralized video platform powered by the Nostr social protocol'
     );
 
     // Default structured data
@@ -157,7 +157,7 @@ async function handleRoute() {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "Plebs",
-        "description": "Uncensorable, decentralized video platform powered by Nostr",
+        "description": "Censorship-resistant, decentralized video platform powered by Nostr",
         "url": window.location.origin
     });
 
@@ -248,7 +248,7 @@ async function handleRoute() {
         const tag = pathParts[1];
         updateMetaTags(
             `${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos - Plebs`,
-            `Watch ${tag} videos on Plebs, the uncensorable decentralized video platform`
+            `Watch ${tag} videos on Plebs, the censorship-resistant decentralized video platform`
         );
         loadTag(tag);
     } else if (pathParts[0] === 'search' && pathParts[1]) {
@@ -283,8 +283,10 @@ async function handleRoute() {
 // Show notifications modal and fetch notifications
 async function loadNotifications() {
     if (!currentUser) {
-        alert("Please log in to view notifications");
-        return;
+        if (!await ensureLoggedIn()) {
+            alert("Please log in to view notifications");
+            return;
+        }
     }
 
     const modal = document.getElementById("notificationsModal");
@@ -431,8 +433,10 @@ function hideNotificationsModal() {
 // Function to load liked videos
 async function loadLikedVideos() {
     if (!currentUser) {
-        document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your liked videos.</p>';
-        return;
+        if (!await ensureLoggedIn()) {
+            document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your liked videos.</p>';
+            return;
+        }
     }
 
     currentView = 'liked';
@@ -484,8 +488,10 @@ async function loadLikedVideos() {
 // Function to handle zaps manually
 async function handleZap(npub, amount, eventId = null) {
     if (!window.nostr) {
-        alert('Please install a Nostr extension (like Alby or nos2x) to send zaps');
-        return;
+        if (!await ensureLoggedIn()) {
+            alert('Please install a Nostr extension (like Alby or nos2x) to send zaps');
+            return;
+        }
     }
 
     // Show zap amount selection modal
@@ -1559,8 +1565,10 @@ function formatNumber(num) {
 // Send reaction event
 async function sendReaction(eventId, reaction) {
     if (!currentUser || !window.nostr) {
-        alert('Please login to react to videos');
-        return false;
+        if (!await ensureLoggedIn()) {
+            alert('Please login to react to videos');
+            return false;
+        }
     }
 
     const reactionEvent = {
@@ -1720,23 +1728,72 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('nlAuth', async (e) => {
         console.log('Auth event received:', e.detail);
         if (e.detail.type === 'login' || e.detail.type === 'signup') {
-            currentUser = e.detail;
-            console.log('User logged in:', currentUser);
-            handleRoute();
+            try {
+                const pubkey = await window.nostr.getPublicKey();
+
+                // Create and sign a login event
+                const loginEvent = {
+                    kind: 24242,
+                    created_at: Math.floor(Date.now() / 1000),
+                    tags: [['t', 'plebs-app']],
+                    content: 'Login to Plebs app',
+                    pubkey: pubkey
+                };
+
+                const signedEvent = await window.nostr.signEvent(loginEvent);
+
+                // Store in localStorage
+                localStorage.setItem('plebsPublicKey', pubkey);
+                localStorage.setItem('plebsSignedEvent', JSON.stringify(signedEvent));
+
+                currentUser = { pubkey };
+                console.log('User logged in:', currentUser);
+                handleRoute();
+            } catch (error) {
+                console.error('Error during login:', error);
+                alert('Failed to complete login. Please try again.');
+            }
         }
     });
 
     // Listen for logout
     window.addEventListener('nlLogout', async () => {
         console.log('User logged out');
+
+        // Clear localStorage
+        localStorage.removeItem('plebsPublicKey');
+        localStorage.removeItem('plebsSignedEvent');
+
         currentUser = null;
         handleRoute();
     });
 
     // Check if already logged in
-    if (window.nostr) {
+    const storedPubkey = localStorage.getItem('plebsPublicKey');
+    const storedSignedEvent = localStorage.getItem('plebsSignedEvent');
+
+    if (storedPubkey && storedSignedEvent) {
+        currentUser = { pubkey: storedPubkey };
+        console.log('User already logged in from storage:', storedPubkey);
+    } else if (window.nostr) {
         try {
             const pubkey = await window.nostr.getPublicKey();
+
+            // Create and sign a login event
+            const loginEvent = {
+                kind: 24242,
+                created_at: Math.floor(Date.now() / 1000),
+                tags: [['t', 'plebs-app']],
+                content: 'Login to Plebs app',
+                pubkey: pubkey
+            };
+
+            const signedEvent = await window.nostr.signEvent(loginEvent);
+
+            // Store in localStorage
+            localStorage.setItem('plebsPublicKey', pubkey);
+            localStorage.setItem('plebsSignedEvent', JSON.stringify(signedEvent));
+
             currentUser = { pubkey };
             console.log('User already logged in:', pubkey);
         } catch (e) {
@@ -1762,6 +1819,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Handle initial route
     handleRoute();
 });
+
+// Function to request Nostr login
+async function requestNostrLogin() {
+    // Check if already logged in from storage
+    const storedPubkey = localStorage.getItem('plebsPublicKey');
+    if (storedPubkey) {
+        currentUser = { pubkey: storedPubkey };
+        return currentUser;
+    }
+
+    // If nostr-login is available, trigger it
+    if (window.nostrLogin) {
+        try {
+            await window.nostrLogin.launch();
+            // The nlAuth event listener will handle the rest
+            return null; // Return null and let the event listener handle it
+        } catch (error) {
+            console.error('Failed to launch nostr login:', error);
+        }
+    }
+    
+    return null;
+}
+
+// Simpler function to ensure user is logged in
+async function ensureLoggedIn() {
+    if (currentUser) {
+        return true;
+    }
+    
+    // Check localStorage
+    const storedPubkey = localStorage.getItem('plebsPublicKey');
+    if (storedPubkey) {
+        currentUser = { pubkey: storedPubkey };
+        return true;
+    }
+    
+    // Request login
+    await requestNostrLogin();
+    return false;
+}
 
 // Format duration
 function formatDuration(seconds) {
@@ -2961,8 +3059,10 @@ async function loadTag(tag) {
 // Handle deleting video
 async function handleDelete(eventId) {
     if (!currentUser || !window.nostr) {
-        alert('Please login to delete videos');
-        return;
+        if (!await ensureLoggedIn()) {
+            alert('Please login to delete videos');
+            return;
+        }
     }
 
     if (!confirm('Are you sure you want to delete this video? This action cannot be undone.')) {
@@ -3021,8 +3121,10 @@ async function isFollowing(pubkey) {
 // Follow a user
 async function followUser(pubkey) {
     if (!currentUser || !window.nostr) {
-        alert('Please login to follow users');
-        return false;
+        if (!await ensureLoggedIn()) {
+            alert('Please login to follow users');
+            return false;
+        }
     }
 
     try {
@@ -4192,8 +4294,10 @@ function createCommentInput(replyTo = null) {
 // Submit comment
 async function submitComment(parentId, parentPubkey) {
     if (!currentUser || !window.nostr) {
-        alert('Please login to comment');
-        return;
+        if (!await ensureLoggedIn()) {
+            alert('Please login to comment');
+            return;
+        }
     }
 
     const container = parentId ? document.getElementById(`reply-input-${parentId}`) : document.getElementById('main-comment-input');
@@ -4385,7 +4489,11 @@ function escapeHtml(text) {
 // Upload modal functions
 function showUploadModal() {
     if (!currentUser) {
-        alert('Please login to upload videos');
+        ensureLoggedIn().then(loggedIn => {
+            if (!loggedIn) {
+                alert('Please login to upload videos');
+            }
+        });
         return;
     }
     document.getElementById('uploadModal').classList.add('active');
