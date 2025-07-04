@@ -222,8 +222,7 @@
                             <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
                         </svg>
                         <p>Click to select video or drag and drop</p>
-                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">MP4, WebM, or
-                            OGG (max 100MB)</p>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">MP4, AVI, MOV, etc (max 100MB)</p>
                     </div>
                     <input type="file" id="videoFile" accept="video/*" style="display: none;"
                         onchange="handleFileSelect(event)">
@@ -359,10 +358,6 @@
 
     <!-- Nostr Tools -->
     <script defer src="https://unpkg.com/nostr-tools/lib/nostr.bundle.js"></script>
-
-    <!-- Nostr Comments -->
-    <script defer type="text/javascript" src="https://unpkg.com/zapthreads/dist/zapthreads.iife.js"
-        relays="wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol,wss://relay.primal.net"></script>
 
     <!-- Nostr Zap -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>

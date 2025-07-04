@@ -1,3 +1,10 @@
+## v1.2.3 - 2025-07-04
+
+- New: download button
+- New: custom comment with threading and reaction
+- Hotfix: notifications view improvement
+- Hotfix: removed kinds 21 and 34235
+
 ## v1.1.3 - 2025-07-03
 
 - Hotfix: altered the way new accounts flagged

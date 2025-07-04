@@ -14,6 +14,7 @@ let uploadedVideoHash = null;
 let allEvents = new Map(); // Store events by ID
 let profileCache = new Map(); // Store user profiles
 let reactionsCache = new Map(); // Store reactions by video ID
+let nip05ValidationCache = new Map(); // Store NIP-05 validation results
 let pendingNSFWAction = null; // Store pending action when NSFW modal is shown
 let pendingRatioedAction = null; // Store pending action when ratioed modal is shown
 let sessionNSFWAllowed = false; // Track NSFW permission for current session
@@ -311,8 +312,7 @@ async function loadNotifications() {
         const reactions = [];
         const reactionFilter = {
             kinds: [7],
-            '#e': videoIds,
-            '#t': ['pv69420']
+            '#e': videoIds
         };
 
         await new Promise((resolve) => {
@@ -356,6 +356,11 @@ async function loadNotifications() {
             return;
         }
 
+        // Fetch profiles for all notification authors
+        const uniquePubkeys = [...new Set(notifications.map(n => n.pubkey))];
+        const profilePromises = uniquePubkeys.map(pubkey => fetchUserProfile(pubkey));
+        await Promise.all(profilePromises);
+
         list.innerHTML = '';
 
         notifications.forEach(event => {
@@ -365,7 +370,11 @@ async function loadNotifications() {
             const video = userVideos.find(v => v.id === videoId);
             const videoTitle = video ? parseVideoEvent(video).title : 'Unknown Video';
 
-            const from = event.pubkey.slice(0, 8);
+            // Get profile from cache
+            const profile = profileCache.get(event.pubkey) || {};
+            const displayName = profile.name || profile.display_name || `User ${event.pubkey.slice(0, 8)}`;
+            const avatarUrl = profile.picture || profile.avatar || '';
+
             const timestamp = formatTimestamp(event.created_at);
             const content = isReaction
                 ? `Reacted: ${event.content}`
@@ -374,12 +383,26 @@ async function loadNotifications() {
             const item = document.createElement('div');
             item.className = 'notification-item';
             item.innerHTML = `
-                <div>
-                    <div style="font-weight: 500;">${from}</div>
-                    <div style="font-size: 0.875rem; color: var(--text-secondary);">${timestamp}</div>
+                <div class="notification-content">
+                    <div class="notification-author">
+                        ${avatarUrl ? `
+                            <div class="notification-avatar">
+                                <img src="${avatarUrl}" alt="${displayName}">
+                            </div>
+                        ` : ''}
+                        <div>
+                            <div style="font-weight: 500;">${displayName}</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">${timestamp}</div>
+                        </div>
+                    </div>
                     <div style="margin-top: 0.25rem;">${content}</div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">on "${videoTitle}"</div>
                 </div>
-                <a href="#/video/${videoId}" onclick="hideNotificationsModal();">▶</a>
+                <a href="#/video/${videoId}" onclick="hideNotificationsModal();" class="notification-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </a>
             `;
             list.appendChild(item);
         });
@@ -1795,6 +1818,76 @@ function isVideoNSFW(event) {
     return tags.some(tag => tag[0] === 'content-warning' && tag[1] === 'nsfw');
 }
 
+// Helper function to validate NIP-05
+async function validateNip05(nip05, pubkey) {
+    // Check cache first
+    const cacheKey = `${nip05}:${pubkey}`;
+    if (nip05ValidationCache.has(cacheKey)) {
+        return nip05ValidationCache.get(cacheKey);
+    }
+
+    try {
+        const [name, domain] = nip05.split('@');
+        if (!name || !domain) {
+            nip05ValidationCache.set(cacheKey, false);
+            return false;
+        }
+
+        const response = await fetch(`https://${domain}/.well-known/nostr.json?name=${name}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            nip05ValidationCache.set(cacheKey, false);
+            return false;
+        }
+
+        const data = await response.json();
+        const isValid = data.names && data.names[name] === pubkey;
+
+        // Cache for 24 hours
+        nip05ValidationCache.set(cacheKey, isValid);
+        setTimeout(() => nip05ValidationCache.delete(cacheKey), 24 * 60 * 60 * 1000);
+
+        return isValid;
+    } catch (error) {
+        console.error('NIP-05 validation error:', error);
+        nip05ValidationCache.set(cacheKey, false);
+        return false;
+    }
+}
+
+// Helper to check if image URL is valid
+function createImageValidationPromise(url) {
+    return new Promise((resolve) => {
+        if (!url) {
+            resolve(false);
+            return;
+        }
+
+        const img = new Image();
+        const timeout = setTimeout(() => {
+            img.src = '';
+            resolve(false);
+        }, 5000); // 5 second timeout
+
+        img.onload = () => {
+            clearTimeout(timeout);
+            resolve(true);
+        };
+
+        img.onerror = () => {
+            clearTimeout(timeout);
+            resolve(false);
+        };
+
+        img.src = url;
+    });
+}
+
 // Function to create cards for videos
 function createVideoCard(event, profile, reactions, isTrending = false, trendingRank = null) {
     const videoData = parseVideoEvent(event);
@@ -1805,69 +1898,157 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
     const nip05 = profile?.nip05 || '';
     const isNSFW = isVideoNSFW(event);
     const isRatioed = isVideoRatioed(reactions || {});
-    const isSuspiciousProfile = !avatarUrl || !nip05; // Check for missing avatar or nip05
+
+    // For now, assume suspicious until proven otherwise
+    const cardId = `video-card-${event.id}`;
+    const isSuspiciousProfile = !avatarUrl || !nip05;
     const showBlurred = (isNSFW && !shouldShowNSFW()) || (isRatioed && !sessionRatioedAllowed.has(event.id)) || (isSuspiciousProfile && !sessionRatioedAllowed.has(event.id));
-    
+
     // If this is a trending video and it has a community warning, don't render it
     if (isTrending && (isRatioed || isSuspiciousProfile)) {
         return '';
     }
 
-    return `
-                <div class="video-card">
-                    <div class="video-thumbnail ${showBlurred ? (isRatioed || isSuspiciousProfile ? 'ratioed' : 'nsfw') : ''}" 
-                         onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">
-                        ${videoData.thumbnail ?
+    // Add data attributes for later validation updates
+    const cardHTML = `
+        <div class="video-card" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}">
+            <div class="video-thumbnail ${showBlurred ? (isRatioed || isSuspiciousProfile ? 'ratioed' : 'nsfw') : ''}" 
+                 onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">
+                ${videoData.thumbnail ?
             `<img src="${videoData.thumbnail}" alt="${videoData.title}" onerror="this.style.display='none'">` :
             `<video src="${videoData.url}" preload="metadata"></video>`
         }
-                        ${showBlurred ? `
-                            <div class="${(isRatioed || isSuspiciousProfile) ? 'ratioed-overlay' : 'nsfw-overlay'}">
-                                <div class="${(isRatioed || isSuspiciousProfile) ? 'ratioed-badge' : 'nsfw-badge'}">${(isRatioed || isSuspiciousProfile) ? 'COMMUNITY WARNING' : 'NSFW'}</div>
-                                <div>Click to view</div>
-                            </div>
+                ${showBlurred ? `
+                    <div class="${(isRatioed || isSuspiciousProfile) ? 'ratioed-overlay' : 'nsfw-overlay'}">
+                        <div class="${(isRatioed || isSuspiciousProfile) ? 'ratioed-badge' : 'nsfw-badge'}">${(isRatioed || isSuspiciousProfile) ? 'COMMUNITY WARNING' : 'NSFW'}</div>
+                        <div>Click to view</div>
+                    </div>
+                ` : ''}
+                ${!showBlurred && videoData.duration ? `<span class="video-duration">${formatDuration(videoData.duration)}</span>` : ''}
+                ${reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
+                    <div class="video-reactions">
+                        ${reactions.likes > 0 ? `
+                            <span class="reaction-count likes">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                                </svg>
+                                ${formatNumber(reactions.likes)}
+                            </span>
                         ` : ''}
-                        ${!showBlurred && videoData.duration ? `<span class="video-duration">${formatDuration(videoData.duration)}</span>` : ''}
-                        ${reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
-                        <div class="video-reactions">
-                            ${reactions.likes > 0 ? `
-                                <span class="reaction-count likes">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-                                    </svg>
-                                    ${formatNumber(reactions.likes)}
-                                </span>
-                            ` : ''}
-                            ${reactions.dislikes > 0 ? `
-                                <span class="reaction-count dislikes">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
-                                    </svg>
-                                    ${formatNumber(reactions.dislikes)}
-                                </span>
-                            ` : ''}
-                        </div>
-                    ` : ''}
+                        ${reactions.dislikes > 0 ? `
+                            <span class="reaction-count dislikes">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                                </svg>
+                                ${formatNumber(reactions.dislikes)}
+                            </span>
+                        ` : ''}
                     </div>
-                    <div class="video-info">
-                        <a href="#/profile/${event.pubkey}" class="channel-info">
-                            <div class="channel-avatar">
-                                ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}">` : ''}
-                            </div>
-                            <div class="channel-details">
-                                <div class="channel-name">${displayName}</div>
-                                ${nip05 ? `<div class="channel-nip05">${nip05}</div>` : ''}
-                            </div>
-                        </a>
-                        <h3 class="video-title" onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">${videoData.title}</h3>
-                        <div class="video-meta">
-                            ${formatTimestamp(event.created_at)}
-                            ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
-                            ${(isRatioed || isSuspiciousProfile) ? ' • <span style="color: #ff9800;">Community Warning</span>' : ''}
-                        </div>
+                ` : ''}
+            </div>
+            <div class="video-info">
+                <a href="#/profile/${event.pubkey}" class="channel-info">
+                    <div class="channel-avatar">
+                        ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}" data-avatar-url="${avatarUrl}">` : ''}
                     </div>
+                    <div class="channel-details">
+                        <div class="channel-name">${displayName}</div>
+                        ${nip05 ? `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>` : ''}
+                    </div>
+                </a>
+                <h3 class="video-title" onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">${videoData.title}</h3>
+                <div class="video-meta">
+                    ${formatTimestamp(event.created_at)}
+                    ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
+                    <span class="community-warning-indicator" style="${(isRatioed || isSuspiciousProfile) ? '' : 'display: none;'}"> • <span style="color: #ff9800;">Community Warning</span></span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Schedule validation for this card
+    if (profile && (avatarUrl || nip05)) {
+        setTimeout(() => validateVideoCard(event.id, event.pubkey, profile, reactions, isTrending), 100);
+    }
+
+    return cardHTML;
+}
+
+// Function to validate and update video cards
+async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending = false) {
+    const card = document.getElementById(`video-card-${eventId}`);
+    if (!card) return;
+
+    const avatarUrl = profile?.picture || profile?.avatar || '';
+    const nip05 = profile?.nip05 || '';
+
+    // Run validations in parallel
+    const [avatarValid, nip05Valid] = await Promise.all([
+        avatarUrl ? createImageValidationPromise(avatarUrl) : Promise.resolve(false),
+        nip05 ? validateNip05(nip05, pubkey) : Promise.resolve(false)
+    ]);
+
+    const isSuspiciousProfile = !avatarValid || !nip05Valid;
+    const isNSFW = isVideoNSFW(allEvents.get(eventId));
+    const isRatioed = isVideoRatioed(reactions || {});
+
+    // If trending and suspicious/ratioed, remove the card
+    if (isTrending && (isRatioed || isSuspiciousProfile)) {
+        card.remove();
+        return;
+    }
+
+    // Update the card's warning status
+    const thumbnail = card.querySelector('.video-thumbnail');
+    const warningIndicator = card.querySelector('.community-warning-indicator');
+    const shouldShowWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId);
+    const shouldShowNSFW = isNSFW && !shouldShowNSFW();
+
+    if (shouldShowWarning || shouldShowNSFW) {
+        // Update thumbnail class
+        thumbnail.className = `video-thumbnail ${shouldShowWarning ? 'ratioed' : (shouldShowNSFW ? 'nsfw' : '')}`;
+
+        // Update onclick
+        thumbnail.setAttribute('onclick',
+            shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`
+        );
+
+        // Update or add overlay if not present
+        if (!thumbnail.querySelector('.ratioed-overlay') && !thumbnail.querySelector('.nsfw-overlay')) {
+            const overlayHTML = `
+                <div class="${shouldShowWarning ? 'ratioed-overlay' : 'nsfw-overlay'}">
+                    <div class="${shouldShowWarning ? 'ratioed-badge' : 'nsfw-badge'}">${shouldShowWarning ? 'COMMUNITY WARNING' : 'NSFW'}</div>
+                    <div>Click to view</div>
                 </div>
             `;
+            thumbnail.insertAdjacentHTML('beforeend', overlayHTML);
+        }
+
+        // Show warning indicator
+        if (warningIndicator) {
+            warningIndicator.style.display = shouldShowWarning ? 'inline' : 'none';
+        }
+    } else {
+        // Remove warnings if validation passed
+        thumbnail.className = 'video-thumbnail';
+        thumbnail.setAttribute('onclick', `navigateTo('/video/${eventId}')`);
+
+        const overlay = thumbnail.querySelector('.ratioed-overlay, .nsfw-overlay');
+        if (overlay) overlay.remove();
+
+        if (warningIndicator) {
+            warningIndicator.style.display = 'none';
+        }
+    }
+
+    // Update title onclick as well
+    const title = card.querySelector('.video-title');
+    if (title) {
+        title.setAttribute('onclick',
+            shouldShowWarning ? `showRatioedModal('${eventId}')` :
+                (shouldShowNSFW ? `showNSFWModal('playVideo', '${eventId}')` : `navigateTo('/video/${eventId}')`)
+        );
+    }
 }
 
 // Show NSFW modal
@@ -2087,7 +2268,7 @@ async function loadTrendingVideos(period = 'today') {
                 // Calculate trending score including zaps
                 const ageHours = (now - event.created_at) / 3600;
                 const timeWeight = Math.max(0, 24 - ageHours) / 24;
-                
+
                 const zapScore = (zapTotal / 1000) * 5;
                 const score = reactions.likes - (reactions.dislikes * 2) + zapScore + (timeWeight * 10);
 
@@ -2566,7 +2747,7 @@ function initializeCarousel() {
 
     // Ensure we don't exceed the total number of cards
     itemsPerPage = Math.min(itemsPerPage, totalCards);
-    
+
     const totalPages = Math.ceil(totalCards / itemsPerPage);
 
     // Update CSS for proper card sizing based on items per page
@@ -2574,10 +2755,10 @@ function initializeCarousel() {
     const gapPixels = gapRem * 16; // Convert rem to pixels (assuming 16px base)
     const totalGaps = itemsPerPage - 1;
     const totalGapWidth = totalGaps * gapPixels;
-    
+
     // Calculate the percentage width for each card
     const cardWidthPercent = (100 - (totalGapWidth / trendingGrid.offsetWidth * 100)) / itemsPerPage;
-    
+
     // Apply the calculated width to all cards
     cards.forEach(card => {
         card.style.flex = `0 0 ${cardWidthPercent}%`;
@@ -3483,7 +3664,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         // Try to get working video URL
         const videoUrl = await getVideoUrl(videoData.hash) || videoData.url;
 
-        // Create note for comments
+        // Create note for comments (no longer needed for ZapThreads)
         const note = createNote(event);
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
 
@@ -3492,7 +3673,20 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
         const avatarUrl = profile?.picture || profile?.avatar || '';
         const nip05 = profile?.nip05 || '';
-        const isProfileSuspicious = !avatarUrl || !nip05; // Re-check with fresh profile data
+
+        // Validate profile data
+        const [avatarValid, nip05Valid] = await Promise.all([
+            avatarUrl ? createImageValidationPromise(avatarUrl) : Promise.resolve(false),
+            nip05 ? validateNip05(nip05, event.pubkey) : Promise.resolve(false)
+        ]);
+
+        const isProfileSuspicious = !avatarValid || !nip05Valid;
+
+        // Re-check ratioed status with validated profile
+        if (!skipRatioedCheck && (isCachedRatioed || isProfileSuspicious) && !sessionRatioedAllowed.has(eventId)) {
+            showRatioedModal(eventId);
+            return;
+        }
 
         // Video page
         mainContent.innerHTML = `
@@ -3555,6 +3749,12 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             </svg>
                             Share
                         </button>
+                        <button class="action-btn" onclick="downloadVideo('${videoUrl}', {title: '${videoData.title}'})">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                            </svg>
+                            Download
+                        </button>
                         ${currentUser && currentUser.pubkey === event.pubkey ? `
                             <button class="action-btn delete" onclick="handleDelete('${event.id}')">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -3576,18 +3776,13 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     ` : ''}
                 </div>
                 
-                ${note ? `
-                    <div class="comments-section">
-                        <h3>Comments</h3>
-                        <zap-threads
-                            anchor="${note}"
-                            ${userNpub ? `user="${userNpub}"` : ''}
-                            author="${authorNpub}"
-                            relays="${RELAY_URLS.join(',')}"
-                            disable="likes"
-                        ></zap-threads>
+                <div class="comments-section">
+                    <h3>Comments</h3>
+                    <div id="main-comment-input"></div>
+                    <div id="comments-container">
+                        <div class="spinner"></div>
                     </div>
-                ` : ''}
+                </div>
             </div>
         `;
 
@@ -3601,6 +3796,16 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                 mainContent.innerHTML = '<div class="error-message">Failed to load video. The file may have been removed.</div>';
             }
         };
+
+        // Add main comment input
+        const mainCommentInput = createCommentInput();
+        document.getElementById('main-comment-input').replaceWith(mainCommentInput);
+
+        // Collect all event IDs for this video
+        const videoEventIds = [eventId];
+
+        // Load comments
+        loadComments(videoEventIds);
 
         // Load reactions with streaming updates
         loadReactionsForVideos([eventId], (videoId, reactions) => {
@@ -3649,6 +3854,37 @@ async function handleDislike(eventId) {
     }
 }
 
+// Handle download button click
+async function downloadVideo(videoUrl, videoData) {
+    try {
+        // Check if the video URL is from Blossom or direct file
+        if (videoUrl.startsWith('https://') && BLOSSOM_SERVERS.some(server => videoUrl.startsWith(server))) {
+            // If it's a Blossom URL, we need to fetch the file blob
+            const response = await fetch(videoUrl);
+            const blob = await response.blob();
+
+            // Create a blob URL and download it
+            const blobUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = videoData.title || 'video';
+            a.click();
+            URL.revokeObjectURL(blobUrl);
+            a.remove();
+        } else {
+            // For direct file URLs, we can use the original download method
+            const a = document.createElement('a');
+            a.href = videoUrl;
+            a.download = videoData.title || 'video';
+            a.click();
+            a.remove();
+        }
+    } catch (error) {
+        console.error('Failed to download video:', error);
+        alert('Failed to download video. Please try again.');
+    }
+}
+
 // Update reaction buttons UI
 function updateReactionButtons(eventId, reactions) {
     // Use data attributes to find the correct buttons
@@ -3693,6 +3929,459 @@ function hideShareModal() {
     document.getElementById('copySuccess').style.display = 'none';
 }
 
+// Comment system functions
+async function loadComments(eventIds) {
+    const commentsContainer = document.getElementById('comments-container');
+    if (!commentsContainer) return;
+
+    commentsContainer.innerHTML = '<div class="spinner"></div>';
+
+    try {
+        // Create filter for all replies to any of the video event IDs
+        const filter = {
+            kinds: [1], // Text notes used as comments
+            '#e': eventIds, // References to any of the video events
+            limit: 500
+        };
+
+        const comments = [];
+        const commentReactions = new Map(); // commentId -> Map(userId -> {reaction, timestamp})
+
+        // Load all comments
+        await requestEventsStream(filter, (event) => {
+            comments.push(event);
+            allEvents.set(event.id, event); // Store in allEvents for reaction reference
+        }, async () => {
+            // After getting all comments, load profiles
+            const uniquePubkeys = [...new Set(comments.map(c => c.pubkey))];
+
+            // Load profiles using the existing fetchUserProfile function
+            const profilePromises = uniquePubkeys.map(pubkey => fetchUserProfile(pubkey));
+            await Promise.all(profilePromises);
+
+            // Load reactions for comments
+            const commentIds = comments.map(c => c.id);
+            if (commentIds.length > 0) {
+                const reactionFilter = {
+                    kinds: [7],
+                    '#e': commentIds
+                };
+
+                await requestEventsStream(reactionFilter, (event) => {
+                    const targetId = event.tags.find(t => t[0] === 'e')?.[1];
+                    if (targetId && commentIds.includes(targetId)) {
+                        if (!commentReactions.has(targetId)) {
+                            commentReactions.set(targetId, new Map());
+                        }
+                        const reactions = commentReactions.get(targetId);
+                        const timestamp = event.created_at;
+
+                        // Only update if this is newer than existing reaction from this user
+                        const existingReaction = reactions.get(event.pubkey);
+                        if (!existingReaction || existingReaction.timestamp < timestamp) {
+                            reactions.set(event.pubkey, {
+                                reaction: event.content,
+                                timestamp: timestamp
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Build comment tree
+            const commentTree = buildCommentTree(comments, eventIds);
+
+            // Render comments - pass profileCache instead of local profiles
+            renderComments(commentTree, profileCache, commentReactions, commentsContainer);
+        });
+
+    } catch (error) {
+        console.error('Failed to load comments:', error);
+        commentsContainer.innerHTML = '<div class="error-message">Failed to load comments</div>';
+    }
+}
+
+// Build hierarchical comment structure
+function buildCommentTree(comments, rootEventIds) {
+    const commentMap = new Map();
+    const rootComments = [];
+
+    // First, create a map of all comments
+    comments.forEach(comment => {
+        commentMap.set(comment.id, {
+            ...comment,
+            children: [],
+            depth: 0
+        });
+    });
+
+    // Then, build the tree structure
+    comments.forEach(comment => {
+        const eTags = comment.tags.filter(t => t[0] === 'e');
+
+        // Find parent comment (last 'e' tag that's not a root video event)
+        let parentId = null;
+        for (let i = eTags.length - 1; i >= 0; i--) {
+            const eventId = eTags[i][1];
+            if (!rootEventIds.includes(eventId) && commentMap.has(eventId)) {
+                parentId = eventId;
+                break;
+            }
+        }
+
+        const commentNode = commentMap.get(comment.id);
+
+        if (parentId && commentMap.has(parentId)) {
+            // This is a reply to another comment
+            const parent = commentMap.get(parentId);
+            parent.children.push(commentNode);
+            commentNode.depth = parent.depth + 1;
+        } else {
+            // This is a top-level comment
+            rootComments.push(commentNode);
+        }
+    });
+
+    // Sort by timestamp (newest first)
+    const sortComments = (comments) => {
+        comments.sort((a, b) => b.created_at - a.created_at);
+        comments.forEach(comment => sortComments(comment.children));
+    };
+
+    sortComments(rootComments);
+
+    return rootComments;
+}
+
+// Render comment tree
+function renderComments(comments, profiles, reactions, container) {
+    if (comments.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No comments yet. Be the first to comment!</p>';
+        return;
+    }
+
+    container.innerHTML = '';
+    comments.forEach(comment => {
+        const commentElement = createCommentElement(comment, profiles, reactions);
+        container.appendChild(commentElement);
+    });
+}
+
+// Create individual comment element
+function createCommentElement(comment, profiles, reactions) {
+    const profile = profiles.get(comment.pubkey) || {};
+    const displayName = profile.name || profile.display_name || `User ${comment.pubkey.slice(0, 8)}`;
+    const avatarUrl = profile.picture || profile.avatar || '';
+    const nip05 = profile.nip05 || '';
+
+    // Get reactions for this comment
+    const commentReactions = reactions.get(comment.id) || new Map();
+    let likes = 0;
+    let userReaction = null;
+
+    commentReactions.forEach((data, pubkey) => {
+        if (data.reaction === '👍' || data.reaction === '+') likes++;
+        if (currentUser && pubkey === currentUser.pubkey && data.reaction === '👍') {
+            userReaction = 'like';
+        }
+    });
+
+    // Calculate visual depth (max 3 levels for mobile)
+    const visualDepth = Math.min(comment.depth, 3);
+
+    const commentDiv = document.createElement('div');
+    commentDiv.className = 'comment';
+    commentDiv.dataset.depth = visualDepth;
+    commentDiv.dataset.commentId = comment.id;
+
+    // Add depth indicator for deeply nested comments
+    const depthIndicator = comment.depth > 3 ? `↳ ${comment.depth - 3} more` : '';
+
+    commentDiv.innerHTML = `
+        <div class="comment-thread-line"></div>
+        <div class="comment-content">
+            <div class="comment-header">
+                <a href="#/profile/${comment.pubkey}" class="comment-author">
+                    <div class="comment-avatar">
+                        ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}">` : ''}
+                    </div>
+                    <div class="comment-author-info">
+                        <div class="comment-author-name">${displayName}</div>
+                        ${nip05 ? `<div class="comment-author-nip05">${nip05}</div>` : ''}
+                    </div>
+                </a>
+                <div class="comment-timestamp">${formatTimestamp(comment.created_at)}</div>
+            </div>
+            ${depthIndicator ? `<div class="comment-depth-indicator">${depthIndicator}</div>` : ''}
+            <div class="comment-body">${escapeHtml(comment.content)}</div>
+            <div class="comment-actions">
+                <button class="comment-action-btn ${userReaction === 'like' ? 'active' : ''}" 
+                        onclick="likeComment('${comment.id}')"
+                        ${currentUser ? '' : 'disabled'}
+                        data-comment-id="${comment.id}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                    </svg>
+                    <span class="like-count">${likes > 0 ? likes : 'Like'}</span>
+                </button>
+                <button class="comment-action-btn" 
+                        onclick="replyToComment('${comment.id}', '${comment.pubkey}')"
+                        ${currentUser ? '' : 'disabled'}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11z"/>
+                    </svg>
+                    Reply
+                </button>
+            </div>
+        </div>
+    `;
+
+    // Add children recursively
+    if (comment.children.length > 0) {
+        const childrenContainer = document.createElement('div');
+        childrenContainer.className = 'comment-children';
+        comment.children.forEach(child => {
+            const childElement = createCommentElement(child, profiles, reactions);
+            childrenContainer.appendChild(childElement);
+        });
+        commentDiv.appendChild(childrenContainer);
+    }
+
+    return commentDiv;
+}
+
+// Add comment input box
+function createCommentInput(replyTo = null) {
+    const inputDiv = document.createElement('div');
+    inputDiv.className = 'comment-input-container';
+    inputDiv.id = replyTo ? `reply-input-${replyTo.id}` : 'main-comment-input';
+
+    const placeholder = replyTo ? 'Write a reply...' : 'Add a comment...';
+    const buttonText = replyTo ? 'Reply' : 'Comment';
+
+    inputDiv.innerHTML = `
+        <div class="comment-input-box">
+            ${replyTo ? `
+                <div class="replying-to">
+                    Replying to @${replyTo.name || `User ${replyTo.pubkey.slice(0, 8)}`}
+                    <button onclick="cancelReply('${replyTo.id}')" class="cancel-reply">×</button>
+                </div>
+            ` : ''}
+            <textarea 
+                class="comment-textarea" 
+                placeholder="${placeholder}"
+                rows="3"
+                ${currentUser ? '' : 'disabled'}
+            ></textarea>
+            <div class="comment-input-actions">
+                <button 
+                    class="comment-submit-btn" 
+                    onclick="submitComment(${replyTo ? `'${replyTo.id}', '${replyTo.pubkey}'` : 'null, null'})"
+                    ${currentUser ? '' : 'disabled'}
+                >
+                    ${buttonText}
+                </button>
+            </div>
+            ${!currentUser ? '<p class="comment-login-prompt">Please login to comment</p>' : ''}
+        </div>
+    `;
+
+    return inputDiv;
+}
+
+// Submit comment
+async function submitComment(parentId, parentPubkey) {
+    if (!currentUser || !window.nostr) {
+        alert('Please login to comment');
+        return;
+    }
+
+    const container = parentId ? document.getElementById(`reply-input-${parentId}`) : document.getElementById('main-comment-input');
+    if (!container) return;
+
+    const textarea = container.querySelector('.comment-textarea');
+    const content = textarea.value.trim();
+
+    if (!content) {
+        alert('Please write a comment');
+        return;
+    }
+
+    const button = container.querySelector('.comment-submit-btn');
+    button.disabled = true;
+    button.textContent = 'Posting...';
+
+    try {
+        // Get all video event IDs from the current video
+        const videoEventIds = [];
+        const eventId = window.location.hash.split('/')[2];
+
+        // Add the main event ID
+        videoEventIds.push(eventId);
+
+        const tags = [];
+
+        // Add references to video events
+        videoEventIds.forEach(id => {
+            tags.push(['e', id, '', 'root']);
+        });
+
+        // Add reference to parent comment if this is a reply
+        if (parentId) {
+            tags.push(['e', parentId, '', 'reply']);
+            tags.push(['p', parentPubkey]);
+        }
+
+        // Add reference to video author
+        const videoEvent = allEvents.get(eventId);
+        if (videoEvent) {
+            tags.push(['p', videoEvent.pubkey]);
+        }
+
+        const commentEvent = {
+            kind: 1,
+            tags: tags,
+            content: content,
+            created_at: Math.floor(Date.now() / 1000)
+        };
+
+        const signedEvent = await window.nostr.signEvent(commentEvent);
+        const published = await publishEvent(signedEvent);
+
+        if (published) {
+            // Clear input
+            textarea.value = '';
+
+            // Remove reply box if it was a reply
+            if (parentId) {
+                cancelReply(parentId);
+            }
+
+            // Reload comments
+            setTimeout(() => {
+                loadComments(videoEventIds);
+            }, 500);
+        } else {
+            throw new Error('Failed to publish comment');
+        }
+    } catch (error) {
+        console.error('Failed to post comment:', error);
+        alert('Failed to post comment. Please try again.');
+    } finally {
+        button.disabled = false;
+        button.textContent = parentId ? 'Reply' : 'Comment';
+    }
+}
+
+// Reply to comment
+function replyToComment(commentId, commentPubkey) {
+    // Remove any existing reply boxes
+    document.querySelectorAll('.comment-reply-box').forEach(box => box.remove());
+
+    // Find the comment element
+    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (!commentElement) return;
+
+    // Get comment author info
+    const authorName = commentElement.querySelector('.comment-author-name').textContent;
+
+    // Create reply box
+    const replyBox = document.createElement('div');
+    replyBox.className = 'comment-reply-box';
+    replyBox.id = `reply-box-${commentId}`;
+
+    const replyInput = createCommentInput({
+        id: commentId,
+        pubkey: commentPubkey,
+        name: authorName
+    });
+
+    replyBox.appendChild(replyInput);
+
+    // Insert after comment content
+    const commentContent = commentElement.querySelector('.comment-content');
+    commentContent.appendChild(replyBox);
+
+    // Focus on textarea
+    replyBox.querySelector('.comment-textarea').focus();
+}
+
+// Cancel reply
+function cancelReply(commentId) {
+    const replyBox = document.getElementById(`reply-box-${commentId}`);
+    if (replyBox) {
+        replyBox.remove();
+    }
+}
+
+// Like comment
+async function likeComment(commentId) {
+    if (!currentUser || !window.nostr) {
+        alert('Please login to like comments');
+        return;
+    }
+
+    // Find the button that was clicked
+    const button = document.querySelector(`button[data-comment-id="${commentId}"]`);
+    if (!button) return;
+
+    // Optimistic UI update
+    const likeCountSpan = button.querySelector('.like-count');
+    const currentLikes = parseInt(likeCountSpan.textContent) || 0;
+    const wasLiked = button.classList.contains('active');
+
+    // Toggle UI immediately
+    if (wasLiked) {
+        button.classList.remove('active');
+        likeCountSpan.textContent = currentLikes > 1 ? currentLikes - 1 : 'Like';
+    } else {
+        button.classList.add('active');
+        likeCountSpan.textContent = currentLikes + 1;
+    }
+
+    try {
+        const reactionEvent = {
+            kind: 7,
+            tags: [
+                ['e', commentId],
+                ['p', allEvents.get(commentId)?.pubkey || '']
+            ],
+            content: wasLiked ? '-' : '👍', // Use '-' to remove reaction
+            created_at: Math.floor(Date.now() / 1000)
+        };
+
+        const signedEvent = await window.nostr.signEvent(reactionEvent);
+        const published = await publishEvent(signedEvent);
+
+        if (!published) {
+            // Revert optimistic update if publish failed
+            if (wasLiked) {
+                button.classList.add('active');
+                likeCountSpan.textContent = currentLikes;
+            } else {
+                button.classList.remove('active');
+                likeCountSpan.textContent = currentLikes > 0 ? currentLikes : 'Like';
+            }
+            throw new Error('Failed to publish reaction');
+        }
+    } catch (error) {
+        console.error('Failed to like comment:', error);
+        alert('Failed to update reaction. Please try again.');
+    }
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
 // Upload modal functions
 function showUploadModal() {
     if (!currentUser) {
@@ -3711,23 +4400,53 @@ function hideUploadModal() {
 
 // Handle file selection
 function handleFileSelect(event) {
-    const file = event.target.files[0];
+    const input = event.target;
+    const file = input.files[0];
     if (!file) return;
 
     const maxSize = 100 * 1024 * 1024; // 100MB
     if (file.size > maxSize) {
         alert('File size must be less than 100MB');
-        event.target.value = '';
+        input.value = '';
         return;
     }
 
-    const fileUpload = document.getElementById('fileUpload');
-    fileUpload.classList.add('active');
-    fileUpload.innerHTML = `
-                <p style="font-weight: 500;">${file.name}</p>
-                <p style="font-size: 0.875rem; color: var(--text-secondary);">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
-            `;
+    if (input.id === 'videoFile') {
+        // Validate video file type
+        const allowedVideoTypes = [
+            'video/mp4',
+            'video/webm',
+            'video/mov',
+            'video/avi',
+            'video/mkv',
+            'video/wmv'
+        ];
+        if (!allowedVideoTypes.includes(file.type)) {
+            alert('Invalid video file type. Please upload a video file (mp4, webm, mov, avi, mkv, wmv)');
+            input.value = '';
+            return;
+        }
+
+        const fileUpload = document.getElementById('fileUpload');
+        fileUpload.classList.add('active');
+        fileUpload.innerHTML = `
+            <p style="font-weight: 500;">${file.name}</p>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+        `;
+    } else if (input.id === 'thumbnailFile') {
+        // Validate thumbnail file type
+        const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedImageTypes.includes(file.type)) {
+            alert('Invalid thumbnail file type. Please upload an image file (jpg, png, gif, webp)');
+            input.value = '';
+            return;
+        }
+    }
 }
+
+// Add event listener for both video and thumbnail file inputs
+document.getElementById('videoFile').addEventListener('change', handleFileSelect);
+document.getElementById('thumbnailFile').addEventListener('change', handleFileSelect);
 
 // Calculate SHA-256 hash
 async function calculateSHA256(file) {
@@ -3829,7 +4548,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     }
 
     const title = document.getElementById('videoTitle').value;
-    const description = document.getElementById('videoDescription').value;
+    const description = escapeHtml(document.getElementById('videoDescription').value);
     const tags = document.getElementById('videoTags').value.split(',').map(t => t.trim()).filter(t => t);
     const isNSFW = document.getElementById('nsfwCheckbox').checked;
 
@@ -3900,7 +4619,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
                 // Add NIP-89 client tag
                 ['client', 'Plebs']
             ],
-            content: `${description}\n\n${videoResult.url}`,
+            content: `${escapeHtml(description)}\n\n${videoResult.url}`,
             created_at: Math.floor(Date.now() / 1000)
         };
 
@@ -3911,82 +4630,6 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         if (!published) {
             throw new Error('Failed to publish to any relay');
         }
-
-        // Generate UUID for kind 34235
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                const r = (Math.random() * 16) | 0;
-                const v = c === 'x' ? r : (r & 0x3) | 0x8;
-                return v.toString(16);
-            });
-        }
-        const uuid = generateUUID();
-
-        // Build imeta parts for kind 21
-        const imetaParts = [
-            `url ${videoResult.url}`,
-            `x ${videoResult.hash}`,
-            `m ${videoFile.type}`,
-        ];
-        if (thumbnailUrl) imetaParts.push(`image ${thumbnailUrl}`);
-        if (videoResult.mirrors && videoResult.mirrors.length > 0) {
-            videoResult.mirrors.forEach(mirror => {
-                imetaParts.push(`fallback ${mirror.url}`);
-            });
-        }
-        imetaParts.push('service nip96');
-
-        // Build tags for kind 21
-        const kind21Tags = [
-            ['title', title],
-            ['published_at', signedEvent.created_at.toString()],
-            ['imeta', imetaParts.join(' ')],
-            ['duration', videoDuration.toString()],
-            ...tags.map(tag => ['t', tag]),
-            ['p', currentUser.pubkey],
-        ];
-        if (isNSFW) kind21Tags.push(['content-warning', 'nsfw']);
-
-        // Create and sign kind 21 event
-        const kind21Event = {
-            kind: 21,
-            tags: kind21Tags,
-            content: description || `New video: ${title}`,
-            created_at: signedEvent.created_at,
-        };
-
-        const signedKind21 = await window.nostr.signEvent(kind21Event);
-        await publishEvent(signedKind21);
-
-        // Build tags for kind 34235
-        const kind34235Tags = [
-            ['d', uuid],
-            ['title', title],
-            ['summary', description],
-            ['src', videoResult.url],
-            ['m', videoFile.type],
-            ['image', thumbnailUrl || ''],
-            ...(isNSFW ? [['content-warning', 'nsfw']] : []),
-            ...tags.map(tag => ['t', tag]),
-            ['p', currentUser.pubkey],
-        ];
-
-        // Create and sign kind 34235 event
-        const kind34235Event = {
-            kind: 34235,
-            tags: kind34235Tags,
-            content: JSON.stringify({
-                title: title,
-                description: description,
-                tags: tags,
-                thumbnail: thumbnailUrl,
-                mirrors: videoResult.mirrors.map(m => m.url),
-            }),
-            created_at: signedEvent.created_at,
-        };
-
-        const signedKind34235 = await window.nostr.signEvent(kind34235Event);
-        await publishEvent(signedKind34235);
 
         // Publish User Server List (kind 10063) for mirrors
         if (videoResult.mirrors && videoResult.mirrors.length > 0) {

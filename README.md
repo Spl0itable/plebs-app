@@ -12,7 +12,7 @@ Plebs is a revolutionary video platform that leverages the [Nostr](https://githu
 - **Decentralized Storage** - Videos stored on multiple Blossom servers
 - **Lightning Zaps** - Direct Bitcoin payments to content creators  
 - **Nostr Integration** - Login with your Nostr identity (NIP-07)
-- **Comments** - Engage through threads integration
+- **Comments** - Engage through threaded integration
 - **Reactions** - Like and dislike videos
 - **Search** - Find videos by title, description, or tags
 
@@ -36,8 +36,6 @@ Visit the live application at [https://plebs.app](https://plebs.app)
 - **Kind 5**: Video deletion requests
 - **Kind 7**: Video reactions (likes/dislikes)
 - **Kind 1**: Normal post content
-- **Kind 21**: Normal video content
-- **Kind 34235**: Video event
 - **Kind 9734**: Zap requests
 - **Kind 9735**: Zap receipts
 - **Kind 10063**: User server lists
