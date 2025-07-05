@@ -25,7 +25,10 @@
     <link rel="apple-touch-icon" href="./images/plebs-icon.png">
 
     <!-- Plebs Styling -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="preload" href="styles.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript>
+        <link rel="stylesheet" href="styles.css">
+    </noscript>
 </head>
 
 <body>
@@ -222,7 +225,8 @@
                             <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
                         </svg>
                         <p>Click to select video or drag and drop</p>
-                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">MP4, AVI, MOV, etc (max 100MB)</p>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">MP4, AVI, MOV,
+                            etc (max 100MB)</p>
                     </div>
                     <input type="file" id="videoFile" accept="video/*" style="display: none;"
                         onchange="handleFileSelect(event)">
@@ -350,21 +354,20 @@
     </div>
 
     <!-- Nostr Login -->
-    <script src="https://unpkg.com/nostr-login@latest/dist/unpkg.js"
-        data-title="Login with Nostr"
+    <script defer src="https://unpkg.com/nostr-login@latest/dist/unpkg.js" data-title="Login with Nostr"
         data-description="Choose a login method with Nostr to use the Plebs decentralized video platform."
         data-signup-relays="wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol,wss://relay.primal.net"
         data-outbox-relays="wss://sendit.nosflare.com,wss://relay.damus.io,wss://relay.nostr.band,wss://nos.lol,wss://relay.primal.net"></script>
 
     <!-- Nostr Tools -->
-    <script src="https://unpkg.com/nostr-tools/lib/nostr.bundle.js"></script>
+    <script defer src="https://unpkg.com/nostr-tools/lib/nostr.bundle.js"></script>
 
     <!-- Nostr Zap -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/webln@0.3.2/dist/webln.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script defer src="https://unpkg.com/webln@0.3.2/dist/webln.min.js"></script>
 
     <!-- Plebs Script -->
-    <script src="app.js"></script>
+    <script defer src="app.js"></script>
 
     <!-- GitHub Button Script -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>

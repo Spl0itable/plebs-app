@@ -1279,21 +1279,6 @@ zap-threads code {
         margin-left: 1rem;
     }
     
-    .comment[data-depth="1"] > .comment-thread-line {
-        background: var(--accent);
-        opacity: 0.8;
-    }
-    
-    .comment[data-depth="2"] > .comment-thread-line {
-        background: var(--accent);
-        opacity: 0.6;
-    }
-    
-    .comment[data-depth="3"] > .comment-thread-line {
-        background: var(--accent);
-        opacity: 0.4;
-    }
-    
     .comment-actions {
         gap: 0.5rem;
     }
@@ -1676,16 +1661,28 @@ zap-threads code {
 /* Thread lines */
 .comment-thread-line {
     position: absolute;
-    left: -18px;
+    left: -15px;
     top: 1px;
     bottom: 0;
     width: 2px;
-    background: var(--border);
-    transition: background-color 0.3s ease;
+    background: var(--accent);
+    transition: opacity 0.3s ease;
+}
+
+.comment[data-depth="1"] > .comment-thread-line {
+    opacity: 0.6;
+}
+
+.comment[data-depth="2"] > .comment-thread-line {
+    opacity: 0.4;
+}
+
+.comment[data-depth="3"] > .comment-thread-line {
+    opacity: 0.2;
 }
 
 .comment:hover > .comment-thread-line {
-    background: var(--accent);
+    opacity: 1;
 }
 
 .comment[data-depth="0"] {
@@ -1693,15 +1690,15 @@ zap-threads code {
 }
 
 .comment[data-depth="1"] {
-    margin-left: 2rem;
+    margin-left: 1rem;
 }
 
 .comment[data-depth="2"] {
-    margin-left: 4rem;
+    margin-left: 2rem;
 }
 
 .comment[data-depth="3"] {
-    margin-left: 6rem;
+    margin-left: 3rem;
 }
 
 .comment[data-depth="0"] > .comment-thread-line {

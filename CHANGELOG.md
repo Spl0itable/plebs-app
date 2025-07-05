@@ -1,3 +1,7 @@
+## v1.2.4 - 2025-07-05
+
+- Hotfix: bugs and optimizations
+
 ## v1.2.3 - 2025-07-04
 
 - New: download button

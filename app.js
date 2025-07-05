@@ -462,9 +462,12 @@ async function loadLikedVideos() {
     // Get all liked video IDs
     await new Promise((resolve) => {
         requestEventsStream(reactionFilter, (event) => {
-            const videoIdTag = event.tags.find(tag => tag[0] === 'e');
-            if (videoIdTag) {
-                likedVideoIds.add(videoIdTag[1]);
+            // Only process thumbs up reactions
+            if (event.content === '👍') {
+                const videoIdTag = event.tags.find(tag => tag[0] === 'e');
+                if (videoIdTag) {
+                    likedVideoIds.add(videoIdTag[1]);
+                }
             }
         }, resolve);
     });
@@ -1188,20 +1191,106 @@ async function displayVideosStream(title, filter) {
     // Global reaction storage to accumulate across all relays
     const globalReactions = new Map(); // videoId -> Map(userId -> {reaction, timestamp})
 
-    // Function to update a video card
-    const updateVideoCard = (event, profile, reactions) => {
-        const cardId = `video-card-${event.id}`;
-        const existingCard = document.getElementById(cardId);
+    // Function to update only reactions on a video card
+    const updateCardReactions = (eventId, reactions) => {
+        const card = document.getElementById(`video-card-${eventId}`);
+        if (!card) return;
 
-        if (!existingCard) return;
+        const thumbnail = card.querySelector('.video-thumbnail');
+        const existingReactions = thumbnail.querySelector('.video-reactions');
+        
+        const newReactionsHTML = reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
+            ${reactions.likes > 0 ? `
+                <span class="reaction-count likes">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                    </svg>
+                    ${formatNumber(reactions.likes)}
+                </span>
+            ` : ''}
+            ${reactions.dislikes > 0 ? `
+                <span class="reaction-count dislikes">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                    </svg>
+                    ${formatNumber(reactions.dislikes)}
+                </span>
+            ` : ''}
+        ` : '';
 
-        const cardHTML = createVideoCard(event, profile, reactions);
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = cardHTML;
+        if (existingReactions) {
+            if (newReactionsHTML) {
+                // Update existing reactions content
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = `<div class="video-reactions">${newReactionsHTML}</div>`;
+                existingReactions.innerHTML = tempDiv.firstElementChild.innerHTML;
+            } else {
+                existingReactions.remove();
+            }
+        } else if (newReactionsHTML) {
+            // Add new reactions
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `<div class="video-reactions">${newReactionsHTML}</div>`;
+            thumbnail.appendChild(tempDiv.firstElementChild);
+        }
+    };
 
-        if (tempDiv.firstElementChild) {
-            tempDiv.firstElementChild.id = cardId;
-            existingCard.parentNode.replaceChild(tempDiv.firstElementChild, existingCard);
+    // Function to update only profile info on a video card
+    const updateCardProfile = (eventId, profile) => {
+        const card = document.getElementById(`video-card-${eventId}`);
+        if (!card || !profile) return;
+
+        const displayName = profile.name || profile.display_name || `User ${card.dataset.pubkey.slice(0, 8)}`;
+        const avatarUrl = profile.picture || profile.avatar || '';
+        const nip05 = profile.nip05 || '';
+
+        // Update channel name
+        const channelName = card.querySelector('.channel-name');
+        if (channelName && channelName.textContent !== displayName) {
+            channelName.textContent = displayName;
+        }
+
+        // Update NIP-05
+        const channelDetails = card.querySelector('.channel-details');
+        const existingNip05 = card.querySelector('.channel-nip05');
+        
+        if (nip05) {
+            if (existingNip05) {
+                if (existingNip05.textContent !== nip05) {
+                    existingNip05.textContent = nip05;
+                    existingNip05.dataset.nip05 = nip05;
+                }
+            } else {
+                channelDetails.insertAdjacentHTML('beforeend', 
+                    `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>`
+                );
+            }
+        } else if (existingNip05) {
+            existingNip05.remove();
+        }
+
+        // Update avatar only if URL changed
+        const channelAvatar = card.querySelector('.channel-avatar');
+        const existingImg = channelAvatar.querySelector('img');
+        
+        if (avatarUrl) {
+            if (existingImg) {
+                if (existingImg.getAttribute('data-avatar-url') !== avatarUrl) {
+                    existingImg.src = avatarUrl;
+                    existingImg.setAttribute('data-avatar-url', avatarUrl);
+                }
+            } else {
+                channelAvatar.innerHTML = `<img src="${avatarUrl}" alt="${displayName}" data-avatar-url="${avatarUrl}">`;
+            }
+        } else if (existingImg) {
+            existingImg.remove();
+        }
+
+        // Mark that we need validation if avatar or nip05 exists
+        if ((avatarUrl || nip05) && card.dataset.validationDone !== 'true') {
+            card.dataset.needsValidation = 'true';
+            // Schedule validation
+            setTimeout(() => validateVideoCard(eventId, card.dataset.pubkey, profile, reactionsCache.get(eventId), false), 100);
         }
     };
 
@@ -1211,7 +1300,9 @@ async function displayVideosStream(title, filter) {
 
         // Check if card already exists
         if (document.getElementById(cardId)) {
-            updateVideoCard(event, profile, reactions);
+            // Update existing card parts instead of replacing
+            if (profile) updateCardProfile(event.id, profile);
+            if (reactions) updateCardReactions(event.id, reactions);
             return;
         }
 
@@ -1261,11 +1352,10 @@ async function displayVideosStream(title, filter) {
                 const profile = JSON.parse(profileEvent.content);
                 profileCache.set(profileEvent.pubkey, profile);
 
-                // Update all videos by this author
+                // Update only the profile info for videos by this author
                 videoEvents.forEach(event => {
                     if (event.pubkey === profileEvent.pubkey) {
-                        const reactions = reactionsCache.get(event.id);
-                        updateVideoCard(event, profile, reactions);
+                        updateCardProfile(event.id, profile);
                     }
                 });
             } catch (e) {
@@ -1335,12 +1425,8 @@ async function displayVideosStream(title, filter) {
                     const reactions = calculateReactions(videoId);
                     reactionsCache.set(videoId, reactions);
 
-                    // Update the video card if it exists
-                    const event = videoEvents.find(e => e.id === videoId);
-                    if (event) {
-                        const profile = profileCache.get(event.pubkey);
-                        updateVideoCard(event, profile, reactions);
-                    }
+                    // Update only the reactions part of the card
+                    updateCardReactions(videoId, reactions);
                 }
             }
         });
@@ -2007,9 +2093,9 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
         return '';
     }
 
-    // Add data attributes for later validation updates
+    // Add data attributes for later validation updates including isTrending
     const cardHTML = `
-        <div class="video-card" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}">
+        <div class="video-card" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}">
             <div class="video-thumbnail ${showBlurred ? (isRatioed || isSuspiciousProfile ? 'ratioed' : 'nsfw') : ''}" 
                  onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">
                 ${videoData.thumbnail ?
@@ -2077,6 +2163,9 @@ async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending
     const card = document.getElementById(`video-card-${eventId}`);
     if (!card) return;
 
+    // Check if validation is already done
+    if (card.dataset.validationDone === 'true') return;
+
     const avatarUrl = profile?.picture || profile?.avatar || '';
     const nip05 = profile?.nip05 || '';
 
@@ -2090,62 +2179,153 @@ async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending
     const isNSFW = isVideoNSFW(allEvents.get(eventId));
     const isRatioed = isVideoRatioed(reactions || {});
 
-    // If trending and suspicious/ratioed, remove the card
+    // Get isTrending from data attribute if not passed
+    if (isTrending === false && card.dataset.isTrending === 'true') {
+        isTrending = true;
+    }
+
+    // Mark validation as done
+    card.dataset.validationDone = 'true';
+    card.dataset.needsValidation = 'false';
+
+    // If trending and suspicious/ratioed, remove the card and re-initialize carousel
     if (isTrending && (isRatioed || isSuspiciousProfile)) {
         card.remove();
+        
+        // Re-initialize carousel after card removal
+        const trendingGrid = document.getElementById('trendingGrid');
+        if (trendingGrid && trendingGrid.querySelector('.video-card')) {
+            setTimeout(() => {
+                initializeCarousel();
+            }, 100);
+        }
         return;
     }
 
-    // Update the card's warning status
+    // Only update overlay if needed
     const thumbnail = card.querySelector('.video-thumbnail');
-    const warningIndicator = card.querySelector('.community-warning-indicator');
+    const currentOverlay = thumbnail.querySelector('.ratioed-overlay, .nsfw-overlay');
     const shouldShowWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId);
     const shouldShowNSFW = isNSFW && !shouldShowNSFW();
+    const needsOverlay = shouldShowWarning || shouldShowNSFW;
 
-    if (shouldShowWarning || shouldShowNSFW) {
-        // Update thumbnail class
-        thumbnail.className = `video-thumbnail ${shouldShowWarning ? 'ratioed' : (shouldShowNSFW ? 'nsfw' : '')}`;
-
-        // Update onclick
-        thumbnail.setAttribute('onclick',
-            shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`
-        );
-
-        // Update or add overlay if not present
-        if (!thumbnail.querySelector('.ratioed-overlay') && !thumbnail.querySelector('.nsfw-overlay')) {
-            const overlayHTML = `
-                <div class="${shouldShowWarning ? 'ratioed-overlay' : 'nsfw-overlay'}">
-                    <div class="${shouldShowWarning ? 'ratioed-badge' : 'nsfw-badge'}">${shouldShowWarning ? 'COMMUNITY WARNING' : 'NSFW'}</div>
-                    <div>Click to view</div>
-                </div>
-            `;
-            thumbnail.insertAdjacentHTML('beforeend', overlayHTML);
+    // Only modify DOM if overlay state changed
+    if ((currentOverlay && !needsOverlay) || (!currentOverlay && needsOverlay)) {
+        if (needsOverlay) {
+            // Add overlay without modifying thumbnail class to prevent image reload
+            if (!currentOverlay) {
+                thumbnail.classList.add(shouldShowWarning ? 'ratioed' : 'nsfw');
+                thumbnail.setAttribute('onclick',
+                    shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`
+                );
+                
+                const overlayHTML = `
+                    <div class="${shouldShowWarning ? 'ratioed-overlay' : 'nsfw-overlay'}">
+                        <div class="${shouldShowWarning ? 'ratioed-badge' : 'nsfw-badge'}">${shouldShowWarning ? 'COMMUNITY WARNING' : 'NSFW'}</div>
+                        <div>Click to view</div>
+                    </div>
+                `;
+                thumbnail.insertAdjacentHTML('beforeend', overlayHTML);
+            }
+        } else {
+            // Remove overlay
+            thumbnail.classList.remove('ratioed', 'nsfw');
+            thumbnail.setAttribute('onclick', `navigateTo('/video/${eventId}')`);
+            if (currentOverlay) currentOverlay.remove();
         }
 
-        // Show warning indicator
+        // Update warning indicator
+        const warningIndicator = card.querySelector('.community-warning-indicator');
         if (warningIndicator) {
             warningIndicator.style.display = shouldShowWarning ? 'inline' : 'none';
         }
-    } else {
-        // Remove warnings if validation passed
-        thumbnail.className = 'video-thumbnail';
-        thumbnail.setAttribute('onclick', `navigateTo('/video/${eventId}')`);
 
-        const overlay = thumbnail.querySelector('.ratioed-overlay, .nsfw-overlay');
-        if (overlay) overlay.remove();
-
-        if (warningIndicator) {
-            warningIndicator.style.display = 'none';
+        // Update title onclick
+        const title = card.querySelector('.video-title');
+        if (title) {
+            title.setAttribute('onclick',
+                needsOverlay ? 
+                    (shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`) : 
+                    `navigateTo('/video/${eventId}')`
+            );
         }
     }
+}
 
-    // Update title onclick as well
-    const title = card.querySelector('.video-title');
-    if (title) {
-        title.setAttribute('onclick',
-            shouldShowWarning ? `showRatioedModal('${eventId}')` :
-                (shouldShowNSFW ? `showNSFWModal('playVideo', '${eventId}')` : `navigateTo('/video/${eventId}')`)
-        );
+// Function to update a video card more efficiently
+function updateVideoCard(event, profile, reactions) {
+    const cardId = `video-card-${event.id}`;
+    const existingCard = document.getElementById(cardId);
+
+    if (!existingCard) return;
+
+    // Check if validation is pending - if so, skip update to prevent flicker
+    if (existingCard.dataset.validationPending === 'true') {
+        return;
+    }
+
+    // Only update specific parts that might have changed
+    const existingReactions = existingCard.querySelector('.video-reactions');
+    const newReactionsHTML = reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
+        <div class="video-reactions">
+            ${reactions.likes > 0 ? `
+                <span class="reaction-count likes">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                    </svg>
+                    ${formatNumber(reactions.likes)}
+                </span>
+            ` : ''}
+            ${reactions.dislikes > 0 ? `
+                <span class="reaction-count dislikes">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                    </svg>
+                    ${formatNumber(reactions.dislikes)}
+                </span>
+            ` : ''}
+        </div>
+    ` : '';
+
+    // Update reactions if changed
+    if (existingReactions) {
+        if (newReactionsHTML) {
+            existingReactions.outerHTML = newReactionsHTML;
+        } else {
+            existingReactions.remove();
+        }
+    } else if (newReactionsHTML) {
+        const thumbnail = existingCard.querySelector('.video-thumbnail');
+        thumbnail.insertAdjacentHTML('beforeend', newReactionsHTML);
+    }
+
+    // Update profile info only if changed
+    if (profile) {
+        const channelName = existingCard.querySelector('.channel-name');
+        const channelNip05 = existingCard.querySelector('.channel-nip05');
+        const channelAvatar = existingCard.querySelector('.channel-avatar img');
+
+        const displayName = profile.name || profile.display_name || `User ${event.pubkey.slice(0, 8)}`;
+        const avatarUrl = profile.picture || profile.avatar || '';
+        const nip05 = profile.nip05 || '';
+
+        if (channelName && channelName.textContent !== displayName) {
+            channelName.textContent = displayName;
+        }
+
+        if (nip05) {
+            if (channelNip05) {
+                channelNip05.textContent = nip05;
+            } else {
+                const channelDetails = existingCard.querySelector('.channel-details');
+                channelDetails.insertAdjacentHTML('beforeend', `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>`);
+            }
+        }
+
+        if (avatarUrl && !channelAvatar) {
+            const channelAvatarDiv = existingCard.querySelector('.channel-avatar');
+            channelAvatarDiv.innerHTML = `<img src="${avatarUrl}" alt="${displayName}" data-avatar-url="${avatarUrl}">`;
+        }
     }
 }
 
@@ -2610,20 +2790,106 @@ async function loadHomeFeed() {
     // Global reaction storage to accumulate across all relays
     const globalReactions = new Map();
 
-    // Function to update a video card
-    const updateVideoCard = (event, profile, reactions) => {
-        const cardId = `video-card-${event.id}`;
-        const existingCard = document.getElementById(cardId);
+    // Function to update only reactions on a video card
+    const updateCardReactions = (eventId, reactions) => {
+        const card = document.getElementById(`video-card-${eventId}`);
+        if (!card) return;
 
-        if (!existingCard) return;
+        const thumbnail = card.querySelector('.video-thumbnail');
+        const existingReactions = thumbnail.querySelector('.video-reactions');
+        
+        const newReactionsHTML = reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
+            ${reactions.likes > 0 ? `
+                <span class="reaction-count likes">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                    </svg>
+                    ${formatNumber(reactions.likes)}
+                </span>
+            ` : ''}
+            ${reactions.dislikes > 0 ? `
+                <span class="reaction-count dislikes">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                    </svg>
+                    ${formatNumber(reactions.dislikes)}
+                </span>
+            ` : ''}
+        ` : '';
 
-        const cardHTML = createVideoCard(event, profile, reactions);
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = cardHTML;
+        if (existingReactions) {
+            if (newReactionsHTML) {
+                // Update existing reactions content
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = `<div class="video-reactions">${newReactionsHTML}</div>`;
+                existingReactions.innerHTML = tempDiv.firstElementChild.innerHTML;
+            } else {
+                existingReactions.remove();
+            }
+        } else if (newReactionsHTML) {
+            // Add new reactions
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = `<div class="video-reactions">${newReactionsHTML}</div>`;
+            thumbnail.appendChild(tempDiv.firstElementChild);
+        }
+    };
 
-        if (tempDiv.firstElementChild) {
-            tempDiv.firstElementChild.id = cardId;
-            existingCard.parentNode.replaceChild(tempDiv.firstElementChild, existingCard);
+    // Function to update only profile info on a video card
+    const updateCardProfile = (eventId, profile) => {
+        const card = document.getElementById(`video-card-${eventId}`);
+        if (!card || !profile) return;
+
+        const displayName = profile.name || profile.display_name || `User ${card.dataset.pubkey.slice(0, 8)}`;
+        const avatarUrl = profile.picture || profile.avatar || '';
+        const nip05 = profile.nip05 || '';
+
+        // Update channel name
+        const channelName = card.querySelector('.channel-name');
+        if (channelName && channelName.textContent !== displayName) {
+            channelName.textContent = displayName;
+        }
+
+        // Update NIP-05
+        const channelDetails = card.querySelector('.channel-details');
+        const existingNip05 = card.querySelector('.channel-nip05');
+        
+        if (nip05) {
+            if (existingNip05) {
+                if (existingNip05.textContent !== nip05) {
+                    existingNip05.textContent = nip05;
+                    existingNip05.dataset.nip05 = nip05;
+                }
+            } else {
+                channelDetails.insertAdjacentHTML('beforeend', 
+                    `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>`
+                );
+            }
+        } else if (existingNip05) {
+            existingNip05.remove();
+        }
+
+        // Update avatar only if URL changed
+        const channelAvatar = card.querySelector('.channel-avatar');
+        const existingImg = channelAvatar.querySelector('img');
+        
+        if (avatarUrl) {
+            if (existingImg) {
+                if (existingImg.getAttribute('data-avatar-url') !== avatarUrl) {
+                    existingImg.src = avatarUrl;
+                    existingImg.setAttribute('data-avatar-url', avatarUrl);
+                }
+            } else {
+                channelAvatar.innerHTML = `<img src="${avatarUrl}" alt="${displayName}" data-avatar-url="${avatarUrl}">`;
+            }
+        } else if (existingImg) {
+            existingImg.remove();
+        }
+
+        // Mark that we need validation if avatar or nip05 exists
+        if ((avatarUrl || nip05) && card.dataset.validationDone !== 'true') {
+            card.dataset.needsValidation = 'true';
+            // Schedule validation
+            setTimeout(() => validateVideoCard(eventId, card.dataset.pubkey, profile, reactionsCache.get(eventId), false), 100);
         }
     };
 
@@ -2633,7 +2899,9 @@ async function loadHomeFeed() {
 
         // Check if card already exists
         if (document.getElementById(cardId)) {
-            updateVideoCard(event, profile, reactions);
+            // Update existing card parts instead of replacing
+            if (profile) updateCardProfile(event.id, profile);
+            if (reactions) updateCardReactions(event.id, reactions);
             return;
         }
 
@@ -2683,11 +2951,10 @@ async function loadHomeFeed() {
                 const profile = JSON.parse(profileEvent.content);
                 profileCache.set(profileEvent.pubkey, profile);
 
-                // Update all videos by this author
+                // Update only the profile info for videos by this author
                 videoEvents.forEach(event => {
                     if (event.pubkey === profileEvent.pubkey) {
-                        const reactions = reactionsCache.get(event.id);
-                        updateVideoCard(event, profile, reactions);
+                        updateCardProfile(event.id, profile);
                     }
                 });
             } catch (e) {
@@ -2757,12 +3024,8 @@ async function loadHomeFeed() {
                     const reactions = calculateReactions(videoId);
                     reactionsCache.set(videoId, reactions);
 
-                    // Update the video card if it exists
-                    const event = videoEvents.find(e => e.id === videoId);
-                    if (event) {
-                        const profile = profileCache.get(event.pubkey);
-                        updateVideoCard(event, profile, reactions);
-                    }
+                    // Update only the reactions part of the card
+                    updateCardReactions(videoId, reactions);
                 }
             }
         });
@@ -3050,7 +3313,7 @@ async function loadTag(tag) {
     const filter = {
         kinds: [1],
         '#t': [tag],
-        limit: 50
+        limit: 500
     };
 
     await displayVideosStream(`${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos`, filter);
