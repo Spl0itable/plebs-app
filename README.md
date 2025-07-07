@@ -34,11 +34,11 @@ Visit the live application at [https://plebs.app](https://plebs.app)
 - **Kind 3**: Contact lists (following)
 - **Kind 5**: Video deletion requests
 - **Kind 7**: Video reactions (likes/dislikes)
-- **kind 30078**: Save data to Nostr
 - **Kind 9734**: Zap requests
 - **Kind 9735**: Zap receipts
 - **Kind 10063**: User server lists
 - **Kind 24242**: Blossom authentication
+- **kind 30078**: Save data to Nostr
 
 ## Contributing
 
