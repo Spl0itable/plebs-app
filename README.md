@@ -6,6 +6,8 @@
 
 Plebs is a revolutionary video platform that leverages the [Nostr](https://github.com/nostr-protocol/nostr) protocol and [Blossom](https://github.com/hzrd149/blossom) storage servers to create a truly decentralized and censorship-resistant video sharing experience. Built with privacy and freedom of expression at its core, Plebs ensures that content creators maintain full control over their videos.
 
+Visit the live application at [https://plebs.app](https://plebs.app)
+
 ## Features
 
 ### Core Features
@@ -25,17 +27,14 @@ Plebs is a revolutionary video platform that leverages the [Nostr](https://githu
 - **NSFW Filter** - Content warnings with customizable preferences
 - **Community Warnings** - Automatic detection of heavily downvoted "ratioed" content
 
-## Demo
-
-Visit the live application at [https://plebs.app](https://plebs.app)
-
 ### Nostr Implementation Details
 
 - **Kind 0**: User profiles
+- **Kind 1**: Normal post content
 - **Kind 3**: Contact lists (following)
 - **Kind 5**: Video deletion requests
 - **Kind 7**: Video reactions (likes/dislikes)
-- **Kind 1**: Normal post content
+- **kind 30078**: Save data to Nostr
 - **Kind 9734**: Zap requests
 - **Kind 9735**: Zap receipts
 - **Kind 10063**: User server lists
