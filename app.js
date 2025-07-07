@@ -1,25 +1,33 @@
-// Blossom servers
-const BLOSSOM_SERVERS = [
-    'https://blossom.primal.net',
-    'https://blossom.band',
-    'https://24242.io',
-    // We'll add more Blossom servers as they become available
-];
+//          ____  _      _         
+//  ┌───┐  |  _ \| | ___| |__  ___ 
+//  │ ▷ │  | |_) | |/ _ \ '_ \/ __|
+//  └───┘  |  __/| |  __/ |_) \__ \
+//          |_|   |_|\___|_.__/|___/
 
 // Global state
 let currentUser = null;
 let relayConnections = {};
 let currentView = 'home';
 let uploadedVideoHash = null;
-let allEvents = new Map(); // Store events by ID
-let profileCache = new Map(); // Store user profiles
-let reactionsCache = new Map(); // Store reactions by video ID
-let nip05ValidationCache = new Map(); // Store NIP-05 validation results
-let pendingNSFWAction = null; // Store pending action when NSFW modal is shown
-let pendingRatioedAction = null; // Store pending action when ratioed modal is shown
-let sessionNSFWAllowed = false; // Track NSFW permission for current session
-let sessionRatioedAllowed = new Set(); // Track ratioed videos allowed in session
-let currentTrendingPeriod = 'week'; // Track current trending period
+let allEvents = new Map();
+let profileCache = new Map();
+let reactionsCache = new Map();
+let nip05ValidationCache = new Map();
+let pendingNSFWAction = null;
+let pendingRatioedAction = null;
+let sessionNSFWAllowed = false;
+let sessionRatioedAllowed = new Set();
+let currentTrendingPeriod = 'week';
+
+// Blossom servers
+const BLOSSOM_SERVERS = [
+    'https://blossom.primal.net',
+    'https://blossom.band',
+    'https://24242.io',
+];
+
+// Premium Blossom server
+const PREMIUM_BLOSSOM_SERVER = 'https://nostrmedia.com';
 
 // Define relay URLs
 const RELAY_URLS = [
@@ -28,6 +36,148 @@ const RELAY_URLS = [
     'wss://nos.lol',
     'wss://relay.primal.net'
 ];
+
+// WoT relay URLs
+const WOT_RELAY_URLS = [
+    'wss://wot.utxo.one',
+    'wss://nostrelites.org',
+    'wss://wot.nostr.party',
+    'wss://wot.sovbit.host',
+    'wss://wot.nostr.net'
+];
+
+// Additional relay for publishing only
+const PUBLISH_ONLY_RELAYS = [
+    'wss://sendit.nosflare.com'
+];
+
+// Settings management
+let userSettings = {
+    useWotRelays: false,
+    usePremiumBlossom: false,
+    customBlossomServers: [],
+    saveToNostr: true
+};
+
+// Initialize settings on app load
+async function initializeSettings() {
+    // Try to load from Nostr if user is logged in
+    if (currentUser) {
+        const nostrSettings = await loadSettingsFromNostr();
+        if (nostrSettings) {
+            userSettings = nostrSettings;
+            applySettings();
+            return;
+        }
+    }
+
+    // Fall back to localStorage
+    const savedSettings = localStorage.getItem('plebsSettings');
+    if (savedSettings) {
+        try {
+            userSettings = JSON.parse(savedSettings);
+            applySettings();
+        } catch (e) {
+            console.error('Failed to parse saved settings:', e);
+        }
+    }
+}
+
+// Load settings from Nostr
+async function loadSettingsFromNostr() {
+    if (!currentUser) return null;
+
+    try {
+        const filter = {
+            kinds: [30078],
+            authors: [currentUser.pubkey],
+            '#d': ['plebs-settings'],
+            limit: 1
+        };
+
+        let settings = null;
+        await new Promise((resolve) => {
+            requestEventsStream(filter, (event) => {
+                try {
+                    settings = JSON.parse(event.content);
+                } catch (e) {
+                    console.error('Failed to parse Nostr settings:', e);
+                }
+            }, resolve);
+        });
+
+        return settings;
+    } catch (error) {
+        console.error('Failed to load settings from Nostr:', error);
+        return null;
+    }
+}
+
+// Save settings to Nostr
+async function saveSettingsToNostr() {
+    if (!currentUser || !window.nostr) return false;
+
+    try {
+        const settingsEvent = {
+            kind: 30078,
+            tags: [
+                ['d', 'plebs-settings'],
+                ['title', 'Plebs App Settings'],
+                ['client', 'Plebs']
+            ],
+            content: JSON.stringify(userSettings),
+            created_at: Math.floor(Date.now() / 1000)
+        };
+
+        const signedEvent = await window.nostr.signEvent(settingsEvent);
+        return await publishEvent(signedEvent);
+    } catch (error) {
+        console.error('Failed to save settings to Nostr:', error);
+        return false;
+    }
+}
+
+// Apply settings to the app
+function applySettings() {
+    // Update relay URLs based on settings
+    if (userSettings.useWotRelays) {
+        RELAY_URLS.length = 0;
+        RELAY_URLS.push(...WOT_RELAY_URLS);
+    } else {
+        RELAY_URLS.length = 0;
+        RELAY_URLS.push(
+            'wss://relay.damus.io',
+            'wss://relay.nostr.band',
+            'wss://nos.lol',
+            'wss://relay.primal.net'
+        );
+    }
+
+    // Update Blossom servers based on settings
+    BLOSSOM_SERVERS.length = 0;
+
+    BLOSSOM_SERVERS.push(
+        'https://blossom.primal.net',
+        'https://blossom.band',
+        'https://24242.io'
+    );
+
+    if (userSettings.usePremiumBlossom) {
+        BLOSSOM_SERVERS.unshift(PREMIUM_BLOSSOM_SERVER);
+    }
+
+    if (userSettings.customBlossomServers.length > 0) {
+        BLOSSOM_SERVERS.push(...userSettings.customBlossomServers);
+    }
+
+    // Disconnect existing relay connections to force reconnection with new URLs
+    Object.values(relayConnections).forEach(ws => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.close();
+        }
+    });
+    relayConnections = {};
+}
 
 // Theme management
 function initTheme() {
@@ -56,6 +206,79 @@ function updateThemeIcon(theme) {
     }
 }
 
+// Show settings modal
+function showSettingsModal() {
+    document.getElementById('useWotRelays').checked = userSettings.useWotRelays;
+    document.getElementById('usePremiumBlossom').checked = userSettings.usePremiumBlossom;
+    document.getElementById('customBlossomServers').value = userSettings.customBlossomServers.join(', ');
+    document.getElementById('saveToNostr').checked = userSettings.saveToNostr;
+
+    document.getElementById('settingsModal').classList.add('active');
+}
+
+// Hide settings modal
+function hideSettingsModal() {
+    document.getElementById('settingsModal').classList.remove('active');
+}
+
+// Toggle WoT relays
+function toggleWotRelays() {
+    const checkbox = document.getElementById('useWotRelays');
+    userSettings.useWotRelays = checkbox.checked;
+}
+
+// Toggle premium Blossom
+function togglePremiumBlossom() {
+    const checkbox = document.getElementById('usePremiumBlossom');
+    userSettings.usePremiumBlossom = checkbox.checked;
+}
+
+// Save settings
+async function saveSettings() {
+    const customServersInput = document.getElementById('customBlossomServers').value;
+    userSettings.customBlossomServers = customServersInput
+        .split(',')
+        .map(url => url.trim())
+        .filter(url => url.startsWith('http'));
+
+    userSettings.saveToNostr = document.getElementById('saveToNostr').checked;
+
+    localStorage.setItem('plebsSettings', JSON.stringify(userSettings));
+
+    if (userSettings.saveToNostr && currentUser) {
+        const saved = await saveSettingsToNostr();
+        if (saved) {
+            alert('Settings saved successfully!');
+        } else {
+            alert('Settings saved locally. Could not save to Nostr.');
+        }
+    } else {
+        alert('Settings saved locally!');
+    }
+
+    applySettings();
+    hideSettingsModal();
+    handleRoute();
+}
+
+// Reset settings to defaults
+function resetSettings() {
+    if (confirm('Are you sure you want to reset all settings to defaults?')) {
+        userSettings = {
+            useWotRelays: false,
+            usePremiumBlossom: false,
+            customBlossomServers: [],
+            saveToNostr: true
+        };
+
+        localStorage.removeItem('plebsSettings');
+        applySettings();
+        showSettingsModal();
+
+        alert('Settings reset to defaults!');
+    }
+}
+
 // Sidebar management
 function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -80,20 +303,16 @@ function navigateTo(path) {
 }
 
 async function handleRoute() {
-    // Hide notifications modal on route change
     hideNotificationsModal();
     const hash = window.location.hash.slice(1) || '/';
     const pathParts = hash.split('/').filter(p => p);
 
-    // Enhanced meta tag update with structured data
+    // Update meta tags with structured data
     const updateMetaTags = (title, description, image = null, type = 'website') => {
-        // Use default image if none provided
         const ogImage = image || './images/plebs-og.png';
 
-        // Update basic meta tags
         document.title = title;
 
-        // Update or create meta tags
         const setMetaTag = (selector, attribute, value) => {
             let tag = document.querySelector(selector);
             if (!tag && selector.includes('property')) {
@@ -115,17 +334,14 @@ async function handleRoute() {
         setMetaTag('meta[property="og:site_name"]', 'content', 'Plebs');
         setMetaTag('meta[property="og:image"]', 'content', ogImage);
 
-        // Set URL without hash for better sharing
         const canonicalUrl = window.location.origin + window.location.pathname;
         setMetaTag('meta[property="og:url"]', 'content', canonicalUrl);
 
-        // Twitter Card tags
         setMetaTag('meta[name="twitter:card"]', 'content', image ? 'summary_large_image' : 'summary');
         setMetaTag('meta[name="twitter:title"]', 'content', title);
         setMetaTag('meta[name="twitter:description"]', 'content', description);
         setMetaTag('meta[name="twitter:image"]', 'content', ogImage);
 
-        // Update canonical URL
         let canonical = document.querySelector('link[rel="canonical"]');
         if (!canonical) {
             canonical = document.createElement('link');
@@ -146,13 +362,11 @@ async function handleRoute() {
         script.textContent = JSON.stringify(data);
     };
 
-    // Reset to default meta tags first
     updateMetaTags(
         'Plebs - Decentralized Video Platform',
         'Plebs is a censorship-resistant, decentralized video platform powered by the Nostr social protocol'
     );
 
-    // Default structured data
     setStructuredData({
         "@context": "https://schema.org",
         "@type": "WebSite",
@@ -164,10 +378,8 @@ async function handleRoute() {
     if (pathParts.length === 0) {
         loadHomeFeed();
     } else if (pathParts[0] === 'video' && pathParts[1]) {
-        // For video pages, fetch metadata first for SEO
         const eventId = pathParts[1];
 
-        // Show loading immediately
         document.getElementById('mainContent').innerHTML = '<div class="spinner"></div>';
 
         // Fetch video metadata for SEO
@@ -180,7 +392,6 @@ async function handleRoute() {
                 if (videoData) {
                     const authorName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
 
-                    // Update meta tags with video data
                     updateMetaTags(
                         `${videoData.title} - Plebs`,
                         videoData.description ? videoData.description.slice(0, 155) : `Watch "${videoData.title}" by ${authorName} on Plebs`,
@@ -188,7 +399,6 @@ async function handleRoute() {
                         'video.other'
                     );
 
-                    // Add video structured data
                     setStructuredData({
                         "@context": "https://schema.org",
                         "@type": "VideoObject",
@@ -209,12 +419,10 @@ async function handleRoute() {
             console.error('Failed to fetch video metadata:', error);
         }
 
-        // Play video after metadata is set
-        playVideo(pathParts[1]);
+        playVideo(eventId);
     } else if (pathParts[0] === 'profile' && pathParts[1]) {
         const pubkey = pathParts[1];
 
-        // Fetch profile metadata for SEO
         try {
             const profile = await fetchUserProfile(pubkey);
             if (profile) {
@@ -229,7 +437,6 @@ async function handleRoute() {
                     'profile'
                 );
 
-                // Add person structured data
                 setStructuredData({
                     "@context": "https://schema.org",
                     "@type": "Person",
@@ -295,7 +502,6 @@ async function loadNotifications() {
     modal.classList.add("active");
 
     try {
-        // Get user's videos
         const userVideosFilter = {
             kinds: [1],
             authors: [currentUser.pubkey],
@@ -310,7 +516,7 @@ async function loadNotifications() {
             return;
         }
 
-        // Fetch reactions to user's videos
+        // Fetch reactions
         const reactions = [];
         const reactionFilter = {
             kinds: [7],
@@ -330,7 +536,7 @@ async function loadNotifications() {
             }, resolve);
         });
 
-        // Fetch replies to user's videos
+        // Fetch replies
         const replies = [];
         const repliesFilter = {
             kinds: [1],
@@ -350,8 +556,28 @@ async function loadNotifications() {
             }, resolve);
         });
 
-        // Combine and sort notifications
-        const notifications = [...reactions, ...replies].sort((a, b) => b.created_at - a.created_at);
+        // Fetch zaps
+        const zaps = [];
+        const zapsFilter = {
+            kinds: [9735], // Zap receipts
+            '#e': videoIds
+        };
+
+        await new Promise((resolve) => {
+            requestEventsStream(zapsFilter, (zapEvent) => {
+                const videoId = zapEvent.tags.find(t => t[0] === 'e')?.[1];
+                if (videoId && videoIds.includes(videoId)) {
+                    // Extract zapper pubkey from the 'P' tag (uppercase P for zap receipts)
+                    const zapperTag = zapEvent.tags.find(t => t[0] === 'P');
+                    if (zapperTag && zapperTag[1] !== currentUser.pubkey) {
+                        zaps.push(zapEvent);
+                    }
+                }
+            }, resolve);
+        });
+
+        // Combine and sort all notifications
+        const notifications = [...reactions, ...replies, ...zaps].sort((a, b) => b.created_at - a.created_at);
 
         if (notifications.length === 0) {
             list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No recent activity.</p>';
@@ -359,7 +585,14 @@ async function loadNotifications() {
         }
 
         // Fetch profiles for all notification authors
-        const uniquePubkeys = [...new Set(notifications.map(n => n.pubkey))];
+        const uniquePubkeys = [...new Set([
+            ...notifications.filter(n => n.kind !== 9735).map(n => n.pubkey),
+            ...notifications.filter(n => n.kind === 9735).map(n => {
+                const zapperTag = n.tags.find(t => t[0] === 'P');
+                return zapperTag ? zapperTag[1] : null;
+            }).filter(Boolean)
+        ])];
+
         const profilePromises = uniquePubkeys.map(pubkey => fetchUserProfile(pubkey));
         await Promise.all(profilePromises);
 
@@ -368,19 +601,37 @@ async function loadNotifications() {
         notifications.forEach(event => {
             const isReaction = event.kind === 7;
             const isReply = event.kind === 1;
+            const isZap = event.kind === 9735;
             const videoId = event.tags.find(t => t[0] === 'e')?.[1];
             const video = userVideos.find(v => v.id === videoId);
             const videoTitle = video ? parseVideoEvent(video).title : 'Unknown Video';
 
-            // Get profile from cache
-            const profile = profileCache.get(event.pubkey) || {};
-            const displayName = profile.name || profile.display_name || `User ${event.pubkey.slice(0, 8)}`;
-            const avatarUrl = profile.picture || profile.avatar || '';
+            let displayName, avatarUrl, content, notificationPubkey;
+
+            if (isZap) {
+                // For zaps, get the zapper's info from the P tag
+                const zapperTag = event.tags.find(t => t[0] === 'P');
+                notificationPubkey = zapperTag ? zapperTag[1] : '';
+
+                // Extract amount from bolt11 tag
+                const bolt11Tag = event.tags.find(t => t[0] === 'bolt11');
+                const amount = bolt11Tag ? extractAmountFromBolt11(bolt11Tag[1]) : 0;
+
+                const profile = profileCache.get(notificationPubkey) || {};
+                displayName = profile.name || profile.display_name || `User ${notificationPubkey.slice(0, 8)}`;
+                avatarUrl = profile.picture || profile.avatar || '';
+                content = `Zapped: ${formatSats(amount)} sats ⚡`;
+            } else {
+                notificationPubkey = event.pubkey;
+                const profile = profileCache.get(event.pubkey) || {};
+                displayName = profile.name || profile.display_name || `User ${event.pubkey.slice(0, 8)}`;
+                avatarUrl = profile.picture || profile.avatar || '';
+                content = isReaction
+                    ? `Reacted: ${event.content}`
+                    : `Replied: "${event.content.slice(0, 40)}${event.content.length > 40 ? '...' : ''}"`;
+            }
 
             const timestamp = formatTimestamp(event.created_at);
-            const content = isReaction
-                ? `Reacted: ${event.content}`
-                : `Replied: "${event.content.slice(0, 40)}${event.content.length > 40 ? '...' : ''}"`;
 
             const item = document.createElement('div');
             item.className = 'notification-item';
@@ -397,7 +648,7 @@ async function loadNotifications() {
                             <div style="font-size: 0.875rem; color: var(--text-secondary);">${timestamp}</div>
                         </div>
                     </div>
-                    <div style="margin-top: 0.25rem;">${content}</div>
+                    <div style="margin-top: 0.25rem; ${isZap ? 'color: #f7931a; font-weight: 500;' : ''}">${content}</div>
                     <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.25rem;">on "${videoTitle}"</div>
                 </div>
                 <a href="#/video/${videoId}" onclick="hideNotificationsModal();" class="notification-link">
@@ -452,17 +703,14 @@ async function loadLikedVideos() {
     const videoGrid = document.getElementById('videoGrid');
     const likedVideoIds = new Set();
 
-    // Create filter to get all like reactions from current user
     const reactionFilter = {
         kinds: [7],
         authors: [currentUser.pubkey],
         '#t': ['pv69420']
     };
 
-    // Get all liked video IDs
     await new Promise((resolve) => {
         requestEventsStream(reactionFilter, (event) => {
-            // Only process thumbs up reactions
             if (event.content === '👍') {
                 const videoIdTag = event.tags.find(tag => tag[0] === 'e');
                 if (videoIdTag) {
@@ -477,18 +725,16 @@ async function loadLikedVideos() {
         return;
     }
 
-    // Create filter to get the video events
     const videoFilter = {
         kinds: [1],
         '#t': ['pv69420'],
         ids: Array.from(likedVideoIds)
     };
 
-    // Use displayVideosStream to show these videos
     await displayVideosStream('Liked Videos', videoFilter);
 }
 
-// Function to handle zaps manually
+// Function to handle zaps
 async function handleZap(npub, amount, eventId = null) {
     if (!window.nostr) {
         if (!await ensureLoggedIn()) {
@@ -497,7 +743,6 @@ async function handleZap(npub, amount, eventId = null) {
         }
     }
 
-    // Show zap amount selection modal
     showZapAmountModal(npub, eventId);
 }
 
@@ -555,7 +800,6 @@ function showZapAmountModal(npub, eventId = null) {
 
     document.body.appendChild(modal);
 
-    // Add styles for zap amount buttons
     const style = document.createElement('style');
     style.textContent = `
         .zap-amount-btn {
@@ -576,7 +820,6 @@ function showZapAmountModal(npub, eventId = null) {
     `;
     modal.appendChild(style);
 
-    // Handle amount button clicks
     modal.querySelectorAll('.zap-amount-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
             const amount = parseInt(btn.getAttribute('data-amount'));
@@ -585,7 +828,6 @@ function showZapAmountModal(npub, eventId = null) {
         });
     });
 
-    // Handle custom amount
     const customInput = modal.querySelector('#customZapAmount');
     const proceedBtn = modal.querySelector('#proceedZap');
 
@@ -612,7 +854,6 @@ function showZapAmountModal(npub, eventId = null) {
 // Process the actual zap
 async function processZap(npub, amount, eventId = null) {
     try {
-        // Create a zap request event (kind 9734)
         const zapRequest = {
             kind: 9734,
             created_at: Math.floor(Date.now() / 1000),
@@ -624,36 +865,28 @@ async function processZap(npub, amount, eventId = null) {
             content: ''
         };
 
-        // Add event tag if zapping a specific video
         if (eventId) {
             zapRequest.tags.push(['e', eventId]);
         }
 
-        // Sign the zap request
         const signedZapRequest = await window.nostr.signEvent(zapRequest);
 
-        // Get the lightning invoice from a LNURL service
         const lnurlResponse = await fetchLightningInvoice(npub, amount, JSON.stringify(signedZapRequest));
 
         if (lnurlResponse.pr) {
-            // Show the invoice modal
             showLightningInvoice(lnurlResponse.pr, amount, !!window.webln);
 
-            // Start polling for payment confirmation
             const paymentHash = extractPaymentHash(lnurlResponse.pr);
             pollForZapReceipt(window.NostrTools.nip19.decode(npub).data, amount, eventId, paymentHash);
 
-            // Try to pay with WebLN if available
             if (window.webln) {
                 try {
                     await window.webln.enable();
                     const result = await window.webln.sendPayment(lnurlResponse.pr);
                     if (result.preimage) {
                         // Payment successful through WebLN
-                        // The polling will detect it and show success
                     }
                 } catch (e) {
-                    // WebLN payment failed, user needs to pay manually
                     console.log('WebLN payment failed, waiting for manual payment');
                 }
             }
@@ -667,21 +900,19 @@ async function processZap(npub, amount, eventId = null) {
 // Function to poll for zap receipts
 async function pollForZapReceipt(recipientPubkey, amount, eventId, paymentHash) {
     const startTime = Date.now();
-    const timeout = 60000; // 60 seconds timeout
-    const pollInterval = 2000; // Check every 2 seconds
+    const timeout = 60000; // 60 seconds
+    const pollInterval = 2000; // 2 seconds
 
     const checkForReceipt = async () => {
-        // Check if timeout reached
         if (Date.now() - startTime > timeout) {
             console.log('Zap receipt polling timeout');
             return;
         }
 
-        // Create filter for zap receipts
         const filter = {
-            kinds: [9735], // Zap receipt
+            kinds: [9735],
             '#p': [recipientPubkey],
-            since: Math.floor(startTime / 1000) - 10 // Look 10 seconds before start
+            since: Math.floor(startTime / 1000) - 10
         };
 
         if (eventId) {
@@ -693,17 +924,13 @@ async function pollForZapReceipt(recipientPubkey, amount, eventId, paymentHash) 
         await new Promise((resolve) => {
             requestEventsStream(filter, (event) => {
                 try {
-                    // Check if this is our zap by amount
                     const bolt11Tag = event.tags.find(tag => tag[0] === 'bolt11');
                     if (bolt11Tag && bolt11Tag[1]) {
                         const receiptAmount = extractAmountFromBolt11(bolt11Tag[1]);
 
-                        // Check if amount matches (with small tolerance for fees)
                         if (Math.abs(receiptAmount - amount) < 10) {
-                            // Found our zap!
                             foundReceipt = true;
 
-                            // Close invoice modal and show success
                             const invoiceModal = document.getElementById('lightning-invoice-modal');
                             if (invoiceModal) {
                                 invoiceModal.remove();
@@ -711,7 +938,6 @@ async function pollForZapReceipt(recipientPubkey, amount, eventId, paymentHash) 
 
                             showZapSuccess(amount);
 
-                            // Update zap count if it's a video zap
                             if (eventId) {
                                 setTimeout(async () => {
                                     const zapData = await loadZapsForVideo(eventId);
@@ -728,13 +954,11 @@ async function pollForZapReceipt(recipientPubkey, amount, eventId, paymentHash) 
             });
         });
 
-        // Continue polling if not found
         if (!foundReceipt) {
             setTimeout(checkForReceipt, pollInterval);
         }
     };
 
-    // Start polling after a short delay
     setTimeout(checkForReceipt, 2000);
 }
 
@@ -752,7 +976,6 @@ async function fetchLightningInvoice(npub, amount, zapRequest) {
         throw new Error('Could not load user profile');
     }
 
-    // Try lud16 (lightning address) first
     if (profile.lud16) {
         const [name, domain] = profile.lud16.split('@');
         const url = `https://${domain}/.well-known/lnurlp/${name}`;
@@ -763,7 +986,7 @@ async function fetchLightningInvoice(npub, amount, zapRequest) {
 
             if (data.callback) {
                 const invoiceUrl = new URL(data.callback);
-                invoiceUrl.searchParams.set('amount', amount * 1000); // Convert to millisats
+                invoiceUrl.searchParams.set('amount', amount * 1000);
                 invoiceUrl.searchParams.set('nostr', zapRequest);
 
                 const invoiceResponse = await fetch(invoiceUrl.toString());
@@ -774,10 +997,8 @@ async function fetchLightningInvoice(npub, amount, zapRequest) {
         }
     }
 
-    // Try lud06 (LNURL) as fallback
     if (profile.lud06) {
         try {
-            // Decode LNURL-encoded URL
             const decoded = window.NostrTools.nip19.decode(profile.lud06);
             const url = decoded.data;
 
@@ -786,7 +1007,7 @@ async function fetchLightningInvoice(npub, amount, zapRequest) {
 
             if (data.callback) {
                 const invoiceUrl = new URL(data.callback);
-                invoiceUrl.searchParams.set('amount', amount * 1000); // Convert to millisats
+                invoiceUrl.searchParams.set('amount', amount * 1000);
                 invoiceUrl.searchParams.set('nostr', zapRequest);
 
                 const invoiceResponse = await fetch(invoiceUrl.toString());
@@ -802,7 +1023,6 @@ async function fetchLightningInvoice(npub, amount, zapRequest) {
 
 // Show lightning invoice modal
 function showLightningInvoice(invoice, amount, isWebLN = false) {
-    // Create a modal to show the invoice
     const modal = document.createElement('div');
     modal.id = 'lightning-invoice-modal';
     modal.style.cssText = `
@@ -864,7 +1084,6 @@ function showLightningInvoice(invoice, amount, isWebLN = false) {
 
     document.body.appendChild(modal);
 
-    // Generate QR code
     if (window.QRCode) {
         new QRCode(document.getElementById("qrcode"), {
             text: invoice.toUpperCase(),
@@ -879,7 +1098,6 @@ function showLightningInvoice(invoice, amount, isWebLN = false) {
 
 // Show zap success animation
 function showZapSuccess(amount) {
-    // Remove any existing invoice modal
     const invoiceModal = document.getElementById('lightning-invoice-modal');
     if (invoiceModal) {
         invoiceModal.remove();
@@ -911,7 +1129,6 @@ function showZapSuccess(amount) {
         </div>
     `;
 
-    // Add animation styles
     const style = document.createElement('style');
     style.textContent = `
         .zap-success-animation {
@@ -938,7 +1155,6 @@ function showZapSuccess(amount) {
 
     document.body.appendChild(modal);
 
-    // Auto close after 2 seconds
     setTimeout(() => {
         modal.style.opacity = '0';
         modal.style.transition = 'opacity 0.3s ease-out';
@@ -951,11 +1167,9 @@ function showZapSuccess(amount) {
 
 // Update the video player zap button
 function updateZapButton(eventId, totalZaps) {
-    // Find the zap button using data attribute
     const zapBtn = document.querySelector(`.action-btn.zap[data-event-id="${eventId}"]`);
     if (zapBtn) {
         zapBtn.querySelector('.count').textContent = totalZaps > 0 ? formatSats(totalZaps) : 'Zap';
-        // Add active class if zapped
         if (totalZaps > 0) {
             zapBtn.classList.add('active');
         }
@@ -996,12 +1210,10 @@ function goToPage(page) {
     trendingGrid.style.transform = `translateX(${translateX}%)`;
     trendingGrid.dataset.currentPage = page;
 
-    // Update dots
     carouselDots.querySelectorAll('.carousel-dot').forEach((dot, index) => {
         dot.classList.toggle('active', index === page);
     });
 
-    // Update buttons
     updateCarouselButtons();
 }
 
@@ -1026,8 +1238,8 @@ function isVideoRatioed(reactions) {
     const dislikes = reactions.dislikes || 0;
     const total = likes + dislikes;
 
-    // Criteria for being ratioed:
-    // 1. At least 10 total reactions to avoid false positives
+    // Video is ratioed if:
+    // 1. At least 10 total reactions
     // 2. Dislikes are at least 2x likes
     // 3. Dislikes make up at least 70% of total reactions
     if (total >= 10) {
@@ -1080,10 +1292,8 @@ function handleRelayMessage(relayUrl, message) {
         const subscriptionId = message[1];
         const event = message[2];
 
-        // Store event
         allEvents.set(event.id, event);
 
-        // Store profile if it's a kind 0 event
         if (event.kind === 0) {
             try {
                 const profile = JSON.parse(event.content);
@@ -1093,7 +1303,6 @@ function handleRelayMessage(relayUrl, message) {
             }
         }
 
-        // Trigger any subscription handlers
         if (window.subscriptionHandlers && window.subscriptionHandlers[subscriptionId]) {
             window.subscriptionHandlers[subscriptionId](event);
         }
@@ -1108,7 +1317,6 @@ async function requestEventsStream(filter, onEvent, onComplete) {
     let completedRelays = 0;
     const totalRelays = RELAY_URLS.length;
 
-    // Set up subscription handler
     if (!window.subscriptionHandlers) {
         window.subscriptionHandlers = {};
     }
@@ -1116,7 +1324,6 @@ async function requestEventsStream(filter, onEvent, onComplete) {
     window.subscriptionHandlers[subscriptionId] = (event) => {
         if (!eventsMap.has(event.id)) {
             eventsMap.set(event.id, event);
-            // Only call the streaming callback if we haven't seen this event before
             if (onEvent && !seenEventIds.has(event.id)) {
                 seenEventIds.add(event.id);
                 onEvent(event);
@@ -1124,27 +1331,22 @@ async function requestEventsStream(filter, onEvent, onComplete) {
         }
     };
 
-    // Connect to all relays
     for (const url of RELAY_URLS) {
         try {
             const ws = await connectToRelay(url);
             const req = JSON.stringify(['REQ', subscriptionId, filter]);
             ws.send(req);
 
-            // Listen for EOSE (End of Stored Events) message
             const originalOnMessage = ws.onmessage;
             ws.onmessage = (event) => {
                 originalOnMessage(event);
                 try {
                     const message = JSON.parse(event.data);
                     if (message[0] === 'EOSE' && message[1] === subscriptionId) {
-                        // This relay has finished sending stored events
                         completedRelays++;
 
-                        // Close subscription on this relay
                         ws.send(JSON.stringify(['CLOSE', subscriptionId]));
 
-                        // Check if all relays have completed
                         if (completedRelays === totalRelays) {
                             delete window.subscriptionHandlers[subscriptionId];
                             if (onComplete) {
@@ -1159,7 +1361,6 @@ async function requestEventsStream(filter, onEvent, onComplete) {
         } catch (error) {
             console.error(`Failed to connect to ${url}:`, error);
             completedRelays++;
-            // Check if all relays have completed (including failed ones)
             if (completedRelays === totalRelays) {
                 delete window.subscriptionHandlers[subscriptionId];
                 if (onComplete) {
@@ -1171,7 +1372,7 @@ async function requestEventsStream(filter, onEvent, onComplete) {
 }
 
 // Function to handle streaming video display
-async function displayVideosStream(title, filter) {
+async function displayVideosStream(title, filter, clientFilter = null) {
     const mainContent = document.getElementById('mainContent');
     mainContent.innerHTML = `
         <h2 style="margin-bottom: 1.5rem;">${title}</h2>
@@ -1188,17 +1389,15 @@ async function displayVideosStream(title, filter) {
     let profileTimer = null;
     let reactionTimer = null;
 
-    // Global reaction storage to accumulate across all relays
-    const globalReactions = new Map(); // videoId -> Map(userId -> {reaction, timestamp})
+    const globalReactions = new Map();
 
-    // Function to update only reactions on a video card
     const updateCardReactions = (eventId, reactions) => {
         const card = document.getElementById(`video-card-${eventId}`);
         if (!card) return;
 
         const thumbnail = card.querySelector('.video-thumbnail');
         const existingReactions = thumbnail.querySelector('.video-reactions');
-        
+
         const newReactionsHTML = reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
             ${reactions.likes > 0 ? `
                 <span class="reaction-count likes">
@@ -1220,7 +1419,6 @@ async function displayVideosStream(title, filter) {
 
         if (existingReactions) {
             if (newReactionsHTML) {
-                // Update existing reactions content
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = `<div class="video-reactions">${newReactionsHTML}</div>`;
                 existingReactions.innerHTML = tempDiv.firstElementChild.innerHTML;
@@ -1228,14 +1426,12 @@ async function displayVideosStream(title, filter) {
                 existingReactions.remove();
             }
         } else if (newReactionsHTML) {
-            // Add new reactions
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = `<div class="video-reactions">${newReactionsHTML}</div>`;
             thumbnail.appendChild(tempDiv.firstElementChild);
         }
     };
 
-    // Function to update only profile info on a video card
     const updateCardProfile = (eventId, profile) => {
         const card = document.getElementById(`video-card-${eventId}`);
         if (!card || !profile) return;
@@ -1244,16 +1440,14 @@ async function displayVideosStream(title, filter) {
         const avatarUrl = profile.picture || profile.avatar || '';
         const nip05 = profile.nip05 || '';
 
-        // Update channel name
         const channelName = card.querySelector('.channel-name');
         if (channelName && channelName.textContent !== displayName) {
             channelName.textContent = displayName;
         }
 
-        // Update NIP-05
         const channelDetails = card.querySelector('.channel-details');
         const existingNip05 = card.querySelector('.channel-nip05');
-        
+
         if (nip05) {
             if (existingNip05) {
                 if (existingNip05.textContent !== nip05) {
@@ -1261,7 +1455,7 @@ async function displayVideosStream(title, filter) {
                     existingNip05.dataset.nip05 = nip05;
                 }
             } else {
-                channelDetails.insertAdjacentHTML('beforeend', 
+                channelDetails.insertAdjacentHTML('beforeend',
                     `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>`
                 );
             }
@@ -1269,10 +1463,9 @@ async function displayVideosStream(title, filter) {
             existingNip05.remove();
         }
 
-        // Update avatar only if URL changed
         const channelAvatar = card.querySelector('.channel-avatar');
         const existingImg = channelAvatar.querySelector('img');
-        
+
         if (avatarUrl) {
             if (existingImg) {
                 if (existingImg.getAttribute('data-avatar-url') !== avatarUrl) {
@@ -1286,21 +1479,16 @@ async function displayVideosStream(title, filter) {
             existingImg.remove();
         }
 
-        // Mark that we need validation if avatar or nip05 exists
         if ((avatarUrl || nip05) && card.dataset.validationDone !== 'true') {
             card.dataset.needsValidation = 'true';
-            // Schedule validation
             setTimeout(() => validateVideoCard(eventId, card.dataset.pubkey, profile, reactionsCache.get(eventId), false), 100);
         }
     };
 
-    // Function to render a single video card
     const renderVideoCard = (event, profile = null, reactions = null) => {
         const cardId = `video-card-${event.id}`;
 
-        // Check if card already exists
         if (document.getElementById(cardId)) {
-            // Update existing card parts instead of replacing
             if (profile) updateCardProfile(event.id, profile);
             if (reactions) updateCardReactions(event.id, reactions);
             return;
@@ -1314,7 +1502,6 @@ async function displayVideosStream(title, filter) {
 
         tempDiv.firstElementChild.id = cardId;
 
-        // Find correct position based on timestamp
         let inserted = false;
         const cards = videoGrid.querySelectorAll('.video-card');
 
@@ -1335,7 +1522,6 @@ async function displayVideosStream(title, filter) {
         renderedVideos.set(event.id, event);
     };
 
-    // Batch load profiles
     const loadProfilesBatch = async () => {
         if (profileQueue.size === 0) return;
 
@@ -1352,7 +1538,6 @@ async function displayVideosStream(title, filter) {
                 const profile = JSON.parse(profileEvent.content);
                 profileCache.set(profileEvent.pubkey, profile);
 
-                // Update only the profile info for videos by this author
                 videoEvents.forEach(event => {
                     if (event.pubkey === profileEvent.pubkey) {
                         updateCardProfile(event.id, profile);
@@ -1364,7 +1549,6 @@ async function displayVideosStream(title, filter) {
         });
     };
 
-    // Calculate reactions from global storage
     const calculateReactions = (videoId) => {
         const reactions = { likes: 0, dislikes: 0, userReaction: null };
         const videoReactions = globalReactions.get(videoId);
@@ -1388,7 +1572,6 @@ async function displayVideosStream(title, filter) {
         return reactions;
     };
 
-    // Batch load reactions
     const loadReactionsBatch = async () => {
         if (reactionQueue.size === 0) return;
 
@@ -1404,7 +1587,6 @@ async function displayVideosStream(title, filter) {
         await requestEventsStream(filter, (reactionEvent) => {
             const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
             if (videoId && videoIds.includes(videoId)) {
-                // Initialize video reactions map if needed
                 if (!globalReactions.has(videoId)) {
                     globalReactions.set(videoId, new Map());
                 }
@@ -1413,7 +1595,6 @@ async function displayVideosStream(title, filter) {
                 const userPubkey = reactionEvent.pubkey;
                 const timestamp = reactionEvent.created_at;
 
-                // Only update if this is newer than existing reaction from this user
                 const existingReaction = videoReactions.get(userPubkey);
                 if (!existingReaction || existingReaction.timestamp < timestamp) {
                     videoReactions.set(userPubkey, {
@@ -1421,24 +1602,21 @@ async function displayVideosStream(title, filter) {
                         timestamp: timestamp
                     });
 
-                    // Calculate and cache updated reactions
                     const reactions = calculateReactions(videoId);
                     reactionsCache.set(videoId, reactions);
 
-                    // Update only the reactions part of the card
                     updateCardReactions(videoId, reactions);
                 }
             }
         });
     };
 
-    // Handle incoming video events
     await requestEventsStream(filter, (event) => {
-        // Check if it's a video event
         const tags = event.tags || [];
         if (!tags.some(tag => tag[0] === 'x')) return;
 
-        // Skip if we've already processed this event
+        if (clientFilter && !clientFilter(event)) return;
+
         if (videoEvents.some(e => e.id === event.id)) {
             return;
         }
@@ -1446,34 +1624,28 @@ async function displayVideosStream(title, filter) {
         videoEvents.push(event);
         allEvents.set(event.id, event);
 
-        // Remove spinner if it exists
         const spinner = videoGrid.querySelector('.spinner');
         if (spinner) spinner.remove();
 
-        // Render video card immediately with whatever data we have
         const cachedProfile = profileCache.get(event.pubkey);
         const cachedReactions = reactionsCache.get(event.id);
         renderVideoCard(event, cachedProfile, cachedReactions);
 
-        // Queue profile load if not cached
         if (!cachedProfile) {
             profileQueue.add(event.pubkey);
             clearTimeout(profileTimer);
             profileTimer = setTimeout(loadProfilesBatch, 100);
         }
 
-        // Queue reaction load
         reactionQueue.add(event.id);
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(loadReactionsBatch, 200);
 
     }, (allEvents) => {
-        // Final cleanup
         if (videoEvents.length === 0) {
             videoGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No videos found.</p>';
         }
 
-        // Force final profile and reaction load for any remaining items
         if (profileQueue.size > 0) {
             loadProfilesBatch();
         }
@@ -1491,10 +1663,8 @@ async function loadReactionsForVideos(videoIds, onUpdate = null) {
         '#t': ['pv69420']
     };
 
-    // Use a Map to track user reactions properly
-    const userReactions = new Map(); // videoId -> Map(userId -> {reaction, timestamp})
+    const userReactions = new Map();
 
-    // Initialize maps for each video
     videoIds.forEach(id => {
         userReactions.set(id, new Map());
     });
@@ -1507,7 +1677,6 @@ async function loadReactionsForVideos(videoIds, onUpdate = null) {
                 const userPubkey = event.pubkey;
                 const timestamp = event.created_at;
 
-                // Only update if this is newer than existing reaction from this user
                 const existingReaction = videoReactionMap.get(userPubkey);
                 if (!existingReaction || existingReaction.timestamp < timestamp) {
                     videoReactionMap.set(userPubkey, {
@@ -1515,7 +1684,6 @@ async function loadReactionsForVideos(videoIds, onUpdate = null) {
                         timestamp: timestamp
                     });
 
-                    // Calculate current reactions for this video
                     const reactions = { likes: 0, dislikes: 0, userReaction: null };
                     videoReactionMap.forEach((data, pubkey) => {
                         if (data.reaction === '👍') {
@@ -1531,17 +1699,14 @@ async function loadReactionsForVideos(videoIds, onUpdate = null) {
                         }
                     });
 
-                    // Update cache
                     reactionsCache.set(videoId, reactions);
 
-                    // Call update callback if provided
                     if (onUpdate) {
                         onUpdate(videoId, reactions);
                     }
                 }
             }
         }, () => {
-            // All events received - final calculation
             const reactions = {};
             videoIds.forEach(id => {
                 reactions[id] = { likes: 0, dislikes: 0, userReaction: null };
@@ -1561,7 +1726,6 @@ async function loadReactionsForVideos(videoIds, onUpdate = null) {
                     }
                 });
 
-                // Update cache with final values
                 reactionsCache.set(id, reactions[id]);
             });
 
@@ -1573,7 +1737,7 @@ async function loadReactionsForVideos(videoIds, onUpdate = null) {
 // Load zaps for videos
 async function loadZapsForVideo(eventId, onUpdate = null) {
     const filter = {
-        kinds: [9735], // Zap receipts
+        kinds: [9735],
         '#e': [eventId]
     };
 
@@ -1583,16 +1747,13 @@ async function loadZapsForVideo(eventId, onUpdate = null) {
     return new Promise((resolve) => {
         requestEventsStream(filter, (event) => {
             try {
-                // Extract zap amount from bolt11 tag
                 const bolt11Tag = event.tags.find(tag => tag[0] === 'bolt11');
                 if (bolt11Tag && bolt11Tag[1]) {
-                    // Parse amount from bolt11 invoice
                     const amount = extractAmountFromBolt11(bolt11Tag[1]);
                     if (amount > 0) {
                         totalZaps += amount;
                         zaps.push({ amount, event });
 
-                        // Call update callback if provided
                         if (onUpdate) {
                             onUpdate(totalZaps, zaps.length);
                         }
@@ -1615,11 +1776,11 @@ function extractAmountFromBolt11(bolt11) {
             const amount = parseInt(amountMatch[1]);
             const multiplier = amountMatch[2];
             switch (multiplier) {
-                case 'm': return amount * 100000; // millisats
-                case 'u': return amount * 100; // microsats
-                case 'n': return amount * 0.1; // nanosats
-                case 'p': return amount * 0.0001; // picosats
-                default: return amount * 100000000; // sats
+                case 'm': return amount * 100000;
+                case 'u': return amount * 100;
+                case 'n': return amount * 0.1;
+                case 'p': return amount * 0.0001;
+                default: return amount * 100000000;
             }
         }
     } catch (e) {
@@ -1673,14 +1834,11 @@ async function sendReaction(eventId, reaction) {
         const published = await publishEvent(signedEvent);
 
         if (published) {
-            // Update local cache
             const reactions = reactionsCache.get(eventId) || { likes: 0, dislikes: 0, userReaction: null };
 
-            // Remove previous reaction if exists
             if (reactions.userReaction === 'like') reactions.likes--;
             if (reactions.userReaction === 'dislike') reactions.dislikes--;
 
-            // Add new reaction
             if (reaction === '👍') {
                 reactions.likes++;
                 reactions.userReaction = 'like';
@@ -1701,7 +1859,6 @@ async function sendReaction(eventId, reaction) {
 
 // Function to fetch a single profile and return immediately when found
 async function fetchUserProfile(pubkey) {
-    // Check cache first
     if (profileCache.has(pubkey)) {
         return profileCache.get(pubkey);
     }
@@ -1715,7 +1872,6 @@ async function fetchUserProfile(pubkey) {
         };
 
         requestEventsStream(filter, (event) => {
-            // Return immediately on first match
             if (!found && event.pubkey === pubkey) {
                 found = true;
                 try {
@@ -1728,7 +1884,6 @@ async function fetchUserProfile(pubkey) {
                 }
             }
         }, () => {
-            // If no profile found after all relays complete
             if (!found) {
                 resolve(null);
             }
@@ -1777,11 +1932,14 @@ async function publishEvent(event) {
     const eventMessage = JSON.stringify(['EVENT', event]);
     let published = false;
 
-    for (const url of RELAY_URLS) {
+    const allPublishRelays = [...RELAY_URLS, ...PUBLISH_ONLY_RELAYS];
+
+    for (const url of allPublishRelays) {
         try {
             const ws = await connectToRelay(url);
             ws.send(eventMessage);
             published = true;
+            console.log(`Published to ${url}`);
         } catch (error) {
             console.error(`Failed to publish to ${url}:`, error);
         }
@@ -1798,8 +1956,6 @@ function createNote(event) {
     }
 
     const { nip19 } = window.NostrTools;
-
-    // Encode as note (just the event id)
     const note = nip19.noteEncode(event.id);
 
     return note;
@@ -1807,17 +1963,14 @@ function createNote(event) {
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize theme
     initTheme();
 
-    // Listen for login events
     window.addEventListener('nlAuth', async (e) => {
         console.log('Auth event received:', e.detail);
         if (e.detail.type === 'login' || e.detail.type === 'signup') {
             try {
                 const pubkey = await window.nostr.getPublicKey();
 
-                // Create and sign a login event
                 const loginEvent = {
                     kind: 24242,
                     created_at: Math.floor(Date.now() / 1000),
@@ -1828,12 +1981,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 const signedEvent = await window.nostr.signEvent(loginEvent);
 
-                // Store in localStorage
                 localStorage.setItem('plebsPublicKey', pubkey);
                 localStorage.setItem('plebsSignedEvent', JSON.stringify(signedEvent));
 
                 currentUser = { pubkey };
                 console.log('User logged in:', currentUser);
+
+                await initializeSettings();
+
                 handleRoute();
             } catch (error) {
                 console.error('Error during login:', error);
@@ -1842,19 +1997,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // Listen for logout
     window.addEventListener('nlLogout', async () => {
         console.log('User logged out');
 
-        // Clear localStorage
         localStorage.removeItem('plebsPublicKey');
         localStorage.removeItem('plebsSignedEvent');
 
         currentUser = null;
+
+        await initializeSettings();
+
         handleRoute();
     });
 
-    // Check if already logged in
     const storedPubkey = localStorage.getItem('plebsPublicKey');
     const storedSignedEvent = localStorage.getItem('plebsSignedEvent');
 
@@ -1865,7 +2020,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const pubkey = await window.nostr.getPublicKey();
 
-            // Create and sign a login event
             const loginEvent = {
                 kind: 24242,
                 created_at: Math.floor(Date.now() / 1000),
@@ -1876,7 +2030,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const signedEvent = await window.nostr.signEvent(loginEvent);
 
-            // Store in localStorage
             localStorage.setItem('plebsPublicKey', pubkey);
             localStorage.setItem('plebsSignedEvent', JSON.stringify(signedEvent));
 
@@ -1887,10 +2040,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     }
 
-    // Handle hash changes
+    await initializeSettings();
+
     window.addEventListener('hashchange', handleRoute);
 
-    // Handle window resize for carousel
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
@@ -1902,47 +2055,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 250);
     });
 
-    // Handle initial route
     handleRoute();
 });
 
 // Function to request Nostr login
 async function requestNostrLogin() {
-    // Check if already logged in from storage
     const storedPubkey = localStorage.getItem('plebsPublicKey');
     if (storedPubkey) {
         currentUser = { pubkey: storedPubkey };
         return currentUser;
     }
 
-    // If nostr-login is available, trigger it
     if (window.nostrLogin) {
         try {
             await window.nostrLogin.launch();
-            // The nlAuth event listener will handle the rest
-            return null; // Return null and let the event listener handle it
+            return null;
         } catch (error) {
             console.error('Failed to launch nostr login:', error);
         }
     }
-    
+
     return null;
 }
 
-// Simpler function to ensure user is logged in
+// Ensure user is logged in
 async function ensureLoggedIn() {
     if (currentUser) {
         return true;
     }
-    
-    // Check localStorage
+
     const storedPubkey = localStorage.getItem('plebsPublicKey');
     if (storedPubkey) {
         currentUser = { pubkey: storedPubkey };
         return true;
     }
-    
-    // Request login
+
     await requestNostrLogin();
     return false;
 }
@@ -2004,7 +2151,6 @@ function isVideoNSFW(event) {
 
 // Helper function to validate NIP-05
 async function validateNip05(nip05, pubkey) {
-    // Check cache first
     const cacheKey = `${nip05}:${pubkey}`;
     if (nip05ValidationCache.has(cacheKey)) {
         return nip05ValidationCache.get(cacheKey);
@@ -2032,7 +2178,6 @@ async function validateNip05(nip05, pubkey) {
         const data = await response.json();
         const isValid = data.names && data.names[name] === pubkey;
 
-        // Cache for 24 hours
         nip05ValidationCache.set(cacheKey, isValid);
         setTimeout(() => nip05ValidationCache.delete(cacheKey), 24 * 60 * 60 * 1000);
 
@@ -2056,7 +2201,7 @@ function createImageValidationPromise(url) {
         const timeout = setTimeout(() => {
             img.src = '';
             resolve(false);
-        }, 5000); // 5 second timeout
+        }, 5000);
 
         img.onload = () => {
             clearTimeout(timeout);
@@ -2083,17 +2228,14 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
     const isNSFW = isVideoNSFW(event);
     const isRatioed = isVideoRatioed(reactions || {});
 
-    // For now, assume suspicious until proven otherwise
     const cardId = `video-card-${event.id}`;
     const isSuspiciousProfile = !avatarUrl || !nip05;
     const showBlurred = (isNSFW && !shouldShowNSFW()) || (isRatioed && !sessionRatioedAllowed.has(event.id)) || (isSuspiciousProfile && !sessionRatioedAllowed.has(event.id));
 
-    // If this is a trending video and it has a community warning, don't render it
     if (isTrending && (isRatioed || isSuspiciousProfile)) {
         return '';
     }
 
-    // Add data attributes for later validation updates including isTrending
     const cardHTML = `
         <div class="video-card" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}">
             <div class="video-thumbnail ${showBlurred ? (isRatioed || isSuspiciousProfile ? 'ratioed' : 'nsfw') : ''}" 
@@ -2150,7 +2292,6 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
         </div>
     `;
 
-    // Schedule validation for this card
     if (profile && (avatarUrl || nip05)) {
         setTimeout(() => validateVideoCard(event.id, event.pubkey, profile, reactions, isTrending), 100);
     }
@@ -2163,13 +2304,11 @@ async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending
     const card = document.getElementById(`video-card-${eventId}`);
     if (!card) return;
 
-    // Check if validation is already done
     if (card.dataset.validationDone === 'true') return;
 
     const avatarUrl = profile?.picture || profile?.avatar || '';
     const nip05 = profile?.nip05 || '';
 
-    // Run validations in parallel
     const [avatarValid, nip05Valid] = await Promise.all([
         avatarUrl ? createImageValidationPromise(avatarUrl) : Promise.resolve(false),
         nip05 ? validateNip05(nip05, pubkey) : Promise.resolve(false)
@@ -2179,20 +2318,16 @@ async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending
     const isNSFW = isVideoNSFW(allEvents.get(eventId));
     const isRatioed = isVideoRatioed(reactions || {});
 
-    // Get isTrending from data attribute if not passed
     if (isTrending === false && card.dataset.isTrending === 'true') {
         isTrending = true;
     }
 
-    // Mark validation as done
     card.dataset.validationDone = 'true';
     card.dataset.needsValidation = 'false';
 
-    // If trending and suspicious/ratioed, remove the card and re-initialize carousel
     if (isTrending && (isRatioed || isSuspiciousProfile)) {
         card.remove();
-        
-        // Re-initialize carousel after card removal
+
         const trendingGrid = document.getElementById('trendingGrid');
         if (trendingGrid && trendingGrid.querySelector('.video-card')) {
             setTimeout(() => {
@@ -2202,23 +2337,20 @@ async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending
         return;
     }
 
-    // Only update overlay if needed
     const thumbnail = card.querySelector('.video-thumbnail');
     const currentOverlay = thumbnail.querySelector('.ratioed-overlay, .nsfw-overlay');
     const shouldShowWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId);
     const shouldShowNSFW = isNSFW && !shouldShowNSFW();
     const needsOverlay = shouldShowWarning || shouldShowNSFW;
 
-    // Only modify DOM if overlay state changed
     if ((currentOverlay && !needsOverlay) || (!currentOverlay && needsOverlay)) {
         if (needsOverlay) {
-            // Add overlay without modifying thumbnail class to prevent image reload
             if (!currentOverlay) {
                 thumbnail.classList.add(shouldShowWarning ? 'ratioed' : 'nsfw');
                 thumbnail.setAttribute('onclick',
                     shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`
                 );
-                
+
                 const overlayHTML = `
                     <div class="${shouldShowWarning ? 'ratioed-overlay' : 'nsfw-overlay'}">
                         <div class="${shouldShowWarning ? 'ratioed-badge' : 'nsfw-badge'}">${shouldShowWarning ? 'COMMUNITY WARNING' : 'NSFW'}</div>
@@ -2228,24 +2360,21 @@ async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending
                 thumbnail.insertAdjacentHTML('beforeend', overlayHTML);
             }
         } else {
-            // Remove overlay
             thumbnail.classList.remove('ratioed', 'nsfw');
             thumbnail.setAttribute('onclick', `navigateTo('/video/${eventId}')`);
             if (currentOverlay) currentOverlay.remove();
         }
 
-        // Update warning indicator
         const warningIndicator = card.querySelector('.community-warning-indicator');
         if (warningIndicator) {
             warningIndicator.style.display = shouldShowWarning ? 'inline' : 'none';
         }
 
-        // Update title onclick
         const title = card.querySelector('.video-title');
         if (title) {
             title.setAttribute('onclick',
-                needsOverlay ? 
-                    (shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`) : 
+                needsOverlay ?
+                    (shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`) :
                     `navigateTo('/video/${eventId}')`
             );
         }
@@ -2259,12 +2388,10 @@ function updateVideoCard(event, profile, reactions) {
 
     if (!existingCard) return;
 
-    // Check if validation is pending - if so, skip update to prevent flicker
     if (existingCard.dataset.validationPending === 'true') {
         return;
     }
 
-    // Only update specific parts that might have changed
     const existingReactions = existingCard.querySelector('.video-reactions');
     const newReactionsHTML = reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
         <div class="video-reactions">
@@ -2287,7 +2414,6 @@ function updateVideoCard(event, profile, reactions) {
         </div>
     ` : '';
 
-    // Update reactions if changed
     if (existingReactions) {
         if (newReactionsHTML) {
             existingReactions.outerHTML = newReactionsHTML;
@@ -2299,7 +2425,6 @@ function updateVideoCard(event, profile, reactions) {
         thumbnail.insertAdjacentHTML('beforeend', newReactionsHTML);
     }
 
-    // Update profile info only if changed
     if (profile) {
         const channelName = existingCard.querySelector('.channel-name');
         const channelNip05 = existingCard.querySelector('.channel-nip05');
@@ -2329,44 +2454,67 @@ function updateVideoCard(event, profile, reactions) {
     }
 }
 
-// Show NSFW modal
-function showNSFWModal(action, eventId) {
-    pendingNSFWAction = { action, eventId };
-    document.getElementById('nsfwModal').classList.add('active');
-}
-
 // Show ratioed modal
 function showRatioedModal(eventId) {
     pendingRatioedAction = eventId;
     document.getElementById('ratioedModal').classList.add('active');
 }
 
+// Proceed with ratioed video
+function proceedRatioed() {
+    if (pendingRatioedAction) {
+        const eventId = pendingRatioedAction;
+        sessionRatioedAllowed.add(eventId);
+        document.getElementById('ratioedModal').classList.remove('active');
+        pendingRatioedAction = null;
+
+        document.getElementById('mainContent').innerHTML = '<div class="spinner"></div>';
+
+        setTimeout(() => {
+            playVideo(eventId, false, true);
+        }, 10);
+    }
+}
+
+// Cancel ratioed
+function cancelRatioed() {
+    document.getElementById('ratioedModal').classList.remove('active');
+    pendingRatioedAction = null;
+    if (window.location.hash.startsWith('#/video/')) {
+        navigateTo('/');
+    }
+}
+
+// Show NSFW modal
+function showNSFWModal(action, eventId) {
+    pendingNSFWAction = { action, eventId };
+    document.getElementById('nsfwModal').classList.add('active');
+}
+
 // Confirm NSFW
 async function confirmNSFW() {
     const rememberChoice = document.getElementById('rememberNSFW').checked;
 
-    // Save preference if remember is checked
     if (rememberChoice) {
         localStorage.setItem('allowNSFW', 'true');
     }
 
-    // Always allow for this session
     sessionNSFWAllowed = true;
 
-    // Close modal
     document.getElementById('nsfwModal').classList.remove('active');
 
-    // Execute the pending action immediately
     if (pendingNSFWAction && pendingNSFWAction.action === 'playVideo') {
-        // Navigate to video
-        navigateTo(`/video/${pendingNSFWAction.eventId}`);
+        const eventId = pendingNSFWAction.eventId;
+        pendingNSFWAction = null;
+
+        document.getElementById('mainContent').innerHTML = '<div class="spinner"></div>';
+
+        setTimeout(() => {
+            playVideo(eventId, true, false);
+        }, 10);
     }
 
-    // Clear pending action
-    pendingNSFWAction = null;
-
-    // Only reload the view if remember was checked (to update all thumbnails)
-    if (rememberChoice) {
+    if (rememberChoice && !window.location.hash.startsWith('#/video/')) {
         setTimeout(() => {
             handleRoute();
         }, 100);
@@ -2378,22 +2526,9 @@ function cancelNSFW() {
     document.getElementById('nsfwModal').classList.remove('active');
     pendingNSFWAction = null;
     document.getElementById('rememberNSFW').checked = false;
-}
-
-// Proceed with ratioed video
-function proceedRatioed() {
-    if (pendingRatioedAction) {
-        sessionRatioedAllowed.add(pendingRatioedAction);
-        document.getElementById('ratioedModal').classList.remove('active');
-        navigateTo(`/video/${pendingRatioedAction}`);
-        pendingRatioedAction = null;
+    if (window.location.hash.startsWith('#/video/')) {
+        navigateTo('/');
     }
-}
-
-// Cancel ratioed
-function cancelRatioed() {
-    document.getElementById('ratioedModal').classList.remove('active');
-    pendingRatioedAction = null;
 }
 
 // Parse video event
@@ -2446,31 +2581,39 @@ function parseVideoEvent(event) {
 
     if (!videoData.title && videoData.description) {
         const lines = videoData.description.split('\n');
+
         if (lines[0].startsWith('🎬 ')) {
             videoData.title = lines[0].substring(2).trim();
             videoData.description = lines.slice(2).join('\n').trim();
+        } else {
+            const firstLine = lines[0].trim();
+            if (firstLine && firstLine.length < 100 && !firstLine.includes('http')) {
+                videoData.title = firstLine;
+                videoData.description = lines.slice(1).join('\n').trim();
+            }
         }
     }
 
-    // List of allowed video extensions
     const videoExtensions = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv'];
     const extensionsPattern = videoExtensions.join('|');
 
-    // Regex pattern: matches URLs with a 64-char hex string and a video extension
     const urlRegex = new RegExp(
         `https?:\\/\\/[^\\s]*([a-f0-9]{64})\\.(${extensionsPattern})(\\?[^\\s]*)?`,
         'gi'
     );
 
-    // Replace matching URLs
     videoData.description = videoData.description.replace(urlRegex, '').trim();
+
+    if (videoData.url) {
+        const lines = videoData.description.split('\n');
+        videoData.description = lines.filter(line => line.trim() !== videoData.url).join('\n').trim();
+    }
 
     return videoData.title ? videoData : null;
 }
 
 // Function to load trending videos with streaming
 async function loadTrendingVideos(period = 'today') {
-    // Calculate time boundaries
     const now = Math.floor(Date.now() / 1000);
     const oneDay = 24 * 60 * 60;
     const oneWeek = 7 * oneDay;
@@ -2504,9 +2647,7 @@ async function loadTrendingVideos(period = 'today') {
         let resolveTimer = null;
         let hasResolved = false;
 
-        // Process trending videos incrementally
         const processTrending = (force = false) => {
-            // Debounce processing to avoid too frequent updates
             const now = Date.now();
             if (!force && now - lastProcessTime < 200) {
                 clearTimeout(processTimer);
@@ -2518,7 +2659,6 @@ async function loadTrendingVideos(period = 'today') {
             const newTrendingVideos = [];
 
             videoEvents.forEach(event => {
-                // Calculate reactions
                 const reactions = { likes: 0, dislikes: 0 };
                 const videoReactions = globalReactions.get(event.id);
 
@@ -2532,45 +2672,36 @@ async function loadTrendingVideos(period = 'today') {
                     });
                 }
 
-                // Store reactions in cache
                 reactionsCache.set(event.id, reactions);
 
-                // Skip if video is ratioed
                 if (isVideoRatioed(reactions)) {
                     return;
                 }
 
-                // Get zap count
                 const zapTotal = globalZaps.get(event.id) || 0;
 
-                // Calculate trending score including zaps
                 const ageHours = (now - event.created_at) / 3600;
                 const timeWeight = Math.max(0, 24 - ageHours) / 24;
 
                 const zapScore = (zapTotal / 1000) * 5;
                 const score = reactions.likes - (reactions.dislikes * 2) + zapScore + (timeWeight * 10);
 
-                // Include videos with positive score
                 if (score > 0) {
                     videoScores.set(event.id, score);
                     newTrendingVideos.push(event);
                 }
             });
 
-            // Sort by score
             newTrendingVideos.sort((a, b) => {
                 const scoreA = videoScores.get(a.id) || 0;
                 const scoreB = videoScores.get(b.id) || 0;
                 return scoreB - scoreA;
             });
 
-            // Update trending videos (limit to top 12)
             trendingVideos = newTrendingVideos.slice(0, 12);
 
-            // Update the UI if we have the trending section loaded
             const trendingGrid = document.getElementById('trendingGrid');
             if (trendingGrid && trendingVideos.length > 0 && !hasResolved) {
-                // Remove spinner if present
                 const spinner = trendingGrid.querySelector('.spinner');
                 if (spinner) {
                     renderTrendingVideos(trendingVideos).then(() => {
@@ -2579,7 +2710,6 @@ async function loadTrendingVideos(period = 'today') {
                 }
             }
 
-            // If all streams are complete, resolve with final results
             if (videosComplete && reactionsComplete && zapsComplete && !hasResolved) {
                 clearTimeout(processTimer);
                 clearTimeout(resolveTimer);
@@ -2588,7 +2718,6 @@ async function loadTrendingVideos(period = 'today') {
             }
         };
 
-        // Load reactions for ALL collected videos
         const loadReactions = () => {
             if (videoEvents.length === 0) {
                 reactionsComplete = true;
@@ -2621,7 +2750,6 @@ async function loadTrendingVideos(period = 'today') {
                             reaction: reactionEvent.content,
                             timestamp: timestamp
                         });
-                        // Reprocess trending when new reactions arrive
                         processTrending();
                     }
                 }
@@ -2631,7 +2759,6 @@ async function loadTrendingVideos(period = 'today') {
             });
         };
 
-        // Load zaps for ALL collected videos
         const loadZaps = () => {
             if (videoEvents.length === 0) {
                 zapsComplete = true;
@@ -2656,7 +2783,6 @@ async function loadTrendingVideos(period = 'today') {
                             if (amount > 0) {
                                 const currentTotal = globalZaps.get(videoId) || 0;
                                 globalZaps.set(videoId, currentTotal + amount);
-                                // Reprocess trending when new zaps arrive
                                 processTrending();
                             }
                         }
@@ -2670,7 +2796,6 @@ async function loadTrendingVideos(period = 'today') {
             });
         };
 
-        // Start collecting video events - wait for ALL relays
         requestEventsStream(filter, (event) => {
             const tags = event.tags || [];
             if (tags.some(tag => tag[0] === 'x') && !processedVideos.has(event.id)) {
@@ -2678,16 +2803,11 @@ async function loadTrendingVideos(period = 'today') {
                 videoEvents.push(event);
                 allEvents.set(event.id, event);
 
-                // Process trending with each new video
                 processTrending();
             }
         }, () => {
-            // All relays have responded with videos
             videosComplete = true;
 
-            console.log(`Trending: Found ${videoEvents.length} videos from all relays`);
-
-            // NOW start loading reactions and zaps for ALL videos
             if (videoEvents.length > 0) {
                 loadReactions();
                 loadZaps();
@@ -2698,8 +2818,6 @@ async function loadTrendingVideos(period = 'today') {
             }
         });
 
-        // Set up progressive resolution
-        // After 3 seconds, resolve with whatever we have if we have good results
         resolveTimer = setTimeout(() => {
             if (trendingVideos.length >= 6 && !hasResolved) {
                 hasResolved = true;
@@ -2707,7 +2825,6 @@ async function loadTrendingVideos(period = 'today') {
             }
         }, 3000);
 
-        // Final timeout after 7 seconds
         setTimeout(() => {
             if (!hasResolved) {
                 videosComplete = true;
@@ -2727,7 +2844,6 @@ async function loadHomeFeed() {
 
     const mainContent = document.getElementById('mainContent');
 
-    // Immediately show the page structure with placeholders
     mainContent.innerHTML = `
         <div class="trending-section" id="trendingSection">
             <div class="trending-header">
@@ -2768,17 +2884,14 @@ async function loadHomeFeed() {
         </div>
     `;
 
-    // Load trending videos in the background
     loadTrendingSection();
 
-    // Immediately start loading latest videos
     const filter = {
         kinds: [1],
         limit: 50,
         '#t': ['pv69420']
     };
 
-    // Use the existing streaming display logic
     const videoGrid = document.getElementById('videoGrid');
     const renderedVideos = new Map();
     const videoEvents = [];
@@ -2787,17 +2900,15 @@ async function loadHomeFeed() {
     let profileTimer = null;
     let reactionTimer = null;
 
-    // Global reaction storage to accumulate across all relays
     const globalReactions = new Map();
 
-    // Function to update only reactions on a video card
     const updateCardReactions = (eventId, reactions) => {
         const card = document.getElementById(`video-card-${eventId}`);
         if (!card) return;
 
         const thumbnail = card.querySelector('.video-thumbnail');
         const existingReactions = thumbnail.querySelector('.video-reactions');
-        
+
         const newReactionsHTML = reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
             ${reactions.likes > 0 ? `
                 <span class="reaction-count likes">
@@ -2819,7 +2930,6 @@ async function loadHomeFeed() {
 
         if (existingReactions) {
             if (newReactionsHTML) {
-                // Update existing reactions content
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = `<div class="video-reactions">${newReactionsHTML}</div>`;
                 existingReactions.innerHTML = tempDiv.firstElementChild.innerHTML;
@@ -2827,14 +2937,12 @@ async function loadHomeFeed() {
                 existingReactions.remove();
             }
         } else if (newReactionsHTML) {
-            // Add new reactions
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = `<div class="video-reactions">${newReactionsHTML}</div>`;
             thumbnail.appendChild(tempDiv.firstElementChild);
         }
     };
 
-    // Function to update only profile info on a video card
     const updateCardProfile = (eventId, profile) => {
         const card = document.getElementById(`video-card-${eventId}`);
         if (!card || !profile) return;
@@ -2843,16 +2951,14 @@ async function loadHomeFeed() {
         const avatarUrl = profile.picture || profile.avatar || '';
         const nip05 = profile.nip05 || '';
 
-        // Update channel name
         const channelName = card.querySelector('.channel-name');
         if (channelName && channelName.textContent !== displayName) {
             channelName.textContent = displayName;
         }
 
-        // Update NIP-05
         const channelDetails = card.querySelector('.channel-details');
         const existingNip05 = card.querySelector('.channel-nip05');
-        
+
         if (nip05) {
             if (existingNip05) {
                 if (existingNip05.textContent !== nip05) {
@@ -2860,7 +2966,7 @@ async function loadHomeFeed() {
                     existingNip05.dataset.nip05 = nip05;
                 }
             } else {
-                channelDetails.insertAdjacentHTML('beforeend', 
+                channelDetails.insertAdjacentHTML('beforeend',
                     `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>`
                 );
             }
@@ -2868,10 +2974,9 @@ async function loadHomeFeed() {
             existingNip05.remove();
         }
 
-        // Update avatar only if URL changed
         const channelAvatar = card.querySelector('.channel-avatar');
         const existingImg = channelAvatar.querySelector('img');
-        
+
         if (avatarUrl) {
             if (existingImg) {
                 if (existingImg.getAttribute('data-avatar-url') !== avatarUrl) {
@@ -2885,21 +2990,16 @@ async function loadHomeFeed() {
             existingImg.remove();
         }
 
-        // Mark that we need validation if avatar or nip05 exists
         if ((avatarUrl || nip05) && card.dataset.validationDone !== 'true') {
             card.dataset.needsValidation = 'true';
-            // Schedule validation
             setTimeout(() => validateVideoCard(eventId, card.dataset.pubkey, profile, reactionsCache.get(eventId), false), 100);
         }
     };
 
-    // Function to render a single video card
     const renderVideoCard = (event, profile = null, reactions = null) => {
         const cardId = `video-card-${event.id}`;
 
-        // Check if card already exists
         if (document.getElementById(cardId)) {
-            // Update existing card parts instead of replacing
             if (profile) updateCardProfile(event.id, profile);
             if (reactions) updateCardReactions(event.id, reactions);
             return;
@@ -2913,7 +3013,6 @@ async function loadHomeFeed() {
 
         tempDiv.firstElementChild.id = cardId;
 
-        // Find correct position based on timestamp
         let inserted = false;
         const cards = videoGrid.querySelectorAll('.video-card');
 
@@ -2934,7 +3033,6 @@ async function loadHomeFeed() {
         renderedVideos.set(event.id, event);
     };
 
-    // Batch load profiles
     const loadProfilesBatch = async () => {
         if (profileQueue.size === 0) return;
 
@@ -2951,7 +3049,6 @@ async function loadHomeFeed() {
                 const profile = JSON.parse(profileEvent.content);
                 profileCache.set(profileEvent.pubkey, profile);
 
-                // Update only the profile info for videos by this author
                 videoEvents.forEach(event => {
                     if (event.pubkey === profileEvent.pubkey) {
                         updateCardProfile(event.id, profile);
@@ -2963,7 +3060,6 @@ async function loadHomeFeed() {
         });
     };
 
-    // Calculate reactions from global storage
     const calculateReactions = (videoId) => {
         const reactions = { likes: 0, dislikes: 0, userReaction: null };
         const videoReactions = globalReactions.get(videoId);
@@ -2987,7 +3083,6 @@ async function loadHomeFeed() {
         return reactions;
     };
 
-    // Batch load reactions
     const loadReactionsBatch = async () => {
         if (reactionQueue.size === 0) return;
 
@@ -3003,7 +3098,6 @@ async function loadHomeFeed() {
         await requestEventsStream(filter, (reactionEvent) => {
             const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
             if (videoId && videoIds.includes(videoId)) {
-                // Initialize video reactions map if needed
                 if (!globalReactions.has(videoId)) {
                     globalReactions.set(videoId, new Map());
                 }
@@ -3012,7 +3106,6 @@ async function loadHomeFeed() {
                 const userPubkey = reactionEvent.pubkey;
                 const timestamp = reactionEvent.created_at;
 
-                // Only update if this is newer than existing reaction from this user
                 const existingReaction = videoReactions.get(userPubkey);
                 if (!existingReaction || existingReaction.timestamp < timestamp) {
                     videoReactions.set(userPubkey, {
@@ -3020,24 +3113,19 @@ async function loadHomeFeed() {
                         timestamp: timestamp
                     });
 
-                    // Calculate and cache updated reactions
                     const reactions = calculateReactions(videoId);
                     reactionsCache.set(videoId, reactions);
 
-                    // Update only the reactions part of the card
                     updateCardReactions(videoId, reactions);
                 }
             }
         });
     };
 
-    // Handle incoming video events
     await requestEventsStream(filter, (event) => {
-        // Check if it's a video event
         const tags = event.tags || [];
         if (!tags.some(tag => tag[0] === 'x')) return;
 
-        // Skip if we've already processed this event
         if (videoEvents.some(e => e.id === event.id)) {
             return;
         }
@@ -3045,34 +3133,28 @@ async function loadHomeFeed() {
         videoEvents.push(event);
         allEvents.set(event.id, event);
 
-        // Remove spinner if it exists
         const spinner = videoGrid.querySelector('.spinner');
         if (spinner) spinner.remove();
 
-        // Render video card immediately with whatever data we have
         const cachedProfile = profileCache.get(event.pubkey);
         const cachedReactions = reactionsCache.get(event.id);
         renderVideoCard(event, cachedProfile, cachedReactions);
 
-        // Queue profile load if not cached
         if (!cachedProfile) {
             profileQueue.add(event.pubkey);
             clearTimeout(profileTimer);
             profileTimer = setTimeout(loadProfilesBatch, 100);
         }
 
-        // Queue reaction load
         reactionQueue.add(event.id);
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(loadReactionsBatch, 200);
 
     }, (allEvents) => {
-        // Final cleanup
         if (videoEvents.length === 0) {
             videoGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No videos found.</p>';
         }
 
-        // Force final profile and reaction load for any remaining items
         if (profileQueue.size > 0) {
             loadProfilesBatch();
         }
@@ -3096,38 +3178,32 @@ function initializeCarousel() {
 
     if (totalCards === 0) return;
 
-    // Calculate items per page based on screen width
     let itemsPerPage;
-    if (window.innerWidth <= 480) { // Mobile
+    if (window.innerWidth <= 480) {
         itemsPerPage = 1;
-    } else if (window.innerWidth <= 768) { // Tablet
+    } else if (window.innerWidth <= 768) {
         itemsPerPage = 2;
-    } else { // Desktop
+    } else {
         itemsPerPage = 3;
     }
 
-    // Ensure we don't exceed the total number of cards
     itemsPerPage = Math.min(itemsPerPage, totalCards);
 
     const totalPages = Math.ceil(totalCards / itemsPerPage);
 
-    // Update CSS for proper card sizing based on items per page
-    const gapRem = 1; // 1rem gap
-    const gapPixels = gapRem * 16; // Convert rem to pixels (assuming 16px base)
+    const gapRem = 1;
+    const gapPixels = gapRem * 16;
     const totalGaps = itemsPerPage - 1;
     const totalGapWidth = totalGaps * gapPixels;
 
-    // Calculate the percentage width for each card
     const cardWidthPercent = (100 - (totalGapWidth / trendingGrid.offsetWidth * 100)) / itemsPerPage;
 
-    // Apply the calculated width to all cards
     cards.forEach(card => {
         card.style.flex = `0 0 ${cardWidthPercent}%`;
         card.style.maxWidth = `${cardWidthPercent}%`;
         card.style.width = `${cardWidthPercent}%`;
     });
 
-    // Create dots
     carouselDots.innerHTML = '';
     for (let i = 0; i < totalPages; i++) {
         const dot = document.createElement('div');
@@ -3136,15 +3212,11 @@ function initializeCarousel() {
         carouselDots.appendChild(dot);
     }
 
-    // Store current page in grid element
     trendingGrid.dataset.currentPage = '0';
     trendingGrid.dataset.totalPages = totalPages;
     trendingGrid.dataset.itemsPerPage = itemsPerPage;
 
-    // Update button states
     updateCarouselButtons();
-
-    // Ensure initial layout is correct
     goToPage(0);
 }
 
@@ -3154,12 +3226,9 @@ async function loadTrendingSection() {
     let hasRendered = false;
 
     try {
-        // Start loading trending videos
         const trendingPromise = loadTrendingVideos(currentTrendingPeriod);
 
-        // Check for early results every 500ms
         const checkInterval = setInterval(async () => {
-            // Try to get current state without blocking
             const trendingVideos = await Promise.race([
                 trendingPromise,
                 new Promise(resolve => setTimeout(() => resolve(null), 10))
@@ -3172,7 +3241,6 @@ async function loadTrendingSection() {
             }
         }, 500);
 
-        // Wait for final results
         const trendingVideos = await trendingPromise;
         clearInterval(checkInterval);
 
@@ -3194,21 +3262,17 @@ async function loadTrendingSection() {
 async function renderTrendingVideos(trendingVideos) {
     const trendingGrid = document.getElementById('trendingGrid');
 
-    // Load profiles for trending videos
     const trendingPubkeys = [...new Set(trendingVideos.map(v => v.pubkey))];
     await loadUserProfiles(trendingPubkeys);
 
-    // Render trending videos and filter out any empty cards
     const renderedCards = trendingVideos.map((event, index) => {
         const profile = profileCache.get(event.pubkey);
         const reactions = reactionsCache.get(event.id);
         return createVideoCard(event, profile, reactions, true, index + 1);
-    }).filter(card => card !== ''); // Filter out empty strings
+    }).filter(card => card !== '');
 
-    // Only update if we have cards to show
     if (renderedCards.length > 0) {
         trendingGrid.innerHTML = renderedCards.join('');
-        // Initialize carousel after rendering
         initializeCarousel();
     } else {
         trendingGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No trending videos found.</p>';
@@ -3219,19 +3283,16 @@ async function renderTrendingVideos(trendingVideos) {
 async function switchTrendingPeriod(period) {
     currentTrendingPeriod = period;
 
-    // Update tab UI
     document.querySelectorAll('.trending-tab').forEach(tab => {
         tab.classList.remove('active');
     });
     event.target.classList.add('active');
 
-    // Show spinner while loading
     const trendingGrid = document.querySelector('.trending-grid');
     if (trendingGrid) {
         trendingGrid.innerHTML = '<div class="spinner"></div>';
     }
 
-    // Load trending section with new period
     await loadTrendingSection();
 }
 
@@ -3248,7 +3309,6 @@ async function loadSubscriptions() {
     mainContent.innerHTML = '<div class="spinner"></div>';
 
     try {
-        // First, get the user's following list (kind 3)
         const followingFilter = {
             kinds: [3],
             authors: [currentUser.pubkey],
@@ -3258,7 +3318,6 @@ async function loadSubscriptions() {
         let followingList = [];
         await new Promise((resolve) => {
             requestEventsStream(followingFilter, (event) => {
-                // Parse the following list from tags
                 const pTags = event.tags.filter(tag => tag[0] === 'p');
                 followingList = pTags.map(tag => tag[1]);
             }, resolve);
@@ -3272,7 +3331,6 @@ async function loadSubscriptions() {
             return;
         }
 
-        // Load videos from followed users
         const filter = {
             kinds: [1],
             authors: followingList,
@@ -3312,11 +3370,16 @@ async function loadTag(tag) {
 
     const filter = {
         kinds: [1],
-        '#t': [tag],
+        '#t': ['pv69420'],
         limit: 500
     };
 
-    await displayVideosStream(`${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos`, filter);
+    const tagFilter = (event) => {
+        const tags = event.tags || [];
+        return tags.some(t => t[0] === 't' && t[1] === tag);
+    };
+
+    await displayVideosStream(`${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos`, filter, tagFilter);
 }
 
 // Handle deleting video
@@ -3333,7 +3396,6 @@ async function handleDelete(eventId) {
     }
 
     try {
-        // Create deletion event (kind 5)
         const deleteEvent = {
             kind: 5,
             tags: [
@@ -3349,7 +3411,6 @@ async function handleDelete(eventId) {
 
         if (published) {
             alert('Deletion request sent to relays. The video may take some time to be removed.');
-            // Navigate back to my videos
             navigateTo('/my-videos');
         } else {
             alert('Failed to send deletion request. Please try again.');
@@ -3391,7 +3452,6 @@ async function followUser(pubkey) {
     }
 
     try {
-        // Get current following list
         const followingFilter = {
             kinds: [3],
             authors: [currentUser.pubkey],
@@ -3408,12 +3468,10 @@ async function followUser(pubkey) {
             }, resolve);
         });
 
-        // Add new follow if not already following
         if (!currentFollowingTags.some(tag => tag[1] === pubkey)) {
             currentFollowingTags.push(['p', pubkey]);
         }
 
-        // Create new contact list event
         const contactListEvent = {
             kind: 3,
             tags: [...currentFollowingTags, ...currentRelayTags],
@@ -3439,7 +3497,6 @@ async function unfollowUser(pubkey) {
     }
 
     try {
-        // Get current following list
         const followingFilter = {
             kinds: [3],
             authors: [currentUser.pubkey],
@@ -3456,10 +3513,8 @@ async function unfollowUser(pubkey) {
             }, resolve);
         });
 
-        // Remove the pubkey from following list
         currentFollowingTags = currentFollowingTags.filter(tag => tag[1] !== pubkey);
 
-        // Create new contact list event
         const contactListEvent = {
             kind: 3,
             tags: [...currentFollowingTags, ...currentRelayTags],
@@ -3491,7 +3546,6 @@ async function handleFollow(pubkey, isCurrentlyFollowing) {
     }
 
     if (success) {
-        // Update button state
         button.classList.toggle('following');
         button.textContent = isCurrentlyFollowing ? 'Follow' : 'Unfollow';
         button.setAttribute('onclick', `handleFollow('${pubkey}', ${!isCurrentlyFollowing})`);
@@ -3511,23 +3565,17 @@ async function loadProfile(pubkey) {
     mainContent.innerHTML = '<div class="spinner"></div>';
 
     try {
-        // Load profile using the new streaming function
         const profile = await fetchUserProfile(pubkey);
         const displayName = profile?.name || profile?.display_name || `User ${pubkey.slice(0, 8)}`;
         const avatarUrl = profile?.picture || profile?.avatar || '';
         const nip05 = profile?.nip05 || '';
         const about = profile?.about || '';
 
-        // Meta tags are already updated in handleRoute, no need to update again
-
-        // Convert pubkey to npub
         const npub = window.NostrTools.nip19.npubEncode(pubkey);
 
-        // Check following status in parallel
         const isFollowingPromise = isFollowing(pubkey);
         const isOwnProfile = currentUser && currentUser.pubkey === pubkey;
 
-        // Show profile header immediately
         mainContent.innerHTML = `
             <div class="profile-header">
                 <div class="profile-avatar">
@@ -3554,8 +3602,6 @@ async function loadProfile(pubkey) {
             </div>
         `;
 
-        // Rest of the function remains the same...
-        // Update follow button when status is determined
         isFollowingPromise.then(isFollowingUser => {
             const actionsDiv = document.getElementById(`profile-actions-${pubkey}`);
             if (actionsDiv && !isOwnProfile && currentUser) {
@@ -3567,7 +3613,6 @@ async function loadProfile(pubkey) {
             }
         });
 
-        // Load videos with streaming
         const filter = {
             kinds: [1],
             authors: [pubkey],
@@ -3579,24 +3624,19 @@ async function loadProfile(pubkey) {
         const reactionQueue = new Set();
         let reactionTimer = null;
 
-        // Handle incoming video events
         await requestEventsStream(filter, (event) => {
-            // Check if it's a video event
             const tags = event.tags || [];
             if (!tags.some(tag => tag[0] === 'x')) return;
 
             videoEvents.push(event);
             allEvents.set(event.id, event);
 
-            // Remove spinner on first video
             const spinner = videoGrid.querySelector('.spinner');
             if (spinner) spinner.remove();
 
-            // Render video card immediately
             const cachedReactions = reactionsCache.get(event.id);
             const cardHTML = createVideoCard(event, profile, cachedReactions);
 
-            // Insert in correct position (newest first)
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = cardHTML;
 
@@ -3620,7 +3660,6 @@ async function loadProfile(pubkey) {
                 }
             }
 
-            // Queue reaction load
             reactionQueue.add(event.id);
             clearTimeout(reactionTimer);
             reactionTimer = setTimeout(async () => {
@@ -3629,14 +3668,12 @@ async function loadProfile(pubkey) {
                     reactionQueue.clear();
 
                     await loadReactionsForVideos(videoIds, (videoId, reactions) => {
-                        // Update the specific video card
                         const updatedCard = createVideoCard(
                             videoEvents.find(e => e.id === videoId),
                             profile,
                             reactions
                         );
 
-                        // Find and replace the card
                         const cards = videoGrid.querySelectorAll('.video-card');
                         for (const card of cards) {
                             if (card.innerHTML.includes(videoId)) {
@@ -3653,7 +3690,6 @@ async function loadProfile(pubkey) {
             }, 200);
 
         }, () => {
-            // All events received
             if (videoEvents.length === 0) {
                 videoGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No videos uploaded yet.</p>';
             }
@@ -3670,7 +3706,6 @@ async function searchVideos() {
     const query = document.getElementById('searchInput').value.trim();
     if (!query) return;
 
-    // Navigate to search route
     navigateTo(`/search/${encodeURIComponent(query)}`);
 }
 
@@ -3694,27 +3729,19 @@ async function performSearch(query) {
     let profileTimer = null;
     let reactionTimer = null;
 
-    // Global reaction storage to accumulate across all relays
     const globalReactions = new Map();
 
-    // Function to check if video matches search query
     const matchesSearch = (event) => {
         const videoData = parseVideoEvent(event);
         if (!videoData) return false;
 
-        // Search in title
         if (videoData.title.toLowerCase().includes(decodedQuery)) return true;
-
-        // Search in description
         if (videoData.description.toLowerCase().includes(decodedQuery)) return true;
-
-        // Search in tags
         if (videoData.tags.some(tag => tag.toLowerCase().includes(decodedQuery))) return true;
 
         return false;
     };
 
-    // Reuse the same update and render functions from displayVideosStream
     const updateVideoCard = (event, profile, reactions) => {
         const cardId = `video-card-${event.id}`;
         const existingCard = document.getElementById(cardId);
@@ -3734,7 +3761,6 @@ async function performSearch(query) {
     const renderVideoCard = (event, profile = null, reactions = null) => {
         const cardId = `video-card-${event.id}`;
 
-        // Check if card already exists (deduplication)
         if (document.getElementById(cardId)) {
             updateVideoCard(event, profile, reactions);
             return;
@@ -3748,7 +3774,6 @@ async function performSearch(query) {
 
         tempDiv.firstElementChild.id = cardId;
 
-        // Find correct position based on timestamp
         let inserted = false;
         const cards = videoGrid.querySelectorAll('.video-card');
 
@@ -3769,7 +3794,6 @@ async function performSearch(query) {
         renderedVideos.set(event.id, event);
     };
 
-    // Batch load profiles
     const loadProfilesBatch = async () => {
         if (profileQueue.size === 0) return;
 
@@ -3786,7 +3810,6 @@ async function performSearch(query) {
                 const profile = JSON.parse(profileEvent.content);
                 profileCache.set(profileEvent.pubkey, profile);
 
-                // Update all videos by this author
                 videoEvents.forEach(event => {
                     if (event.pubkey === profileEvent.pubkey) {
                         const reactions = reactionsCache.get(event.id);
@@ -3799,7 +3822,6 @@ async function performSearch(query) {
         });
     };
 
-    // Calculate reactions from global storage
     const calculateReactions = (videoId) => {
         const reactions = { likes: 0, dislikes: 0, userReaction: null };
         const videoReactions = globalReactions.get(videoId);
@@ -3823,7 +3845,6 @@ async function performSearch(query) {
         return reactions;
     };
 
-    // Batch load reactions
     const loadReactionsBatch = async () => {
         if (reactionQueue.size === 0) return;
 
@@ -3839,7 +3860,6 @@ async function performSearch(query) {
         await requestEventsStream(filter, (reactionEvent) => {
             const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
             if (videoId && videoIds.includes(videoId)) {
-                // Initialize video reactions map if needed
                 if (!globalReactions.has(videoId)) {
                     globalReactions.set(videoId, new Map());
                 }
@@ -3848,7 +3868,6 @@ async function performSearch(query) {
                 const userPubkey = reactionEvent.pubkey;
                 const timestamp = reactionEvent.created_at;
 
-                // Only update if this is newer than existing reaction from this user
                 const existingReaction = videoReactions.get(userPubkey);
                 if (!existingReaction || existingReaction.timestamp < timestamp) {
                     videoReactions.set(userPubkey, {
@@ -3856,11 +3875,9 @@ async function performSearch(query) {
                         timestamp: timestamp
                     });
 
-                    // Calculate and cache updated reactions
                     const reactions = calculateReactions(videoId);
                     reactionsCache.set(videoId, reactions);
 
-                    // Update the video card if it exists
                     const event = videoEvents.find(e => e.id === videoId);
                     if (event) {
                         const profile = profileCache.get(event.pubkey);
@@ -3871,7 +3888,6 @@ async function performSearch(query) {
         });
     };
 
-    // Search all video events
     const filter = {
         kinds: [1],
         '#t': ['pv69420'],
@@ -3879,14 +3895,11 @@ async function performSearch(query) {
     };
 
     await requestEventsStream(filter, (event) => {
-        // Check if it's a video event and matches search
         const tags = event.tags || [];
         if (!tags.some(tag => tag[0] === 'x')) return;
 
-        // Check if video matches search criteria
         if (!matchesSearch(event)) return;
 
-        // Skip if we've already processed this event (deduplication)
         if (videoEvents.some(e => e.id === event.id)) {
             return;
         }
@@ -3894,34 +3907,28 @@ async function performSearch(query) {
         videoEvents.push(event);
         allEvents.set(event.id, event);
 
-        // Remove spinner if it exists
         const spinner = videoGrid.querySelector('.spinner');
         if (spinner) spinner.remove();
 
-        // Render video card immediately with whatever data we have
         const cachedProfile = profileCache.get(event.pubkey);
         const cachedReactions = reactionsCache.get(event.id);
         renderVideoCard(event, cachedProfile, cachedReactions);
 
-        // Queue profile load if not cached
         if (!cachedProfile) {
             profileQueue.add(event.pubkey);
             clearTimeout(profileTimer);
             profileTimer = setTimeout(loadProfilesBatch, 100);
         }
 
-        // Queue reaction load
         reactionQueue.add(event.id);
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(loadReactionsBatch, 200);
 
     }, (allEvents) => {
-        // Final cleanup
         if (videoEvents.length === 0) {
             videoGrid.innerHTML = `<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No videos found matching "${query}".</p>`;
         }
 
-        // Force final profile and reaction load for any remaining items
         if (profileQueue.size > 0) {
             loadProfilesBatch();
         }
@@ -3955,14 +3962,12 @@ async function fetchVideoEvent(eventId) {
         };
 
         requestEventsStream(filter, (event) => {
-            // Return immediately on first match
             if (!found && event.id === eventId) {
                 found = true;
                 allEvents.set(event.id, event);
                 resolve(event);
             }
         }, () => {
-            // If no event found after all relays complete
             if (!found) {
                 resolve(null);
             }
@@ -3974,17 +3979,14 @@ async function fetchVideoEvent(eventId) {
 async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = false) {
     const mainContent = document.getElementById('mainContent');
 
-    // Don't show spinner if we're already showing one from handleRoute
     if (!mainContent.querySelector('.spinner')) {
         mainContent.innerHTML = '<div class="spinner"></div>';
     }
 
     try {
-        // Get event from cache or request it
         let event = allEvents.get(eventId);
 
         if (!event) {
-            // Use the new fetchVideoEvent function that returns immediately
             event = await fetchVideoEvent(eventId);
         }
 
@@ -3999,47 +4001,53 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             return;
         }
 
-        // Check NSFW status immediately
+        const profile = await fetchUserProfile(event.pubkey);
+        if (videoData && profile) {
+            const authorName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
+
+            document.title = `${videoData.title} - Plebs`;
+
+            const setMetaTag = (selector, attribute, value) => {
+                let tag = document.querySelector(selector);
+                if (tag) tag.setAttribute(attribute, value);
+            };
+
+            setMetaTag('meta[property="og:title"]', 'content', `${videoData.title} - Plebs`);
+            setMetaTag('meta[property="og:description"]', 'content',
+                videoData.description ? videoData.description.slice(0, 155) : `Watch "${videoData.title}" by ${authorName} on Plebs`);
+            if (videoData.thumbnail) {
+                setMetaTag('meta[property="og:image"]', 'content', videoData.thumbnail);
+            }
+        }
+
         const isNSFW = isVideoNSFW(event);
         if (!skipNSFWCheck && isNSFW && !shouldShowNSFW()) {
             showNSFWModal('playVideo', eventId);
             return;
         }
 
-        // Get profile early to check for suspicious profile
-        const cachedProfile = profileCache.get(event.pubkey);
-        const isSuspiciousProfile = cachedProfile && (!cachedProfile.picture && !cachedProfile.avatar || !cachedProfile.nip05);
+        const avatarUrl = profile?.picture || profile?.avatar || '';
+        const nip05 = profile?.nip05 || '';
 
-        // For initial ratioed check, use cached reactions or default to not ratioed
+        const isSuspiciousProfile = !avatarUrl || !nip05;
+
         const cachedReactions = reactionsCache.get(eventId) || { likes: 0, dislikes: 0 };
         const isCachedRatioed = isVideoRatioed(cachedReactions);
 
-        // Check both ratioed and suspicious profile conditions
         if (!skipRatioedCheck && (isCachedRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId)) {
             showRatioedModal(eventId);
             return;
         }
 
-        // Start loading author profile in parallel
-        const profilePromise = loadUserProfile(event.pubkey);
-
-        // Convert pubkey to npub
         const authorNpub = window.NostrTools.nip19.npubEncode(event.pubkey);
 
-        // Try to get working video URL
         const videoUrl = await getVideoUrl(videoData.hash) || videoData.url;
 
-        // Create note for comments (no longer needed for ZapThreads)
         const note = createNote(event);
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
 
-        // Wait for profile
-        const profile = await profilePromise;
         const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
-        const avatarUrl = profile?.picture || profile?.avatar || '';
-        const nip05 = profile?.nip05 || '';
 
-        // Validate profile data
         const [avatarValid, nip05Valid] = await Promise.all([
             avatarUrl ? createImageValidationPromise(avatarUrl) : Promise.resolve(false),
             nip05 ? validateNip05(nip05, event.pubkey) : Promise.resolve(false)
@@ -4047,13 +4055,11 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
 
         const isProfileSuspicious = !avatarValid || !nip05Valid;
 
-        // Re-check ratioed status with validated profile
         if (!skipRatioedCheck && (isCachedRatioed || isProfileSuspicious) && !sessionRatioedAllowed.has(eventId)) {
             showRatioedModal(eventId);
             return;
         }
 
-        // Video page
         mainContent.innerHTML = `
             <div class="video-player-container">
                 <div class="video-player">
@@ -4132,7 +4138,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     
                     <div style="margin-top: 1.5rem;">
                         <h3>Description</h3>
-                        <p style="white-space: pre-wrap; margin-top: 0.5rem;">${videoData.description}</p>
+                        <p style="white-space: pre-wrap; margin-top: 0.5rem;">${videoData.description || 'No description provided.'}</p>
                     </div>
                     ${videoData.tags.length > 0 ? `
                         <div class="tags">
@@ -4151,7 +4157,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             </div>
         `;
 
-        // Handle video error with fallback
         const video = mainContent.querySelector('video');
         video.onerror = async () => {
             const fallbackUrl = await getVideoUrl(videoData.hash, BLOSSOM_SERVERS.slice(1));
@@ -4162,22 +4167,16 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             }
         };
 
-        // Add main comment input
         const mainCommentInput = createCommentInput();
         document.getElementById('main-comment-input').replaceWith(mainCommentInput);
 
-        // Collect all event IDs for this video
         const videoEventIds = [eventId];
 
-        // Load comments
         loadComments(videoEventIds);
 
-        // Load reactions with streaming updates
         loadReactionsForVideos([eventId], (videoId, reactions) => {
-            // Update UI immediately when reactions come in
             updateReactionButtons(videoId, reactions);
 
-            // Check if video became ratioed
             const isRatioed = isVideoRatioed(reactions);
             if (isRatioed && !skipRatioedCheck && !sessionRatioedAllowed.has(eventId)) {
                 const indicator = mainContent.querySelector('.ratioed-indicator');
@@ -4187,9 +4186,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             }
         });
 
-        // Load zaps with streaming updates
         loadZapsForVideo(eventId, (totalZaps, count) => {
-            // Update zap button immediately when zaps come in
             updateZapButton(eventId, totalZaps);
         });
 
@@ -4203,7 +4200,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
 async function handleLike(eventId) {
     const success = await sendReaction(eventId, '👍');
     if (success) {
-        // Update UI
         const reactions = reactionsCache.get(eventId);
         updateReactionButtons(eventId, reactions);
     }
@@ -4213,7 +4209,6 @@ async function handleLike(eventId) {
 async function handleDislike(eventId) {
     const success = await sendReaction(eventId, '👎');
     if (success) {
-        // Update UI
         const reactions = reactionsCache.get(eventId);
         updateReactionButtons(eventId, reactions);
     }
@@ -4222,13 +4217,10 @@ async function handleDislike(eventId) {
 // Handle download button click
 async function downloadVideo(videoUrl, videoData) {
     try {
-        // Check if the video URL is from Blossom or direct file
         if (videoUrl.startsWith('https://') && BLOSSOM_SERVERS.some(server => videoUrl.startsWith(server))) {
-            // If it's a Blossom URL, we need to fetch the file blob
             const response = await fetch(videoUrl);
             const blob = await response.blob();
 
-            // Create a blob URL and download it
             const blobUrl = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = blobUrl;
@@ -4237,7 +4229,6 @@ async function downloadVideo(videoUrl, videoData) {
             URL.revokeObjectURL(blobUrl);
             a.remove();
         } else {
-            // For direct file URLs, we can use the original download method
             const a = document.createElement('a');
             a.href = videoUrl;
             a.download = videoData.title || 'video';
@@ -4252,16 +4243,13 @@ async function downloadVideo(videoUrl, videoData) {
 
 // Update reaction buttons UI
 function updateReactionButtons(eventId, reactions) {
-    // Use data attributes to find the correct buttons
     const likeBtn = document.querySelector(`.action-btn.like[data-event-id="${eventId}"]`);
     const dislikeBtn = document.querySelector(`.action-btn.dislike[data-event-id="${eventId}"]`);
 
     if (likeBtn && dislikeBtn) {
-        // Update counts with formatting
         likeBtn.querySelector('.count').textContent = formatNumber(reactions.likes || 0);
         dislikeBtn.querySelector('.count').textContent = formatNumber(reactions.dislikes || 0);
 
-        // Update active states
         likeBtn.classList.toggle('active', reactions.userReaction === 'like');
         dislikeBtn.classList.toggle('active', reactions.userReaction === 'dislike');
     }
@@ -4302,38 +4290,37 @@ async function loadComments(eventIds) {
     commentsContainer.innerHTML = '<div class="spinner"></div>';
 
     try {
-        // Create filter for all replies to any of the video event IDs
         const filter = {
-            kinds: [1], // Text notes used as comments
-            '#e': eventIds, // References to any of the video events
+            kinds: [1],
+            '#e': eventIds,
             limit: 500
         };
 
         const comments = [];
-        const commentReactions = new Map(); // commentId -> Map(userId -> {reaction, timestamp})
+        const commentReactions = new Map();
 
-        // Load all comments
-        await requestEventsStream(filter, (event) => {
-            comments.push(event);
-            allEvents.set(event.id, event); // Store in allEvents for reaction reference
-        }, async () => {
-            // After getting all comments, load profiles
-            const uniquePubkeys = [...new Set(comments.map(c => c.pubkey))];
+        await new Promise((resolve) => {
+            requestEventsStream(filter, (event) => {
+                comments.push(event);
+                allEvents.set(event.id, event);
+            }, resolve);
+        });
 
-            // Load profiles using the existing fetchUserProfile function
-            const profilePromises = uniquePubkeys.map(pubkey => fetchUserProfile(pubkey));
-            await Promise.all(profilePromises);
+        const uniquePubkeys = [...new Set(comments.map(c => c.pubkey))];
+        const profilePromises = uniquePubkeys.map(pubkey => fetchUserProfile(pubkey));
+        await Promise.all(profilePromises);
 
-            // Load reactions for comments
-            const commentIds = comments.map(c => c.id);
-            if (commentIds.length > 0) {
-                const reactionFilter = {
-                    kinds: [7],
-                    '#e': commentIds
-                };
+        const commentIds = comments.map(c => c.id);
+        if (commentIds.length > 0) {
+            const reactionFilter = {
+                kinds: [7],
+                '#e': commentIds
+            };
 
-                await requestEventsStream(reactionFilter, (event) => {
+            await new Promise((resolve) => {
+                requestEventsStream(reactionFilter, (event) => {
                     const targetId = event.tags.find(t => t[0] === 'e')?.[1];
+
                     if (targetId && commentIds.includes(targetId)) {
                         if (!commentReactions.has(targetId)) {
                             commentReactions.set(targetId, new Map());
@@ -4341,24 +4328,22 @@ async function loadComments(eventIds) {
                         const reactions = commentReactions.get(targetId);
                         const timestamp = event.created_at;
 
-                        // Only update if this is newer than existing reaction from this user
                         const existingReaction = reactions.get(event.pubkey);
                         if (!existingReaction || existingReaction.timestamp < timestamp) {
                             reactions.set(event.pubkey, {
                                 reaction: event.content,
-                                timestamp: timestamp
+                                timestamp: timestamp,
+                                pubkey: event.pubkey
                             });
                         }
                     }
-                });
-            }
+                }, resolve);
+            });
+        }
 
-            // Build comment tree
-            const commentTree = buildCommentTree(comments, eventIds);
+        const commentTree = buildCommentTree(comments, eventIds);
 
-            // Render comments - pass profileCache instead of local profiles
-            renderComments(commentTree, profileCache, commentReactions, commentsContainer);
-        });
+        renderComments(commentTree, profileCache, commentReactions, commentsContainer);
 
     } catch (error) {
         console.error('Failed to load comments:', error);
@@ -4371,7 +4356,6 @@ function buildCommentTree(comments, rootEventIds) {
     const commentMap = new Map();
     const rootComments = [];
 
-    // First, create a map of all comments
     comments.forEach(comment => {
         commentMap.set(comment.id, {
             ...comment,
@@ -4380,11 +4364,9 @@ function buildCommentTree(comments, rootEventIds) {
         });
     });
 
-    // Then, build the tree structure
     comments.forEach(comment => {
         const eTags = comment.tags.filter(t => t[0] === 'e');
 
-        // Find parent comment (last 'e' tag that's not a root video event)
         let parentId = null;
         for (let i = eTags.length - 1; i >= 0; i--) {
             const eventId = eTags[i][1];
@@ -4397,17 +4379,14 @@ function buildCommentTree(comments, rootEventIds) {
         const commentNode = commentMap.get(comment.id);
 
         if (parentId && commentMap.has(parentId)) {
-            // This is a reply to another comment
             const parent = commentMap.get(parentId);
             parent.children.push(commentNode);
             commentNode.depth = parent.depth + 1;
         } else {
-            // This is a top-level comment
             rootComments.push(commentNode);
         }
     });
 
-    // Sort by timestamp (newest first)
     const sortComments = (comments) => {
         comments.sort((a, b) => b.created_at - a.created_at);
         comments.forEach(comment => sortComments(comment.children));
@@ -4439,19 +4418,19 @@ function createCommentElement(comment, profiles, reactions) {
     const avatarUrl = profile.picture || profile.avatar || '';
     const nip05 = profile.nip05 || '';
 
-    // Get reactions for this comment
     const commentReactions = reactions.get(comment.id) || new Map();
     let likes = 0;
     let userReaction = null;
 
     commentReactions.forEach((data, pubkey) => {
-        if (data.reaction === '👍' || data.reaction === '+') likes++;
-        if (currentUser && pubkey === currentUser.pubkey && data.reaction === '👍') {
-            userReaction = 'like';
+        if (data.reaction === '👍' || data.reaction === '+') {
+            likes++;
+            if (currentUser && pubkey === currentUser.pubkey) {
+                userReaction = 'like';
+            }
         }
     });
 
-    // Calculate visual depth (max 3 levels for mobile)
     const visualDepth = Math.min(comment.depth, 3);
 
     const commentDiv = document.createElement('div');
@@ -4459,8 +4438,11 @@ function createCommentElement(comment, profiles, reactions) {
     commentDiv.dataset.depth = visualDepth;
     commentDiv.dataset.commentId = comment.id;
 
-    // Add depth indicator for deeply nested comments
     const depthIndicator = comment.depth > 3 ? `↳ ${comment.depth - 3} more` : '';
+
+    const processedContent = processCommentContent(comment.content);
+
+    const likeCountText = likes > 0 ? formatNumber(likes) : 'Like';
 
     commentDiv.innerHTML = `
         <div class="comment-thread-line"></div>
@@ -4478,7 +4460,7 @@ function createCommentElement(comment, profiles, reactions) {
                 <div class="comment-timestamp">${formatTimestamp(comment.created_at)}</div>
             </div>
             ${depthIndicator ? `<div class="comment-depth-indicator">${depthIndicator}</div>` : ''}
-            <div class="comment-body">${escapeHtml(comment.content)}</div>
+            <div class="comment-body">${processedContent}</div>
             <div class="comment-actions">
                 <button class="comment-action-btn ${userReaction === 'like' ? 'active' : ''}" 
                         onclick="likeComment('${comment.id}')"
@@ -4487,7 +4469,7 @@ function createCommentElement(comment, profiles, reactions) {
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
                     </svg>
-                    <span class="like-count">${likes > 0 ? likes : 'Like'}</span>
+                    <span class="like-count">${likeCountText}</span>
                 </button>
                 <button class="comment-action-btn" 
                         onclick="replyToComment('${comment.id}', '${comment.pubkey}')"
@@ -4501,7 +4483,6 @@ function createCommentElement(comment, profiles, reactions) {
         </div>
     `;
 
-    // Add children recursively
     if (comment.children.length > 0) {
         const childrenContainer = document.createElement('div');
         childrenContainer.className = 'comment-children';
@@ -4513,6 +4494,75 @@ function createCommentElement(comment, profiles, reactions) {
     }
 
     return commentDiv;
+}
+
+function processCommentContent(content) {
+    let processedContent = escapeHtml(content);
+
+    const urlRegex = /(https?:\/\/[^\s<]+)/g;
+    const imageRegex = /(https?:\/\/[^\s<]+\.(jpg|jpeg|png|gif|webp|svg)(\?[^\s<]*)?)/gi;
+    const videoRegex = /(https?:\/\/[^\s<]+\.(mp4|webm|mov)(\?[^\s<]*)?)/gi;
+    const youtubeRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/g;
+
+    const mediaUrls = new Set();
+
+    let match;
+    while ((match = imageRegex.exec(content)) !== null) {
+        mediaUrls.add(match[1]);
+    }
+
+    while ((match = videoRegex.exec(content)) !== null) {
+        mediaUrls.add(match[1]);
+    }
+
+    const youtubeIds = new Map();
+    while ((match = youtubeRegex.exec(content)) !== null) {
+        mediaUrls.add(match[0]);
+        youtubeIds.set(match[0], match[1]);
+    }
+
+    processedContent = processedContent.replace(urlRegex, (url) => {
+        if (mediaUrls.has(url)) {
+            return url;
+        }
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" class="comment-link">${url}</a>`;
+    });
+
+    const imageMatches = content.match(imageRegex);
+    if (imageMatches) {
+        const embedsHtml = imageMatches.map(url =>
+            `<div class="comment-media">
+                <img src="${url}" alt="Embedded image" loading="lazy" onclick="window.open('${url}', '_blank')">
+            </div>`
+        ).join('');
+        processedContent += embedsHtml;
+    }
+
+    const videoMatches = content.match(videoRegex);
+    if (videoMatches) {
+        const embedsHtml = videoMatches.map(url =>
+            `<div class="comment-media">
+                <video controls preload="metadata">
+                    <source src="${url}" type="video/mp4">
+                    <source src="${url}" type="video/webm">
+                </video>
+            </div>`
+        ).join('');
+        processedContent += embedsHtml;
+    }
+
+    youtubeIds.forEach((videoId, url) => {
+        const embedHtml = `<div class="comment-media youtube-embed">
+            <iframe src="https://www.youtube.com/embed/${videoId}" 
+                    frameborder="0" 
+                    allowfullscreen
+                    loading="lazy">
+            </iframe>
+        </div>`;
+        processedContent += embedHtml;
+    });
+
+    return processedContent;
 }
 
 // Add comment input box
@@ -4579,27 +4629,22 @@ async function submitComment(parentId, parentPubkey) {
     button.textContent = 'Posting...';
 
     try {
-        // Get all video event IDs from the current video
         const videoEventIds = [];
         const eventId = window.location.hash.split('/')[2];
 
-        // Add the main event ID
         videoEventIds.push(eventId);
 
         const tags = [];
 
-        // Add references to video events
         videoEventIds.forEach(id => {
             tags.push(['e', id, '', 'root']);
         });
 
-        // Add reference to parent comment if this is a reply
         if (parentId) {
             tags.push(['e', parentId, '', 'reply']);
             tags.push(['p', parentPubkey]);
         }
 
-        // Add reference to video author
         const videoEvent = allEvents.get(eventId);
         if (videoEvent) {
             tags.push(['p', videoEvent.pubkey]);
@@ -4616,15 +4661,12 @@ async function submitComment(parentId, parentPubkey) {
         const published = await publishEvent(signedEvent);
 
         if (published) {
-            // Clear input
             textarea.value = '';
 
-            // Remove reply box if it was a reply
             if (parentId) {
                 cancelReply(parentId);
             }
 
-            // Reload comments
             setTimeout(() => {
                 loadComments(videoEventIds);
             }, 500);
@@ -4642,17 +4684,13 @@ async function submitComment(parentId, parentPubkey) {
 
 // Reply to comment
 function replyToComment(commentId, commentPubkey) {
-    // Remove any existing reply boxes
     document.querySelectorAll('.comment-reply-box').forEach(box => box.remove());
 
-    // Find the comment element
     const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
     if (!commentElement) return;
 
-    // Get comment author info
     const authorName = commentElement.querySelector('.comment-author-name').textContent;
 
-    // Create reply box
     const replyBox = document.createElement('div');
     replyBox.className = 'comment-reply-box';
     replyBox.id = `reply-box-${commentId}`;
@@ -4665,11 +4703,9 @@ function replyToComment(commentId, commentPubkey) {
 
     replyBox.appendChild(replyInput);
 
-    // Insert after comment content
     const commentContent = commentElement.querySelector('.comment-content');
     commentContent.appendChild(replyBox);
 
-    // Focus on textarea
     replyBox.querySelector('.comment-textarea').focus();
 }
 
@@ -4684,26 +4720,27 @@ function cancelReply(commentId) {
 // Like comment
 async function likeComment(commentId) {
     if (!currentUser || !window.nostr) {
-        alert('Please login to like comments');
-        return;
+        if (!await ensureLoggedIn()) {
+            alert('Please login to like comments');
+            return;
+        }
     }
 
-    // Find the button that was clicked
     const button = document.querySelector(`button[data-comment-id="${commentId}"]`);
     if (!button) return;
 
-    // Optimistic UI update
     const likeCountSpan = button.querySelector('.like-count');
-    const currentLikes = parseInt(likeCountSpan.textContent) || 0;
+    const currentLikeText = likeCountSpan.textContent;
+    const currentLikes = currentLikeText === 'Like' ? 0 : parseInt(currentLikeText) || 0;
     const wasLiked = button.classList.contains('active');
 
-    // Toggle UI immediately
     if (wasLiked) {
         button.classList.remove('active');
-        likeCountSpan.textContent = currentLikes > 1 ? currentLikes - 1 : 'Like';
+        const newCount = Math.max(0, currentLikes - 1);
+        likeCountSpan.textContent = newCount > 0 ? formatNumber(newCount) : 'Like';
     } else {
         button.classList.add('active');
-        likeCountSpan.textContent = currentLikes + 1;
+        likeCountSpan.textContent = formatNumber(currentLikes + 1);
     }
 
     try {
@@ -4711,9 +4748,10 @@ async function likeComment(commentId) {
             kind: 7,
             tags: [
                 ['e', commentId],
-                ['p', allEvents.get(commentId)?.pubkey || '']
+                ['p', allEvents.get(commentId)?.pubkey || ''],
+                ['t', 'pv69420']
             ],
-            content: wasLiked ? '-' : '👍', // Use '-' to remove reaction
+            content: wasLiked ? '-' : '👍',
             created_at: Math.floor(Date.now() / 1000)
         };
 
@@ -4721,13 +4759,13 @@ async function likeComment(commentId) {
         const published = await publishEvent(signedEvent);
 
         if (!published) {
-            // Revert optimistic update if publish failed
             if (wasLiked) {
                 button.classList.add('active');
-                likeCountSpan.textContent = currentLikes;
+                likeCountSpan.textContent = currentLikes > 0 ? formatNumber(currentLikes) : 'Like';
             } else {
                 button.classList.remove('active');
-                likeCountSpan.textContent = currentLikes > 0 ? currentLikes : 'Like';
+                const revertCount = Math.max(0, currentLikes);
+                likeCountSpan.textContent = revertCount > 0 ? formatNumber(revertCount) : 'Like';
             }
             throw new Error('Failed to publish reaction');
         }
@@ -4783,7 +4821,6 @@ function handleFileSelect(event) {
     }
 
     if (input.id === 'videoFile') {
-        // Validate video file type
         const allowedVideoTypes = [
             'video/mp4',
             'video/webm',
@@ -4805,7 +4842,6 @@ function handleFileSelect(event) {
             <p style="font-size: 0.875rem; color: var(--text-secondary);">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
         `;
     } else if (input.id === 'thumbnailFile') {
-        // Validate thumbnail file type
         const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!allowedImageTypes.includes(file.type)) {
             alert('Invalid thumbnail file type. Please upload an image file (jpg, png, gif, webp)');
@@ -4830,7 +4866,7 @@ async function calculateSHA256(file) {
 
 // Create Blossom authorization event
 async function createBlossomAuthEvent(hash, server) {
-    const expiration = Math.floor(Date.now() / 1000) + 60; // 1 minute expiry
+    const expiration = Math.floor(Date.now() / 1000) + 60;
     const authEvent = {
         kind: 24242,
         content: `Upload ${hash}`,
@@ -4843,7 +4879,6 @@ async function createBlossomAuthEvent(hash, server) {
         created_at: Math.floor(Date.now() / 1000)
     };
 
-    // Sign the event
     const signedEvent = await window.nostr.signEvent(authEvent);
     return signedEvent;
 }
@@ -4854,10 +4889,8 @@ async function uploadToBlossom(file, servers = BLOSSOM_SERVERS) {
     const successfulUploads = [];
     let primaryUrl = null;
 
-    // Try to upload to ALL servers for redundancy
     for (const server of servers) {
         try {
-            // Create authorization event
             const authEvent = await createBlossomAuthEvent(hash, server);
             const authHeader = btoa(JSON.stringify(authEvent));
 
@@ -4875,7 +4908,6 @@ async function uploadToBlossom(file, servers = BLOSSOM_SERVERS) {
                 const url = result.url || `${server}/${hash}`;
                 successfulUploads.push({ server, url });
 
-                // Use the first successful upload as primary URL
                 if (!primaryUrl) {
                     primaryUrl = url;
                 }
@@ -4889,7 +4921,6 @@ async function uploadToBlossom(file, servers = BLOSSOM_SERVERS) {
         }
     }
 
-    // Return success if at least one server accepted the upload
     if (successfulUploads.length > 0) {
         return {
             success: true,
@@ -4923,17 +4954,14 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     const tags = document.getElementById('videoTags').value.split(',').map(t => t.trim()).filter(t => t);
     const isNSFW = document.getElementById('nsfwCheckbox').checked;
 
-    // Automatically add 'nsfw' tag if NSFW checkbox is checked
     if (isNSFW && !tags.includes('nsfw')) {
         tags.push('nsfw');
     }
 
-    // Show progress
     document.getElementById('uploadProgress').style.display = 'block';
     document.getElementById('uploadStatus').textContent = 'Calculating hash...';
 
     try {
-        // Upload video
         document.getElementById('uploadStatus').textContent = 'Uploading video to multiple servers...';
         const videoResult = await uploadToBlossom(videoFile);
 
@@ -4943,7 +4971,6 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
 
         document.getElementById('progressFill').style.width = '50%';
 
-        // Upload thumbnail if provided
         let thumbnailUrl = '';
         const thumbnailFile = document.getElementById('thumbnailFile').files[0];
         if (thumbnailFile) {
@@ -4957,7 +4984,6 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         document.getElementById('progressFill').style.width = '75%';
         document.getElementById('uploadStatus').textContent = 'Publishing to Nostr...';
 
-        // Get video duration
         const video = document.createElement('video');
         video.preload = 'metadata';
 
@@ -4970,31 +4996,26 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
 
         const videoDuration = Math.floor(video.duration);
 
-        // Create and sign kind 1 event (original video post)
         const eventContent = {
             kind: 1,
             tags: [
                 ['title', title],
                 ['t', 'pv69420'],
-                ...tags.map(tag => ['t', tag]),  // User tags
+                ...tags.map(tag => ['t', tag]),
                 ['x', videoResult.hash],
                 ['url', videoResult.url],
                 ['m', videoFile.type],
                 ['size', videoFile.size.toString()],
                 ['duration', videoDuration.toString()],
                 ...(thumbnailUrl ? [['thumb', thumbnailUrl]] : []),
-                // Add all mirror servers
                 ...videoResult.mirrors.map(mirror => ['r', mirror.server]),
-                // Add NSFW tag if checked
                 ...(isNSFW ? [['content-warning', 'nsfw']] : []),
-                // Add NIP-89 client tag
                 ['client', 'Plebs']
             ],
-            content: `${escapeHtml(description)}\n\n${videoResult.url}`,
+            content: `🎬 ${escapeHtml(title)}\n\n${escapeHtml(description)}\n\n${videoResult.url}`,
             created_at: Math.floor(Date.now() / 1000)
         };
 
-        // Sign and publish kind 1 event
         const signedEvent = await window.nostr.signEvent(eventContent);
         const published = await publishEvent(signedEvent);
 
@@ -5002,7 +5023,6 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             throw new Error('Failed to publish to any relay');
         }
 
-        // Publish User Server List (kind 10063) for mirrors
         if (videoResult.mirrors && videoResult.mirrors.length > 0) {
             const serverListEvent = {
                 kind: 10063,
@@ -5018,7 +5038,6 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
         document.getElementById('progressFill').style.width = '100%';
         document.getElementById('uploadStatus').textContent = 'Video published successfully!';
 
-        // Close modal and navigate
         setTimeout(() => {
             hideUploadModal();
             navigateTo('/my-videos');

@@ -37,7 +37,7 @@
             <a href="#/" class="logo">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                     <path
-                        d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65.28-1.3.07-2.49.1-3.59.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z" />
+                        d="M10 15l5.19-3L10 9v6m11.56-7.83c.13.47.22 1.1.28 1.9.07.8.1 1.49.1 2.09L22 12c0 2.19-.16 3.8-.44 4.83-.25.9-.83 1.48-1.73 1.73-.47.13-1.33.22-2.65.28-1.3.07-2.49.1-3.59.1L12 19c-4.19 0-6.8-.16-7.83-.44-.9-.25-1.48-.83-1.73-1.73-.13-.47-.22-1.1-.28-1.9-.07-.8-.1-1.49-.1-2.09L2 12c0-2.19.16-3.8.44-4.83.25-.9.83-1.48 1.73-1.73.47-.13 1.33-.22 2.65-.28 1.3-.07 2.49-.1 3.59-.1L12 5c4.19 0 6.8.16 7.83.44.9.25 1.48.83 1.73 1.73z" />
                 </svg>
                 Plebs
             </a>
@@ -76,6 +76,13 @@
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
                         <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                </button>
+
+                <button class="notification-toggle" onclick="showSettingsModal()" title="Settings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
                     </svg>
                 </button>
 
@@ -209,6 +216,84 @@
         </main>
     </div>
 
+    <!-- Notifications Modal -->
+    <div class="notifications-modal" id="notificationsModal">
+        <div class="notifications-modal-content">
+            <div class="modal-header">
+                <h2>Notifications</h2>
+                <button class="close-modal" onclick="hideNotificationsModal()">&times;</button>
+            </div>
+            <div class="notifications-list" id="notificationsList">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <button class="close-modal" onclick="hideSettingsModal()">&times;</button>
+            </div>
+
+            <form class="upload-form" id="settingsForm">
+                <div class="form-group">
+                    <label>Relay Settings</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="useWotRelays" onchange="toggleWotRelays()">
+                        <label for="useWotRelays">Use Web of Trust Relays</label>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        Connect to Web of Trust relays for better spam filtering
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>Blossom Server Settings</label>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="usePremiumBlossom" onchange="togglePremiumBlossom()">
+                        <label for="usePremiumBlossom">Premium Blossom Server (NostrMedia.com)</label>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        Use NostrMedia.com if you are a subscribed user
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label>Custom Blossom Servers</label>
+                    <textarea id="customBlossomServers"
+                        placeholder="Enter server URLs separated by commas&#10;Example: https://blossom.example.com, https://another.example.com"
+                        rows="3"></textarea>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        Add your own Blossom servers (comma-separated)
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="saveToNostr" checked>
+                        <label for="saveToNostr">Save to Nostr</label>
+                    </div>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                        Sync settings across all Plebs instances
+                    </p>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="upload-btn" style="flex: 1;" onclick="saveSettings()">
+                        Save Settings
+                    </button>
+                    <button type="button" class="upload-btn"
+                        style="background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border);"
+                        onclick="resetSettings()">
+                        Reset to Defaults
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Upload Modal -->
     <div class="modal" id="uploadModal">
         <div class="modal-content">
@@ -275,19 +360,6 @@
                     Publish Video
                 </button>
             </form>
-        </div>
-    </div>
-
-    <!-- Notifications Modal -->
-    <div class="notifications-modal" id="notificationsModal">
-        <div class="notifications-modal-content">
-            <div class="modal-header">
-                <h2>Notifications</h2>
-                <button class="close-modal" onclick="hideNotificationsModal()">&times;</button>
-            </div>
-            <div class="notifications-list" id="notificationsList">
-                <div class="spinner"></div>
-            </div>
         </div>
     </div>
 

@@ -1,3 +1,10 @@
+## v1.3.4 - 2025-07-07
+
+- New: support for WOT relays
+- New: support for NostrMedia.com blossom server
+- New: support for custom blossom servers
+- Other bug fixes and optimizations
+
 ## v1.2.4 - 2025-07-05
 
 - Hotfix: bugs and optimizations
