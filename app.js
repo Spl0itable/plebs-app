@@ -2230,7 +2230,14 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
 
     const cardId = `video-card-${event.id}`;
     const isSuspiciousProfile = !avatarUrl || !nip05;
-    const showBlurred = (isNSFW && !shouldShowNSFW()) || (isRatioed && !sessionRatioedAllowed.has(event.id)) || (isSuspiciousProfile && !sessionRatioedAllowed.has(event.id));
+    
+    // Determine what type of overlay to show
+    const showNSFWOverlay = isNSFW && !shouldShowNSFW();
+    const showCommunityWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(event.id);
+    const showBlurred = showNSFWOverlay || showCommunityWarning;
+    
+    // NSFW takes precedence
+    const overlayType = showNSFWOverlay ? 'nsfw' : 'ratioed';
 
     if (isTrending && (isRatioed || isSuspiciousProfile)) {
         return '';
@@ -2238,15 +2245,15 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
 
     const cardHTML = `
         <div class="video-card" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}">
-            <div class="video-thumbnail ${showBlurred ? (isRatioed || isSuspiciousProfile ? 'ratioed' : 'nsfw') : ''}" 
-                 onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">
+            <div class="video-thumbnail ${showBlurred ? overlayType : ''}" 
+                 onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">
                 ${videoData.thumbnail ?
             `<img src="${videoData.thumbnail}" alt="${videoData.title}" onerror="this.style.display='none'">` :
             `<video src="${videoData.url}" preload="metadata"></video>`
         }
                 ${showBlurred ? `
-                    <div class="${(isRatioed || isSuspiciousProfile) ? 'ratioed-overlay' : 'nsfw-overlay'}">
-                        <div class="${(isRatioed || isSuspiciousProfile) ? 'ratioed-badge' : 'nsfw-badge'}">${(isRatioed || isSuspiciousProfile) ? 'COMMUNITY WARNING' : 'NSFW'}</div>
+                    <div class="${overlayType}-overlay">
+                        <div class="${overlayType}-badge">${overlayType === 'nsfw' ? 'NSFW' : 'COMMUNITY WARNING'}</div>
                         <div>Click to view</div>
                     </div>
                 ` : ''}
@@ -2282,11 +2289,11 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
                         ${nip05 ? `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>` : ''}
                     </div>
                 </a>
-                <h3 class="video-title" onclick="${showBlurred ? (isRatioed || isSuspiciousProfile ? `showRatioedModal('${event.id}')` : `showNSFWModal('playVideo', '${event.id}')`) : `navigateTo('/video/${event.id}')`}">${videoData.title}</h3>
+                <h3 class="video-title" onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">${videoData.title}</h3>
                 <div class="video-meta">
                     ${formatTimestamp(event.created_at)}
                     ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
-                    <span class="community-warning-indicator" style="${(isRatioed || isSuspiciousProfile) ? '' : 'display: none;'}"> • <span style="color: #ff9800;">Community Warning</span></span>
+                    <span class="community-warning-indicator" style="${showCommunityWarning && !showNSFWOverlay ? '' : 'display: none;'}"> • <span style="color: #ff9800;">Community Warning</span></span>
                 </div>
             </div>
         </div>
@@ -2339,21 +2346,26 @@ async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending
 
     const thumbnail = card.querySelector('.video-thumbnail');
     const currentOverlay = thumbnail.querySelector('.ratioed-overlay, .nsfw-overlay');
-    const shouldShowWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId);
-    const shouldShowNSFW = isNSFW && !shouldShowNSFW();
-    const needsOverlay = shouldShowWarning || shouldShowNSFW;
+    
+    // Separate checks for NSFW and community warnings
+    const shouldShowNSFWOverlay = isNSFW && !shouldShowNSFW();
+    const shouldShowCommunityWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId);
+    
+    // NSFW takes precedence over community warning
+    const needsOverlay = shouldShowNSFWOverlay || shouldShowCommunityWarning;
+    const overlayType = shouldShowNSFWOverlay ? 'nsfw' : 'ratioed';
 
     if ((currentOverlay && !needsOverlay) || (!currentOverlay && needsOverlay)) {
         if (needsOverlay) {
             if (!currentOverlay) {
-                thumbnail.classList.add(shouldShowWarning ? 'ratioed' : 'nsfw');
+                thumbnail.classList.add(overlayType);
                 thumbnail.setAttribute('onclick',
-                    shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`
+                    overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${eventId}')` : `showRatioedModal('${eventId}')`
                 );
 
                 const overlayHTML = `
-                    <div class="${shouldShowWarning ? 'ratioed-overlay' : 'nsfw-overlay'}">
-                        <div class="${shouldShowWarning ? 'ratioed-badge' : 'nsfw-badge'}">${shouldShowWarning ? 'COMMUNITY WARNING' : 'NSFW'}</div>
+                    <div class="${overlayType}-overlay">
+                        <div class="${overlayType}-badge">${overlayType === 'nsfw' ? 'NSFW' : 'COMMUNITY WARNING'}</div>
                         <div>Click to view</div>
                     </div>
                 `;
@@ -2367,14 +2379,15 @@ async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending
 
         const warningIndicator = card.querySelector('.community-warning-indicator');
         if (warningIndicator) {
-            warningIndicator.style.display = shouldShowWarning ? 'inline' : 'none';
+            // Only show community warning indicator if there's actually a community issue (not just NSFW)
+            warningIndicator.style.display = shouldShowCommunityWarning && !shouldShowNSFWOverlay ? 'inline' : 'none';
         }
 
         const title = card.querySelector('.video-title');
         if (title) {
             title.setAttribute('onclick',
                 needsOverlay ?
-                    (shouldShowWarning ? `showRatioedModal('${eventId}')` : `showNSFWModal('playVideo', '${eventId}')`) :
+                    (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${eventId}')` : `showRatioedModal('${eventId}')`) :
                     `navigateTo('/video/${eventId}')`
             );
         }
@@ -2579,21 +2592,44 @@ function parseVideoEvent(event) {
         }
     }
 
-    if (!videoData.title && videoData.description) {
-        const lines = videoData.description.split('\n');
-
-        if (lines[0].startsWith('🎬 ')) {
-            videoData.title = lines[0].substring(2).trim();
-            videoData.description = lines.slice(2).join('\n').trim();
+    // If we have a title from the tags, we need to strip it from the description
+    if (videoData.title && videoData.description) {
+        const parts = videoData.description.split('\n\n');
+        
+        if (parts.length > 1) {
+            const firstPart = parts[0];
+            
+            const cleanFirstPart = firstPart.replace(/^[^\w\s]+\s*/, '').trim();
+            
+            if (cleanFirstPart === videoData.title || firstPart.includes(videoData.title)) {
+                videoData.description = parts.slice(1).join('\n\n').trim();
+            }
         } else {
-            const firstLine = lines[0].trim();
-            if (firstLine && firstLine.length < 100 && !firstLine.includes('http')) {
-                videoData.title = firstLine;
-                videoData.description = lines.slice(1).join('\n').trim();
+            const cleanContent = videoData.description.replace(/^[^\w\s]+\s*/, '').trim();
+            if (cleanContent.startsWith(videoData.title)) {
+                const titleIndex = videoData.description.indexOf(videoData.title);
+                const afterTitle = videoData.description.substring(titleIndex + videoData.title.length).trim();
+                videoData.description = afterTitle.startsWith('\n') ? afterTitle.substring(1).trim() : afterTitle;
             }
         }
     }
 
+    if (!videoData.title && videoData.description) {
+        const lines = videoData.description.split('\n');
+        
+        if (lines[0]) {
+            videoData.title = lines[0].replace(/^[^\w\s]+\s*/, '').trim();
+            
+            if (lines.length > 1) {
+                videoData.description = lines.slice(1).join('\n').trim();
+                videoData.description = videoData.description.replace(/^\n+/, '');
+            } else {
+                videoData.description = '';
+            }
+        }
+    }
+
+    // Remove any video URLs from the description
     const videoExtensions = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv'];
     const extensionsPattern = videoExtensions.join('|');
 
@@ -2604,9 +2640,9 @@ function parseVideoEvent(event) {
 
     videoData.description = videoData.description.replace(urlRegex, '').trim();
 
-    if (videoData.url) {
-        const lines = videoData.description.split('\n');
-        videoData.description = lines.filter(line => line.trim() !== videoData.url).join('\n').trim();
+    // Also remove the exact URL if it matches
+    if (videoData.url && videoData.description.includes(videoData.url)) {
+        videoData.description = videoData.description.replace(videoData.url, '').trim();
     }
 
     return videoData.title ? videoData : null;
@@ -4002,6 +4038,35 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         }
 
         const profile = await fetchUserProfile(event.pubkey);
+        const avatarUrl = profile?.picture || profile?.avatar || '';
+        const nip05 = profile?.nip05 || '';
+
+        // Validate profile first
+        const [avatarValid, nip05Valid] = await Promise.all([
+            avatarUrl ? createImageValidationPromise(avatarUrl) : Promise.resolve(false),
+            nip05 ? validateNip05(nip05, event.pubkey) : Promise.resolve(false)
+        ]);
+
+        const isProfileSuspicious = !avatarValid || !nip05Valid;
+        
+        // Check NSFW independently from suspicious profile
+        const isNSFW = isVideoNSFW(event);
+        
+        // Check if NSFW should be shown first (separate from community warning)
+        if (!skipNSFWCheck && isNSFW && !shouldShowNSFW()) {
+            showNSFWModal('playVideo', eventId);
+            return;
+        }
+
+        const cachedReactions = reactionsCache.get(eventId) || { likes: 0, dislikes: 0 };
+        const isCachedRatioed = isVideoRatioed(cachedReactions);
+
+        // Only show community warning for suspicious profiles or ratioed videos (not NSFW with valid profile)
+        if (!skipRatioedCheck && (isCachedRatioed || isProfileSuspicious) && !sessionRatioedAllowed.has(eventId)) {
+            showRatioedModal(eventId);
+            return;
+        }
+
         if (videoData && profile) {
             const authorName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
 
@@ -4020,25 +4085,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             }
         }
 
-        const isNSFW = isVideoNSFW(event);
-        if (!skipNSFWCheck && isNSFW && !shouldShowNSFW()) {
-            showNSFWModal('playVideo', eventId);
-            return;
-        }
-
-        const avatarUrl = profile?.picture || profile?.avatar || '';
-        const nip05 = profile?.nip05 || '';
-
-        const isSuspiciousProfile = !avatarUrl || !nip05;
-
-        const cachedReactions = reactionsCache.get(eventId) || { likes: 0, dislikes: 0 };
-        const isCachedRatioed = isVideoRatioed(cachedReactions);
-
-        if (!skipRatioedCheck && (isCachedRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId)) {
-            showRatioedModal(eventId);
-            return;
-        }
-
         const authorNpub = window.NostrTools.nip19.npubEncode(event.pubkey);
 
         const videoUrl = await getVideoUrl(videoData.hash) || videoData.url;
@@ -4047,18 +4093,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
 
         const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
-
-        const [avatarValid, nip05Valid] = await Promise.all([
-            avatarUrl ? createImageValidationPromise(avatarUrl) : Promise.resolve(false),
-            nip05 ? validateNip05(nip05, event.pubkey) : Promise.resolve(false)
-        ]);
-
-        const isProfileSuspicious = !avatarValid || !nip05Valid;
-
-        if (!skipRatioedCheck && (isCachedRatioed || isProfileSuspicious) && !sessionRatioedAllowed.has(eventId)) {
-            showRatioedModal(eventId);
-            return;
-        }
 
         mainContent.innerHTML = `
             <div class="video-player-container">
@@ -4074,7 +4108,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     <div class="video-meta">
                         ${formatTimestamp(event.created_at)}
                         ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
-                        <span class="ratioed-indicator" style="${isProfileSuspicious ? '' : 'display: none;'}"> • <span style="color: #ff9800;">Community Warning</span></span>
+                        <span class="ratioed-indicator" style="${isProfileSuspicious || isCachedRatioed ? '' : 'display: none;'}"> • <span style="color: #ff9800;">Community Warning</span></span>
                     </div>
                     <div class="video-channel-info">
                         <a href="#/profile/${event.pubkey}" class="channel-info" style="text-decoration: none;">
@@ -4178,7 +4212,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             updateReactionButtons(videoId, reactions);
 
             const isRatioed = isVideoRatioed(reactions);
-            if (isRatioed && !skipRatioedCheck && !sessionRatioedAllowed.has(eventId)) {
+            if ((isRatioed || isProfileSuspicious) && !skipRatioedCheck && !sessionRatioedAllowed.has(eventId)) {
                 const indicator = mainContent.querySelector('.ratioed-indicator');
                 if (indicator) {
                     indicator.style.display = 'inline';
@@ -5012,7 +5046,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
                 ...(isNSFW ? [['content-warning', 'nsfw']] : []),
                 ['client', 'Plebs']
             ],
-            content: `🎬 ${escapeHtml(title)}\n\n${escapeHtml(description)}\n\n${videoResult.url}`,
+            content: `${escapeHtml(title)}\n\n${escapeHtml(description)}\n\n${videoResult.url}`,
             created_at: Math.floor(Date.now() / 1000)
         };
 
