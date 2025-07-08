@@ -1,3 +1,8 @@
+## v1.4.4 - 2025-07-08
+
+- New: custom login method handling
+- Other bug fixes and optimizations
+
 ## v1.3.4 - 2025-07-07
 
 - New: support for WOT relays

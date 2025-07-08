@@ -18,6 +18,22 @@ let pendingRatioedAction = null;
 let sessionNSFWAllowed = false;
 let sessionRatioedAllowed = new Set();
 let currentTrendingPeriod = 'week';
+let isInitializingSettings = false;
+
+// NIP-46 connection state
+let nip46Connection = null;
+let nip46Secret = null;
+
+// Local storage keys
+const STORAGE_KEYS = {
+    privateKey: 'plebsPrivateKey',
+    publicKey: 'plebsPublicKey',
+    profile: 'plebsProfile',
+    loginMethod: 'plebsLoginMethod',
+    relays: 'plebsRelays',
+    bunkerURL: 'plebsBunkerURL',
+    nip46Secret: 'plebsNip46Secret'
+};
 
 // Blossom servers
 const BLOSSOM_SERVERS = [
@@ -59,33 +75,1162 @@ let userSettings = {
     saveToNostr: true
 };
 
-// Initialize settings on app load
-async function initializeSettings() {
-    // Try to load from Nostr if user is logged in
-    if (currentUser) {
-        const nostrSettings = await loadSettingsFromNostr();
-        if (nostrSettings) {
-            userSettings = nostrSettings;
-            applySettings();
-            return;
+// Theme management
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+}
+
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+}
+
+function updateThemeIcon(theme) {
+    const lightIcon = document.querySelector('.theme-icon-light');
+    const darkIcon = document.querySelector('.theme-icon-dark');
+    if (theme === 'dark') {
+        lightIcon.style.display = 'block';
+        darkIcon.style.display = 'none';
+    } else {
+        lightIcon.style.display = 'none';
+        darkIcon.style.display = 'block';
+    }
+}
+
+// Initialize app without checking for login
+async function initializeApp() {
+    initTheme();
+
+    // Load home feed immediately
+    handleRoute();
+
+    // Check for stored login after page loads
+    setTimeout(() => {
+        checkStoredLogin();
+    }, 100);
+}
+
+// Check for stored login
+async function checkStoredLogin() {
+    const storedMethod = localStorage.getItem(STORAGE_KEYS.loginMethod);
+    const storedPubkey = localStorage.getItem(STORAGE_KEYS.publicKey);
+
+    if (storedMethod && storedPubkey) {
+        if (storedMethod === 'extension') {
+            // Try to reconnect with extension
+            if (window.nostr) {
+                try {
+                    const pubkey = await window.nostr.getPublicKey();
+                    if (pubkey === storedPubkey) {
+                        currentUser = { pubkey };
+                        await onUserLoggedIn();
+                    }
+                } catch (e) {
+                    // Extension not available or user rejected
+                    console.log('Extension login failed, clearing stored login');
+                    clearStoredLogin();
+                }
+            }
+        } else if (storedMethod === 'privateKey') {
+            const storedKey = localStorage.getItem(STORAGE_KEYS.privateKey);
+            if (storedKey) {
+                // Restore private key login
+                const pubkey = getPublicKeyFromPrivate(storedKey);
+                currentUser = { pubkey, privateKey: storedKey };
+                await onUserLoggedIn();
+            }
+        } else if (storedMethod === 'readOnly') {
+            currentUser = { pubkey: storedPubkey, readOnly: true };
+            await onUserLoggedIn();
+        } else if (storedMethod === 'connect') {
+            const bunkerURL = localStorage.getItem(STORAGE_KEYS.bunkerURL);
+            const secret = localStorage.getItem(STORAGE_KEYS.nip46Secret);
+            if (bunkerURL && secret) {
+                // Attempt to reconnect
+                await reconnectNip46(bunkerURL, secret);
+            }
         }
     }
+}
 
-    // Fall back to localStorage
-    const savedSettings = localStorage.getItem('plebsSettings');
-    if (savedSettings) {
-        try {
-            userSettings = JSON.parse(savedSettings);
-            applySettings();
-        } catch (e) {
-            console.error('Failed to parse saved settings:', e);
+// Clear stored login
+function clearStoredLogin() {
+    Object.values(STORAGE_KEYS).forEach(key => {
+        localStorage.removeItem(key);
+    });
+    currentUser = null;
+    updateUserInterface();
+}
+
+// User logged in handler
+async function onUserLoggedIn() {
+    updateUserInterface();
+    await initializeSettings();
+}
+
+// Update user interface
+function updateUserInterface() {
+    const userIcon = document.getElementById('userIcon');
+    const userAvatar = document.getElementById('userAvatar');
+    const userDropdown = document.getElementById('userDropdown');
+
+    if (currentUser) {
+        // Try to get profile from cache or storage
+        const storedProfile = localStorage.getItem(STORAGE_KEYS.profile);
+        if (storedProfile) {
+            try {
+                const profile = JSON.parse(storedProfile);
+                if (profile.picture) {
+                    userAvatar.src = profile.picture;
+                    userAvatar.style.display = 'block';
+                    userIcon.style.display = 'none';
+                }
+            } catch (e) {
+                console.error('Failed to parse stored profile');
+            }
         }
+
+        // Fetch latest profile
+        fetchUserProfile(currentUser.pubkey).then(profile => {
+            if (profile && profile.picture) {
+                userAvatar.src = profile.picture;
+                userAvatar.style.display = 'block';
+                userIcon.style.display = 'none';
+                localStorage.setItem(STORAGE_KEYS.profile, JSON.stringify(profile));
+            }
+        });
+    } else {
+        userAvatar.style.display = 'none';
+        userIcon.style.display = 'block';
+    }
+}
+
+// User menu functions
+function toggleUserMenu() {
+    if (!currentUser) {
+        showLoginModal();
+    } else {
+        const dropdown = document.getElementById('userDropdown');
+        dropdown.classList.toggle('active');
+
+        // Close dropdown when clicking outside
+        if (dropdown.classList.contains('active')) {
+            document.addEventListener('click', closeUserMenuOnClickOutside);
+        }
+    }
+}
+
+function closeUserMenuOnClickOutside(e) {
+    const userMenu = document.getElementById('userMenu');
+    if (!userMenu.contains(e.target)) {
+        document.getElementById('userDropdown').classList.remove('active');
+        document.removeEventListener('click', closeUserMenuOnClickOutside);
+    }
+}
+
+// Login modal functions
+function showLoginModal() {
+    document.getElementById('loginModal').classList.add('active');
+}
+
+function hideLoginModal() {
+    document.getElementById('loginModal').classList.remove('active');
+}
+
+// Login with extension
+async function loginWithExtension() {
+    if (!window.nostr) {
+        alert('Please install a Nostr browser extension like Alby or nos2x');
+        return;
+    }
+
+    try {
+        const pubkey = await window.nostr.getPublicKey();
+
+        currentUser = { pubkey };
+
+        // Store login method
+        localStorage.setItem(STORAGE_KEYS.loginMethod, 'extension');
+        localStorage.setItem(STORAGE_KEYS.publicKey, pubkey);
+
+        hideLoginModal();
+        await onUserLoggedIn();
+
+    } catch (error) {
+        console.error('Extension login failed:', error);
+        alert('Failed to login with extension. Please try again.');
+    }
+}
+
+// NIP-46 Connect functions
+function showConnectModal() {
+    hideLoginModal();
+    document.getElementById('connectModal').classList.add('active');
+}
+
+function hideConnectModal() {
+    document.getElementById('connectModal').classList.remove('active');
+}
+
+function selectBunker(provider) {
+    // Update UI to show selected bunker
+    document.querySelectorAll('.bunker-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+
+    // Pre-fill bunker URL based on provider
+    const bunkerUrlInput = document.getElementById('bunkerUrl');
+    if (provider === 'nsec.app') {
+        bunkerUrlInput.placeholder = 'bunker://...@relay.nsec.app';
+    } else if (provider === 'highlighter.com') {
+        bunkerUrlInput.placeholder = 'bunker://...@relay.highlighter.com';
+    }
+}
+
+// Helper to wait for NIP-46
+async function waitForNip46Response(ws, requestId, ephemeralPrivKey, remotePubkey) {
+    return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+            reject(new Error('NIP-46 response timeout'));
+        }, 30000);
+
+        const privKeyHex = typeof ephemeralPrivKey === 'string' ?
+            ephemeralPrivKey : bytesToHex(ephemeralPrivKey);
+        const privKeyBytes = typeof ephemeralPrivKey === 'string' ?
+            hexToBytes(ephemeralPrivKey) : ephemeralPrivKey;
+
+        const ephemeralPubKey = window.NostrTools.getPublicKey(privKeyBytes);
+
+        const handler = async (event) => {
+            try {
+                const message = JSON.parse(event.data);
+
+                if (message[0] === 'EVENT') {
+                    const responseEvent = message.length === 2 ? message[1] : message[2];
+
+                    if (responseEvent && responseEvent.kind === 24133) {
+                        if (responseEvent.pubkey === remotePubkey) {
+                            const pTag = responseEvent.tags.find(t => t[0] === 'p');
+
+                            if (pTag && pTag[1] === ephemeralPubKey) {
+                                try {
+                                    let decryptedContent;
+
+                                    if (responseEvent.content.includes('?iv=')) {
+                                        decryptedContent = await window.NostrTools.nip04.decrypt(
+                                            privKeyHex,
+                                            remotePubkey,
+                                            responseEvent.content
+                                        );
+                                    } else {
+                                        const conversationKey = window.NostrTools.nip44.v2.utils.getConversationKey(
+                                            privKeyBytes,
+                                            remotePubkey
+                                        );
+
+                                        decryptedContent = window.NostrTools.nip44.v2.decrypt(
+                                            responseEvent.content,
+                                            conversationKey
+                                        );
+                                    }
+
+                                    const response = JSON.parse(decryptedContent);
+
+                                    if (response.id === requestId) {
+                                        clearTimeout(timeout);
+                                        ws.removeEventListener('message', handler);
+                                        resolve(response);
+                                    }
+                                } catch (decryptError) {
+                                    console.error('Failed to decrypt NIP-46 response:', decryptError);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Error processing message:', e);
+            }
+        };
+
+        ws.addEventListener('message', handler);
+    });
+}
+
+// Connect using a bunker string
+async function connectWithBunker() {
+    const bunkerUrl = document.getElementById('bunkerUrl').value.trim();
+
+    if (!bunkerUrl || !bunkerUrl.startsWith('bunker://')) {
+        alert('Please enter a valid bunker URL');
+        return;
+    }
+
+    try {
+        const urlParts = bunkerUrl.slice(9).split('?');
+        const remotePubkey = urlParts[0];
+
+        if (!remotePubkey) {
+            throw new Error('Invalid bunker URL format - missing pubkey');
+        }
+
+        const params = new URLSearchParams(urlParts[1] || '');
+        const relay = params.get('relay');
+        let secret = params.get('secret');
+
+        if (!relay) {
+            throw new Error('Invalid bunker URL format - missing relay parameter');
+        }
+
+        const ephemeralPrivKey = window.NostrTools.generateSecretKey();
+        const ephemeralPubKey = window.NostrTools.getPublicKey(ephemeralPrivKey);
+        const ephemeralPrivKeyHex = bytesToHex(ephemeralPrivKey);
+
+        nip46Secret = secret || remotePubkey;
+
+        const ws = await connectToRelay(relay);
+
+        const subId = generateRandomId();
+        const subscription = JSON.stringify([
+            'REQ',
+            subId,
+            {
+                kinds: [24133],
+                '#p': [ephemeralPubKey],
+                since: Math.floor(Date.now() / 1000) - 60
+            }
+        ]);
+        ws.send(subscription);
+
+        showConnectionStatus('Connecting to bunker...');
+
+        const connectRequest = {
+            id: generateRandomId(),
+            method: 'connect',
+            params: [ephemeralPubKey, secret || '']
+        };
+
+        let encryptedContent;
+        try {
+            encryptedContent = await encryptNip44(ephemeralPrivKeyHex, remotePubkey, JSON.stringify(connectRequest));
+        } catch (encryptError) {
+            encryptedContent = await window.NostrTools.nip04.encrypt(
+                ephemeralPrivKeyHex,
+                remotePubkey,
+                JSON.stringify(connectRequest)
+            );
+        }
+
+        const requestEvent = {
+            kind: 24133,
+            pubkey: ephemeralPubKey,
+            content: encryptedContent,
+            tags: [['p', remotePubkey]],
+            created_at: Math.floor(Date.now() / 1000)
+        };
+
+        const signedRequestEvent = window.NostrTools.finalizeEvent(requestEvent, ephemeralPrivKey);
+
+        ws.send(JSON.stringify(['EVENT', signedRequestEvent]));
+
+        const connectResponse = await waitForNip46Response(ws, connectRequest.id, ephemeralPrivKeyHex, remotePubkey);
+
+        if (connectResponse.result === 'auth_url' && connectResponse.error) {
+            showConnectionStatus('Authorization required. Opening approval page...');
+
+            const authUrl = connectResponse.error;
+            const authWindow = window.open(authUrl, 'nostr-auth', 'width=600,height=800');
+
+            showConnectionStatus('Waiting for approval...');
+
+            let approved = false;
+            let attempts = 0;
+            const maxAttempts = 60;
+
+            while (!approved && attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                if (authWindow && authWindow.closed) {
+                    const getPubkeyRequest = {
+                        id: generateRandomId(),
+                        method: 'get_public_key',
+                        params: []
+                    };
+
+                    let pubkeyEncrypted;
+                    try {
+                        pubkeyEncrypted = await encryptNip44(ephemeralPrivKeyHex, remotePubkey, JSON.stringify(getPubkeyRequest));
+                    } catch (e) {
+                        pubkeyEncrypted = await window.NostrTools.nip04.encrypt(
+                            ephemeralPrivKeyHex,
+                            remotePubkey,
+                            JSON.stringify(getPubkeyRequest)
+                        );
+                    }
+
+                    const pubkeyRequestEvent = {
+                        kind: 24133,
+                        pubkey: ephemeralPubKey,
+                        content: pubkeyEncrypted,
+                        tags: [['p', remotePubkey]],
+                        created_at: Math.floor(Date.now() / 1000)
+                    };
+
+                    const signedPubkeyRequestEvent = window.NostrTools.finalizeEvent(pubkeyRequestEvent, ephemeralPrivKey);
+
+                    ws.send(JSON.stringify(['EVENT', signedPubkeyRequestEvent]));
+
+                    try {
+                        const pubkeyResponse = await waitForNip46Response(ws, getPubkeyRequest.id, ephemeralPrivKeyHex, remotePubkey);
+
+                        if (pubkeyResponse.result) {
+                            approved = true;
+                            const userPubkey = pubkeyResponse.result;
+
+                            currentUser = { pubkey: userPubkey, nip46: true };
+                            nip46Connection = {
+                                relay,
+                                remotePubkey,
+                                ephemeralPrivKey: ephemeralPrivKeyHex,
+                                ephemeralPubKey,
+                                secret: nip46Secret
+                            };
+
+                            localStorage.setItem(STORAGE_KEYS.loginMethod, 'connect');
+                            localStorage.setItem(STORAGE_KEYS.publicKey, userPubkey);
+                            localStorage.setItem(STORAGE_KEYS.bunkerURL, bunkerUrl);
+                            localStorage.setItem(STORAGE_KEYS.nip46Secret, JSON.stringify({
+                                ephemeralPrivKey: ephemeralPrivKeyHex,
+                                remotePubkey,
+                                relay
+                            }));
+
+                            hideConnectionStatus();
+                            hideConnectModal();
+                            await onUserLoggedIn();
+                        }
+                    } catch (e) {
+                        // Not approved yet, continue waiting
+                    }
+                }
+
+                attempts++;
+            }
+
+            if (!approved) {
+                throw new Error('Connection approval timeout');
+            }
+
+        } else if (connectResponse.result === 'ack') {
+            showConnectionStatus('Connected! Getting public key...');
+
+            const getPubkeyRequest = {
+                id: generateRandomId(),
+                method: 'get_public_key',
+                params: []
+            };
+
+            let pubkeyEncrypted;
+            try {
+                pubkeyEncrypted = await encryptNip44(ephemeralPrivKeyHex, remotePubkey, JSON.stringify(getPubkeyRequest));
+            } catch (e) {
+                pubkeyEncrypted = await window.NostrTools.nip04.encrypt(
+                    ephemeralPrivKeyHex,
+                    remotePubkey,
+                    JSON.stringify(getPubkeyRequest)
+                );
+            }
+
+            const pubkeyRequestEvent = {
+                kind: 24133,
+                pubkey: ephemeralPubKey,
+                content: pubkeyEncrypted,
+                tags: [['p', remotePubkey]],
+                created_at: Math.floor(Date.now() / 1000)
+            };
+
+            const signedPubkeyRequestEvent = window.NostrTools.finalizeEvent(pubkeyRequestEvent, ephemeralPrivKey);
+
+            ws.send(JSON.stringify(['EVENT', signedPubkeyRequestEvent]));
+
+            const pubkeyResponse = await waitForNip46Response(ws, getPubkeyRequest.id, ephemeralPrivKeyHex, remotePubkey);
+
+            if (pubkeyResponse.result) {
+                const userPubkey = pubkeyResponse.result;
+
+                currentUser = { pubkey: userPubkey, nip46: true };
+                nip46Connection = {
+                    relay,
+                    remotePubkey,
+                    ephemeralPrivKey: ephemeralPrivKeyHex,
+                    ephemeralPubKey,
+                    secret: nip46Secret
+                };
+
+                localStorage.setItem(STORAGE_KEYS.loginMethod, 'connect');
+                localStorage.setItem(STORAGE_KEYS.publicKey, userPubkey);
+                localStorage.setItem(STORAGE_KEYS.bunkerURL, bunkerUrl);
+                localStorage.setItem(STORAGE_KEYS.nip46Secret, JSON.stringify({
+                    ephemeralPrivKey: ephemeralPrivKeyHex,
+                    remotePubkey,
+                    relay
+                }));
+
+                hideConnectionStatus();
+                hideConnectModal();
+                await onUserLoggedIn();
+            } else {
+                throw new Error('Failed to get public key from bunker');
+            }
+        } else {
+            throw new Error(connectResponse.error || 'Connection rejected by bunker');
+        }
+
+    } catch (error) {
+        console.error('NIP-46 connection failed:', error);
+        hideConnectionStatus();
+        alert('Failed to connect: ' + error.message);
+    }
+}
+
+// Show connection status
+function showConnectionStatus(message) {
+    const modal = document.getElementById('connectModal');
+    let status = modal.querySelector('.connection-status');
+
+    if (!status) {
+        status = document.createElement('div');
+        status.className = 'connection-status connecting';
+        modal.querySelector('.connect-steps').appendChild(status);
+    }
+
+    status.innerHTML = `
+        <div class="spinner" style="width: 16px; height: 16px; display: inline-block;"></div>
+        <span>${message}</span>
+    `;
+}
+
+function hideConnectionStatus() {
+    const status = document.querySelector('.connection-status');
+    if (status) status.remove();
+}
+
+// Private key login functions
+function showPrivateKeyModal() {
+    hideLoginModal();
+    document.getElementById('privateKeyModal').classList.add('active');
+}
+
+function hidePrivateKeyModal() {
+    document.getElementById('privateKeyModal').classList.remove('active');
+}
+
+function toggleKeyVisibility() {
+    const input = document.getElementById('privateKeyInput');
+    const checkbox = document.getElementById('showKey');
+    input.type = checkbox.checked ? 'text' : 'password';
+}
+
+async function loginWithPrivateKey() {
+    const keyInput = document.getElementById('privateKeyInput').value.trim();
+
+    if (!keyInput) {
+        alert('Please enter your private key');
+        return;
+    }
+
+    try {
+        let privateKey;
+        let publicKey;
+
+        if (keyInput.startsWith('nsec1')) {
+            // Decode nsec
+            const decoded = window.NostrTools.nip19.decode(keyInput);
+            if (decoded.type !== 'nsec') {
+                throw new Error('Invalid nsec key');
+            }
+            privateKey = decoded.data;
+            publicKey = window.NostrTools.getPublicKey(privateKey);
+        } else if (/^[0-9a-fA-F]{64}$/.test(keyInput)) {
+            // Hex private key - convert to Uint8Array for nostr-tools
+            privateKey = hexToBytes(keyInput);
+            publicKey = window.NostrTools.getPublicKey(privateKey);
+        } else {
+            throw new Error('Invalid private key format');
+        }
+
+        currentUser = { pubkey: publicKey, privateKey: bytesToHex(privateKey) };
+
+        // Store login info
+        localStorage.setItem(STORAGE_KEYS.loginMethod, 'privateKey');
+        localStorage.setItem(STORAGE_KEYS.publicKey, publicKey);
+        localStorage.setItem(STORAGE_KEYS.privateKey, bytesToHex(privateKey));
+
+        hidePrivateKeyModal();
+        await onUserLoggedIn();
+
+    } catch (error) {
+        console.error('Private key login failed:', error);
+        alert('Invalid private key. Please check and try again.');
+    }
+}
+
+// Read-only login functions
+function showReadOnlyModal() {
+    hideLoginModal();
+    document.getElementById('readOnlyModal').classList.add('active');
+}
+
+function hideReadOnlyModal() {
+    document.getElementById('readOnlyModal').classList.remove('active');
+}
+
+async function loginReadOnly() {
+    const keyInput = document.getElementById('publicKeyInput').value.trim();
+
+    if (!keyInput) {
+        alert('Please enter a public key');
+        return;
+    }
+
+    try {
+        let publicKey;
+
+        if (keyInput.startsWith('npub1')) {
+            // Decode npub
+            const decoded = window.NostrTools.nip19.decode(keyInput);
+            if (decoded.type !== 'npub') {
+                throw new Error('Invalid npub key');
+            }
+            publicKey = decoded.data;
+        } else if (/^[0-9a-fA-F]{64}$/.test(keyInput)) {
+            // Hex public key
+            publicKey = keyInput;
+        } else {
+            throw new Error('Invalid public key format');
+        }
+
+        currentUser = { pubkey: publicKey, readOnly: true };
+
+        // Store login info
+        localStorage.setItem(STORAGE_KEYS.loginMethod, 'readOnly');
+        localStorage.setItem(STORAGE_KEYS.publicKey, publicKey);
+
+        hideReadOnlyModal();
+        await onUserLoggedIn();
+
+    } catch (error) {
+        console.error('Read-only login failed:', error);
+        alert('Invalid public key. Please check and try again.');
+    }
+}
+
+// Signup functions
+function showSignupModal() {
+    hideLoginModal();
+    document.getElementById('signupModal').classList.add('active');
+    updateSignupPreview();
+}
+
+function hideSignupModal() {
+    document.getElementById('signupModal').classList.remove('active');
+}
+
+function updateSignupPreview() {
+    const username = document.getElementById('signupUsername').value || 'Your Username';
+    const about = document.getElementById('signupAbout').value || 'Your bio will appear here';
+
+    document.getElementById('previewName').textContent = username;
+    document.getElementById('previewAbout').textContent = about;
+    document.getElementById('avatarInitial').textContent = username.charAt(0).toUpperCase();
+}
+
+async function signEvent(event) {
+    if (!currentUser) {
+        throw new Error('No user logged in');
+    }
+
+    if (currentUser.readOnly) {
+        throw new Error('Cannot sign events in read-only mode');
+    }
+
+    // Ensure pubkey is set
+    if (!event.pubkey) {
+        event.pubkey = currentUser.pubkey;
+    }
+
+    if (window.nostr && !currentUser.privateKey && !currentUser.nip46) {
+        // NIP-07 extension signing
+        return await window.nostr.signEvent(event);
+    } else if (currentUser.nip46) {
+        // NIP-46 remote signing
+        return await signEventWithNip46(event);
+    } else if (currentUser.privateKey) {
+        // Local key signing using nostr-tools
+        const privKey = typeof currentUser.privateKey === 'string' ?
+            hexToBytes(currentUser.privateKey) : currentUser.privateKey;
+
+        // finalizeEvent returns the complete signed event
+        const signedEvent = window.NostrTools.finalizeEvent(event, privKey);
+
+        return signedEvent;
+    } else {
+        throw new Error('No signing method available');
+    }
+}
+
+async function createAccount() {
+    const username = document.getElementById('signupUsername').value.trim();
+    const about = document.getElementById('signupAbout').value.trim();
+
+    if (!username) {
+        alert('Please enter a username');
+        return;
+    }
+
+    try {
+        // Generate new private key using browser bundle method
+        const privateKey = window.NostrTools.generateSecretKey();
+        const publicKey = window.NostrTools.getPublicKey(privateKey);
+
+        // Create profile event
+        const profileEvent = {
+            kind: 0,
+            pubkey: publicKey,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [],
+            content: JSON.stringify({
+                name: username,
+                about: about,
+                picture: `https://robohash.org/${publicKey}.png`
+            })
+        };
+
+        // Use finalizeEvent to sign
+        const signedProfileEvent = window.NostrTools.finalizeEvent(profileEvent, privateKey);
+
+        // Publish profile
+        await publishEvent(signedProfileEvent);
+
+        // Create contact list
+        const contactListEvent = {
+            kind: 3,
+            pubkey: publicKey,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [],
+            content: ''
+        };
+
+        const signedContactListEvent = window.NostrTools.finalizeEvent(contactListEvent, privateKey);
+
+        await publishEvent(signedContactListEvent);
+
+        // Show success and keys
+        const nsec = window.NostrTools.nip19.nsecEncode(privateKey);
+        document.getElementById('generatedNsec').textContent = nsec;
+        document.getElementById('signupSuccess').style.display = 'block';
+
+        // Auto-login after 5 seconds
+        setTimeout(() => {
+            currentUser = { pubkey: publicKey, privateKey: bytesToHex(privateKey) };
+
+            localStorage.setItem(STORAGE_KEYS.loginMethod, 'privateKey');
+            localStorage.setItem(STORAGE_KEYS.publicKey, publicKey);
+            localStorage.setItem(STORAGE_KEYS.privateKey, bytesToHex(privateKey));
+
+            hideSignupModal();
+            onUserLoggedIn();
+        }, 5000);
+
+    } catch (error) {
+        console.error('Account creation failed:', error);
+        alert('Failed to create account. Please try again.');
+    }
+}
+
+function copyGeneratedKey() {
+    const nsec = document.getElementById('generatedNsec').textContent;
+    navigator.clipboard.writeText(nsec).then(() => {
+        alert('Private key copied to clipboard! Save it securely.');
+    });
+}
+
+// Logout function
+async function handleLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+        // Close any NIP-46 connections
+        if (nip46Connection) {
+            // Send disconnect message
+            nip46Connection = null;
+        }
+
+        clearStoredLogin();
+
+        // Close dropdown
+        document.getElementById('userDropdown').classList.remove('active');
+
+        // Refresh current view
+        handleRoute();
+    }
+}
+
+// Helper functions
+function getPublicKeyFromPrivate(privateKey) {
+    // Convert hex to Uint8Array if needed
+    if (typeof privateKey === 'string') {
+        return window.NostrTools.getPublicKey(hexToBytes(privateKey));
+    }
+    return window.NostrTools.getPublicKey(privateKey);
+}
+
+function generateRandomId() {
+    // Use crypto.getRandomValues for browser compatibility
+    const bytes = new Uint8Array(32);
+    crypto.getRandomValues(bytes);
+    return bytesToHex(bytes);
+}
+
+function generateRandomHex(length) {
+    const bytes = new Uint8Array(length / 2);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Sign event based on current auth method
+async function signEventForBundle(event, privateKey) {
+    // The browser bundle uses finalizeEvent which both calculates id and signs
+    const signedEvent = window.NostrTools.finalizeEvent(event, privateKey);
+    return signedEvent.sig;
+}
+
+async function encryptNip44(privateKey, publicKey, content) {
+    const privKeyBytes = typeof privateKey === 'string' ? hexToBytes(privateKey) : privateKey;
+    const pubKeyHex = typeof publicKey === 'string' ? publicKey : bytesToHex(publicKey);
+
+    try {
+        if (window.NostrTools.nip44.encrypt) {
+            return await window.NostrTools.nip44.encrypt(
+                privateKey,
+                publicKey,
+                content
+            );
+        }
+    } catch (e) {
+        // Silently fall back to NIP-04
+    }
+
+    try {
+        const conversationKey = window.NostrTools.nip44.getConversationKey(
+            privKeyBytes,
+            pubKeyHex
+        );
+
+        if (window.NostrTools.nip44.v2 && window.NostrTools.nip44.v2.encrypt) {
+            return window.NostrTools.nip44.v2.encrypt(
+                content,
+                conversationKey
+            );
+        }
+    } catch (e) {
+        // Silently fall back to NIP-04
+    }
+
+    throw new Error('Failed to encrypt with NIP-44');
+}
+
+// NIP-46 signing
+async function signEventWithNip46(event) {
+    if (!nip46Connection) {
+        throw new Error('No NIP-46 connection');
+    }
+
+    const request = {
+        id: generateRandomId(),
+        method: 'sign_event',
+        params: [JSON.stringify(event)]
+    };
+
+    const ws = await connectToRelay(nip46Connection.relay);
+
+    const ephemeralPrivKeyHex = nip46Connection.ephemeralPrivKey;
+
+    let encryptedContent;
+    try {
+        encryptedContent = await encryptNip44(
+            ephemeralPrivKeyHex,
+            nip46Connection.remotePubkey,
+            JSON.stringify(request)
+        );
+    } catch (e) {
+        encryptedContent = await window.NostrTools.nip04.encrypt(
+            ephemeralPrivKeyHex,
+            nip46Connection.remotePubkey,
+            JSON.stringify(request)
+        );
+    }
+
+    const requestEvent = {
+        kind: 24133,
+        pubkey: nip46Connection.ephemeralPubKey,
+        content: encryptedContent,
+        tags: [['p', nip46Connection.remotePubkey]],
+        created_at: Math.floor(Date.now() / 1000)
+    };
+
+    const signedRequestEvent = window.NostrTools.finalizeEvent(requestEvent, hexToBytes(ephemeralPrivKeyHex));
+
+    ws.send(JSON.stringify(['EVENT', signedRequestEvent]));
+
+    const response = await waitForNip46Response(
+        ws,
+        request.id,
+        ephemeralPrivKeyHex,
+        nip46Connection.remotePubkey
+    );
+
+    if (response.error) {
+        throw new Error(response.error);
+    }
+
+    return JSON.parse(response.result);
+}
+
+// Compute shared secret for NIP-04 encryption
+async function computeSharedSecret(privateKey, publicKey) {
+    // Convert keys to proper format if needed
+    const privKeyBytes = typeof privateKey === 'string' ? hexToBytes(privateKey) : privateKey;
+    const pubKeyBytes = typeof publicKey === 'string' ? hexToBytes(publicKey) : publicKey;
+
+    // Use secp256k1 to compute shared secret
+    const sharedPoint = window.NostrTools.secp256k1.getSharedSecret(privKeyBytes, '02' + bytesToHex(pubKeyBytes));
+    return sharedPoint.slice(1); // Remove the prefix byte
+}
+
+// Encrypt message using NIP-04
+async function encryptMessage(message, sharedSecret) {
+    const iv = crypto.getRandomValues(new Uint8Array(16));
+    const key = await crypto.subtle.importKey(
+        'raw',
+        sharedSecret.slice(0, 32),
+        { name: 'AES-CBC' },
+        false,
+        ['encrypt']
+    );
+
+    const encoded = new TextEncoder().encode(message);
+    const padded = addPKCS7Padding(encoded);
+
+    const encrypted = await crypto.subtle.encrypt(
+        { name: 'AES-CBC', iv },
+        key,
+        padded
+    );
+
+    const combined = new Uint8Array(iv.length + encrypted.byteLength);
+    combined.set(iv);
+    combined.set(new Uint8Array(encrypted), iv.length);
+
+    return bytesToBase64(combined);
+}
+
+// Decrypt message using NIP-04
+async function decryptMessage(encryptedBase64, sharedSecret) {
+    const combined = base64ToBytes(encryptedBase64);
+    const iv = combined.slice(0, 16);
+    const ciphertext = combined.slice(16);
+
+    const key = await crypto.subtle.importKey(
+        'raw',
+        sharedSecret.slice(0, 32),
+        { name: 'AES-CBC' },
+        false,
+        ['decrypt']
+    );
+
+    const decrypted = await crypto.subtle.decrypt(
+        { name: 'AES-CBC', iv },
+        key,
+        ciphertext
+    );
+
+    const decoded = removePKCS7Padding(new Uint8Array(decrypted));
+    return new TextDecoder().decode(decoded);
+}
+
+// Helper functions for encryption
+function hexToBytes(hex) {
+    const bytes = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < hex.length; i += 2) {
+        bytes[i / 2] = parseInt(hex.substr(i, 2), 16);
+    }
+    return bytes;
+}
+
+function bytesToHex(bytes) {
+    return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function bytesToBase64(bytes) {
+    return btoa(String.fromCharCode.apply(null, bytes));
+}
+
+function base64ToBytes(base64) {
+    return new Uint8Array(atob(base64).split('').map(c => c.charCodeAt(0)));
+}
+
+function addPKCS7Padding(data) {
+    const blockSize = 16;
+    const padding = blockSize - (data.length % blockSize);
+    const padded = new Uint8Array(data.length + padding);
+    padded.set(data);
+    padded.fill(padding, data.length);
+    return padded;
+}
+
+function removePKCS7Padding(data) {
+    const padding = data[data.length - 1];
+    return data.slice(0, data.length - padding);
+}
+
+async function signEventWithConnection(event) {
+    // Sign with local ephemeral key for NIP-46 connection
+    const ephemeralKey = generateRandomHex(32);
+    event.pubkey = window.NostrTools.getPublicKey(ephemeralKey);
+    event.id = window.NostrTools.getEventHash(event);
+    event.sig = window.NostrTools.signEvent(event, ephemeralKey);
+    return event;
+}
+
+async function reconnectNip46(bunkerUrl, secretData) {
+    try {
+        const data = JSON.parse(secretData);
+        const { ephemeralPrivKey, remotePubkey, relay } = data;
+
+        // Convert hex private key back to Uint8Array if needed
+        const privKeyBytes = typeof ephemeralPrivKey === 'string' ?
+            hexToBytes(ephemeralPrivKey) : ephemeralPrivKey;
+        const ephemeralPrivKeyHex = typeof ephemeralPrivKey === 'string' ?
+            ephemeralPrivKey : bytesToHex(ephemeralPrivKey);
+
+        const ephemeralPubKey = window.NostrTools.getPublicKey(privKeyBytes);
+
+        // Reconnect and verify
+        const ws = await connectToRelay(relay);
+
+        // Subscribe to responses
+        const subId = generateRandomId();
+        const subscription = JSON.stringify([
+            'REQ',
+            subId,
+            {
+                kinds: [24133],
+                '#p': [ephemeralPubKey],
+                since: Math.floor(Date.now() / 1000) - 60
+            }
+        ]);
+        ws.send(subscription);
+
+        // Test connection with get_public_key
+        const getPubkeyRequest = {
+            id: generateRandomId(),
+            method: 'get_public_key',
+            params: []
+        };
+
+        let encryptedContent;
+        try {
+            encryptedContent = await encryptNip44(ephemeralPrivKeyHex, remotePubkey, JSON.stringify(getPubkeyRequest));
+        } catch (e) {
+            encryptedContent = await window.NostrTools.nip04.encrypt(
+                ephemeralPrivKeyHex,
+                remotePubkey,
+                JSON.stringify(getPubkeyRequest)
+            );
+        }
+
+        const requestEvent = {
+            kind: 24133,
+            pubkey: ephemeralPubKey,
+            content: encryptedContent,
+            tags: [['p', remotePubkey]],
+            created_at: Math.floor(Date.now() / 1000)
+        };
+
+        const signedRequestEvent = window.NostrTools.finalizeEvent(requestEvent, privKeyBytes);
+
+        ws.send(JSON.stringify(['EVENT', signedRequestEvent]));
+
+        const response = await waitForNip46Response(ws, getPubkeyRequest.id, ephemeralPrivKeyHex, remotePubkey);
+
+        if (response.result) {
+            currentUser = { pubkey: response.result, nip46: true };
+            nip46Connection = {
+                relay,
+                remotePubkey,
+                ephemeralPrivKey: ephemeralPrivKeyHex,
+                ephemeralPubKey,
+                secret: remotePubkey
+            };
+            await onUserLoggedIn();
+        } else {
+            throw new Error('Failed to reconnect');
+        }
+    } catch (error) {
+        console.error('NIP-46 reconnection failed:', error);
+        clearStoredLogin();
+    }
+}
+
+// Ensure user is logged in
+async function ensureLoggedIn() {
+    if (currentUser) {
+        return true;
+    }
+
+    showLoginModal();
+    return false;
+}
+
+// Initialize settings after login
+async function initializeSettings() {
+    if (isInitializingSettings) return;
+    isInitializingSettings = true;
+
+    try {
+        // Try to load from Nostr if user is logged in
+        if (currentUser && !currentUser.readOnly) {
+            const nostrSettings = await loadSettingsFromNostr();
+            if (nostrSettings) {
+                userSettings = nostrSettings;
+                applySettings();
+                return;
+            }
+        }
+
+        // Fall back to localStorage
+        const savedSettings = localStorage.getItem('plebsSettings');
+        if (savedSettings) {
+            try {
+                userSettings = JSON.parse(savedSettings);
+                applySettings();
+            } catch (e) {
+                console.error('Failed to parse saved settings:', e);
+            }
+        }
+    } finally {
+        isInitializingSettings = false;
     }
 }
 
 // Load settings from Nostr
 async function loadSettingsFromNostr() {
-    if (!currentUser) return null;
+    if (!currentUser || currentUser.readOnly) return null;
 
     try {
         const filter = {
@@ -115,7 +1260,7 @@ async function loadSettingsFromNostr() {
 
 // Save settings to Nostr
 async function saveSettingsToNostr() {
-    if (!currentUser || !window.nostr) return false;
+    if (!currentUser || currentUser.readOnly) return false;
 
     try {
         const settingsEvent = {
@@ -129,7 +1274,7 @@ async function saveSettingsToNostr() {
             created_at: Math.floor(Date.now() / 1000)
         };
 
-        const signedEvent = await window.nostr.signEvent(settingsEvent);
+        const signedEvent = await signEvent(settingsEvent);
         return await publishEvent(signedEvent);
     } catch (error) {
         console.error('Failed to save settings to Nostr:', error);
@@ -139,6 +1284,8 @@ async function saveSettingsToNostr() {
 
 // Apply settings to the app
 function applySettings() {
+    const previousRelayUrls = [...RELAY_URLS];
+
     // Update relay URLs based on settings
     if (userSettings.useWotRelays) {
         RELAY_URLS.length = 0;
@@ -151,6 +1298,20 @@ function applySettings() {
             'wss://nos.lol',
             'wss://relay.primal.net'
         );
+    }
+
+    // Only disconnect if relay URLs actually changed
+    const relaysChanged = previousRelayUrls.length !== RELAY_URLS.length ||
+        previousRelayUrls.some((url, index) => url !== RELAY_URLS[index]);
+
+    if (relaysChanged) {
+        // Disconnect existing relay connections to force reconnection with new URLs
+        Object.values(relayConnections).forEach(ws => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
+        });
+        relayConnections = {};
     }
 
     // Update Blossom servers based on settings
@@ -169,45 +1330,26 @@ function applySettings() {
     if (userSettings.customBlossomServers.length > 0) {
         BLOSSOM_SERVERS.push(...userSettings.customBlossomServers);
     }
-
-    // Disconnect existing relay connections to force reconnection with new URLs
-    Object.values(relayConnections).forEach(ws => {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.close();
-        }
-    });
-    relayConnections = {};
-}
-
-// Theme management
-function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-}
-
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
-}
-
-function updateThemeIcon(theme) {
-    const lightIcon = document.querySelector('.theme-icon-light');
-    const darkIcon = document.querySelector('.theme-icon-dark');
-    if (theme === 'dark') {
-        lightIcon.style.display = 'block';
-        darkIcon.style.display = 'none';
-    } else {
-        lightIcon.style.display = 'none';
-        darkIcon.style.display = 'block';
-    }
 }
 
 // Show settings modal
 function showSettingsModal() {
+    if (!currentUser) {
+        ensureLoggedIn().then(loggedIn => {
+            if (!loggedIn) {
+                return;
+            }
+            // If user logs in successfully, show the settings modal
+            showSettingsModalContent();
+        });
+        return;
+    }
+
+    showSettingsModalContent();
+}
+
+// Helper function to show settings modal content
+function showSettingsModalContent() {
     document.getElementById('useWotRelays').checked = userSettings.useWotRelays;
     document.getElementById('usePremiumBlossom').checked = userSettings.usePremiumBlossom;
     document.getElementById('customBlossomServers').value = userSettings.customBlossomServers.join(', ');
@@ -284,6 +1426,9 @@ function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.querySelector('.sidebar-overlay');
 
+    // Update header height BEFORE toggling
+    updateHeaderHeight();
+
     sidebar.classList.toggle('active');
     overlay.classList.toggle('active');
 }
@@ -302,6 +1447,7 @@ function navigateTo(path) {
     window.location.hash = path;
 }
 
+// Routes based on page type
 async function handleRoute() {
     hideNotificationsModal();
     const hash = window.location.hash.slice(1) || '/';
@@ -334,8 +1480,9 @@ async function handleRoute() {
         setMetaTag('meta[property="og:site_name"]', 'content', 'Plebs');
         setMetaTag('meta[property="og:image"]', 'content', ogImage);
 
-        const canonicalUrl = window.location.origin + window.location.pathname;
-        setMetaTag('meta[property="og:url"]', 'content', canonicalUrl);
+        // Include the full URL with hash
+        const fullUrl = window.location.href;
+        setMetaTag('meta[property="og:url"]', 'content', fullUrl);
 
         setMetaTag('meta[name="twitter:card"]', 'content', image ? 'summary_large_image' : 'summary');
         setMetaTag('meta[name="twitter:title"]', 'content', title);
@@ -348,7 +1495,7 @@ async function handleRoute() {
             canonical.setAttribute('rel', 'canonical');
             document.head.appendChild(canonical);
         }
-        canonical.setAttribute('href', canonicalUrl);
+        canonical.setAttribute('href', fullUrl);
     };
 
     // Add JSON-LD structured data
@@ -372,7 +1519,7 @@ async function handleRoute() {
         "@type": "WebSite",
         "name": "Plebs",
         "description": "Censorship-resistant, decentralized video platform powered by Nostr",
-        "url": window.location.origin
+        "url": window.location.href
     });
 
     if (pathParts.length === 0) {
@@ -410,8 +1557,9 @@ async function handleRoute() {
                         "author": {
                             "@type": "Person",
                             "name": authorName,
-                            "url": `${window.location.origin}/#/profile/${event.pubkey}`
-                        }
+                            "url": `${window.location.origin}${window.location.pathname}#/profile/${event.pubkey}`
+                        },
+                        "url": window.location.href  // Use full URL including hash
                     });
                 }
             }
@@ -443,7 +1591,7 @@ async function handleRoute() {
                     "name": displayName,
                     "description": about,
                     "image": avatarUrl || undefined,
-                    "url": `${window.location.origin}/#/profile/${pubkey}`
+                    "url": window.location.href  // Use full URL including hash
                 });
             }
         } catch (error) {
@@ -457,6 +1605,15 @@ async function handleRoute() {
             `${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos - Plebs`,
             `Watch ${tag} videos on Plebs, the censorship-resistant decentralized video platform`
         );
+
+        setStructuredData({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": `${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos`,
+            "description": `Watch ${tag} videos on Plebs`,
+            "url": window.location.href
+        });
+
         loadTag(tag);
     } else if (pathParts[0] === 'search' && pathParts[1]) {
         const query = decodeURIComponent(pathParts[1]);
@@ -464,6 +1621,15 @@ async function handleRoute() {
             `Search: ${query} - Plebs`,
             `Search results for "${query}" on Plebs`
         );
+
+        setStructuredData({
+            "@context": "https://schema.org",
+            "@type": "SearchResultsPage",
+            "name": `Search: ${query}`,
+            "description": `Search results for "${query}" on Plebs`,
+            "url": window.location.href
+        });
+
         document.getElementById('searchInput').value = query;
         performSearch(pathParts[1]);
     } else if (pathParts[0] === 'subscriptions') {
@@ -471,14 +1637,45 @@ async function handleRoute() {
             'Subscriptions - Plebs',
             'Watch videos from creators you follow on Plebs'
         );
+
+        setStructuredData({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Subscriptions",
+            "description": "Watch videos from creators you follow on Plebs",
+            "url": window.location.href
+        });
+
         loadSubscriptions();
     } else if (pathParts[0] === 'my-videos') {
         updateMetaTags(
             'My Videos - Plebs',
             'Manage your videos on Plebs'
         );
+
+        setStructuredData({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "My Videos",
+            "description": "Manage your videos on Plebs",
+            "url": window.location.href
+        });
+
         loadMyVideos();
     } else if (pathParts[0] === 'liked') {
+        updateMetaTags(
+            'Liked Videos - Plebs',
+            'Watch your liked videos on Plebs'
+        );
+
+        setStructuredData({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Liked Videos",
+            "description": "Watch your liked videos on Plebs",
+            "url": window.location.href
+        });
+
         loadLikedVideos();
     } else {
         loadHomeFeed();
@@ -491,7 +1688,6 @@ async function handleRoute() {
 async function loadNotifications() {
     if (!currentUser) {
         if (!await ensureLoggedIn()) {
-            alert("Please log in to view notifications");
             return;
         }
     }
@@ -736,11 +1932,9 @@ async function loadLikedVideos() {
 
 // Function to handle zaps
 async function handleZap(npub, amount, eventId = null) {
-    if (!window.nostr) {
-        if (!await ensureLoggedIn()) {
-            alert('Please install a Nostr extension (like Alby or nos2x) to send zaps');
-            return;
-        }
+    if (!await ensureLoggedIn()) {
+        alert('Please login to send zaps');
+        return;
     }
 
     showZapAmountModal(npub, eventId);
@@ -869,7 +2063,7 @@ async function processZap(npub, amount, eventId = null) {
             zapRequest.tags.push(['e', eventId]);
         }
 
-        const signedZapRequest = await window.nostr.signEvent(zapRequest);
+        const signedZapRequest = await signEvent(zapRequest);
 
         const lnurlResponse = await fetchLightningInvoice(npub, amount, JSON.stringify(signedZapRequest));
 
@@ -1655,7 +2849,7 @@ async function displayVideosStream(title, filter, clientFilter = null) {
     });
 }
 
-// Load reactions for videos (non-streaming version for playVideo)
+// Load reactions for videos
 async function loadReactionsForVideos(videoIds, onUpdate = null) {
     const filter = {
         kinds: [7],
@@ -1811,7 +3005,7 @@ function formatNumber(num) {
 
 // Send reaction event
 async function sendReaction(eventId, reaction) {
-    if (!currentUser || !window.nostr) {
+    if (!currentUser || currentUser.readOnly) {
         if (!await ensureLoggedIn()) {
             alert('Please login to react to videos');
             return false;
@@ -1830,7 +3024,7 @@ async function sendReaction(eventId, reaction) {
     };
 
     try {
-        const signedEvent = await window.nostr.signEvent(reactionEvent);
+        const signedEvent = await signEvent(reactionEvent);
         const published = await publishEvent(signedEvent);
 
         if (published) {
@@ -1961,93 +3155,21 @@ function createNote(event) {
     return note;
 }
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', async () => {
-    initTheme();
+// Initialize app on DOM load
+document.addEventListener('DOMContentLoaded', () => {
+    initializeApp();
 
-    window.addEventListener('nlAuth', async (e) => {
-        console.log('Auth event received:', e.detail);
-        if (e.detail.type === 'login' || e.detail.type === 'signup') {
-            try {
-                const pubkey = await window.nostr.getPublicKey();
-
-                const loginEvent = {
-                    kind: 24242,
-                    created_at: Math.floor(Date.now() / 1000),
-                    tags: [['t', 'plebs-app']],
-                    content: 'Login to Plebs app',
-                    pubkey: pubkey
-                };
-
-                const signedEvent = await window.nostr.signEvent(loginEvent);
-
-                localStorage.setItem('plebsPublicKey', pubkey);
-                localStorage.setItem('plebsSignedEvent', JSON.stringify(signedEvent));
-
-                currentUser = { pubkey };
-                console.log('User logged in:', currentUser);
-
-                await initializeSettings();
-
-                handleRoute();
-            } catch (error) {
-                console.error('Error during login:', error);
-                alert('Failed to complete login. Please try again.');
-            }
-        }
-    });
-
-    window.addEventListener('nlLogout', async () => {
-        console.log('User logged out');
-
-        localStorage.removeItem('plebsPublicKey');
-        localStorage.removeItem('plebsSignedEvent');
-
-        currentUser = null;
-
-        await initializeSettings();
-
-        handleRoute();
-    });
-
-    const storedPubkey = localStorage.getItem('plebsPublicKey');
-    const storedSignedEvent = localStorage.getItem('plebsSignedEvent');
-
-    if (storedPubkey && storedSignedEvent) {
-        currentUser = { pubkey: storedPubkey };
-        console.log('User already logged in from storage:', storedPubkey);
-    } else if (window.nostr) {
-        try {
-            const pubkey = await window.nostr.getPublicKey();
-
-            const loginEvent = {
-                kind: 24242,
-                created_at: Math.floor(Date.now() / 1000),
-                tags: [['t', 'plebs-app']],
-                content: 'Login to Plebs app',
-                pubkey: pubkey
-            };
-
-            const signedEvent = await window.nostr.signEvent(loginEvent);
-
-            localStorage.setItem('plebsPublicKey', pubkey);
-            localStorage.setItem('plebsSignedEvent', JSON.stringify(signedEvent));
-
-            currentUser = { pubkey };
-            console.log('User already logged in:', pubkey);
-        } catch (e) {
-            console.log('No user logged in');
-        }
-    }
-
-    await initializeSettings();
-
+    // Set up hash change listener for routing
     window.addEventListener('hashchange', handleRoute);
 
+    // Set up resize listener for carousel
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
+            updateHeaderHeight();
+
+            // Update carousel if needed
             const trendingGrid = document.getElementById('trendingGrid');
             if (trendingGrid && trendingGrid.querySelector('.video-card')) {
                 initializeCarousel();
@@ -2055,598 +3177,218 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 250);
     });
 
-    handleRoute();
-});
+    // Update on orientation change for mobile devices
+    window.addEventListener('orientationchange', () => {
+        setTimeout(updateHeaderHeight, 100);
+    });
 
-// Function to request Nostr login
-async function requestNostrLogin() {
-    const storedPubkey = localStorage.getItem('plebsPublicKey');
-    if (storedPubkey) {
-        currentUser = { pubkey: storedPubkey };
-        return currentUser;
+    updateHeaderHeight();
+
+    // Set up signup form listeners
+    const signupUsername = document.getElementById('signupUsername');
+    const signupAbout = document.getElementById('signupAbout');
+
+    if (signupUsername) {
+        signupUsername.addEventListener('input', updateSignupPreview);
+    }
+    if (signupAbout) {
+        signupAbout.addEventListener('input', updateSignupPreview);
     }
 
-    if (window.nostrLogin) {
-        try {
-            await window.nostrLogin.launch();
-            return null;
-        } catch (error) {
-            console.error('Failed to launch nostr login:', error);
-        }
+    // Set up file input listeners
+    const videoFile = document.getElementById('videoFile');
+    const thumbnailFile = document.getElementById('thumbnailFile');
+
+    if (videoFile) {
+        videoFile.addEventListener('change', handleFileSelect);
+    }
+    if (thumbnailFile) {
+        thumbnailFile.addEventListener('change', handleFileSelect);
     }
 
-    return null;
-}
+    // Set up upload form listener
+    const uploadForm = document.getElementById('uploadForm');
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
 
-// Ensure user is logged in
-async function ensureLoggedIn() {
-    if (currentUser) {
-        return true;
-    }
-
-    const storedPubkey = localStorage.getItem('plebsPublicKey');
-    if (storedPubkey) {
-        currentUser = { pubkey: storedPubkey };
-        return true;
-    }
-
-    await requestNostrLogin();
-    return false;
-}
-
-// Format duration
-function formatDuration(seconds) {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hours > 0) {
-        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
-}
-
-// Format timestamp
-function formatTimestamp(timestamp) {
-    const date = new Date(timestamp * 1000);
-    const now = new Date();
-    const diff = now - date;
-
-    const seconds = Math.floor(diff / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-    const months = Math.floor(days / 30);
-    const years = Math.floor(days / 365);
-
-    if (years > 0) return `${years} year${years > 1 ? 's' : ''} ago`;
-    if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`;
-    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
-}
-
-// Get video URL with fallback
-async function getVideoUrl(hash, servers = BLOSSOM_SERVERS) {
-    for (const server of servers) {
-        const url = `${server}/${hash}`;
-        try {
-            const response = await fetch(url, { method: 'HEAD' });
-            if (response.ok) {
-                return url;
+            if (!currentUser || currentUser.readOnly) {
+                if (!await ensureLoggedIn()) {
+                    return;
+                }
             }
-        } catch (error) {
-            console.error(`Failed to check ${server}:`, error);
-        }
-    }
-    return null;
-}
 
-// Check if video is NSFW
-function isVideoNSFW(event) {
-    const tags = event.tags || [];
-    return tags.some(tag => tag[0] === 'content-warning' && tag[1] === 'nsfw');
-}
+            const videoFile = document.getElementById('videoFile').files[0];
+            if (!videoFile) {
+                alert('Please select a video file');
+                return;
+            }
 
-// Helper function to validate NIP-05
-async function validateNip05(nip05, pubkey) {
-    const cacheKey = `${nip05}:${pubkey}`;
-    if (nip05ValidationCache.has(cacheKey)) {
-        return nip05ValidationCache.get(cacheKey);
-    }
+            const title = document.getElementById('videoTitle').value;
+            const description = escapeHtml(document.getElementById('videoDescription').value);
+            const tags = document.getElementById('videoTags').value.split(',').map(t => t.trim()).filter(t => t);
+            const isNSFW = document.getElementById('nsfwCheckbox').checked;
 
-    try {
-        const [name, domain] = nip05.split('@');
-        if (!name || !domain) {
-            nip05ValidationCache.set(cacheKey, false);
-            return false;
-        }
+            if (isNSFW && !tags.includes('nsfw')) {
+                tags.push('nsfw');
+            }
 
-        const response = await fetch(`https://${domain}/.well-known/nostr.json?name=${name}`, {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json'
+            document.getElementById('uploadProgress').style.display = 'block';
+            document.getElementById('uploadStatus').textContent = 'Calculating hash...';
+
+            try {
+                document.getElementById('uploadStatus').textContent = 'Uploading video to multiple servers...';
+                const videoResult = await uploadToBlossom(videoFile);
+
+                if (!videoResult.success) {
+                    throw new Error(videoResult.error);
+                }
+
+                document.getElementById('progressFill').style.width = '50%';
+
+                let thumbnailUrl = '';
+                const thumbnailFile = document.getElementById('thumbnailFile').files[0];
+                if (thumbnailFile) {
+                    document.getElementById('uploadStatus').textContent = 'Uploading thumbnail...';
+                    const thumbResult = await uploadToBlossom(thumbnailFile);
+                    if (thumbResult.success) {
+                        thumbnailUrl = thumbResult.url;
+                    }
+                }
+
+                document.getElementById('progressFill').style.width = '75%';
+                document.getElementById('uploadStatus').textContent = 'Publishing to Nostr...';
+
+                const video = document.createElement('video');
+                video.preload = 'metadata';
+
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        resolve();
+                    };
+                    video.src = URL.createObjectURL(videoFile);
+                });
+
+                const videoDuration = Math.floor(video.duration);
+
+                const eventContent = {
+                    kind: 1,
+                    tags: [
+                        ['title', title],
+                        ['t', 'pv69420'],
+                        ...tags.map(tag => ['t', tag]),
+                        ['x', videoResult.hash],
+                        ['url', videoResult.url],
+                        ['m', videoFile.type],
+                        ['size', videoFile.size.toString()],
+                        ['duration', videoDuration.toString()],
+                        ...(thumbnailUrl ? [['thumb', thumbnailUrl]] : []),
+                        ...videoResult.mirrors.map(mirror => ['r', mirror.server]),
+                        ...(isNSFW ? [['content-warning', 'nsfw']] : []),
+                        ['client', 'Plebs']
+                    ],
+                    content: `${escapeHtml(title)}\n\n${escapeHtml(description)}\n\n${videoResult.url}`,
+                    created_at: Math.floor(Date.now() / 1000)
+                };
+
+                const signedEvent = await signEvent(eventContent);
+                const published = await publishEvent(signedEvent);
+
+                if (!published) {
+                    throw new Error('Failed to publish to any relay');
+                }
+
+                if (videoResult.mirrors && videoResult.mirrors.length > 0) {
+                    const serverListEvent = {
+                        kind: 10063,
+                        tags: videoResult.mirrors.map(mirror => ['server', mirror.server]),
+                        content: '',
+                        created_at: Math.floor(Date.now() / 1000),
+                    };
+
+                    const signedServerListEvent = await signEvent(serverListEvent);
+                    await publishEvent(signedServerListEvent);
+                }
+
+                document.getElementById('progressFill').style.width = '100%';
+                document.getElementById('uploadStatus').textContent = 'Video published successfully!';
+
+                setTimeout(() => {
+                    hideUploadModal();
+                    navigateTo('/my-videos');
+                }, 2000);
+
+            } catch (error) {
+                console.error('Upload failed:', error);
+                alert('Failed to upload video: ' + error.message);
+                document.getElementById('uploadProgress').style.display = 'none';
             }
         });
-
-        if (!response.ok) {
-            nip05ValidationCache.set(cacheKey, false);
-            return false;
-        }
-
-        const data = await response.json();
-        const isValid = data.names && data.names[name] === pubkey;
-
-        nip05ValidationCache.set(cacheKey, isValid);
-        setTimeout(() => nip05ValidationCache.delete(cacheKey), 24 * 60 * 60 * 1000);
-
-        return isValid;
-    } catch (error) {
-        console.error('NIP-05 validation error:', error);
-        nip05ValidationCache.set(cacheKey, false);
-        return false;
     }
-}
 
-// Helper to check if image URL is valid
-function createImageValidationPromise(url) {
-    return new Promise((resolve) => {
-        if (!url) {
-            resolve(false);
-            return;
-        }
+    // Set up drag and drop for file upload
+    const fileUpload = document.getElementById('fileUpload');
+    if (fileUpload) {
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('active');
+        });
 
-        const img = new Image();
-        const timeout = setTimeout(() => {
-            img.src = '';
-            resolve(false);
-        }, 5000);
+        fileUpload.addEventListener('dragleave', () => {
+            fileUpload.classList.remove('active');
+        });
 
-        img.onload = () => {
-            clearTimeout(timeout);
-            resolve(true);
-        };
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('active');
 
-        img.onerror = () => {
-            clearTimeout(timeout);
-            resolve(false);
-        };
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('video/')) {
+                document.getElementById('videoFile').files = e.dataTransfer.files;
+                handleFileSelect({ target: { files: [file] } });
+            }
+        });
+    }
 
-        img.src = url;
+    // Set up search input enter key listener
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchVideos();
+            }
+        });
+    }
+
+    // Set up sidebar link click listeners for mobile
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                toggleSidebar();
+            }
+        });
     });
-}
+});
 
-// Function to create cards for videos
-function createVideoCard(event, profile, reactions, isTrending = false, trendingRank = null) {
-    const videoData = parseVideoEvent(event);
-    if (!videoData) return '';
-
-    const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
-    const avatarUrl = profile?.picture || profile?.avatar || '';
-    const nip05 = profile?.nip05 || '';
-    const isNSFW = isVideoNSFW(event);
-    const isRatioed = isVideoRatioed(reactions || {});
-
-    const cardId = `video-card-${event.id}`;
-    const isSuspiciousProfile = !avatarUrl || !nip05;
-    
-    // Determine what type of overlay to show
-    const showNSFWOverlay = isNSFW && !shouldShowNSFW();
-    const showCommunityWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(event.id);
-    const showBlurred = showNSFWOverlay || showCommunityWarning;
-    
-    // NSFW takes precedence
-    const overlayType = showNSFWOverlay ? 'nsfw' : 'ratioed';
-
-    if (isTrending && (isRatioed || isSuspiciousProfile)) {
-        return '';
-    }
-
-    const cardHTML = `
-        <div class="video-card" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}">
-            <div class="video-thumbnail ${showBlurred ? overlayType : ''}" 
-                 onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">
-                ${videoData.thumbnail ?
-            `<img src="${videoData.thumbnail}" alt="${videoData.title}" onerror="this.style.display='none'">` :
-            `<video src="${videoData.url}" preload="metadata"></video>`
-        }
-                ${showBlurred ? `
-                    <div class="${overlayType}-overlay">
-                        <div class="${overlayType}-badge">${overlayType === 'nsfw' ? 'NSFW' : 'COMMUNITY WARNING'}</div>
-                        <div>Click to view</div>
-                    </div>
-                ` : ''}
-                ${!showBlurred && videoData.duration ? `<span class="video-duration">${formatDuration(videoData.duration)}</span>` : ''}
-                ${reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
-                    <div class="video-reactions">
-                        ${reactions.likes > 0 ? `
-                            <span class="reaction-count likes">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-                                </svg>
-                                ${formatNumber(reactions.likes)}
-                            </span>
-                        ` : ''}
-                        ${reactions.dislikes > 0 ? `
-                            <span class="reaction-count dislikes">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
-                                </svg>
-                                ${formatNumber(reactions.dislikes)}
-                            </span>
-                        ` : ''}
-                    </div>
-                ` : ''}
-            </div>
-            <div class="video-info">
-                <a href="#/profile/${event.pubkey}" class="channel-info">
-                    <div class="channel-avatar">
-                        ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}" data-avatar-url="${avatarUrl}">` : ''}
-                    </div>
-                    <div class="channel-details">
-                        <div class="channel-name">${displayName}</div>
-                        ${nip05 ? `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>` : ''}
-                    </div>
-                </a>
-                <h3 class="video-title" onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">${videoData.title}</h3>
-                <div class="video-meta">
-                    ${formatTimestamp(event.created_at)}
-                    ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
-                    <span class="community-warning-indicator" style="${showCommunityWarning && !showNSFWOverlay ? '' : 'display: none;'}"> • <span style="color: #ff9800;">Community Warning</span></span>
-                </div>
-            </div>
-        </div>
-    `;
-
-    if (profile && (avatarUrl || nip05)) {
-        setTimeout(() => validateVideoCard(event.id, event.pubkey, profile, reactions, isTrending), 100);
-    }
-
-    return cardHTML;
-}
-
-// Function to validate and update video cards
-async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending = false) {
-    const card = document.getElementById(`video-card-${eventId}`);
-    if (!card) return;
-
-    if (card.dataset.validationDone === 'true') return;
-
-    const avatarUrl = profile?.picture || profile?.avatar || '';
-    const nip05 = profile?.nip05 || '';
-
-    const [avatarValid, nip05Valid] = await Promise.all([
-        avatarUrl ? createImageValidationPromise(avatarUrl) : Promise.resolve(false),
-        nip05 ? validateNip05(nip05, pubkey) : Promise.resolve(false)
-    ]);
-
-    const isSuspiciousProfile = !avatarValid || !nip05Valid;
-    const isNSFW = isVideoNSFW(allEvents.get(eventId));
-    const isRatioed = isVideoRatioed(reactions || {});
-
-    if (isTrending === false && card.dataset.isTrending === 'true') {
-        isTrending = true;
-    }
-
-    card.dataset.validationDone = 'true';
-    card.dataset.needsValidation = 'false';
-
-    if (isTrending && (isRatioed || isSuspiciousProfile)) {
-        card.remove();
-
-        const trendingGrid = document.getElementById('trendingGrid');
-        if (trendingGrid && trendingGrid.querySelector('.video-card')) {
-            setTimeout(() => {
-                initializeCarousel();
-            }, 100);
-        }
-        return;
-    }
-
-    const thumbnail = card.querySelector('.video-thumbnail');
-    const currentOverlay = thumbnail.querySelector('.ratioed-overlay, .nsfw-overlay');
-    
-    // Separate checks for NSFW and community warnings
-    const shouldShowNSFWOverlay = isNSFW && !shouldShowNSFW();
-    const shouldShowCommunityWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId);
-    
-    // NSFW takes precedence over community warning
-    const needsOverlay = shouldShowNSFWOverlay || shouldShowCommunityWarning;
-    const overlayType = shouldShowNSFWOverlay ? 'nsfw' : 'ratioed';
-
-    if ((currentOverlay && !needsOverlay) || (!currentOverlay && needsOverlay)) {
-        if (needsOverlay) {
-            if (!currentOverlay) {
-                thumbnail.classList.add(overlayType);
-                thumbnail.setAttribute('onclick',
-                    overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${eventId}')` : `showRatioedModal('${eventId}')`
-                );
-
-                const overlayHTML = `
-                    <div class="${overlayType}-overlay">
-                        <div class="${overlayType}-badge">${overlayType === 'nsfw' ? 'NSFW' : 'COMMUNITY WARNING'}</div>
-                        <div>Click to view</div>
-                    </div>
-                `;
-                thumbnail.insertAdjacentHTML('beforeend', overlayHTML);
-            }
-        } else {
-            thumbnail.classList.remove('ratioed', 'nsfw');
-            thumbnail.setAttribute('onclick', `navigateTo('/video/${eventId}')`);
-            if (currentOverlay) currentOverlay.remove();
-        }
-
-        const warningIndicator = card.querySelector('.community-warning-indicator');
-        if (warningIndicator) {
-            // Only show community warning indicator if there's actually a community issue (not just NSFW)
-            warningIndicator.style.display = shouldShowCommunityWarning && !shouldShowNSFWOverlay ? 'inline' : 'none';
-        }
-
-        const title = card.querySelector('.video-title');
-        if (title) {
-            title.setAttribute('onclick',
-                needsOverlay ?
-                    (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${eventId}')` : `showRatioedModal('${eventId}')`) :
-                    `navigateTo('/video/${eventId}')`
-            );
-        }
+// Function to calculate and update header height
+function updateHeaderHeight() {
+    const header = document.querySelector('header');
+    if (header) {
+        // Force a reflow to ensure accurate measurement
+        header.offsetHeight;
+        const headerHeight = header.getBoundingClientRect().height;
+        document.documentElement.style.setProperty('--header-height', `${headerHeight}px`);
     }
 }
 
-// Function to update a video card more efficiently
-function updateVideoCard(event, profile, reactions) {
-    const cardId = `video-card-${event.id}`;
-    const existingCard = document.getElementById(cardId);
-
-    if (!existingCard) return;
-
-    if (existingCard.dataset.validationPending === 'true') {
-        return;
-    }
-
-    const existingReactions = existingCard.querySelector('.video-reactions');
-    const newReactionsHTML = reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
-        <div class="video-reactions">
-            ${reactions.likes > 0 ? `
-                <span class="reaction-count likes">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-                    </svg>
-                    ${formatNumber(reactions.likes)}
-                </span>
-            ` : ''}
-            ${reactions.dislikes > 0 ? `
-                <span class="reaction-count dislikes">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
-                    </svg>
-                    ${formatNumber(reactions.dislikes)}
-                </span>
-            ` : ''}
-        </div>
-    ` : '';
-
-    if (existingReactions) {
-        if (newReactionsHTML) {
-            existingReactions.outerHTML = newReactionsHTML;
-        } else {
-            existingReactions.remove();
+// Clean up WebSocket connections on page unload
+window.addEventListener('beforeunload', () => {
+    Object.values(relayConnections).forEach(ws => {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.close();
         }
-    } else if (newReactionsHTML) {
-        const thumbnail = existingCard.querySelector('.video-thumbnail');
-        thumbnail.insertAdjacentHTML('beforeend', newReactionsHTML);
-    }
-
-    if (profile) {
-        const channelName = existingCard.querySelector('.channel-name');
-        const channelNip05 = existingCard.querySelector('.channel-nip05');
-        const channelAvatar = existingCard.querySelector('.channel-avatar img');
-
-        const displayName = profile.name || profile.display_name || `User ${event.pubkey.slice(0, 8)}`;
-        const avatarUrl = profile.picture || profile.avatar || '';
-        const nip05 = profile.nip05 || '';
-
-        if (channelName && channelName.textContent !== displayName) {
-            channelName.textContent = displayName;
-        }
-
-        if (nip05) {
-            if (channelNip05) {
-                channelNip05.textContent = nip05;
-            } else {
-                const channelDetails = existingCard.querySelector('.channel-details');
-                channelDetails.insertAdjacentHTML('beforeend', `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>`);
-            }
-        }
-
-        if (avatarUrl && !channelAvatar) {
-            const channelAvatarDiv = existingCard.querySelector('.channel-avatar');
-            channelAvatarDiv.innerHTML = `<img src="${avatarUrl}" alt="${displayName}" data-avatar-url="${avatarUrl}">`;
-        }
-    }
-}
-
-// Show ratioed modal
-function showRatioedModal(eventId) {
-    pendingRatioedAction = eventId;
-    document.getElementById('ratioedModal').classList.add('active');
-}
-
-// Proceed with ratioed video
-function proceedRatioed() {
-    if (pendingRatioedAction) {
-        const eventId = pendingRatioedAction;
-        sessionRatioedAllowed.add(eventId);
-        document.getElementById('ratioedModal').classList.remove('active');
-        pendingRatioedAction = null;
-
-        document.getElementById('mainContent').innerHTML = '<div class="spinner"></div>';
-
-        setTimeout(() => {
-            playVideo(eventId, false, true);
-        }, 10);
-    }
-}
-
-// Cancel ratioed
-function cancelRatioed() {
-    document.getElementById('ratioedModal').classList.remove('active');
-    pendingRatioedAction = null;
-    if (window.location.hash.startsWith('#/video/')) {
-        navigateTo('/');
-    }
-}
-
-// Show NSFW modal
-function showNSFWModal(action, eventId) {
-    pendingNSFWAction = { action, eventId };
-    document.getElementById('nsfwModal').classList.add('active');
-}
-
-// Confirm NSFW
-async function confirmNSFW() {
-    const rememberChoice = document.getElementById('rememberNSFW').checked;
-
-    if (rememberChoice) {
-        localStorage.setItem('allowNSFW', 'true');
-    }
-
-    sessionNSFWAllowed = true;
-
-    document.getElementById('nsfwModal').classList.remove('active');
-
-    if (pendingNSFWAction && pendingNSFWAction.action === 'playVideo') {
-        const eventId = pendingNSFWAction.eventId;
-        pendingNSFWAction = null;
-
-        document.getElementById('mainContent').innerHTML = '<div class="spinner"></div>';
-
-        setTimeout(() => {
-            playVideo(eventId, true, false);
-        }, 10);
-    }
-
-    if (rememberChoice && !window.location.hash.startsWith('#/video/')) {
-        setTimeout(() => {
-            handleRoute();
-        }, 100);
-    }
-}
-
-// Cancel NSFW
-function cancelNSFW() {
-    document.getElementById('nsfwModal').classList.remove('active');
-    pendingNSFWAction = null;
-    document.getElementById('rememberNSFW').checked = false;
-    if (window.location.hash.startsWith('#/video/')) {
-        navigateTo('/');
-    }
-}
-
-// Parse video event
-function parseVideoEvent(event) {
-    if (event.kind !== 1) {
-        return null;
-    }
-
-    const tags = event.tags || [];
-
-    if (!tags.some(tag => tag[0] === 't' && tag[1] === 'pv69420')) {
-        return null;
-    }
-
-    const videoData = {
-        title: '',
-        description: event.content || '',
-        hash: '',
-        url: '',
-        thumbnail: '',
-        duration: 0,
-        tags: [],
-        author: event.pubkey
-    };
-
-    for (const tag of tags) {
-        switch (tag[0]) {
-            case 'title':
-                videoData.title = tag[1];
-                break;
-            case 'x':
-                videoData.hash = tag[1];
-                break;
-            case 'url':
-                videoData.url = tag[1];
-                break;
-            case 'thumb':
-                videoData.thumbnail = tag[1];
-                break;
-            case 'duration':
-                videoData.duration = parseInt(tag[1]);
-                break;
-            case 't':
-                if (tag[1] && tag[1] !== 'pv69420') {
-                    videoData.tags.push(tag[1]);
-                }
-                break;
-        }
-    }
-
-    // If we have a title from the tags, we need to strip it from the description
-    if (videoData.title && videoData.description) {
-        const parts = videoData.description.split('\n\n');
-        
-        if (parts.length > 1) {
-            const firstPart = parts[0];
-            
-            const cleanFirstPart = firstPart.replace(/^[^\w\s]+\s*/, '').trim();
-            
-            if (cleanFirstPart === videoData.title || firstPart.includes(videoData.title)) {
-                videoData.description = parts.slice(1).join('\n\n').trim();
-            }
-        } else {
-            const cleanContent = videoData.description.replace(/^[^\w\s]+\s*/, '').trim();
-            if (cleanContent.startsWith(videoData.title)) {
-                const titleIndex = videoData.description.indexOf(videoData.title);
-                const afterTitle = videoData.description.substring(titleIndex + videoData.title.length).trim();
-                videoData.description = afterTitle.startsWith('\n') ? afterTitle.substring(1).trim() : afterTitle;
-            }
-        }
-    }
-
-    if (!videoData.title && videoData.description) {
-        const lines = videoData.description.split('\n');
-        
-        if (lines[0]) {
-            videoData.title = lines[0].replace(/^[^\w\s]+\s*/, '').trim();
-            
-            if (lines.length > 1) {
-                videoData.description = lines.slice(1).join('\n').trim();
-                videoData.description = videoData.description.replace(/^\n+/, '');
-            } else {
-                videoData.description = '';
-            }
-        }
-    }
-
-    // Remove any video URLs from the description
-    const videoExtensions = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv'];
-    const extensionsPattern = videoExtensions.join('|');
-
-    const urlRegex = new RegExp(
-        `https?:\\/\\/[^\\s]*([a-f0-9]{64})\\.(${extensionsPattern})(\\?[^\\s]*)?`,
-        'gi'
-    );
-
-    videoData.description = videoData.description.replace(urlRegex, '').trim();
-
-    // Also remove the exact URL if it matches
-    if (videoData.url && videoData.description.includes(videoData.url)) {
-        videoData.description = videoData.description.replace(videoData.url, '').trim();
-    }
-
-    return videoData.title ? videoData : null;
-}
+    });
+});
 
 // Function to load trending videos with streaming
 async function loadTrendingVideos(period = 'today') {
@@ -3335,8 +4077,10 @@ async function switchTrendingPeriod(period) {
 // Load subscriptions
 async function loadSubscriptions() {
     if (!currentUser) {
-        document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your subscriptions.</p>';
-        return;
+        if (!await ensureLoggedIn()) {
+            document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your subscriptions.</p>';
+            return;
+        }
     }
 
     currentView = 'subscriptions';
@@ -3385,8 +4129,10 @@ async function loadSubscriptions() {
 // Load my videos with streaming
 async function loadMyVideos() {
     if (!currentUser) {
-        document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your videos.</p>';
-        return;
+        if (!await ensureLoggedIn()) {
+            document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your videos.</p>';
+            return;
+        }
     }
 
     currentView = 'my-videos';
@@ -3420,7 +4166,7 @@ async function loadTag(tag) {
 
 // Handle deleting video
 async function handleDelete(eventId) {
-    if (!currentUser || !window.nostr) {
+    if (!currentUser || currentUser.readOnly) {
         if (!await ensureLoggedIn()) {
             alert('Please login to delete videos');
             return;
@@ -3442,7 +4188,7 @@ async function handleDelete(eventId) {
             created_at: Math.floor(Date.now() / 1000)
         };
 
-        const signedEvent = await window.nostr.signEvent(deleteEvent);
+        const signedEvent = await signEvent(deleteEvent);
         const published = await publishEvent(signedEvent);
 
         if (published) {
@@ -3480,7 +4226,7 @@ async function isFollowing(pubkey) {
 
 // Follow a user
 async function followUser(pubkey) {
-    if (!currentUser || !window.nostr) {
+    if (!currentUser || currentUser.readOnly) {
         if (!await ensureLoggedIn()) {
             alert('Please login to follow users');
             return false;
@@ -3515,7 +4261,7 @@ async function followUser(pubkey) {
             created_at: Math.floor(Date.now() / 1000)
         };
 
-        const signedEvent = await window.nostr.signEvent(contactListEvent);
+        const signedEvent = await signEvent(contactListEvent);
         const published = await publishEvent(signedEvent);
 
         return published;
@@ -3527,7 +4273,7 @@ async function followUser(pubkey) {
 
 // Unfollow a user
 async function unfollowUser(pubkey) {
-    if (!currentUser || !window.nostr) {
+    if (!currentUser || currentUser.readOnly) {
         alert('Please login to unfollow users');
         return false;
     }
@@ -3558,7 +4304,7 @@ async function unfollowUser(pubkey) {
             created_at: Math.floor(Date.now() / 1000)
         };
 
-        const signedEvent = await window.nostr.signEvent(contactListEvent);
+        const signedEvent = await signEvent(contactListEvent);
         const published = await publishEvent(signedEvent);
 
         return published;
@@ -4048,10 +4794,10 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         ]);
 
         const isProfileSuspicious = !avatarValid || !nip05Valid;
-        
+
         // Check NSFW independently from suspicious profile
         const isNSFW = isVideoNSFW(event);
-        
+
         // Check if NSFW should be shown first (separate from community warning)
         if (!skipNSFWCheck && isNSFW && !shouldShowNSFW()) {
             showNSFWModal('playVideo', eventId);
@@ -4154,7 +4900,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             </svg>
                             Share
                         </button>
-                        <button class="action-btn" onclick="downloadVideo('${videoUrl}', {title: '${videoData.title}'})">
+                        <button class="action-btn" onclick="downloadVideo('${videoUrl}', ${JSON.stringify({ title: videoData.title }).replace(/"/g, '&quot;')})">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                             </svg>
@@ -4640,7 +5386,7 @@ function createCommentInput(replyTo = null) {
 
 // Submit comment
 async function submitComment(parentId, parentPubkey) {
-    if (!currentUser || !window.nostr) {
+    if (!currentUser || currentUser.readOnly) {
         if (!await ensureLoggedIn()) {
             alert('Please login to comment');
             return;
@@ -4691,7 +5437,7 @@ async function submitComment(parentId, parentPubkey) {
             created_at: Math.floor(Date.now() / 1000)
         };
 
-        const signedEvent = await window.nostr.signEvent(commentEvent);
+        const signedEvent = await signEvent(commentEvent);
         const published = await publishEvent(signedEvent);
 
         if (published) {
@@ -4753,7 +5499,7 @@ function cancelReply(commentId) {
 
 // Like comment
 async function likeComment(commentId) {
-    if (!currentUser || !window.nostr) {
+    if (!currentUser || currentUser.readOnly) {
         if (!await ensureLoggedIn()) {
             alert('Please login to like comments');
             return;
@@ -4789,7 +5535,7 @@ async function likeComment(commentId) {
             created_at: Math.floor(Date.now() / 1000)
         };
 
-        const signedEvent = await window.nostr.signEvent(reactionEvent);
+        const signedEvent = await signEvent(reactionEvent);
         const published = await publishEvent(signedEvent);
 
         if (!published) {
@@ -4824,11 +5570,7 @@ function escapeHtml(text) {
 // Upload modal functions
 function showUploadModal() {
     if (!currentUser) {
-        ensureLoggedIn().then(loggedIn => {
-            if (!loggedIn) {
-                alert('Please login to upload videos');
-            }
-        });
+        ensureLoggedIn();
         return;
     }
     document.getElementById('uploadModal').classList.add('active');
@@ -4885,10 +5627,6 @@ function handleFileSelect(event) {
     }
 }
 
-// Add event listener for both video and thumbnail file inputs
-document.getElementById('videoFile').addEventListener('change', handleFileSelect);
-document.getElementById('thumbnailFile').addEventListener('change', handleFileSelect);
-
 // Calculate SHA-256 hash
 async function calculateSHA256(file) {
     const buffer = await file.arrayBuffer();
@@ -4913,7 +5651,7 @@ async function createBlossomAuthEvent(hash, server) {
         created_at: Math.floor(Date.now() / 1000)
     };
 
-    const signedEvent = await window.nostr.signEvent(authEvent);
+    const signedEvent = await signEvent(authEvent);
     return signedEvent;
 }
 
@@ -4968,157 +5706,493 @@ async function uploadToBlossom(file, servers = BLOSSOM_SERVERS) {
     return { success: false, error: 'Failed to upload to all servers' };
 }
 
-// Handle form submission
-document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Show ratioed modal
+function showRatioedModal(eventId) {
+    pendingRatioedAction = eventId;
+    document.getElementById('ratioedModal').classList.add('active');
+}
 
-    if (!currentUser || !window.nostr) {
-        alert('Please login to upload videos');
-        return;
-    }
+// Proceed with ratioed video
+function proceedRatioed() {
+    if (pendingRatioedAction) {
+        const eventId = pendingRatioedAction;
+        sessionRatioedAllowed.add(eventId);
+        document.getElementById('ratioedModal').classList.remove('active');
+        pendingRatioedAction = null;
 
-    const videoFile = document.getElementById('videoFile').files[0];
-    if (!videoFile) {
-        alert('Please select a video file');
-        return;
-    }
-
-    const title = document.getElementById('videoTitle').value;
-    const description = escapeHtml(document.getElementById('videoDescription').value);
-    const tags = document.getElementById('videoTags').value.split(',').map(t => t.trim()).filter(t => t);
-    const isNSFW = document.getElementById('nsfwCheckbox').checked;
-
-    if (isNSFW && !tags.includes('nsfw')) {
-        tags.push('nsfw');
-    }
-
-    document.getElementById('uploadProgress').style.display = 'block';
-    document.getElementById('uploadStatus').textContent = 'Calculating hash...';
-
-    try {
-        document.getElementById('uploadStatus').textContent = 'Uploading video to multiple servers...';
-        const videoResult = await uploadToBlossom(videoFile);
-
-        if (!videoResult.success) {
-            throw new Error(videoResult.error);
+        // Ensure the URL is correct before playing
+        if (!window.location.hash.includes(`/video/${eventId}`)) {
+            window.location.hash = `/video/${eventId}`;
         }
 
-        document.getElementById('progressFill').style.width = '50%';
-
-        let thumbnailUrl = '';
-        const thumbnailFile = document.getElementById('thumbnailFile').files[0];
-        if (thumbnailFile) {
-            document.getElementById('uploadStatus').textContent = 'Uploading thumbnail...';
-            const thumbResult = await uploadToBlossom(thumbnailFile);
-            if (thumbResult.success) {
-                thumbnailUrl = thumbResult.url;
-            }
-        }
-
-        document.getElementById('progressFill').style.width = '75%';
-        document.getElementById('uploadStatus').textContent = 'Publishing to Nostr...';
-
-        const video = document.createElement('video');
-        video.preload = 'metadata';
-
-        await new Promise((resolve) => {
-            video.onloadedmetadata = () => {
-                resolve();
-            };
-            video.src = URL.createObjectURL(videoFile);
-        });
-
-        const videoDuration = Math.floor(video.duration);
-
-        const eventContent = {
-            kind: 1,
-            tags: [
-                ['title', title],
-                ['t', 'pv69420'],
-                ...tags.map(tag => ['t', tag]),
-                ['x', videoResult.hash],
-                ['url', videoResult.url],
-                ['m', videoFile.type],
-                ['size', videoFile.size.toString()],
-                ['duration', videoDuration.toString()],
-                ...(thumbnailUrl ? [['thumb', thumbnailUrl]] : []),
-                ...videoResult.mirrors.map(mirror => ['r', mirror.server]),
-                ...(isNSFW ? [['content-warning', 'nsfw']] : []),
-                ['client', 'Plebs']
-            ],
-            content: `${escapeHtml(title)}\n\n${escapeHtml(description)}\n\n${videoResult.url}`,
-            created_at: Math.floor(Date.now() / 1000)
-        };
-
-        const signedEvent = await window.nostr.signEvent(eventContent);
-        const published = await publishEvent(signedEvent);
-
-        if (!published) {
-            throw new Error('Failed to publish to any relay');
-        }
-
-        if (videoResult.mirrors && videoResult.mirrors.length > 0) {
-            const serverListEvent = {
-                kind: 10063,
-                tags: videoResult.mirrors.map(mirror => ['server', mirror.server]),
-                content: '',
-                created_at: Math.floor(Date.now() / 1000),
-            };
-
-            const signedServerListEvent = await window.nostr.signEvent(serverListEvent);
-            await publishEvent(signedServerListEvent);
-        }
-
-        document.getElementById('progressFill').style.width = '100%';
-        document.getElementById('uploadStatus').textContent = 'Video published successfully!';
+        document.getElementById('mainContent').innerHTML = '<div class="spinner"></div>';
 
         setTimeout(() => {
-            hideUploadModal();
-            navigateTo('/my-videos');
-        }, 2000);
-
-    } catch (error) {
-        console.error('Upload failed:', error);
-        alert('Failed to upload video: ' + error.message);
-        document.getElementById('uploadProgress').style.display = 'none';
+            playVideo(eventId, false, true);
+        }, 10);
     }
-});
+}
 
-// Drag and drop support
-const fileUpload = document.getElementById('fileUpload');
-
-fileUpload.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    fileUpload.classList.add('active');
-});
-
-fileUpload.addEventListener('dragleave', () => {
-    fileUpload.classList.remove('active');
-});
-
-fileUpload.addEventListener('drop', (e) => {
-    e.preventDefault();
-    fileUpload.classList.remove('active');
-
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('video/')) {
-        document.getElementById('videoFile').files = e.dataTransfer.files;
-        handleFileSelect({ target: { files: [file] } });
+// Cancel ratioed
+function cancelRatioed() {
+    document.getElementById('ratioedModal').classList.remove('active');
+    pendingRatioedAction = null;
+    if (window.location.hash.startsWith('#/video/')) {
+        navigateTo('/');
     }
-});
+}
 
-// Enter key search
-document.getElementById('searchInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        searchVideos();
+// Show NSFW modal
+function showNSFWModal(action, eventId) {
+    pendingNSFWAction = { action, eventId };
+    document.getElementById('nsfwModal').classList.add('active');
+}
+
+// Confirm NSFW
+async function confirmNSFW() {
+    const rememberChoice = document.getElementById('rememberNSFW').checked;
+
+    if (rememberChoice) {
+        localStorage.setItem('allowNSFW', 'true');
     }
-});
 
-// Clean up WebSocket connections on page unload
-window.addEventListener('beforeunload', () => {
-    Object.values(relayConnections).forEach(ws => {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.close();
+    sessionNSFWAllowed = true;
+
+    document.getElementById('nsfwModal').classList.remove('active');
+
+    if (pendingNSFWAction && pendingNSFWAction.action === 'playVideo') {
+        const eventId = pendingNSFWAction.eventId;
+        pendingNSFWAction = null;
+
+        // Ensure the URL is correct before playing
+        if (!window.location.hash.includes(`/video/${eventId}`)) {
+            window.location.hash = `/video/${eventId}`;
         }
+
+        document.getElementById('mainContent').innerHTML = '<div class="spinner"></div>';
+
+        setTimeout(() => {
+            playVideo(eventId, true, false);
+        }, 10);
+    }
+
+    if (rememberChoice && !window.location.hash.startsWith('#/video/')) {
+        setTimeout(() => {
+            handleRoute();
+        }, 100);
+    }
+}
+
+// Cancel NSFW
+function cancelNSFW() {
+    document.getElementById('nsfwModal').classList.remove('active');
+    pendingNSFWAction = null;
+    document.getElementById('rememberNSFW').checked = false;
+    if (window.location.hash.startsWith('#/video/')) {
+        navigateTo('/');
+    }
+}
+
+// Parse video event
+function parseVideoEvent(event) {
+    if (event.kind !== 1) {
+        return null;
+    }
+
+    const tags = event.tags || [];
+
+    if (!tags.some(tag => tag[0] === 't' && tag[1] === 'pv69420')) {
+        return null;
+    }
+
+    const videoData = {
+        title: '',
+        description: event.content || '',
+        hash: '',
+        url: '',
+        thumbnail: '',
+        duration: 0,
+        tags: [],
+        author: event.pubkey
+    };
+
+    for (const tag of tags) {
+        switch (tag[0]) {
+            case 'title':
+                videoData.title = tag[1];
+                break;
+            case 'x':
+                videoData.hash = tag[1];
+                break;
+            case 'url':
+                videoData.url = tag[1];
+                break;
+            case 'thumb':
+                videoData.thumbnail = tag[1];
+                break;
+            case 'duration':
+                videoData.duration = parseInt(tag[1]);
+                break;
+            case 't':
+                if (tag[1] && tag[1] !== 'pv69420') {
+                    videoData.tags.push(tag[1]);
+                }
+                break;
+        }
+    }
+
+    // If we have a title from the tags, we need to strip it from the description
+    if (videoData.title && videoData.description) {
+        const parts = videoData.description.split('\n\n');
+
+        if (parts.length > 1) {
+            const firstPart = parts[0];
+
+            const cleanFirstPart = firstPart.replace(/^[^\w\s]+\s*/, '').trim();
+
+            if (cleanFirstPart === videoData.title || firstPart.includes(videoData.title)) {
+                videoData.description = parts.slice(1).join('\n\n').trim();
+            }
+        } else {
+            const cleanContent = videoData.description.replace(/^[^\w\s]+\s*/, '').trim();
+            if (cleanContent.startsWith(videoData.title)) {
+                const titleIndex = videoData.description.indexOf(videoData.title);
+                const afterTitle = videoData.description.substring(titleIndex + videoData.title.length).trim();
+                videoData.description = afterTitle.startsWith('\n') ? afterTitle.substring(1).trim() : afterTitle;
+            }
+        }
+    }
+
+    if (!videoData.title && videoData.description) {
+        const lines = videoData.description.split('\n');
+
+        if (lines[0]) {
+            videoData.title = lines[0].replace(/^[^\w\s]+\s*/, '').trim();
+
+            if (lines.length > 1) {
+                videoData.description = lines.slice(1).join('\n').trim();
+                videoData.description = videoData.description.replace(/^\n+/, '');
+            } else {
+                videoData.description = '';
+            }
+        }
+    }
+
+    // Remove any video URLs from the description
+    const videoExtensions = ['mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv'];
+    const extensionsPattern = videoExtensions.join('|');
+
+    const urlRegex = new RegExp(
+        `https?:\\/\\/[^\\s]*([a-f0-9]{64})\\.(${extensionsPattern})(\\?[^\\s]*)?`,
+        'gi'
+    );
+
+    videoData.description = videoData.description.replace(urlRegex, '').trim();
+
+    // Also remove the exact URL if it matches
+    if (videoData.url && videoData.description.includes(videoData.url)) {
+        videoData.description = videoData.description.replace(videoData.url, '').trim();
+    }
+
+    return videoData.title ? videoData : null;
+}
+
+// Check if video is NSFW
+function isVideoNSFW(event) {
+    const tags = event.tags || [];
+    return tags.some(tag => tag[0] === 'content-warning' && tag[1] === 'nsfw');
+}
+
+// Helper function to validate NIP-05
+async function validateNip05(nip05, pubkey) {
+    const cacheKey = `${nip05}:${pubkey}`;
+    if (nip05ValidationCache.has(cacheKey)) {
+        return nip05ValidationCache.get(cacheKey);
+    }
+
+    try {
+        const [name, domain] = nip05.split('@');
+        if (!name || !domain) {
+            nip05ValidationCache.set(cacheKey, false);
+            return false;
+        }
+
+        const response = await fetch(`https://${domain}/.well-known/nostr.json?name=${name}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            nip05ValidationCache.set(cacheKey, false);
+            return false;
+        }
+
+        const data = await response.json();
+        const isValid = data.names && data.names[name] === pubkey;
+
+        nip05ValidationCache.set(cacheKey, isValid);
+        setTimeout(() => nip05ValidationCache.delete(cacheKey), 24 * 60 * 60 * 1000);
+
+        return isValid;
+    } catch (error) {
+        console.error('NIP-05 validation error:', error);
+        nip05ValidationCache.set(cacheKey, false);
+        return false;
+    }
+}
+
+// Helper to check if image URL is valid
+function createImageValidationPromise(url) {
+    return new Promise((resolve) => {
+        if (!url) {
+            resolve(false);
+            return;
+        }
+
+        const img = new Image();
+        const timeout = setTimeout(() => {
+            img.src = '';
+            resolve(false);
+        }, 5000);
+
+        img.onload = () => {
+            clearTimeout(timeout);
+            resolve(true);
+        };
+
+        img.onerror = () => {
+            clearTimeout(timeout);
+            resolve(false);
+        };
+
+        img.src = url;
     });
-});
+}
+
+// Function to create cards for videos
+function createVideoCard(event, profile, reactions, isTrending = false, trendingRank = null) {
+    const videoData = parseVideoEvent(event);
+    if (!videoData) return '';
+
+    const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
+    const avatarUrl = profile?.picture || profile?.avatar || '';
+    const nip05 = profile?.nip05 || '';
+    const isNSFW = isVideoNSFW(event);
+    const isRatioed = isVideoRatioed(reactions || {});
+
+    const cardId = `video-card-${event.id}`;
+    const isSuspiciousProfile = !avatarUrl || !nip05;
+
+    // Determine what type of overlay to show
+    const showNSFWOverlay = isNSFW && !shouldShowNSFW();
+    const showCommunityWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(event.id);
+    const showBlurred = showNSFWOverlay || showCommunityWarning;
+
+    // NSFW takes precedence
+    const overlayType = showNSFWOverlay ? 'nsfw' : 'ratioed';
+
+    if (isTrending && (isRatioed || isSuspiciousProfile)) {
+        return '';
+    }
+
+    const cardHTML = `
+        <div class="video-card" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}">
+            <div class="video-thumbnail ${showBlurred ? overlayType : ''}" 
+                 onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">
+                ${videoData.thumbnail ?
+            `<img src="${videoData.thumbnail}" alt="${videoData.title}" onerror="this.style.display='none'">` :
+            `<video src="${videoData.url}" preload="metadata"></video>`
+        }
+                ${showBlurred ? `
+                    <div class="${overlayType}-overlay">
+                        <div class="${overlayType}-badge">${overlayType === 'nsfw' ? 'NSFW' : 'COMMUNITY WARNING'}</div>
+                        <div>Click to view</div>
+                    </div>
+                ` : ''}
+                ${!showBlurred && videoData.duration ? `<span class="video-duration">${formatDuration(videoData.duration)}</span>` : ''}
+                ${reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
+                    <div class="video-reactions">
+                        ${reactions.likes > 0 ? `
+                            <span class="reaction-count likes">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                                </svg>
+                                ${formatNumber(reactions.likes)}
+                            </span>
+                        ` : ''}
+                        ${reactions.dislikes > 0 ? `
+                            <span class="reaction-count dislikes">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                                </svg>
+                                ${formatNumber(reactions.dislikes)}
+                            </span>
+                        ` : ''}
+                    </div>
+                ` : ''}
+            </div>
+            <div class="video-info">
+                <a href="#/profile/${event.pubkey}" class="channel-info">
+                    <div class="channel-avatar">
+                        ${avatarUrl ? `<img src="${avatarUrl}" alt="${displayName}" data-avatar-url="${avatarUrl}">` : ''}
+                    </div>
+                    <div class="channel-details">
+                        <div class="channel-name">${displayName}</div>
+                        ${nip05 ? `<div class="channel-nip05" data-nip05="${nip05}">${nip05}</div>` : ''}
+                    </div>
+                </a>
+                <h3 class="video-title" onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">${videoData.title}</h3>
+                <div class="video-meta">
+                    ${formatTimestamp(event.created_at)}
+                    ${isNSFW ? ' • <span style="color: #ff0000;">NSFW</span>' : ''}
+                    <span class="community-warning-indicator" style="${showCommunityWarning && !showNSFWOverlay ? '' : 'display: none;'}"> • <span style="color: #ff9800;">Community Warning</span></span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    if (profile && (avatarUrl || nip05)) {
+        setTimeout(() => validateVideoCard(event.id, event.pubkey, profile, reactions, isTrending), 100);
+    }
+
+    return cardHTML;
+}
+
+// Function to validate and update video cards
+async function validateVideoCard(eventId, pubkey, profile, reactions, isTrending = false) {
+    const card = document.getElementById(`video-card-${eventId}`);
+    if (!card) return;
+
+    if (card.dataset.validationDone === 'true') return;
+
+    const avatarUrl = profile?.picture || profile?.avatar || '';
+    const nip05 = profile?.nip05 || '';
+
+    const [avatarValid, nip05Valid] = await Promise.all([
+        avatarUrl ? createImageValidationPromise(avatarUrl) : Promise.resolve(false),
+        nip05 ? validateNip05(nip05, pubkey) : Promise.resolve(false)
+    ]);
+
+    const isSuspiciousProfile = !avatarValid || !nip05Valid;
+    const isNSFW = isVideoNSFW(allEvents.get(eventId));
+    const isRatioed = isVideoRatioed(reactions || {});
+
+    if (isTrending === false && card.dataset.isTrending === 'true') {
+        isTrending = true;
+    }
+
+    card.dataset.validationDone = 'true';
+    card.dataset.needsValidation = 'false';
+
+    if (isTrending && (isRatioed || isSuspiciousProfile)) {
+        card.remove();
+
+        const trendingGrid = document.getElementById('trendingGrid');
+        if (trendingGrid && trendingGrid.querySelector('.video-card')) {
+            setTimeout(() => {
+                initializeCarousel();
+            }, 100);
+        }
+        return;
+    }
+
+    const thumbnail = card.querySelector('.video-thumbnail');
+    const currentOverlay = thumbnail.querySelector('.ratioed-overlay, .nsfw-overlay');
+
+    // Separate checks for NSFW and community warnings
+    const shouldShowNSFWOverlay = isNSFW && !shouldShowNSFW();
+    const shouldShowCommunityWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(eventId);
+
+    // NSFW takes precedence over community warning
+    const needsOverlay = shouldShowNSFWOverlay || shouldShowCommunityWarning;
+    const overlayType = shouldShowNSFWOverlay ? 'nsfw' : 'ratioed';
+
+    if ((currentOverlay && !needsOverlay) || (!currentOverlay && needsOverlay)) {
+        if (needsOverlay) {
+            if (!currentOverlay) {
+                thumbnail.classList.add(overlayType);
+                thumbnail.setAttribute('onclick',
+                    overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${eventId}')` : `showRatioedModal('${eventId}')`
+                );
+
+                const overlayHTML = `
+                    <div class="${overlayType}-overlay">
+                        <div class="${overlayType}-badge">${overlayType === 'nsfw' ? 'NSFW' : 'COMMUNITY WARNING'}</div>
+                        <div>Click to view</div>
+                    </div>
+                `;
+                thumbnail.insertAdjacentHTML('beforeend', overlayHTML);
+            }
+        } else {
+            thumbnail.classList.remove('ratioed', 'nsfw');
+            thumbnail.setAttribute('onclick', `navigateTo('/video/${eventId}')`);
+            if (currentOverlay) currentOverlay.remove();
+        }
+
+        const warningIndicator = card.querySelector('.community-warning-indicator');
+        if (warningIndicator) {
+            // Only show community warning indicator if there's actually a community issue (not just NSFW)
+            warningIndicator.style.display = shouldShowCommunityWarning && !shouldShowNSFWOverlay ? 'inline' : 'none';
+        }
+
+        const title = card.querySelector('.video-title');
+        if (title) {
+            title.setAttribute('onclick',
+                needsOverlay ?
+                    (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${eventId}')` : `showRatioedModal('${eventId}')`) :
+                    `navigateTo('/video/${eventId}')`
+            );
+        }
+    }
+}
+
+// Get video URL with fallback
+async function getVideoUrl(hash, servers = BLOSSOM_SERVERS) {
+    for (const server of servers) {
+        const url = `${server}/${hash}`;
+        try {
+            const response = await fetch(url, { method: 'HEAD' });
+            if (response.ok) {
+                return url;
+            }
+        } catch (error) {
+            console.error(`Failed to check ${server}:`, error);
+        }
+    }
+    return null;
+}
+
+// Format duration
+function formatDuration(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+        return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
+// Format timestamp
+function formatTimestamp(timestamp) {
+    const date = new Date(timestamp * 1000);
+    const now = new Date();
+    const diff = now - date;
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    const months = Math.floor(days / 30);
+    const years = Math.floor(days / 365);
+
+    if (years > 0) return `${years} year${years > 1 ? 's' : ''} ago`;
+    if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`;
+    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
+    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
+}
