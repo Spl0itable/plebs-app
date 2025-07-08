@@ -272,7 +272,7 @@ function showConnectModal() {
     hideLoginModal();
     const modal = document.getElementById('connectModal');
     modal.classList.add('active');
-    
+
     // Generate the connection URI and prepare for listening
     const uri = generateNostrConnectURI();
     document.getElementById('nostrConnectURI').value = uri;
@@ -289,52 +289,53 @@ function generateNostrConnectURI() {
     // Generate a new ephemeral key pair for this connection
     const ephemeralPrivKey = window.NostrTools.generateSecretKey();
     const ephemeralPubKey = window.NostrTools.getPublicKey(ephemeralPrivKey);
-    
+
     // Store for later use
     window.pendingNostrConnect = {
         ephemeralPrivKey: bytesToHex(ephemeralPrivKey),
         ephemeralPubKey
     };
-    
+
     // Create the metadata
     const metadata = {
         name: "Plebs",
         url: window.location.origin,
         description: "Decentralized video platform"
     };
-    
+
     // Use multiple relays for better compatibility
     const relays = [
         'wss://relay.nsec.app',
         'wss://relay.damus.io',
-        'wss://nos.lol'
+        'wss://nos.lol',
+        'wss://relay.nostr.band'
     ];
-    
+
     // Some apps want base64, others want URL-encoded JSON
     const params = new URLSearchParams();
-    
+
     // Add primary relay
     params.append('relay', relays[0]);
-    
+
     // Add additional relays
     relays.slice(1).forEach(relay => {
         params.append('relay', relay);
     });
-    
+
     // Add metadata
     params.append('metadata', JSON.stringify(metadata));
-    
+
     return `nostrconnect://${ephemeralPubKey}?${params.toString()}`;
 }
 
 // Show QR code for mobile scanning
 function showNostrConnectQR() {
     const uri = document.getElementById('nostrConnectURI').value;
-    
+
     // Generate QR code
     const qrContainer = document.getElementById('nostrConnectQR');
     qrContainer.innerHTML = ''; // Clear existing QR
-    
+
     if (window.QRCode) {
         new QRCode(qrContainer, {
             text: uri,
@@ -345,10 +346,10 @@ function showNostrConnectQR() {
             correctLevel: QRCode.CorrectLevel.L
         });
     }
-    
+
     // Show listening status for QR code
     document.getElementById('qrConnectionStatus').style.display = 'block';
-    
+
     // Start listening for connection only if not already listening
     if (!window.isListeningForConnect) {
         window.isListeningForConnect = true;
@@ -359,7 +360,7 @@ function showNostrConnectQR() {
 function toggleQRDisplay() {
     const qrSection = document.getElementById('qrCodeSection');
     const btn = event.target;
-    
+
     if (qrSection.style.display === 'none') {
         qrSection.style.display = 'block';
         btn.textContent = 'Hide QR Code';
@@ -373,19 +374,19 @@ function toggleQRDisplay() {
 // Listen for incoming connection from the app
 async function listenForNostrConnect() {
     if (!window.pendingNostrConnect) return;
-    
+
     const { ephemeralPrivKey, ephemeralPubKey } = window.pendingNostrConnect;
-    
+
     showConnectionStatus('Waiting for app connection...');
-    
-    const relays = ['wss://relay.nsec.app', 'wss://relay.damus.io', 'wss://nos.lol'];
+
+    const relays = ['wss://relay.nsec.app', 'wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.nostr.band'];
     const connections = [];
-    
+
     for (const relay of relays) {
         try {
             const ws = await connectToRelay(relay);
             connections.push({ relay, ws });
-            
+
             const subId = generateRandomId();
             const subscription = JSON.stringify([
                 'REQ',
@@ -401,44 +402,44 @@ async function listenForNostrConnect() {
             console.error(`Failed to connect to ${relay}:`, error);
         }
     }
-    
+
     if (connections.length === 0) {
         showConnectionStatus('Failed to connect to any relay');
         setTimeout(hideConnectionStatus, 3000);
         window.pendingNostrConnect = null;
         return;
     }
-    
+
     const timeout = setTimeout(() => {
         showConnectionStatus('Connection timeout. Please try again.');
         setTimeout(hideConnectionStatus, 3000);
         window.pendingNostrConnect = null;
     }, 120000);
-    
+
     let isConnected = false;
     let remotePubkey = null;
     let connectedRelay = null;
-    
+
     const checkForConnection = async () => {
         if (isConnected) return;
-        
+
         try {
             for (const { relay, ws } of connections) {
                 if (ws.readyState !== WebSocket.OPEN) continue;
-                
+
                 const handler = (event) => {
                     try {
                         const message = JSON.parse(event.data);
-                        
+
                         if (message[0] === 'EVENT') {
                             const responseEvent = message.length === 2 ? message[1] : message[2];
-                            
+
                             if (responseEvent && responseEvent.kind === 24133) {
                                 const pTag = responseEvent.tags.find(t => t[0] === 'p');
-                                
+
                                 if (pTag && pTag[1] === ephemeralPubKey) {
                                     remotePubkey = responseEvent.pubkey;
-                                    
+
                                     let decryptedContent;
                                     try {
                                         if (responseEvent.content.includes('?iv=')) {
@@ -452,22 +453,22 @@ async function listenForNostrConnect() {
                                                 hexToBytes(ephemeralPrivKey),
                                                 remotePubkey
                                             );
-                                            
+
                                             decryptedContent = window.NostrTools.nip44.v2.decrypt(
                                                 responseEvent.content,
                                                 conversationKey
                                             );
                                         }
-                                        
+
                                         const response = JSON.parse(decryptedContent);
-                                        
+
                                         if (response.result === 'ack') {
                                             isConnected = true;
                                             connectedRelay = relay;
                                             clearTimeout(timeout);
-                                            
+
                                             showConnectionStatus('Connected! Getting public key...');
-                                            
+
                                             handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, remotePubkey, relay);
                                         }
                                     } catch (decryptError) {
@@ -480,24 +481,24 @@ async function listenForNostrConnect() {
                         console.error('Error processing message:', e);
                     }
                 };
-                
+
                 ws.addEventListener('message', handler);
-                
+
                 setTimeout(() => {
                     ws.removeEventListener('message', handler);
                 }, 1000);
             }
-            
+
             if (!isConnected) {
                 setTimeout(checkForConnection, 2000);
             }
-            
+
         } catch (e) {
             console.error('Connection check error:', e);
             setTimeout(checkForConnection, 2000);
         }
     };
-    
+
     checkForConnection();
 }
 
@@ -510,7 +511,7 @@ async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, 
             method: 'get_public_key',
             params: []
         };
-        
+
         let encryptedContent;
         try {
             encryptedContent = await encryptNip44(ephemeralPrivKey, remotePubkey, JSON.stringify(getPubkeyRequest));
@@ -521,7 +522,7 @@ async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, 
                 JSON.stringify(getPubkeyRequest)
             );
         }
-        
+
         const requestEvent = {
             kind: 24133,
             pubkey: ephemeralPubKey,
@@ -529,16 +530,16 @@ async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, 
             tags: [['p', remotePubkey]],
             created_at: Math.floor(Date.now() / 1000)
         };
-        
+
         const signedRequestEvent = window.NostrTools.finalizeEvent(requestEvent, hexToBytes(ephemeralPrivKey));
-        
+
         ws.send(JSON.stringify(['EVENT', signedRequestEvent]));
-        
+
         const pubkeyResponse = await waitForNip46Response(ws, getPubkeyRequest.id, ephemeralPrivKey, remotePubkey);
-        
+
         if (pubkeyResponse.result) {
             const userPubkey = pubkeyResponse.result;
-            
+
             currentUser = { pubkey: userPubkey, nip46: true };
             nip46Connection = {
                 relay: relay,
@@ -547,7 +548,7 @@ async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, 
                 ephemeralPubKey,
                 secret: null
             };
-            
+
             // Store connection info
             localStorage.setItem(STORAGE_KEYS.loginMethod, 'connect');
             localStorage.setItem(STORAGE_KEYS.publicKey, userPubkey);
@@ -557,15 +558,15 @@ async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, 
                 remotePubkey,
                 relay: relay
             }));
-            
+
             hideConnectionStatus();
             hideConnectModal();
             window.pendingNostrConnect = null;
             await onUserLoggedIn();
-            
+
             showConnectionStatus('Successfully connected!');
             setTimeout(hideConnectionStatus, 3000);
-            
+
         } else {
             throw new Error('Failed to get public key from app');
         }
@@ -581,7 +582,7 @@ async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, 
 function copyNostrConnectURI() {
     const textarea = document.getElementById('nostrConnectURI');
     const uri = textarea.value;
-    
+
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(uri).then(() => {
             handleCopySuccess();
@@ -592,7 +593,7 @@ function copyNostrConnectURI() {
     } else {
         fallbackCopy();
     }
-    
+
     function fallbackCopy() {
         try {
             textarea.select();
@@ -604,22 +605,22 @@ function copyNostrConnectURI() {
             alert('Failed to copy. Please manually select and copy the text.');
         }
     }
-    
+
     function handleCopySuccess() {
         const btn = document.querySelector('.copy-btn');
         const originalText = btn.textContent;
         btn.textContent = 'Copied!';
         btn.style.background = 'var(--accent)';
-        
+
         // Show listening status
         document.getElementById('connectStringStatus').style.display = 'block';
-        
+
         // Start listening for connections only if not already listening
         if (!window.isListeningForConnect) {
             window.isListeningForConnect = true;
             listenForNostrConnect();
         }
-        
+
         setTimeout(() => {
             btn.textContent = originalText;
             btn.style.background = '';
@@ -631,10 +632,10 @@ function showConnectTab(tab) {
     const bunkerTab = document.getElementById('bunkerTab');
     const qrTab = document.getElementById('qrTab');
     const tabBtns = document.querySelectorAll('.tab-btn');
-    
+
     tabBtns.forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
-    
+
     if (tab === 'bunker') {
         bunkerTab.style.display = 'block';
         qrTab.style.display = 'none';
@@ -972,11 +973,11 @@ function showConnectionStatus(message) {
     // Update all possible status displays
     const stringStatus = document.getElementById('connectStringStatus');
     const qrStatus = document.getElementById('qrConnectionStatus');
-    
+
     if (stringStatus && stringStatus.style.display !== 'none') {
         stringStatus.querySelector('span').textContent = message;
     }
-    
+
     if (qrStatus && qrStatus.style.display !== 'none') {
         qrStatus.querySelector('span').textContent = message;
     }
@@ -985,7 +986,7 @@ function showConnectionStatus(message) {
 function hideConnectionStatus() {
     const stringStatus = document.getElementById('connectStringStatus');
     const qrStatus = document.getElementById('qrConnectionStatus');
-    
+
     if (stringStatus) stringStatus.style.display = 'none';
     if (qrStatus) qrStatus.style.display = 'none';
 }
