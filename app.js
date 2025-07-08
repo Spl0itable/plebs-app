@@ -5212,7 +5212,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         mainContent.innerHTML = `
             <div class="video-player-container">
                 <div class="video-player">
-                    <video controls>
+                    <video controls autoplay>
                         <source src="${videoUrl}" type="video/mp4">
                         <source src="${videoUrl}" type="video/webm">
                         Your browser does not support the video tag.
