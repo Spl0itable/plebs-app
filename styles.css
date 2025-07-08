@@ -2400,3 +2400,27 @@ body {
     background: var(--accent);
     color: white;
 }
+
+.divider {
+    text-align: center;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.divider span {
+    background: var(--bg-secondary);
+    padding: 0 1rem;
+    color: var(--text-secondary);
+    position: relative;
+    z-index: 1;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--border);
+}

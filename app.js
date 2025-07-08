@@ -273,52 +273,63 @@ function showConnectModal() {
     const modal = document.getElementById('connectModal');
     modal.classList.add('active');
     
-    // Generate the connection URI
+    // Generate the connection URI and prepare for listening
     const uri = generateNostrConnectURI();
     document.getElementById('nostrConnectURI').value = uri;
-    
-    // Start listening for connections immediately when we show the connection string
-    listenForNostrConnect();
 }
 
 function hideConnectModal() {
     document.getElementById('connectModal').classList.remove('active');
+    window.pendingNostrConnect = null;
+    window.isListeningForConnect = false;
 }
 
 // Generate nostrconnect:// URI for the user
 function generateNostrConnectURI() {
-    // Get or create ephemeral keys for this session
+    // Generate a new ephemeral key pair for this connection
     const ephemeralPrivKey = window.NostrTools.generateSecretKey();
     const ephemeralPubKey = window.NostrTools.getPublicKey(ephemeralPrivKey);
     
-    // Store for connection handling
+    // Store for later use
     window.pendingNostrConnect = {
         ephemeralPrivKey: bytesToHex(ephemeralPrivKey),
         ephemeralPubKey
     };
     
-    // Create metadata
+    // Create the metadata
     const metadata = {
         name: "Plebs",
         url: window.location.origin,
         description: "Decentralized video platform"
     };
     
-    // Generate the nostrconnect URI with relay
-    const params = new URLSearchParams({
-        metadata: JSON.stringify(metadata),
-        relay: 'wss://relay.nsec.app'
+    // Use multiple relays for better compatibility
+    const relays = [
+        'wss://relay.nsec.app',
+        'wss://relay.damus.io',
+        'wss://nos.lol'
+    ];
+    
+    // Some apps want base64, others want URL-encoded JSON
+    const params = new URLSearchParams();
+    
+    // Add primary relay
+    params.append('relay', relays[0]);
+    
+    // Add additional relays
+    relays.slice(1).forEach(relay => {
+        params.append('relay', relay);
     });
+    
+    // Add metadata
+    params.append('metadata', JSON.stringify(metadata));
     
     return `nostrconnect://${ephemeralPubKey}?${params.toString()}`;
 }
 
 // Show QR code for mobile scanning
 function showNostrConnectQR() {
-    const uri = generateNostrConnectURI();
-    
-    // Set the URI in textarea
-    document.getElementById('nostrConnectURI').value = uri;
+    const uri = document.getElementById('nostrConnectURI').value;
     
     // Generate QR code
     const qrContainer = document.getElementById('nostrConnectQR');
@@ -335,8 +346,14 @@ function showNostrConnectQR() {
         });
     }
     
-    // Start listening for connection
-    listenForNostrConnect();
+    // Show listening status for QR code
+    document.getElementById('qrConnectionStatus').style.display = 'block';
+    
+    // Start listening for connection only if not already listening
+    if (!window.isListeningForConnect) {
+        window.isListeningForConnect = true;
+        listenForNostrConnect();
+    }
 }
 
 function toggleQRDisplay() {
@@ -361,106 +378,119 @@ async function listenForNostrConnect() {
     
     showConnectionStatus('Waiting for app connection...');
     
-    // Connect to relay and subscribe to messages
-    const relay = 'wss://relay.nsec.app';
-    const ws = await connectToRelay(relay);
+    const relays = ['wss://relay.nsec.app', 'wss://relay.damus.io', 'wss://nos.lol'];
+    const connections = [];
     
-    const subId = generateRandomId();
-    const subscription = JSON.stringify([
-        'REQ',
-        subId,
-        {
-            kinds: [24133],
-            '#p': [ephemeralPubKey],
-            since: Math.floor(Date.now() / 1000) - 60
+    for (const relay of relays) {
+        try {
+            const ws = await connectToRelay(relay);
+            connections.push({ relay, ws });
+            
+            const subId = generateRandomId();
+            const subscription = JSON.stringify([
+                'REQ',
+                subId,
+                {
+                    kinds: [24133],
+                    '#p': [ephemeralPubKey],
+                    since: Math.floor(Date.now() / 1000) - 60
+                }
+            ]);
+            ws.send(subscription);
+        } catch (error) {
+            console.error(`Failed to connect to ${relay}:`, error);
         }
-    ]);
-    ws.send(subscription);
+    }
     
-    // Set up timeout
+    if (connections.length === 0) {
+        showConnectionStatus('Failed to connect to any relay');
+        setTimeout(hideConnectionStatus, 3000);
+        window.pendingNostrConnect = null;
+        return;
+    }
+    
     const timeout = setTimeout(() => {
         showConnectionStatus('Connection timeout. Please try again.');
         setTimeout(hideConnectionStatus, 3000);
         window.pendingNostrConnect = null;
-    }, 120000); // 2 minute timeout
+    }, 120000);
     
-    // Poll for connection
     let isConnected = false;
     let remotePubkey = null;
+    let connectedRelay = null;
     
     const checkForConnection = async () => {
         if (isConnected) return;
         
         try {
-            // Listen for any 24133 event directed to our ephemeral pubkey
-            const handler = (event) => {
-                try {
-                    const message = JSON.parse(event.data);
-                    
-                    if (message[0] === 'EVENT') {
-                        const responseEvent = message.length === 2 ? message[1] : message[2];
+            for (const { relay, ws } of connections) {
+                if (ws.readyState !== WebSocket.OPEN) continue;
+                
+                const handler = (event) => {
+                    try {
+                        const message = JSON.parse(event.data);
                         
-                        if (responseEvent && responseEvent.kind === 24133) {
-                            const pTag = responseEvent.tags.find(t => t[0] === 'p');
+                        if (message[0] === 'EVENT') {
+                            const responseEvent = message.length === 2 ? message[1] : message[2];
                             
-                            if (pTag && pTag[1] === ephemeralPubKey) {
-                                // We got a response, try to decrypt it
-                                remotePubkey = responseEvent.pubkey;
+                            if (responseEvent && responseEvent.kind === 24133) {
+                                const pTag = responseEvent.tags.find(t => t[0] === 'p');
                                 
-                                // Try to decrypt the content
-                                let decryptedContent;
-                                try {
-                                    if (responseEvent.content.includes('?iv=')) {
-                                        decryptedContent = window.NostrTools.nip04.decrypt(
-                                            ephemeralPrivKey,
-                                            remotePubkey,
-                                            responseEvent.content
-                                        );
-                                    } else {
-                                        const conversationKey = window.NostrTools.nip44.v2.utils.getConversationKey(
-                                            hexToBytes(ephemeralPrivKey),
-                                            remotePubkey
-                                        );
-                                        
-                                        decryptedContent = window.NostrTools.nip44.v2.decrypt(
-                                            responseEvent.content,
-                                            conversationKey
-                                        );
-                                    }
+                                if (pTag && pTag[1] === ephemeralPubKey) {
+                                    remotePubkey = responseEvent.pubkey;
                                     
-                                    const response = JSON.parse(decryptedContent);
-                                    
-                                    // Check if this is a connect response
-                                    if (response.result === 'ack') {
-                                        isConnected = true;
-                                        clearTimeout(timeout);
+                                    let decryptedContent;
+                                    try {
+                                        if (responseEvent.content.includes('?iv=')) {
+                                            decryptedContent = window.NostrTools.nip04.decrypt(
+                                                ephemeralPrivKey,
+                                                remotePubkey,
+                                                responseEvent.content
+                                            );
+                                        } else {
+                                            const conversationKey = window.NostrTools.nip44.v2.utils.getConversationKey(
+                                                hexToBytes(ephemeralPrivKey),
+                                                remotePubkey
+                                            );
+                                            
+                                            decryptedContent = window.NostrTools.nip44.v2.decrypt(
+                                                responseEvent.content,
+                                                conversationKey
+                                            );
+                                        }
                                         
-                                        // Connection established, now get public key
-                                        showConnectionStatus('Connected! Getting public key...');
+                                        const response = JSON.parse(decryptedContent);
                                         
-                                        handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, remotePubkey);
+                                        if (response.result === 'ack') {
+                                            isConnected = true;
+                                            connectedRelay = relay;
+                                            clearTimeout(timeout);
+                                            
+                                            showConnectionStatus('Connected! Getting public key...');
+                                            
+                                            handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, remotePubkey, relay);
+                                        }
+                                    } catch (decryptError) {
+                                        console.error('Failed to decrypt response:', decryptError);
                                     }
-                                } catch (decryptError) {
-                                    console.error('Failed to decrypt response:', decryptError);
                                 }
                             }
                         }
+                    } catch (e) {
+                        console.error('Error processing message:', e);
                     }
-                } catch (e) {
-                    console.error('Error processing message:', e);
-                }
-            };
+                };
+                
+                ws.addEventListener('message', handler);
+                
+                setTimeout(() => {
+                    ws.removeEventListener('message', handler);
+                }, 1000);
+            }
             
-            // Add temporary message handler
-            ws.addEventListener('message', handler);
-            
-            // Clean up handler after check
-            setTimeout(() => {
-                ws.removeEventListener('message', handler);
-                if (!isConnected) {
-                    setTimeout(checkForConnection, 2000);
-                }
-            }, 1000);
+            if (!isConnected) {
+                setTimeout(checkForConnection, 2000);
+            }
             
         } catch (e) {
             console.error('Connection check error:', e);
@@ -472,7 +502,7 @@ async function listenForNostrConnect() {
 }
 
 // Handle successful nostrconnect connection
-async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, remotePubkey) {
+async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, remotePubkey, relay) {
     try {
         // Now request the public key
         const getPubkeyRequest = {
@@ -511,7 +541,7 @@ async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, 
             
             currentUser = { pubkey: userPubkey, nip46: true };
             nip46Connection = {
-                relay: 'wss://relay.nsec.app',
+                relay: relay,
                 remotePubkey,
                 ephemeralPrivKey,
                 ephemeralPubKey,
@@ -525,7 +555,7 @@ async function handleNostrConnectSuccess(ws, ephemeralPrivKey, ephemeralPubKey, 
             localStorage.setItem(STORAGE_KEYS.nip46Secret, JSON.stringify({
                 ephemeralPrivKey,
                 remotePubkey,
-                relay: 'wss://relay.nsec.app'
+                relay: relay
             }));
             
             hideConnectionStatus();
@@ -552,7 +582,6 @@ function copyNostrConnectURI() {
     const textarea = document.getElementById('nostrConnectURI');
     const uri = textarea.value;
     
-    // Method 1: Try modern clipboard API
     if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(uri).then(() => {
             handleCopySuccess();
@@ -561,14 +590,13 @@ function copyNostrConnectURI() {
             fallbackCopy();
         });
     } else {
-        // Method 2: Fallback for older browsers or non-secure contexts
         fallbackCopy();
     }
     
     function fallbackCopy() {
         try {
             textarea.select();
-            textarea.setSelectionRange(0, 99999); // For mobile devices
+            textarea.setSelectionRange(0, 99999);
             document.execCommand('copy');
             handleCopySuccess();
         } catch (err) {
@@ -585,6 +613,12 @@ function copyNostrConnectURI() {
         
         // Show listening status
         document.getElementById('connectStringStatus').style.display = 'block';
+        
+        // Start listening for connections only if not already listening
+        if (!window.isListeningForConnect) {
+            window.isListeningForConnect = true;
+            listenForNostrConnect();
+        }
         
         setTimeout(() => {
             btn.textContent = originalText;
@@ -935,26 +969,25 @@ async function connectWithBunker() {
 
 // Show connection status
 function showConnectionStatus(message) {
-    // Update both possible status displays
-    const status = document.getElementById('connectionStatus');
+    // Update all possible status displays
     const stringStatus = document.getElementById('connectStringStatus');
-    
-    if (status) {
-        status.style.display = 'block';
-        status.querySelector('span').textContent = message;
-    }
+    const qrStatus = document.getElementById('qrConnectionStatus');
     
     if (stringStatus && stringStatus.style.display !== 'none') {
         stringStatus.querySelector('span').textContent = message;
     }
+    
+    if (qrStatus && qrStatus.style.display !== 'none') {
+        qrStatus.querySelector('span').textContent = message;
+    }
 }
 
 function hideConnectionStatus() {
-    const status = document.getElementById('connectionStatus');
     const stringStatus = document.getElementById('connectStringStatus');
+    const qrStatus = document.getElementById('qrConnectionStatus');
     
-    if (status) status.style.display = 'none';
     if (stringStatus) stringStatus.style.display = 'none';
+    if (qrStatus) qrStatus.style.display = 'none';
 }
 
 // Private key login functions
@@ -2198,7 +2231,7 @@ async function loadNotifications() {
     }
 }
 
-// Utility: Fetch events via stream
+// Fetch events via stream
 function fetchEvents(filter) {
     return new Promise((resolve, reject) => {
         const results = [];
@@ -2208,7 +2241,7 @@ function fetchEvents(filter) {
     });
 }
 
-// Utility: Close modal
+// Close modal
 function hideNotificationsModal() {
     document.getElementById("notificationsModal").classList.remove("active");
 }

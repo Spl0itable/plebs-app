@@ -332,6 +332,15 @@
                     <div id="qrCodeSection" style="display: none; margin: 1rem 0;">
                         <div id="nostrConnectQR" style="background: white; padding: 1rem; 
                                                      border-radius: 8px; display: inline-block;"></div>
+                        <!-- Connection status for QR code -->
+                        <div id="qrConnectionStatus" style="display: none; padding: 0.75rem; 
+                                                        background: var(--bg-primary); 
+                                                        border: 1px solid var(--accent); 
+                                                        border-radius: 8px; margin-top: 1rem;
+                                                        color: var(--accent); text-align: center;">
+                            <div class="spinner"></div>
+                            <span>Listening for connection...</span>
+                        </div>
                     </div>
                 </div>
 
