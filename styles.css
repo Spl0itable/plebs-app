@@ -2351,3 +2351,52 @@ body {
 .bunker-option p {
     color: var(--text-secondary);
 }
+
+.tab-btn {
+    padding: 0.5rem 1.5rem;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    cursor: pointer;
+    margin: 0 0.25rem;
+    border-radius: 20px;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: var(--bg-secondary);
+}
+
+.tab-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.connect-tab {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.nostrconnect-qr-section {
+    text-align: center;
+}
+
+.copy-btn {
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.copy-btn:hover {
+    background: var(--accent);
+    color: white;
+}

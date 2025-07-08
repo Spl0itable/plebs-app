@@ -304,24 +304,64 @@
 
             <div class="connect-steps">
                 <div class="connect-step">
-                    <h3>Step 1: Choose a bunker provider</h3>
-                    <div class="bunker-options">
-                        <button class="bunker-btn" onclick="selectBunker('nsec.app')">nsec.app</button>
-                        <button class="bunker-btn" onclick="selectBunker('highlighter.com')">highlighter.com</button>
+                    <h3>Option 1: Use this connection string</h3>
+                    <p style="margin-bottom: 0.5rem; color: var(--text-secondary);">
+                        Copy and paste this into any NIP-46 compatible app (nsec.app, Amber, etc.)
+                    </p>
+                    <textarea id="nostrConnectURI" readonly style="width: 100%; padding: 0.75rem; margin: 0.5rem 0; font-size: 0.875rem; 
+                                 height: 100px; resize: none; background: var(--bg-primary); 
+                                 color: var(--text-primary); border: 1px solid var(--border); 
+                                 border-radius: 8px; word-break: break-all;"></textarea>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <button class="copy-btn" onclick="copyNostrConnectURI()">Copy Connection String</button>
+                        <button class="copy-btn" onclick="toggleQRDisplay()" style="background: var(--bg-secondary);">
+                            Show QR Code
+                        </button>
+                    </div>
+
+                    <!-- Connection status for connection string -->
+                    <div id="connectStringStatus" style="display: none; padding: 0.75rem; 
+                                                    background: var(--bg-primary); 
+                                                    border: 1px solid var(--accent); 
+                                                    border-radius: 8px; margin: 1rem 0;
+                                                    color: var(--accent); text-align: center;">
+                        <div class="spinner"></div>
+                        <span>Listening for connection...</span>
+                    </div>
+
+                    <div id="qrCodeSection" style="display: none; margin: 1rem 0;">
+                        <div id="nostrConnectQR" style="background: white; padding: 1rem; 
+                                                     border-radius: 8px; display: inline-block;"></div>
                     </div>
                 </div>
 
-                <div class="connect-step">
-                    <h3>Step 2: Enter connection string</h3>
-                    <input type="text" id="bunkerUrl" placeholder="bunker://..." class="form-control">
-                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                        Get this from your Nostr Connect provider
-                    </p>
+                <div class="divider">
+                    <span>OR</span>
                 </div>
 
-                <button class="upload-btn" onclick="connectWithBunker()" style="margin-top: 1rem;">
-                    Connect
-                </button>
+                <div class="connect-step">
+                    <h3>Option 2: Paste a bunker URL</h3>
+                    <p style="margin-bottom: 0.5rem; color: var(--text-secondary);">
+                        If you already have a bunker:// URL from a remote signer
+                    </p>
+                    <input type="text" id="bunkerUrl" placeholder="bunker://..." class="form-control">
+                    <button class="upload-btn" onclick="connectWithBunker()" style="margin-top: 1rem;">
+                        Connect with Bunker
+                    </button>
+                </div>
+
+                <div class="connect-step" style="background: var(--bg-primary); padding: 1rem; 
+                                           border-radius: 8px; margin-top: 1rem;">
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">
+                        <strong>Popular NIP-46 signers:</strong><br>
+                        • <a href="https://nsec.app" target="_blank" style="color: var(--accent);">nsec.app</a> -
+                        Web-based signer<br>
+                        • <a href="https://amber.app" target="_blank" style="color: var(--accent);">Amber</a> - Android
+                        app<br>
+                        • <a href="https://highlighter.com/settings/keys/device" target="_blank"
+                            style="color: var(--accent);">Highlighter</a> - Built-in signer
+                    </p>
+                </div>
             </div>
         </div>
     </div>
