@@ -1705,7 +1705,7 @@ nostr-zap {
     }
     
     .comment-thread-line {
-        left: 10px;
+        left: -10px;
     }
     
     .comment-content {
