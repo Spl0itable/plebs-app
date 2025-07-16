@@ -56,7 +56,6 @@ const RELAY_URLS = [
 
 // WoT relay URLs
 const WOT_RELAY_URLS = [
-    'wss://wot.utxo.one',
     'wss://nostrelites.org',
     'wss://wot.nostr.party',
     'wss://wot.sovbit.host',
@@ -1713,16 +1712,23 @@ function applySettings() {
         previousRelayUrls.some((url, index) => url !== RELAY_URLS[index]);
 
     if (relaysChanged) {
-        // Close connections to relays that are no longer in use
+        // Close connections to ALL existing relays first
         Object.entries(relayConnections).forEach(([url, ws]) => {
-            if (!RELAY_URLS.includes(url) && ws.readyState === WebSocket.OPEN) {
+            if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
                 ws.close();
-                delete relayConnections[url];
             }
+            delete relayConnections[url];
         });
 
+        // Clear any existing subscription handlers to prevent memory leaks
+        if (window.subscriptionHandlers) {
+            window.subscriptionHandlers = {};
+        }
+
         // Initialize connections to new relays
-        initializeRelayConnections();
+        initializeRelayConnections().then(() => {
+            console.log('Relay connections updated after settings change');
+        });
     }
 
     // Update Blossom servers based on settings
@@ -3249,6 +3255,7 @@ function isVideoRatioed(reactions) {
 // Connect to a relay
 function connectToRelay(url) {
     return new Promise((resolve, reject) => {
+        // Check if we have an open connection
         if (relayConnections[url] && relayConnections[url].readyState === WebSocket.OPEN) {
             resolve(relayConnections[url]);
             return;
@@ -3257,56 +3264,69 @@ function connectToRelay(url) {
         // If there's a connection in progress, wait for it
         if (relayConnections[url] && relayConnections[url].readyState === WebSocket.CONNECTING) {
             const checkConnection = setInterval(() => {
-                if (relayConnections[url].readyState === WebSocket.OPEN) {
+                const ws = relayConnections[url];
+                if (!ws) {
                     clearInterval(checkConnection);
-                    resolve(relayConnections[url]);
-                } else if (relayConnections[url].readyState === WebSocket.CLOSED ||
-                    relayConnections[url].readyState === WebSocket.CLOSING) {
+                    // Connection was removed, try again
+                    connectToRelay(url).then(resolve).catch(reject);
+                } else if (ws.readyState === WebSocket.OPEN) {
+                    clearInterval(checkConnection);
+                    resolve(ws);
+                } else if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING) {
                     clearInterval(checkConnection);
                     delete relayConnections[url];
+                    // Try to reconnect
                     connectToRelay(url).then(resolve).catch(reject);
                 }
             }, 100);
             return;
         }
 
-        const ws = new WebSocket(url);
-        relayConnections[url] = ws;
+        // Create new connection
+        try {
+            const ws = new WebSocket(url);
+            relayConnections[url] = ws;
 
-        ws.onopen = () => {
-            console.log(`Connected to ${url}`);
-            resolve(ws);
-        };
+            ws.onopen = () => {
+                console.log(`Connected to ${url}`);
+                resolve(ws);
+            };
 
-        ws.onerror = (error) => {
-            console.error(`Failed to connect to ${url}:`, error);
+            ws.onerror = (error) => {
+                console.error(`Failed to connect to ${url}:`, error);
+                delete relayConnections[url];
+                reject(error);
+            };
+
+            ws.onclose = () => {
+                console.log(`Disconnected from ${url}`);
+                delete relayConnections[url];
+
+                // Attempt to reconnect after a delay
+                setTimeout(() => {
+                    // Only reconnect if this URL is still in RELAY_URLS
+                    if (RELAY_URLS.includes(url) && !relayConnections[url]) {
+                        console.log(`Attempting to reconnect to ${url}`);
+                        connectToRelay(url).catch(err =>
+                            console.error(`Reconnection to ${url} failed:`, err)
+                        );
+                    }
+                }, 5000);
+            };
+
+            ws.onmessage = (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    handleRelayMessage(url, message);
+                } catch (error) {
+                    console.error('Failed to parse message:', error);
+                }
+            };
+        } catch (error) {
+            console.error(`Failed to create WebSocket for ${url}:`, error);
             delete relayConnections[url];
             reject(error);
-        };
-
-        ws.onclose = () => {
-            console.log(`Disconnected from ${url}`);
-            delete relayConnections[url];
-
-            // Attempt to reconnect after a delay
-            setTimeout(() => {
-                if (!relayConnections[url]) {
-                    console.log(`Attempting to reconnect to ${url}`);
-                    connectToRelay(url).catch(err =>
-                        console.error(`Reconnection to ${url} failed:`, err)
-                    );
-                }
-            }, 5000);
-        };
-
-        ws.onmessage = (event) => {
-            try {
-                const message = JSON.parse(event.data);
-                handleRelayMessage(url, message);
-            } catch (error) {
-                console.error('Failed to parse message:', error);
-            }
-        };
+        }
     });
 }
 

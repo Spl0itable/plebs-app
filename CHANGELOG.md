@@ -1,3 +1,7 @@
+## v1.6.5 - 2025-07-16
+
+Hotfix: improved switch to WOT relays
+
 ## v1.6.4 - 2025-07-16
 
 - New: boost videos using zaps to help them trend
