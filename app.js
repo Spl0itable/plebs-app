@@ -56,9 +56,9 @@ const RELAY_URLS = [
 
 // WoT relay URLs
 const WOT_RELAY_URLS = [
+    'wss://wot.utxo.one',
     'wss://nostrelites.org',
     'wss://wot.nostr.party',
-    'wss://wot.sovbit.host',
     'wss://wot.nostr.net'
 ];
 
