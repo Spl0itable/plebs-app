@@ -658,6 +658,98 @@ header {
     background: #e8841a;
 }
 
+/* Boost button styling */
+.action-btn.boost {
+    color: white;
+}
+
+.action-btn.boost:hover {
+    color: white;
+    transform: translateY(-2px);
+}
+
+.action-btn.boost.active {
+    background: linear-gradient(135deg, #f7931a 0%, #ff9500 100%);
+    color: white;
+    box-shadow: 0 0 20px rgba(247, 147, 26, 0.5);
+}
+
+/* Boosted video card styling */
+.video-card.boosted {
+    position: relative;
+}
+
+.video-card.boosted::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #f7931a, #ff9500, #f7931a);
+    border-radius: 14px;
+    z-index: -1;
+    opacity: 0.3;
+    animation: boostGlow 3s ease-in-out infinite;
+}
+
+.video-card.boosted.boost-level-1::before {
+    opacity: 0.3;
+}
+
+.video-card.boosted.boost-level-2::before {
+    opacity: 0.5;
+}
+
+.video-card.boosted.boost-level-3::before {
+    opacity: 0.7;
+}
+
+.video-card.boosted.boost-level-4::before {
+    opacity: 0.9;
+    box-shadow: 0 0 30px rgba(247, 147, 26, 0.5);
+}
+
+@keyframes boostGlow {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+/* Boost indicator badge */
+.boost-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: linear-gradient(135deg, #f7931a 0%, #ff9500 100%);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.boost-indicator svg {
+    width: 12px;
+    height: 12px;
+}
+
+/* Trending badge with boost */
+.trending-badge.with-boost {
+    background: linear-gradient(135deg, var(--accent), #f7931a);
+}
+
 /* Profile zap button positioning */
 .profile-zap {
     position: absolute;
@@ -1372,19 +1464,19 @@ nostr-zap {
     transition: opacity 0.3s ease;
 }
 
-.comment[data-depth="1"] > .comment-thread-line {
+.comment[data-depth="1"]>.comment-thread-line {
     opacity: 0.6;
 }
 
-.comment[data-depth="2"] > .comment-thread-line {
+.comment[data-depth="2"]>.comment-thread-line {
     opacity: 0.4;
 }
 
-.comment[data-depth="3"] > .comment-thread-line {
+.comment[data-depth="3"]>.comment-thread-line {
     opacity: 0.2;
 }
 
-.comment:hover > .comment-thread-line {
+.comment:hover>.comment-thread-line {
     opacity: 1;
 }
 
@@ -1404,7 +1496,7 @@ nostr-zap {
     margin-left: 3rem;
 }
 
-.comment[data-depth="0"] > .comment-thread-line {
+.comment[data-depth="0"]>.comment-thread-line {
     display: none;
 }
 
@@ -1668,6 +1760,7 @@ nostr-zap {
 }
 
 @media (hover: none) and (pointer: coarse) {
+
     .action-btn,
     .comment-action-btn,
     .tag,
@@ -1695,32 +1788,32 @@ nostr-zap {
     .comments-section {
         padding: 1rem;
     }
-    
+
     .comment[data-depth="1"] {
         margin-left: 1rem;
     }
-    
+
     .comment[data-depth="2"] {
         margin-left: 2rem;
     }
-    
+
     .comment[data-depth="3"] {
         margin-left: 3rem;
     }
-    
+
     .comment-thread-line {
         left: -10px;
     }
-    
+
     .comment-content {
         padding: 0.75rem;
     }
-    
+
     .comment-header {
         flex-wrap: wrap;
         gap: 0.5rem;
     }
-    
+
     .comment-timestamp {
         flex-basis: 100%;
         order: 3;
@@ -1752,24 +1845,24 @@ nostr-zap {
         transform: translateX(0);
     }
 
-    .sidebar > :last-child {
+    .sidebar> :last-child {
         padding-bottom: 2rem;
         padding-bottom: calc(2rem + env(safe-area-inset-bottom));
     }
-    
+
     .sidebar::-webkit-scrollbar {
         width: 4px;
     }
-    
+
     .sidebar::-webkit-scrollbar-track {
         background: transparent;
     }
-    
+
     .sidebar::-webkit-scrollbar-thumb {
         background: rgba(255, 255, 255, 0.2);
         border-radius: 2px;
     }
-    
+
     .sidebar {
         scrollbar-width: thin;
         scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
@@ -1792,7 +1885,7 @@ nostr-zap {
     .carousel-btn.prev {
         left: 10px;
     }
-    
+
     .carousel-btn.next {
         right: 10px;
     }
@@ -1854,20 +1947,39 @@ nostr-zap {
     }
 
     .video-actions {
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         gap: 0.5rem;
     }
 
-    .video-actions .action-btn {
-        flex: 1;
-        min-width: calc(25% - 0.375rem);
+    .video-actions .action-btn:nth-child(1),
+    .video-actions .action-btn:nth-child(2),
+    .video-actions .action-btn:nth-child(3) {
+        grid-row: 1;
+    }
+
+    .video-actions .action-btn:nth-child(4),
+    .video-actions .action-btn:nth-child(5),
+    .video-actions .action-btn:nth-child(6) {
+        grid-row: 2;
     }
 
     .video-actions .action-btn.delete {
+        grid-row: 3;
+        grid-column: 1 / -1;
         margin-left: 0;
-        margin-top: 0.5rem;
-        flex-basis: 100%;
-        min-width: 100%;
+        margin-top: 0;
+    }
+
+    .video-actions .action-btn {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.875rem;
+        min-width: auto;
+    }
+
+    .video-actions .action-btn svg {
+        width: 18px;
+        height: 18px;
     }
 
     .video-player-container {
@@ -1927,15 +2039,15 @@ nostr-zap {
     .user-menu {
         order: 3;
     }
-    
+
     .login-modal {
         margin: 1rem;
     }
-    
+
     .login-option {
         padding: 0.75rem;
     }
-    
+
     .login-option svg {
         width: 36px;
         height: 36px;
@@ -1952,11 +2064,11 @@ nostr-zap {
     .comment[data-depth="3"] {
         margin-left: 0.5rem;
     }
-    
+
     .comment-actions {
         gap: 0.5rem;
     }
-    
+
     .comment-action-btn {
         font-size: 0.75rem;
         padding: 0.25rem 0.375rem;
@@ -1985,7 +2097,7 @@ nostr-zap {
     .trending-grid {
         gap: 0.5rem;
     }
-    
+
     .trending-grid .video-card {
         flex-shrink: 0;
     }
@@ -2382,8 +2494,13 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .nostrconnect-qr-section {

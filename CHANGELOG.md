@@ -1,3 +1,7 @@
+## v1.6.4 - 2025-07-16
+
+- New: boost videos using zaps to help them trend
+
 ## v1.5.4 - 2025-07-16
 
 - New: see which blossom servers the video was uploaded to

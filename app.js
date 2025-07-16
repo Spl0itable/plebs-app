@@ -19,6 +19,7 @@ let sessionNSFWAllowed = false;
 let sessionRatioedAllowed = new Set();
 let currentTrendingPeriod = 'week';
 let isInitializingSettings = false;
+let boostsCache = new Map();
 
 // NIP-46 connection state
 let nip46Connection = null;
@@ -2341,6 +2342,398 @@ async function loadLikedVideos() {
     await displayVideosStream('Liked Videos', videoFilter);
 }
 
+// Function to handle boost button click
+async function handleBoost(eventId) {
+    if (!await ensureLoggedIn()) {
+        alert('Please login to boost videos');
+        return;
+    }
+
+    // Fixed 100 sats for boost
+    showBoostAmountModal(eventId);
+}
+
+// Show boost amount selection modal (100 sats fixed)
+function showBoostAmountModal(eventId) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+        padding: 1rem;
+    `;
+
+    modal.innerHTML = `
+    <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; text-align: center;">
+        <h2 style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #f7931a, #ff9500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Boost This Video</h2>
+        <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Use Bitcoin Lightning + Nostr Zap to Boost for <strong>100 sats</strong> to help this video trend!</p>
+        <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Videos that are boosted will also be highlighted throughout the app and their highlight will grow brighter the more they're boosted.</p>
+        
+        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+            <button onclick="processBoost('${eventId}', 100); this.closest('div[style*=fixed]').remove();" 
+                    style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #f7931a, #ff9500); 
+                           color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                Boost for 100 sats ⚡
+            </button>
+            <button onclick="this.closest('div[style*=fixed]').remove();" 
+                    style="padding: 0.5rem 1.5rem; background: var(--bg-primary); color: var(--text-primary); 
+                           border: 1px solid var(--border); border-radius: 8px; cursor: pointer;">
+                Cancel
+            </button>
+        </div>
+    </div>
+`;
+
+    document.body.appendChild(modal);
+}
+
+// Process the boost
+async function processBoost(eventId, amount) {
+    try {
+        // Create boost zap request
+        const boostZapRequest = {
+            kind: 9734,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [
+                ['p', 'd49a9023a21dba1b3c8306ca369bf3243d8b44b8f0b6d1196607f7b0990fa8df'],
+                ['amount', amount.toString()],
+                ['relays', ...RELAY_URLS],
+                ['e', eventId],
+                ['purpose', 'boost']
+            ],
+            content: `Boost for video ${eventId}`
+        };
+
+        const signedZapRequest = await signEvent(boostZapRequest);
+
+        // Fetch invoice from walletofsatoshi
+        const lnurlResponse = await fetchBoostInvoice(amount, JSON.stringify(signedZapRequest));
+
+        if (lnurlResponse.pr) {
+            showBoostInvoice(lnurlResponse.pr, amount, eventId);
+
+            // Poll for zap receipt
+            pollForBoostReceipt(eventId, amount);
+
+            if (window.webln) {
+                try {
+                    await window.webln.enable();
+                    const result = await window.webln.sendPayment(lnurlResponse.pr);
+                    if (result.preimage) {
+                        // Payment successful through WebLN
+                    }
+                } catch (e) {
+                    console.log('WebLN payment failed, waiting for manual payment');
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Failed to create boost:', error);
+        alert('Failed to create boost. Please try again.');
+    }
+}
+
+// Fetch boost invoice from walletofsatoshi
+async function fetchBoostInvoice(amount, zapRequest) {
+    const url = `https://walletofsatoshi.com/.well-known/lnurlp/69420`;
+
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (data.callback) {
+            const invoiceUrl = new URL(data.callback);
+            invoiceUrl.searchParams.set('amount', amount * 1000); // millisats
+            invoiceUrl.searchParams.set('nostr', zapRequest);
+
+            const invoiceResponse = await fetch(invoiceUrl.toString());
+            return await invoiceResponse.json();
+        }
+    } catch (error) {
+        console.error('Failed to fetch boost invoice:', error);
+        throw error;
+    }
+}
+
+// Show boost invoice modal
+function showBoostInvoice(invoice, amount, eventId) {
+    const modal = document.createElement('div');
+    modal.id = 'boost-invoice-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+        padding: 1rem;
+    `;
+
+    modal.innerHTML = `
+        <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; text-align: center;">
+            <h2 style="margin-bottom: 0.5rem; background: linear-gradient(135deg, #f7931a, #ff9500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Lightning Invoice</h2>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">Boost ${amount} sats</p>
+            <p style="margin-bottom: 1rem;">Scan with your Lightning wallet:</p>
+            
+            <div style="background: white; padding: 1rem; border-radius: 8px; margin: 1rem auto; display: inline-block;">
+                <div id="boost-qrcode"></div>
+            </div>
+            
+            <div style="margin: 1rem 0; color: var(--text-secondary); font-size: 0.875rem;">
+                <div id="boost-payment-status">
+                    <div class="spinner" style="width: 20px; height: 20px; margin: 0 auto 0.5rem;"></div>
+                    Waiting for payment confirmation...
+                </div>
+            </div>
+            
+            <textarea readonly style="width: 100%; padding: 0.5rem; margin: 1rem 0; font-size: 0.75rem; word-break: break-all; 
+                                     height: 100px; resize: none; background: var(--bg-primary); color: var(--text-primary); 
+                                     border: 1px solid var(--border); border-radius: 4px;">${invoice}</textarea>
+            
+            <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                <button onclick="navigator.clipboard.writeText('${invoice}').then(() => {
+                    const btn = event.target;
+                    const originalText = btn.textContent;
+                    btn.textContent = 'Copied!';
+                    btn.style.background = 'linear-gradient(135deg, #f7931a, #ff9500)';
+                    setTimeout(() => {
+                        btn.textContent = originalText;
+                        btn.style.background = '';
+                    }, 2000);
+                });" style="padding: 0.5rem 1rem; background: linear-gradient(135deg, #f7931a, #ff9500); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                    Copy Invoice
+                </button>
+                <button onclick="document.getElementById('boost-invoice-modal').remove();" 
+                        style="padding: 0.5rem 1rem; background: var(--bg-primary); color: var(--text-primary); 
+                               border: 1px solid var(--border); border-radius: 4px; cursor: pointer;">
+                    Close
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Generate QR code
+    if (window.QRCode) {
+        new QRCode(document.getElementById("boost-qrcode"), {
+            text: invoice.toUpperCase(),
+            width: 256,
+            height: 256,
+            colorDark: "#000000",
+            colorLight: "#FFFFFF",
+            correctLevel: QRCode.CorrectLevel.L
+        });
+    }
+}
+
+// Poll for boost zap receipt
+async function pollForBoostReceipt(eventId, amount) {
+    const startTime = Date.now();
+    const timeout = 60000; // 60 seconds
+    const pollInterval = 2000; // 2 seconds
+
+    const checkForReceipt = async () => {
+        if (Date.now() - startTime > timeout) {
+            console.log('Boost receipt polling timeout');
+            return;
+        }
+
+        const filter = {
+            kinds: [9735],
+            '#e': [eventId],
+            since: Math.floor(startTime / 1000) - 10
+        };
+
+        let foundReceipt = false;
+
+        await new Promise((resolve) => {
+            requestEventsStream(filter, (event) => {
+                try {
+                    // Check if this is a boost zap to walletofsatoshi
+                    const pTag = event.tags.find(tag => tag[0] === 'p');
+                    if (pTag && pTag[1] === 'd49a9023a21dba1b3c8306ca369bf3243d8b44b8f0b6d1196607f7b0990fa8df') {
+                        const bolt11Tag = event.tags.find(tag => tag[0] === 'bolt11');
+                        if (bolt11Tag && bolt11Tag[1]) {
+                            const receiptAmount = extractAmountFromBolt11(bolt11Tag[1]);
+
+                            if (Math.abs(receiptAmount - amount) < 10) {
+                                foundReceipt = true;
+
+                                // Close invoice modal
+                                const invoiceModal = document.getElementById('boost-invoice-modal');
+                                if (invoiceModal) {
+                                    invoiceModal.remove();
+                                }
+
+                                // Show success animation
+                                showBoostSuccess(amount);
+
+                                // Update boost cache
+                                const currentBoosts = boostsCache.get(eventId) || 0;
+                                boostsCache.set(eventId, currentBoosts + amount);
+
+                                // Update boost button
+                                updateBoostButton(eventId, currentBoosts + amount);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error checking boost receipt:', e);
+                }
+            }, () => {
+                resolve();
+            });
+        });
+
+        if (!foundReceipt) {
+            setTimeout(checkForReceipt, pollInterval);
+        }
+    };
+
+    setTimeout(checkForReceipt, 2000);
+}
+
+// Show boost success animation
+function showBoostSuccess(amount) {
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 3000;
+    `;
+
+    modal.innerHTML = `
+        <div style="background: var(--bg-secondary); padding: 3rem; border-radius: 12px; text-align: center;">
+            <div class="boost-success-animation">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="url(#boostGradient)" style="margin-bottom: 1rem;">
+                    <defs>
+                        <linearGradient id="boostGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#f7931a;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#ff9500;stop-opacity:1" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" stroke-width="2"/>
+                </svg>
+                <h2 style="background: linear-gradient(135deg, #f7931a, #ff9500); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">Video Boosted!</h2>
+                <p style="font-size: 1.5rem; font-weight: bold;">${amount} sats</p>
+            </div>
+        </div>
+    `;
+
+    const style = document.createElement('style');
+    style.textContent = `
+        .boost-success-animation {
+            animation: boostPulse 0.5s ease-out;
+        }
+        
+        @keyframes boostPulse {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    document.body.appendChild(modal);
+
+    setTimeout(() => {
+        modal.style.opacity = '0';
+        modal.style.transition = 'opacity 0.3s ease-out';
+        setTimeout(() => {
+            modal.remove();
+            style.remove();
+        }, 300);
+    }, 2000);
+}
+
+// Update boost button UI
+function updateBoostButton(eventId, totalBoosts) {
+    const boostBtn = document.querySelector(`.action-btn.boost[data-event-id="${eventId}"]`);
+    if (boostBtn) {
+        boostBtn.querySelector('.count').textContent = totalBoosts > 0 ? formatSats(totalBoosts) : 'Boost';
+        if (totalBoosts > 0) {
+            boostBtn.classList.add('active');
+        }
+    }
+}
+
+// Load boosts for video
+async function loadBoostsForVideo(eventId, onUpdate = null) {
+    const filter = {
+        kinds: [9735],
+        '#e': [eventId],
+        '#p': ['d49a9023a21dba1b3c8306ca369bf3243d8b44b8f0b6d1196607f7b0990fa8df']
+    };
+
+    let totalBoosts = 0;
+
+    return new Promise((resolve) => {
+        requestEventsStream(filter, (event) => {
+            try {
+                // Check if this has the purpose=boost tag
+                const description = event.tags.find(tag => tag[0] === 'description')?.[1];
+                if (description) {
+                    try {
+                        const zapRequest = JSON.parse(description);
+                        const hasBoostTag = zapRequest.tags?.some(tag =>
+                            tag[0] === 'purpose' && tag[1] === 'boost'
+                        );
+
+                        if (hasBoostTag) {
+                            const bolt11Tag = event.tags.find(tag => tag[0] === 'bolt11');
+                            if (bolt11Tag && bolt11Tag[1]) {
+                                const amount = extractAmountFromBolt11(bolt11Tag[1]);
+                                if (amount > 0) {
+                                    totalBoosts += amount;
+
+                                    if (onUpdate) {
+                                        onUpdate(totalBoosts);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // If we can't parse description, skip this event
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to parse boost:', e);
+            }
+        }, () => {
+            boostsCache.set(eventId, totalBoosts);
+            resolve(totalBoosts);
+        });
+    });
+}
+
+// Calculate boost level for video card highlighting
+function getBoostLevel(boostAmount) {
+    if (boostAmount >= 10000) return 4;
+    if (boostAmount >= 5000) return 3;
+    if (boostAmount >= 1000) return 2;
+    if (boostAmount >= 100) return 1;
+    return 0;
+}
+
 // Function to handle zaps
 async function handleZap(npub, amount, eventId = null) {
     if (!await ensureLoggedIn()) {
@@ -2371,6 +2764,7 @@ function showZapAmountModal(npub, eventId = null) {
     modal.innerHTML = `
         <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 12px; max-width: 500px; width: 90%; text-align: center;">
             <h2 style="margin-bottom: 1.5rem;">Select Zap Amount</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 1.5rem;">Use Bitcoin Lightning + Nostr Zap to send sats directly to the content creator!</p>
             
             <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 1.5rem;">
                 <button class="zap-amount-btn" data-amount="21">21 ⚡</button>
@@ -3409,6 +3803,27 @@ async function loadZapsForVideo(eventId, onUpdate = null) {
     return new Promise((resolve) => {
         requestEventsStream(filter, (event) => {
             try {
+                // Check if this is a boost zap (skip if it is)
+                const pTag = event.tags.find(tag => tag[0] === 'p');
+                if (pTag && pTag[1] === 'd49a9023a21dba1b3c8306ca369bf3243d8b44b8f0b6d1196607f7b0990fa8df') {
+                    // This is a boost, check if it has the purpose tag
+                    const description = event.tags.find(tag => tag[0] === 'description')?.[1];
+                    if (description) {
+                        try {
+                            const zapRequest = JSON.parse(description);
+                            const hasBoostTag = zapRequest.tags?.some(tag =>
+                                tag[0] === 'purpose' && tag[1] === 'boost'
+                            );
+                            if (hasBoostTag) {
+                                // Skip this boost zap
+                                return;
+                            }
+                        } catch (e) {
+                            // If we can't parse description, treat as regular zap
+                        }
+                    }
+                }
+
                 const bolt11Tag = event.tags.find(tag => tag[0] === 'bolt11');
                 if (bolt11Tag && bolt11Tag[1]) {
                     const amount = extractAmountFromBolt11(bolt11Tag[1]);
@@ -3886,11 +4301,13 @@ async function loadTrendingVideos(period = 'today') {
         const videoScores = new Map();
         const globalReactions = new Map();
         const globalZaps = new Map();
+        const globalBoosts = new Map();
         const processedVideos = new Set();
         let trendingVideos = [];
         let videosComplete = false;
         let reactionsComplete = false;
         let zapsComplete = false;
+        let boostsComplete = false;
         let lastProcessTime = 0;
         let processTimer = null;
         let resolveTimer = null;
@@ -3928,12 +4345,15 @@ async function loadTrendingVideos(period = 'today') {
                 }
 
                 const zapTotal = globalZaps.get(event.id) || 0;
+                const boostTotal = globalBoosts.get(event.id) || 0;
 
                 const ageHours = (now - event.created_at) / 3600;
                 const timeWeight = Math.max(0, 24 - ageHours) / 24;
 
+                // Include boosts in the score calculation with higher weight
                 const zapScore = (zapTotal / 1000) * 5;
-                const score = reactions.likes - (reactions.dislikes * 2) + zapScore + (timeWeight * 10);
+                const boostScore = (boostTotal / 100) * 10; // Boosts have 2x the weight of zaps
+                const score = reactions.likes - (reactions.dislikes * 2) + zapScore + boostScore + (timeWeight * 10);
 
                 if (score > 0) {
                     videoScores.set(event.id, score);
@@ -3959,7 +4379,7 @@ async function loadTrendingVideos(period = 'today') {
                 }
             }
 
-            if (videosComplete && reactionsComplete && zapsComplete && !hasResolved) {
+            if (videosComplete && reactionsComplete && zapsComplete && boostsComplete && !hasResolved) {
                 clearTimeout(processTimer);
                 clearTimeout(resolveTimer);
                 hasResolved = true;
@@ -4026,6 +4446,27 @@ async function loadTrendingVideos(period = 'today') {
                 try {
                     const videoId = zapEvent.tags.find(tag => tag[0] === 'e')?.[1];
                     if (videoId && videoIds.includes(videoId)) {
+                        // Check if this is a boost zap (skip if it is)
+                        const pTag = zapEvent.tags.find(tag => tag[0] === 'p');
+                        if (pTag && pTag[1] === 'd49a9023a21dba1b3c8306ca369bf3243d8b44b8f0b6d1196607f7b0990fa8df') {
+                            // This is a potential boost, check if it has the purpose tag
+                            const description = zapEvent.tags.find(tag => tag[0] === 'description')?.[1];
+                            if (description) {
+                                try {
+                                    const zapRequest = JSON.parse(description);
+                                    const hasBoostTag = zapRequest.tags?.some(tag =>
+                                        tag[0] === 'purpose' && tag[1] === 'boost'
+                                    );
+                                    if (hasBoostTag) {
+                                        // Skip this boost zap
+                                        return;
+                                    }
+                                } catch (e) {
+                                    // If we can't parse description, treat as regular zap
+                                }
+                            }
+                        }
+
                         const bolt11Tag = zapEvent.tags.find(tag => tag[0] === 'bolt11');
                         if (bolt11Tag && bolt11Tag[1]) {
                             const amount = extractAmountFromBolt11(bolt11Tag[1]);
@@ -4045,6 +4486,60 @@ async function loadTrendingVideos(period = 'today') {
             });
         };
 
+        const loadBoosts = () => {
+            if (videoEvents.length === 0) {
+                boostsComplete = true;
+                processTrending(true);
+                return;
+            }
+
+            const videoIds = videoEvents.map(e => e.id);
+            const boostFilter = {
+                kinds: [9735],
+                '#e': videoIds,
+                '#p': ['d49a9023a21dba1b3c8306ca369bf3243d8b44b8f0b6d1196607f7b0990fa8df'],
+                since: since
+            };
+
+            requestEventsStream(boostFilter, (boostEvent) => {
+                try {
+                    const videoId = boostEvent.tags.find(tag => tag[0] === 'e')?.[1];
+                    if (videoId && videoIds.includes(videoId)) {
+                        // Check if this has the purpose=boost tag
+                        const description = boostEvent.tags.find(tag => tag[0] === 'description')?.[1];
+                        if (description) {
+                            try {
+                                const zapRequest = JSON.parse(description);
+                                const hasBoostTag = zapRequest.tags?.some(tag =>
+                                    tag[0] === 'purpose' && tag[1] === 'boost'
+                                );
+
+                                if (hasBoostTag) {
+                                    const bolt11Tag = boostEvent.tags.find(tag => tag[0] === 'bolt11');
+                                    if (bolt11Tag && bolt11Tag[1]) {
+                                        const amount = extractAmountFromBolt11(bolt11Tag[1]);
+                                        if (amount > 0) {
+                                            const currentTotal = globalBoosts.get(videoId) || 0;
+                                            globalBoosts.set(videoId, currentTotal + amount);
+                                            boostsCache.set(videoId, currentTotal + amount);
+                                            processTrending();
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                // If we can't parse description, skip this event
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to parse boost:', e);
+                }
+            }, () => {
+                boostsComplete = true;
+                processTrending(true);
+            });
+        };
+
         requestEventsStream(filter, (event) => {
             const tags = event.tags || [];
             if (tags.some(tag => tag[0] === 'x') && !processedVideos.has(event.id)) {
@@ -4060,9 +4555,11 @@ async function loadTrendingVideos(period = 'today') {
             if (videoEvents.length > 0) {
                 loadReactions();
                 loadZaps();
+                loadBoosts();
             } else {
                 reactionsComplete = true;
                 zapsComplete = true;
+                boostsComplete = true;
                 processTrending(true);
             }
         });
@@ -4079,6 +4576,7 @@ async function loadTrendingVideos(period = 'today') {
                 videosComplete = true;
                 reactionsComplete = true;
                 zapsComplete = true;
+                boostsComplete = true;
                 processTrending(true);
                 hasResolved = true;
                 resolve(trendingVideos);
@@ -5367,6 +5865,14 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             </svg>
                             <span class="count">Zap</span>
                         </button>
+                        <button class="action-btn boost"
+                                onclick="handleBoost('${event.id}')"
+                                data-event-id="${event.id}">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" stroke-width="2"/>
+                            </svg>
+                            <span class="count">Boost</span>
+                        </button>
                         <button class="action-btn" onclick="shareVideo('${event.id}')">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/>
@@ -5441,6 +5947,11 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
 
         loadZapsForVideo(eventId, (totalZaps, count) => {
             updateZapButton(eventId, totalZaps);
+        });
+
+        // Load boosts for the video
+        loadBoostsForVideo(eventId, (totalBoosts) => {
+            updateBoostButton(eventId, totalBoosts);
         });
 
     } catch (error) {
@@ -6596,6 +7107,11 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
     const cardId = `video-card-${event.id}`;
     const isSuspiciousProfile = !avatarUrl || !nip05;
 
+    // Get boost data
+    const boostAmount = boostsCache.get(event.id) || 0;
+    const boostLevel = getBoostLevel(boostAmount);
+    const isBoosted = boostLevel > 0;
+
     // Determine what type of overlay to show
     const showNSFWOverlay = isNSFW && !shouldShowNSFW();
     const showCommunityWarning = (isRatioed || isSuspiciousProfile) && !sessionRatioedAllowed.has(event.id);
@@ -6609,7 +7125,7 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
     }
 
     const cardHTML = `
-        <div class="video-card" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}">
+        <div class="video-card ${isBoosted ? `boosted boost-level-${boostLevel}` : ''}" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}">
             <div class="video-thumbnail ${showBlurred ? overlayType : ''}" 
                  onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">
                 ${videoData.thumbnail ?
@@ -6620,6 +7136,22 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
                     <div class="${overlayType}-overlay">
                         <div class="${overlayType}-badge">${overlayType === 'nsfw' ? 'NSFW' : 'COMMUNITY WARNING'}</div>
                         <div>Click to view</div>
+                    </div>
+                ` : ''}
+                ${isBoosted && !showBlurred ? `
+                    <div class="boost-indicator">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" stroke-width="2"/>
+                        </svg>
+                        ${formatSats(boostAmount)}
+                    </div>
+                ` : ''}
+                ${isTrending && trendingRank ? `
+                    <div class="trending-badge ${isBoosted ? 'with-boost' : ''}">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.48,12.35c-1.57-4.08-7.16-4.3-5.81-10.23c0.1-0.44-0.37-0.78-0.75-0.55C9.29,3.71,6.68,8,8.87,13.62 c0.18,0.46-0.36,0.89-0.75,0.59c-1.81-1.37-2-3.34-1.84-4.75c0.06-0.52-0.62-0.77-0.91-0.34C4.69,10.16,4,11.84,4,14.37 c0.38,5.6,5.11,7.32,6.81,7.54c2.43,0.31,5.06-0.14,6.95-1.87C19.84,18.11,20.6,15.03,19.48,12.35z"/>
+                        </svg>
+                        #${trendingRank}
                     </div>
                 ` : ''}
                 ${!showBlurred && videoData.duration ? `<span class="video-duration">${formatDuration(videoData.duration)}</span>` : ''}
