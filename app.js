@@ -3887,10 +3887,7 @@ function formatNumber(num) {
 // Send reaction event
 async function sendReaction(eventId, reaction) {
     if (!currentUser || currentUser.readOnly) {
-        if (!await ensureLoggedIn()) {
-            alert('Please login to react to videos');
-            return false;
-        }
+        return false;
     }
 
     const reactionEvent = {
@@ -5960,6 +5957,10 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
 
 // Handle like button click
 async function handleLike(eventId) {
+    if (!await ensureLoggedIn()) {
+        return;
+    }
+
     const success = await sendReaction(eventId, '👍');
     if (success) {
         const reactions = reactionsCache.get(eventId);
@@ -5969,6 +5970,10 @@ async function handleLike(eventId) {
 
 // Handle dislike button click
 async function handleDislike(eventId) {
+    if (!await ensureLoggedIn()) {
+        return;
+    }
+
     const success = await sendReaction(eventId, '👎');
     if (success) {
         const reactions = reactionsCache.get(eventId);
