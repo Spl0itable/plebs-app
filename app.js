@@ -2345,7 +2345,6 @@ async function loadLikedVideos() {
 // Function to handle boost button click
 async function handleBoost(eventId) {
     if (!await ensureLoggedIn()) {
-        alert('Please login to boost videos');
         return;
     }
 
@@ -2737,7 +2736,6 @@ function getBoostLevel(boostAmount) {
 // Function to handle zaps
 async function handleZap(npub, amount, eventId = null) {
     if (!await ensureLoggedIn()) {
-        alert('Please login to send zaps');
         return;
     }
 
