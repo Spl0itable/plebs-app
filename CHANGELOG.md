@@ -1,3 +1,10 @@
+## v1.5.4 - 2025-07-16
+
+- New: see which blossom servers the video was uploaded to
+- Hotfix: improved websocket connection handling
+- Hotfix: ajaxified comments
+- Hotfix: corrected login check
+
 ## v1.4.4 - 2025-07-08
 
 - New: custom login method handling

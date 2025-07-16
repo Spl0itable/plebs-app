@@ -102,60 +102,97 @@ function updateThemeIcon(theme) {
     }
 }
 
+// Initialize all relay connections
+async function initializeRelayConnections() {
+    console.log('Initializing relay connections...');
+    const connectionPromises = RELAY_URLS.map(url =>
+        connectToRelay(url).catch(err =>
+            console.error(`Failed to initialize connection to ${url}:`, err)
+        )
+    );
+
+    await Promise.allSettled(connectionPromises);
+    console.log('Relay initialization complete');
+}
+
+// Monitor relay connection health
+function monitorRelayConnections() {
+    setInterval(() => {
+        RELAY_URLS.forEach(url => {
+            if (!relayConnections[url] || relayConnections[url].readyState !== WebSocket.OPEN) {
+                console.log(`Connection to ${url} lost, attempting to reconnect...`);
+                connectToRelay(url).catch(err =>
+                    console.error(`Failed to reconnect to ${url}:`, err)
+                );
+            }
+        });
+    }, 10000); // Check every 10 seconds
+}
+
 // Initialize app without checking for login
 async function initializeApp() {
     initTheme();
 
-    // Load home feed immediately
-    handleRoute();
+    // Initialize relay connections
+    await initializeRelayConnections();
 
-    // Check for stored login after page loads
-    setTimeout(() => {
-        checkStoredLogin();
-    }, 100);
+    // Check for stored login FIRST
+    await checkStoredLogin();
+
+    // Then handle the route
+    handleRoute();
 }
 
 // Check for stored login
 async function checkStoredLogin() {
-    const storedMethod = localStorage.getItem(STORAGE_KEYS.loginMethod);
-    const storedPubkey = localStorage.getItem(STORAGE_KEYS.publicKey);
+    return new Promise((resolve) => {
+        const storedMethod = localStorage.getItem(STORAGE_KEYS.loginMethod);
+        const storedPubkey = localStorage.getItem(STORAGE_KEYS.publicKey);
 
-    if (storedMethod && storedPubkey) {
-        if (storedMethod === 'extension') {
-            // Try to reconnect with extension
-            if (window.nostr) {
-                try {
-                    const pubkey = await window.nostr.getPublicKey();
-                    if (pubkey === storedPubkey) {
-                        currentUser = { pubkey };
-                        await onUserLoggedIn();
-                    }
-                } catch (e) {
-                    // Extension not available or user rejected
-                    console.log('Extension login failed, clearing stored login');
-                    clearStoredLogin();
+        if (storedMethod && storedPubkey) {
+            if (storedMethod === 'extension') {
+                // Try to reconnect with extension
+                if (window.nostr) {
+                    window.nostr.getPublicKey().then(pubkey => {
+                        if (pubkey === storedPubkey) {
+                            currentUser = { pubkey };
+                            onUserLoggedIn().then(resolve);
+                        } else {
+                            resolve();
+                        }
+                    }).catch(() => {
+                        console.log('Extension login failed, clearing stored login');
+                        clearStoredLogin();
+                        resolve();
+                    });
+                } else {
+                    resolve();
+                }
+            } else if (storedMethod === 'privateKey') {
+                const storedKey = localStorage.getItem(STORAGE_KEYS.privateKey);
+                if (storedKey) {
+                    const pubkey = getPublicKeyFromPrivate(storedKey);
+                    currentUser = { pubkey, privateKey: storedKey };
+                    onUserLoggedIn().then(resolve);
+                } else {
+                    resolve();
+                }
+            } else if (storedMethod === 'readOnly') {
+                currentUser = { pubkey: storedPubkey, readOnly: true };
+                onUserLoggedIn().then(resolve);
+            } else if (storedMethod === 'connect') {
+                const bunkerURL = localStorage.getItem(STORAGE_KEYS.bunkerURL);
+                const secret = localStorage.getItem(STORAGE_KEYS.nip46Secret);
+                if (bunkerURL && secret) {
+                    reconnectNip46(bunkerURL, secret).then(resolve);
+                } else {
+                    resolve();
                 }
             }
-        } else if (storedMethod === 'privateKey') {
-            const storedKey = localStorage.getItem(STORAGE_KEYS.privateKey);
-            if (storedKey) {
-                // Restore private key login
-                const pubkey = getPublicKeyFromPrivate(storedKey);
-                currentUser = { pubkey, privateKey: storedKey };
-                await onUserLoggedIn();
-            }
-        } else if (storedMethod === 'readOnly') {
-            currentUser = { pubkey: storedPubkey, readOnly: true };
-            await onUserLoggedIn();
-        } else if (storedMethod === 'connect') {
-            const bunkerURL = localStorage.getItem(STORAGE_KEYS.bunkerURL);
-            const secret = localStorage.getItem(STORAGE_KEYS.nip46Secret);
-            if (bunkerURL && secret) {
-                // Attempt to reconnect
-                await reconnectNip46(bunkerURL, secret);
-            }
+        } else {
+            resolve();
         }
-    }
+    });
 }
 
 // Clear stored login
@@ -1675,13 +1712,16 @@ function applySettings() {
         previousRelayUrls.some((url, index) => url !== RELAY_URLS[index]);
 
     if (relaysChanged) {
-        // Disconnect existing relay connections to force reconnection with new URLs
-        Object.values(relayConnections).forEach(ws => {
-            if (ws.readyState === WebSocket.OPEN) {
+        // Close connections to relays that are no longer in use
+        Object.entries(relayConnections).forEach(([url, ws]) => {
+            if (!RELAY_URLS.includes(url) && ws.readyState === WebSocket.OPEN) {
                 ws.close();
+                delete relayConnections[url];
             }
         });
-        relayConnections = {};
+
+        // Initialize connections to new relays
+        initializeRelayConnections();
     }
 
     // Update Blossom servers based on settings
@@ -2250,7 +2290,8 @@ function hideNotificationsModal() {
 // Function to load liked videos
 async function loadLikedVideos() {
     if (!currentUser) {
-        if (!await ensureLoggedIn()) {
+        await checkStoredLogin(); // Wait for login check
+        if (!currentUser) {
             document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your liked videos.</p>';
             return;
         }
@@ -2821,22 +2862,49 @@ function connectToRelay(url) {
             return;
         }
 
+        // If there's a connection in progress, wait for it
+        if (relayConnections[url] && relayConnections[url].readyState === WebSocket.CONNECTING) {
+            const checkConnection = setInterval(() => {
+                if (relayConnections[url].readyState === WebSocket.OPEN) {
+                    clearInterval(checkConnection);
+                    resolve(relayConnections[url]);
+                } else if (relayConnections[url].readyState === WebSocket.CLOSED ||
+                    relayConnections[url].readyState === WebSocket.CLOSING) {
+                    clearInterval(checkConnection);
+                    delete relayConnections[url];
+                    connectToRelay(url).then(resolve).catch(reject);
+                }
+            }, 100);
+            return;
+        }
+
         const ws = new WebSocket(url);
+        relayConnections[url] = ws;
 
         ws.onopen = () => {
             console.log(`Connected to ${url}`);
-            relayConnections[url] = ws;
             resolve(ws);
         };
 
         ws.onerror = (error) => {
             console.error(`Failed to connect to ${url}:`, error);
+            delete relayConnections[url];
             reject(error);
         };
 
         ws.onclose = () => {
             console.log(`Disconnected from ${url}`);
             delete relayConnections[url];
+
+            // Attempt to reconnect after a delay
+            setTimeout(() => {
+                if (!relayConnections[url]) {
+                    console.log(`Attempting to reconnect to ${url}`);
+                    connectToRelay(url).catch(err =>
+                        console.error(`Reconnection to ${url} failed:`, err)
+                    );
+                }
+            }, 5000);
         };
 
         ws.onmessage = (event) => {
@@ -2874,12 +2942,14 @@ function handleRelayMessage(relayUrl, message) {
 }
 
 // Streaming request events
+// Streaming request events
 async function requestEventsStream(filter, onEvent, onComplete) {
     const subscriptionId = Math.random().toString(36).substring(7);
     const eventsMap = new Map();
     const seenEventIds = new Set();
     let completedRelays = 0;
     const totalRelays = RELAY_URLS.length;
+    const activeSubscriptions = new Set();
 
     if (!window.subscriptionHandlers) {
         window.subscriptionHandlers = {};
@@ -2900,16 +2970,20 @@ async function requestEventsStream(filter, onEvent, onComplete) {
             const ws = await connectToRelay(url);
             const req = JSON.stringify(['REQ', subscriptionId, filter]);
             ws.send(req);
+            activeSubscriptions.add(url);
 
-            const originalOnMessage = ws.onmessage;
-            ws.onmessage = (event) => {
-                originalOnMessage(event);
+            // Create a dedicated message handler for EOSE
+            const handleEOSE = (event) => {
                 try {
                     const message = JSON.parse(event.data);
                     if (message[0] === 'EOSE' && message[1] === subscriptionId) {
                         completedRelays++;
+                        activeSubscriptions.delete(url);
 
-                        ws.send(JSON.stringify(['CLOSE', subscriptionId]));
+                        // Send CLOSE command for this subscription
+                        if (ws.readyState === WebSocket.OPEN) {
+                            ws.send(JSON.stringify(['CLOSE', subscriptionId]));
+                        }
 
                         if (completedRelays === totalRelays) {
                             delete window.subscriptionHandlers[subscriptionId];
@@ -2919,9 +2993,33 @@ async function requestEventsStream(filter, onEvent, onComplete) {
                         }
                     }
                 } catch (error) {
-                    // Ignore parse errors for non-JSON messages
+                    // Ignore parse errors
                 }
             };
+
+            // Add EOSE handler without overriding the main message handler
+            ws.addEventListener('message', handleEOSE);
+
+            // Clean up the EOSE handler after a timeout
+            setTimeout(() => {
+                ws.removeEventListener('message', handleEOSE);
+                if (activeSubscriptions.has(url)) {
+                    completedRelays++;
+                    activeSubscriptions.delete(url);
+
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify(['CLOSE', subscriptionId]));
+                    }
+
+                    if (completedRelays === totalRelays) {
+                        delete window.subscriptionHandlers[subscriptionId];
+                        if (onComplete) {
+                            onComplete(Array.from(eventsMap.values()));
+                        }
+                    }
+                }
+            }, 30000); // 30 second timeout
+
         } catch (error) {
             console.error(`Failed to connect to ${url}:`, error);
             completedRelays++;
@@ -3527,7 +3625,10 @@ function createNote(event) {
 
 // Initialize app on DOM load
 document.addEventListener('DOMContentLoaded', () => {
-    initializeApp();
+    initializeApp().then(() => {
+        // Start monitoring relay connections after initialization
+        monitorRelayConnections();
+    });
 
     // Set up hash change listener for routing
     window.addEventListener('hashchange', handleRoute);
@@ -4447,7 +4548,8 @@ async function switchTrendingPeriod(period) {
 // Load subscriptions
 async function loadSubscriptions() {
     if (!currentUser) {
-        if (!await ensureLoggedIn()) {
+        await checkStoredLogin(); // Wait for login check
+        if (!currentUser) {
             document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your subscriptions.</p>';
             return;
         }
@@ -4499,7 +4601,8 @@ async function loadSubscriptions() {
 // Load my videos with streaming
 async function loadMyVideos() {
     if (!currentUser) {
-        if (!await ensureLoggedIn()) {
+        await checkStoredLogin(); // Wait for login check
+        if (!currentUser) {
             document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your videos.</p>';
             return;
         }
@@ -5817,9 +5920,8 @@ async function submitComment(parentId, parentPubkey) {
                 cancelReply(parentId);
             }
 
-            setTimeout(() => {
-                loadComments(videoEventIds);
-            }, 500);
+            // Add the comment to the DOM immediately
+            addCommentToDOM(signedEvent, parentId);
         } else {
             throw new Error('Failed to publish comment');
         }
@@ -5829,6 +5931,105 @@ async function submitComment(parentId, parentPubkey) {
     } finally {
         button.disabled = false;
         button.textContent = parentId ? 'Reply' : 'Comment';
+    }
+}
+
+// Add comment to DOM without reloading
+function addCommentToDOM(commentEvent, parentId = null) {
+    // Store the event
+    allEvents.set(commentEvent.id, commentEvent);
+
+    // Get user profile
+    const profile = profileCache.get(commentEvent.pubkey) || {};
+    const displayName = profile.name || profile.display_name || `User ${commentEvent.pubkey.slice(0, 8)}`;
+    const avatarUrl = profile.picture || profile.avatar || '';
+    const nip05 = profile.nip05 || '';
+
+    // Create comment node
+    const commentNode = {
+        ...commentEvent,
+        children: [],
+        depth: parentId ? 1 : 0
+    };
+
+    // Create the comment element
+    const commentElement = createCommentElement(commentNode, profileCache, new Map());
+
+    // Find where to insert the comment
+    if (parentId) {
+        // It's a reply - find the parent comment
+        const parentComment = document.querySelector(`[data-comment-id="${parentId}"]`);
+        if (parentComment) {
+            let childrenContainer = parentComment.querySelector('.comment-children');
+            if (!childrenContainer) {
+                childrenContainer = document.createElement('div');
+                childrenContainer.className = 'comment-children';
+                parentComment.appendChild(childrenContainer);
+            }
+
+            // Update the depth if nested
+            const parentDepth = parseInt(parentComment.dataset.depth || 0);
+            commentElement.dataset.depth = Math.min(parentDepth + 1, 3);
+
+            // Insert at the beginning of children (newest first)
+            childrenContainer.insertBefore(commentElement, childrenContainer.firstChild);
+        }
+    } else {
+        // It's a top-level comment
+        const commentsContainer = document.getElementById('comments-container');
+        if (commentsContainer) {
+            // Remove "no comments" message if it exists
+            const noCommentsMsg = commentsContainer.querySelector('p');
+            if (noCommentsMsg && noCommentsMsg.textContent.includes('No comments yet')) {
+                noCommentsMsg.remove();
+            }
+
+            // Insert at the beginning (newest first)
+            commentsContainer.insertBefore(commentElement, commentsContainer.firstChild);
+        }
+    }
+
+    // If profile is not cached, fetch it
+    if (!profileCache.has(commentEvent.pubkey)) {
+        fetchUserProfile(commentEvent.pubkey).then(profile => {
+            if (profile) {
+                updateCommentProfile(commentEvent.id, profile);
+            }
+        });
+    }
+}
+
+// Update comment profile when fetched
+function updateCommentProfile(commentId, profile) {
+    const commentElement = document.querySelector(`[data-comment-id="${commentId}"]`);
+    if (!commentElement) return;
+
+    const displayName = profile.name || profile.display_name || `User ${commentElement.querySelector('.comment-author-name').textContent}`;
+    const avatarUrl = profile.picture || profile.avatar || '';
+    const nip05 = profile.nip05 || '';
+
+    // Update name
+    const nameElement = commentElement.querySelector('.comment-author-name');
+    if (nameElement) {
+        nameElement.textContent = displayName;
+    }
+
+    // Update avatar
+    const avatarElement = commentElement.querySelector('.comment-avatar');
+    if (avatarElement && avatarUrl) {
+        avatarElement.innerHTML = `<img src="${avatarUrl}" alt="${displayName}">`;
+    }
+
+    // Update nip05
+    const authorInfo = commentElement.querySelector('.comment-author-info');
+    if (authorInfo && nip05) {
+        const existingNip05 = authorInfo.querySelector('.comment-author-nip05');
+        if (!existingNip05) {
+            const nip05Element = document.createElement('div');
+            nip05Element.className = 'comment-author-nip05';
+            nip05Element.textContent = nip05;
+            authorInfo.appendChild(nip05Element);
+        }
     }
 }
 
@@ -5884,6 +6085,7 @@ async function likeComment(commentId) {
     const currentLikes = currentLikeText === 'Like' ? 0 : parseInt(currentLikeText) || 0;
     const wasLiked = button.classList.contains('active');
 
+    // Optimistically update UI
     if (wasLiked) {
         button.classList.remove('active');
         const newCount = Math.max(0, currentLikes - 1);
@@ -5909,6 +6111,7 @@ async function likeComment(commentId) {
         const published = await publishEvent(signedEvent);
 
         if (!published) {
+            // Revert on failure
             if (wasLiked) {
                 button.classList.add('active');
                 likeCountSpan.textContent = currentLikes > 0 ? formatNumber(currentLikes) : 'Like';
@@ -5919,9 +6122,11 @@ async function likeComment(commentId) {
             }
             throw new Error('Failed to publish reaction');
         }
+
+        // Success - the UI is already updated
     } catch (error) {
         console.error('Failed to like comment:', error);
-        alert('Failed to update reaction. Please try again.');
+        // Don't show alert since we've already reverted the UI
     }
 }
 
@@ -6031,6 +6236,9 @@ async function uploadToBlossom(file, servers = BLOSSOM_SERVERS) {
     const successfulUploads = [];
     let primaryUrl = null;
 
+    const serverStatusDiv = document.getElementById('serverStatus');
+    serverStatusDiv.innerHTML = '';
+
     for (const server of servers) {
         try {
             const authEvent = await createBlossomAuthEvent(hash, server);
@@ -6055,11 +6263,44 @@ async function uploadToBlossom(file, servers = BLOSSOM_SERVERS) {
                 }
 
                 console.log(`Successfully uploaded to ${server}`);
+
+                // Create a status element for the current server
+                const serverStatus = document.createElement('div');
+                serverStatus.classList.add('server');
+                serverStatus.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                    </svg>
+                    ${server.replace('https://', '')}
+                `;
+                serverStatusDiv.appendChild(serverStatus);
             } else {
                 console.error(`Upload to ${server} failed with status ${response.status}`);
+
+                // Create a status element for the current server with failure status
+                const serverStatus = document.createElement('div');
+                serverStatus.classList.add('server', 'failure');
+                serverStatus.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                    </svg>
+                    ${server.replace('https://', '')}
+                `;
+                serverStatusDiv.appendChild(serverStatus);
             }
         } catch (error) {
             console.error(`Failed to upload to ${server}:`, error);
+
+            // Create a status element for the current server with failure status
+            const serverStatus = document.createElement('div');
+            serverStatus.classList.add('server', 'failure');
+            serverStatus.innerHTML = `
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
+                </svg>
+                ${server.replace('https://', '')}
+            `;
+            serverStatusDiv.appendChild(serverStatus);
         }
     }
 

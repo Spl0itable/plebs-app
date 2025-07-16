@@ -14,6 +14,8 @@
     --like-color: #4CAF50;
     --dislike-color: #f44336;
     --header-height: 60px;
+    --success-color: #4CAF50;
+    --error-color: #f44336;
 }
 
 /* Light mode colors */
@@ -26,6 +28,8 @@
     --border: #e0e0e0;
     --like-color: #4CAF50;
     --dislike-color: #f44336;
+    --success-color: #4CAF50;
+    --error-color: #f44336;
 }
 
 body {
@@ -2423,4 +2427,31 @@ body {
     right: 0;
     height: 1px;
     background: var(--border);
+}
+
+.server-status {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.server-status .server {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.server-status .server svg {
+    width: 16px;
+    height: 16px;
+}
+
+.server-status .server.success svg {
+    color: var(--success-color);
+}
+
+.server-status .server.failure svg {
+    color: var(--error-color);
 }
