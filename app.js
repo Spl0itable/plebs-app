@@ -46,7 +46,7 @@ const BLOSSOM_SERVERS = [
 // Premium Blossom server
 const PREMIUM_BLOSSOM_SERVER = 'https://nostrmedia.com';
 
-// Define relay URLs
+// Default relay URLs
 const RELAY_URLS = [
     'wss://relay.damus.io',
     'wss://relay.nostr.band',
