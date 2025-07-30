@@ -40,7 +40,7 @@ const STORAGE_KEYS = {
 const BLOSSOM_SERVERS = [
     'https://blossom.primal.net',
     'https://blossom.band',
-    'https://24242.io',
+    'https://24242.io'
 ];
 
 // Premium Blossom server
@@ -4141,8 +4141,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('uploadStatus').textContent = 'Uploading video to multiple servers...';
                 const videoResult = await uploadToBlossom(videoFile);
 
-                if (!videoResult.success) {
-                    throw new Error(videoResult.error);
+                if (!videoResult.success || !videoResult.url) {
+                    throw new Error(videoResult.error || 'Failed to upload video to any server');
                 }
 
                 document.getElementById('progressFill').style.width = '50%';
@@ -4152,9 +4152,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (thumbnailFile) {
                     document.getElementById('uploadStatus').textContent = 'Uploading thumbnail...';
                     const thumbResult = await uploadToBlossom(thumbnailFile);
-                    if (thumbResult.success) {
-                        thumbnailUrl = thumbResult.url;
+                    if (!thumbResult.success) {
+                        throw new Error('Failed to upload thumbnail to any server');
                     }
+                    thumbnailUrl = thumbResult.url;
+                } else {
+                    throw new Error('Thumbnail is required');
                 }
 
                 document.getElementById('progressFill').style.width = '75%';

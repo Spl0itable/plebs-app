@@ -1,3 +1,7 @@
+## v1.6.6 - 2025-07-30
+
+Hotfix: where video/thumbnail upload fails with all servers but still publishes post
+
 ## v1.6.5 - 2025-07-16
 
 Hotfix: improved switch to WOT relays
