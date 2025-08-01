@@ -2052,23 +2052,6 @@ nostr-zap {
         width: 36px;
         height: 36px;
     }
-
-    .channel-nip05 {
-        white-space: normal;
-        word-break: break-word;
-        overflow-wrap: break-word;
-        hyphens: auto;
-        line-height: 1.2;
-    }
-    
-    .channel-details {
-        min-width: 0;
-    }
-    
-    .video-title {
-        word-break: break-word;
-        overflow-wrap: break-word;
-    }
 }
 
 @media (max-width: 480px) {
