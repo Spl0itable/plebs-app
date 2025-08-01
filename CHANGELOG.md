@@ -1,3 +1,7 @@
+## v1.6.7 - 2025-08-01
+
+Hotfix: locked down how likes/dislikes are counted from bot attacks
+
 ## v1.6.6 - 2025-07-30
 
 Hotfix: where video/thumbnail upload fails with all servers but still publishes post

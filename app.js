@@ -2049,21 +2049,21 @@ async function handleRoute() {
 
         document.getElementById('searchInput').value = query;
         performSearch(pathParts[1]);
-    } else if (pathParts[0] === 'subscriptions') {
+    } else if (pathParts[0] === 'following') {
         updateMetaTags(
-            'Subscriptions - Plebs',
+            'Following - Plebs',
             'Watch videos from creators you follow on Plebs'
         );
 
         setStructuredData({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            "name": "Subscriptions",
+            "name": "Following",
             "description": "Watch videos from creators you follow on Plebs",
             "url": window.location.href
         });
 
-        loadSubscriptions();
+        loadFollowing();
     } else if (pathParts[0] === 'my-videos') {
         updateMetaTags(
             'My Videos - Plebs',
@@ -2136,6 +2136,8 @@ async function loadNotifications() {
             '#e': videoIds
         };
 
+        const reactionAuthors = new Set();
+
         await new Promise((resolve) => {
             requestEventsStream(reactionFilter, (reactionEvent) => {
                 const videoId = reactionEvent.tags.find(t => t[0] === 'e')?.[1];
@@ -2145,9 +2147,42 @@ async function loadNotifications() {
                     reactionEvent.pubkey !== currentUser.pubkey
                 ) {
                     reactions.push(reactionEvent);
+                    // Collect reaction authors for validation
+                    reactionAuthors.add(reactionEvent.pubkey);
                 }
             }, resolve);
         });
+
+        // Validate reaction authors
+        const validatedAuthors = new Set();
+
+        if (reactionAuthors.size > 0) {
+            const profileFilter = {
+                kinds: [0],
+                authors: Array.from(reactionAuthors)
+            };
+
+            await new Promise((resolve) => {
+                requestEventsStream(profileFilter, async (profileEvent) => {
+                    try {
+                        const profile = JSON.parse(profileEvent.content);
+                        profileCache.set(profileEvent.pubkey, profile);
+
+                        if (profile.nip05) {
+                            const isValid = await validateNip05(profile.nip05, profileEvent.pubkey);
+                            if (isValid) {
+                                validatedAuthors.add(profileEvent.pubkey);
+                            }
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse profile:', e);
+                    }
+                }, resolve);
+            });
+        }
+
+        // Filter reactions to only include validated authors
+        const validReactions = reactions.filter(r => validatedAuthors.has(r.pubkey));
 
         // Fetch replies
         const replies = [];
@@ -2189,17 +2224,17 @@ async function loadNotifications() {
             }, resolve);
         });
 
-        // Combine and sort all notifications
-        const notifications = [...reactions, ...replies, ...zaps].sort((a, b) => b.created_at - a.created_at);
+        // Combine and sort all notifications (using filtered reactions)
+        const notifications = [...validReactions, ...replies, ...zaps].sort((a, b) => b.created_at - a.created_at);
 
         if (notifications.length === 0) {
             list.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">No recent activity.</p>';
             return;
         }
 
-        // Fetch profiles for all notification authors
+        // Fetch profiles for all notification authors (already have profiles for reactions)
         const uniquePubkeys = [...new Set([
-            ...notifications.filter(n => n.kind !== 9735).map(n => n.pubkey),
+            ...notifications.filter(n => n.kind === 1).map(n => n.pubkey), // replies
             ...notifications.filter(n => n.kind === 9735).map(n => {
                 const zapperTag = n.tags.find(t => t[0] === 'P');
                 return zapperTag ? zapperTag[1] : null;
@@ -2219,7 +2254,7 @@ async function loadNotifications() {
             const video = userVideos.find(v => v.id === videoId);
             const videoTitle = video ? parseVideoEvent(video).title : 'Unknown Video';
 
-            let displayName, avatarUrl, content, notificationPubkey;
+            let displayName, avatarUrl, content, notificationPubkey, nip05;
 
             if (isZap) {
                 // For zaps, get the zapper's info from the P tag
@@ -2233,12 +2268,14 @@ async function loadNotifications() {
                 const profile = profileCache.get(notificationPubkey) || {};
                 displayName = profile.name || profile.display_name || `User ${notificationPubkey.slice(0, 8)}`;
                 avatarUrl = profile.picture || profile.avatar || '';
+                nip05 = profile.nip05 || '';
                 content = `Zapped: ${formatSats(amount)} sats ⚡`;
             } else {
                 notificationPubkey = event.pubkey;
                 const profile = profileCache.get(event.pubkey) || {};
                 displayName = profile.name || profile.display_name || `User ${event.pubkey.slice(0, 8)}`;
                 avatarUrl = profile.picture || profile.avatar || '';
+                nip05 = profile.nip05 || '';
                 content = isReaction
                     ? `Reacted: ${event.content}`
                     : `Replied: "${event.content.slice(0, 40)}${event.content.length > 40 ? '...' : ''}"`;
@@ -2258,6 +2295,7 @@ async function loadNotifications() {
                         ` : ''}
                         <div>
                             <div style="font-weight: 500;">${displayName}</div>
+                            ${nip05 ? `<div style="font-size: 0.75rem; color: var(--text-secondary);">${nip05}</div>` : ''}
                             <div style="font-size: 0.875rem; color: var(--text-secondary);">${timestamp}</div>
                         </div>
                     </div>
@@ -3354,7 +3392,6 @@ function handleRelayMessage(relayUrl, message) {
 }
 
 // Streaming request events
-// Streaming request events
 async function requestEventsStream(filter, onEvent, onComplete) {
     const subscriptionId = Math.random().toString(36).substring(7);
     const eventsMap = new Map();
@@ -3462,8 +3499,6 @@ async function displayVideosStream(title, filter, clientFilter = null) {
     const reactionQueue = new Set();
     let profileTimer = null;
     let reactionTimer = null;
-
-    const globalReactions = new Map();
 
     const updateCardReactions = (eventId, reactions) => {
         const card = document.getElementById(`video-card-${eventId}`);
@@ -3623,65 +3658,14 @@ async function displayVideosStream(title, filter, clientFilter = null) {
         });
     };
 
-    const calculateReactions = (videoId) => {
-        const reactions = { likes: 0, dislikes: 0, userReaction: null };
-        const videoReactions = globalReactions.get(videoId);
-
-        if (videoReactions) {
-            videoReactions.forEach((data, userPubkey) => {
-                if (data.reaction === '👍') {
-                    reactions.likes++;
-                    if (currentUser && userPubkey === currentUser.pubkey) {
-                        reactions.userReaction = 'like';
-                    }
-                } else if (data.reaction === '👎') {
-                    reactions.dislikes++;
-                    if (currentUser && userPubkey === currentUser.pubkey) {
-                        reactions.userReaction = 'dislike';
-                    }
-                }
-            });
-        }
-
-        return reactions;
-    };
-
     const loadReactionsBatch = async () => {
         if (reactionQueue.size === 0) return;
 
         const videoIds = Array.from(reactionQueue);
         reactionQueue.clear();
 
-        const filter = {
-            kinds: [7],
-            '#e': videoIds,
-            '#t': ['pv69420']
-        };
-
-        await requestEventsStream(filter, (reactionEvent) => {
-            const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
-            if (videoId && videoIds.includes(videoId)) {
-                if (!globalReactions.has(videoId)) {
-                    globalReactions.set(videoId, new Map());
-                }
-
-                const videoReactions = globalReactions.get(videoId);
-                const userPubkey = reactionEvent.pubkey;
-                const timestamp = reactionEvent.created_at;
-
-                const existingReaction = videoReactions.get(userPubkey);
-                if (!existingReaction || existingReaction.timestamp < timestamp) {
-                    videoReactions.set(userPubkey, {
-                        reaction: reactionEvent.content,
-                        timestamp: timestamp
-                    });
-
-                    const reactions = calculateReactions(videoId);
-                    reactionsCache.set(videoId, reactions);
-
-                    updateCardReactions(videoId, reactions);
-                }
-            }
+        await loadReactionsForVideos(videoIds, (videoId, reactions) => {
+            updateCardReactions(videoId, reactions);
         });
     };
 
@@ -3729,6 +3713,48 @@ async function displayVideosStream(title, filter, clientFilter = null) {
     });
 }
 
+// Helper function to update all video cards with the same event ID
+function updateAllVideoCardsReactions(eventId, reactions) {
+    const cards = document.querySelectorAll(`[data-event-id="${eventId}"]`);
+    cards.forEach(card => {
+        const thumbnail = card.querySelector('.video-thumbnail');
+        if (!thumbnail) return;
+
+        const existingReactions = thumbnail.querySelector('.video-reactions');
+
+        const newReactionsHTML = reactions && (reactions.likes > 0 || reactions.dislikes > 0) ? `
+            <div class="video-reactions">
+                ${reactions.likes > 0 ? `
+                    <span class="reaction-count likes">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                        </svg>
+                        ${formatNumber(reactions.likes)}
+                    </span>
+                ` : ''}
+                ${reactions.dislikes > 0 ? `
+                    <span class="reaction-count dislikes">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                        </svg>
+                        ${formatNumber(reactions.dislikes)}
+                    </span>
+                ` : ''}
+            </div>
+        ` : '';
+
+        if (existingReactions) {
+            existingReactions.remove();
+        }
+
+        if (newReactionsHTML) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = newReactionsHTML;
+            thumbnail.appendChild(tempDiv.firstElementChild);
+        }
+    });
+}
+
 // Load reactions for videos
 async function loadReactionsForVideos(videoIds, onUpdate = null) {
     const filter = {
@@ -3738,12 +3764,14 @@ async function loadReactionsForVideos(videoIds, onUpdate = null) {
     };
 
     const userReactions = new Map();
+    const reactionAuthors = new Set();
+    const validatedAuthors = new Set();
 
     videoIds.forEach(id => {
         userReactions.set(id, new Map());
     });
 
-    return new Promise((resolve) => {
+    await new Promise((resolve) => {
         requestEventsStream(filter, (event) => {
             const videoId = event.tags.find(tag => tag[0] === 'e')?.[1];
             if (videoId && videoIds.includes(videoId)) {
@@ -3758,54 +3786,100 @@ async function loadReactionsForVideos(videoIds, onUpdate = null) {
                         timestamp: timestamp
                     });
 
-                    const reactions = { likes: 0, dislikes: 0, userReaction: null };
-                    videoReactionMap.forEach((data, pubkey) => {
-                        if (data.reaction === '👍') {
-                            reactions.likes++;
-                            if (currentUser && pubkey === currentUser.pubkey) {
-                                reactions.userReaction = 'like';
-                            }
-                        } else if (data.reaction === '👎') {
-                            reactions.dislikes++;
-                            if (currentUser && pubkey === currentUser.pubkey) {
-                                reactions.userReaction = 'dislike';
-                            }
-                        }
-                    });
-
-                    reactionsCache.set(videoId, reactions);
-
-                    if (onUpdate) {
-                        onUpdate(videoId, reactions);
+                    if (event.content === '👍' || event.content === '👎') {
+                        reactionAuthors.add(userPubkey);
                     }
                 }
             }
-        }, () => {
-            const reactions = {};
-            videoIds.forEach(id => {
-                reactions[id] = { likes: 0, dislikes: 0, userReaction: null };
-
-                const videoReactionMap = userReactions.get(id);
-                videoReactionMap.forEach((data, userPubkey) => {
-                    if (data.reaction === '👍') {
-                        reactions[id].likes++;
-                        if (currentUser && userPubkey === currentUser.pubkey) {
-                            reactions[id].userReaction = 'like';
-                        }
-                    } else if (data.reaction === '👎') {
-                        reactions[id].dislikes++;
-                        if (currentUser && userPubkey === currentUser.pubkey) {
-                            reactions[id].userReaction = 'dislike';
-                        }
-                    }
-                });
-
-                reactionsCache.set(id, reactions[id]);
-            });
-
-            resolve(reactions);
-        });
+        }, resolve);
     });
+
+    if (reactionAuthors.size > 0) {
+        const profileFilter = {
+            kinds: [0],
+            authors: Array.from(reactionAuthors)
+        };
+
+        await new Promise((resolve) => {
+            requestEventsStream(profileFilter, (profileEvent) => {
+                try {
+                    const profile = JSON.parse(profileEvent.content);
+                    profileCache.set(profileEvent.pubkey, profile);
+
+                    if (profile.nip05) {
+                        validateNip05(profile.nip05, profileEvent.pubkey).then(isValid => {
+                            if (isValid) {
+                                validatedAuthors.add(profileEvent.pubkey);
+
+                                videoIds.forEach(videoId => {
+                                    const videoReactionMap = userReactions.get(videoId);
+                                    if (videoReactionMap.has(profileEvent.pubkey)) {
+                                        const reactions = { likes: 0, dislikes: 0, userReaction: null };
+
+                                        videoReactionMap.forEach((data, pubkey) => {
+                                            if (data.reaction === '👍') {
+                                                if (validatedAuthors.has(pubkey)) {
+                                                    reactions.likes++;
+                                                }
+                                                if (currentUser && pubkey === currentUser.pubkey) {
+                                                    reactions.userReaction = 'like';
+                                                }
+                                            } else if (data.reaction === '👎') {
+                                                if (validatedAuthors.has(pubkey)) {
+                                                    reactions.dislikes++;
+                                                }
+                                                if (currentUser && pubkey === currentUser.pubkey) {
+                                                    reactions.userReaction = 'dislike';
+                                                }
+                                            }
+                                        });
+
+                                        reactionsCache.set(videoId, reactions);
+
+                                        updateAllVideoCardsReactions(videoId, reactions);
+
+                                        if (onUpdate) {
+                                            onUpdate(videoId, reactions);
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error('Failed to parse profile:', e);
+                }
+            }, resolve);
+        });
+    }
+
+    const reactions = {};
+    videoIds.forEach(id => {
+        reactions[id] = { likes: 0, dislikes: 0, userReaction: null };
+
+        const videoReactionMap = userReactions.get(id);
+        videoReactionMap.forEach((data, userPubkey) => {
+            if (data.reaction === '👍') {
+                if (validatedAuthors.has(userPubkey)) {
+                    reactions[id].likes++;
+                }
+                if (currentUser && userPubkey === currentUser.pubkey) {
+                    reactions[id].userReaction = 'like';
+                }
+            } else if (data.reaction === '👎') {
+                if (validatedAuthors.has(userPubkey)) {
+                    reactions[id].dislikes++;
+                }
+                if (currentUser && userPubkey === currentUser.pubkey) {
+                    reactions[id].userReaction = 'dislike';
+                }
+            }
+        });
+
+        reactionsCache.set(id, reactions[id]);
+    });
+
+    return reactions;
 }
 
 // Load zaps for videos
@@ -4321,15 +4395,19 @@ async function loadTrendingVideos(period = 'today') {
         const globalZaps = new Map();
         const globalBoosts = new Map();
         const processedVideos = new Set();
+        const validReactionAuthors = new Set();
+        const renderedVideoIds = new Set();
         let trendingVideos = [];
         let videosComplete = false;
         let reactionsComplete = false;
         let zapsComplete = false;
         let boostsComplete = false;
+        let profilesComplete = false;
         let lastProcessTime = 0;
         let processTimer = null;
         let resolveTimer = null;
         let hasResolved = false;
+        let lastRenderCount = 0;
 
         const processTrending = (force = false) => {
             const now = Date.now();
@@ -4347,16 +4425,20 @@ async function loadTrendingVideos(period = 'today') {
                 const videoReactions = globalReactions.get(event.id);
 
                 if (videoReactions) {
-                    videoReactions.forEach((data) => {
-                        if (data.reaction === '👍') {
-                            reactions.likes++;
-                        } else if (data.reaction === '👎') {
-                            reactions.dislikes++;
+                    videoReactions.forEach((data, userPubkey) => {
+                        if (validReactionAuthors.has(userPubkey)) {
+                            if (data.reaction === '👍') {
+                                reactions.likes++;
+                            } else if (data.reaction === '👎') {
+                                reactions.dislikes++;
+                            }
                         }
                     });
                 }
 
                 reactionsCache.set(event.id, reactions);
+
+                updateAllVideoCardsReactions(event.id, reactions);
 
                 if (isVideoRatioed(reactions)) {
                     return;
@@ -4368,10 +4450,10 @@ async function loadTrendingVideos(period = 'today') {
                 const ageHours = (now - event.created_at) / 3600;
                 const timeWeight = Math.max(0, 24 - ageHours) / 24;
 
-                // Include boosts in the score calculation with higher weight
+                const likeScore = reactions.likes * 0.5;
                 const zapScore = (zapTotal / 1000) * 5;
-                const boostScore = (boostTotal / 100) * 10; // Boosts have 2x the weight of zaps
-                const score = reactions.likes - (reactions.dislikes * 2) + zapScore + boostScore + (timeWeight * 10);
+                const boostScore = (boostTotal / 100) * 10;
+                const score = likeScore - (reactions.dislikes * 2) + zapScore + boostScore + (timeWeight * 10);
 
                 if (score > 0) {
                     videoScores.set(event.id, score);
@@ -4388,16 +4470,17 @@ async function loadTrendingVideos(period = 'today') {
             trendingVideos = newTrendingVideos.slice(0, 12);
 
             const trendingGrid = document.getElementById('trendingGrid');
-            if (trendingGrid && trendingVideos.length > 0 && !hasResolved) {
-                const spinner = trendingGrid.querySelector('.spinner');
-                if (spinner) {
-                    renderTrendingVideos(trendingVideos).then(() => {
-                        // Rendered successfully
-                    });
+            if (trendingGrid && trendingVideos.length > 0) {
+                const currentlyRendered = renderedVideoIds.size;
+                const videosToRender = trendingVideos.filter(v => !renderedVideoIds.has(v.id));
+
+                if (videosToRender.length > 0 || trendingVideos.length !== lastRenderCount) {
+                    renderTrendingVideosIncremental(trendingVideos, renderedVideoIds);
+                    lastRenderCount = trendingVideos.length;
                 }
             }
 
-            if (videosComplete && reactionsComplete && zapsComplete && boostsComplete && !hasResolved) {
+            if (videosComplete && reactionsComplete && zapsComplete && boostsComplete && profilesComplete && !hasResolved) {
                 clearTimeout(processTimer);
                 clearTimeout(resolveTimer);
                 hasResolved = true;
@@ -4405,9 +4488,51 @@ async function loadTrendingVideos(period = 'today') {
             }
         };
 
+        const loadReactionAuthorsProfiles = (reactionAuthors) => {
+            if (reactionAuthors.size === 0) {
+                profilesComplete = true;
+                processTrending(true);
+                return;
+            }
+
+            const profileFilter = {
+                kinds: [0],
+                authors: Array.from(reactionAuthors)
+            };
+
+            let profilesLoaded = 0;
+            const totalProfiles = reactionAuthors.size;
+
+            requestEventsStream(profileFilter, (profileEvent) => {
+                try {
+                    const profile = JSON.parse(profileEvent.content);
+                    profilesLoaded++;
+
+                    if (profile.nip05) {
+                        validateNip05(profile.nip05, profileEvent.pubkey).then(isValid => {
+                            if (isValid) {
+                                validReactionAuthors.add(profileEvent.pubkey);
+                                processTrending();
+                            }
+                        });
+                    }
+
+                    if (profilesLoaded % 10 === 0) {
+                        processTrending();
+                    }
+                } catch (e) {
+                    console.error('Failed to parse profile:', e);
+                }
+            }, () => {
+                profilesComplete = true;
+                processTrending(true);
+            });
+        };
+
         const loadReactions = () => {
             if (videoEvents.length === 0) {
                 reactionsComplete = true;
+                profilesComplete = true;
                 processTrending(true);
                 return;
             }
@@ -4419,6 +4544,8 @@ async function loadTrendingVideos(period = 'today') {
                 '#t': ['pv69420'],
                 since: since
             };
+
+            const reactionAuthorsToValidate = new Set();
 
             requestEventsStream(reactionFilter, (reactionEvent) => {
                 const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
@@ -4437,12 +4564,15 @@ async function loadTrendingVideos(period = 'today') {
                             reaction: reactionEvent.content,
                             timestamp: timestamp
                         });
-                        processTrending();
+
+                        if (reactionEvent.content === '👍') {
+                            reactionAuthorsToValidate.add(userPubkey);
+                        }
                     }
                 }
             }, () => {
                 reactionsComplete = true;
-                processTrending(true);
+                loadReactionAuthorsProfiles(reactionAuthorsToValidate);
             });
         };
 
@@ -4464,10 +4594,8 @@ async function loadTrendingVideos(period = 'today') {
                 try {
                     const videoId = zapEvent.tags.find(tag => tag[0] === 'e')?.[1];
                     if (videoId && videoIds.includes(videoId)) {
-                        // Check if this is a boost zap (skip if it is)
                         const pTag = zapEvent.tags.find(tag => tag[0] === 'p');
                         if (pTag && pTag[1] === 'd49a9023a21dba1b3c8306ca369bf3243d8b44b8f0b6d1196607f7b0990fa8df') {
-                            // This is a potential boost, check if it has the purpose tag
                             const description = zapEvent.tags.find(tag => tag[0] === 'description')?.[1];
                             if (description) {
                                 try {
@@ -4476,12 +4604,9 @@ async function loadTrendingVideos(period = 'today') {
                                         tag[0] === 'purpose' && tag[1] === 'boost'
                                     );
                                     if (hasBoostTag) {
-                                        // Skip this boost zap
                                         return;
                                     }
-                                } catch (e) {
-                                    // If we can't parse description, treat as regular zap
-                                }
+                                } catch (e) { }
                             }
                         }
 
@@ -4523,7 +4648,6 @@ async function loadTrendingVideos(period = 'today') {
                 try {
                     const videoId = boostEvent.tags.find(tag => tag[0] === 'e')?.[1];
                     if (videoId && videoIds.includes(videoId)) {
-                        // Check if this has the purpose=boost tag
                         const description = boostEvent.tags.find(tag => tag[0] === 'description')?.[1];
                         if (description) {
                             try {
@@ -4544,9 +4668,7 @@ async function loadTrendingVideos(period = 'today') {
                                         }
                                     }
                                 }
-                            } catch (e) {
-                                // If we can't parse description, skip this event
-                            }
+                            } catch (e) { }
                         }
                     }
                 } catch (e) {
@@ -4558,14 +4680,18 @@ async function loadTrendingVideos(period = 'today') {
             });
         };
 
+        let videoCount = 0;
         requestEventsStream(filter, (event) => {
             const tags = event.tags || [];
             if (tags.some(tag => tag[0] === 'x') && !processedVideos.has(event.id)) {
                 processedVideos.add(event.id);
                 videoEvents.push(event);
                 allEvents.set(event.id, event);
+                videoCount++;
 
-                processTrending();
+                if (videoCount % 5 === 0) {
+                    processTrending();
+                }
             }
         }, () => {
             videosComplete = true;
@@ -4578,16 +4704,16 @@ async function loadTrendingVideos(period = 'today') {
                 reactionsComplete = true;
                 zapsComplete = true;
                 boostsComplete = true;
+                profilesComplete = true;
                 processTrending(true);
             }
         });
 
-        resolveTimer = setTimeout(() => {
-            if (trendingVideos.length >= 6 && !hasResolved) {
-                hasResolved = true;
-                resolve(trendingVideos);
+        setTimeout(() => {
+            if (trendingVideos.length > 0 && !hasResolved) {
+                processTrending(true);
             }
-        }, 3000);
+        }, 1000);
 
         setTimeout(() => {
             if (!hasResolved) {
@@ -4595,12 +4721,47 @@ async function loadTrendingVideos(period = 'today') {
                 reactionsComplete = true;
                 zapsComplete = true;
                 boostsComplete = true;
+                profilesComplete = true;
                 processTrending(true);
                 hasResolved = true;
                 resolve(trendingVideos);
             }
-        }, 7000);
+        }, 15000);
     });
+}
+
+// Helper function for incremental rendering
+async function renderTrendingVideosIncremental(trendingVideos, renderedVideoIds) {
+    const trendingGrid = document.getElementById('trendingGrid');
+    if (!trendingGrid) return;
+
+    const spinner = trendingGrid.querySelector('.spinner');
+    if (spinner) {
+        spinner.remove();
+    }
+
+    const newVideos = trendingVideos.filter(v => !renderedVideoIds.has(v.id));
+    const newPubkeys = [...new Set(newVideos.map(v => v.pubkey))];
+
+    if (newPubkeys.length > 0) {
+        await loadUserProfiles(newPubkeys);
+    }
+
+    trendingGrid.innerHTML = '';
+
+    const renderedCards = trendingVideos.map((event, index) => {
+        const profile = profileCache.get(event.pubkey);
+        const reactions = reactionsCache.get(event.id);
+        renderedVideoIds.add(event.id);
+        return createVideoCard(event, profile, reactions, true);
+    }).filter(card => card !== '');
+
+    if (renderedCards.length > 0) {
+        trendingGrid.innerHTML = renderedCards.join('');
+        initializeCarousel();
+    } else if (trendingVideos.length === 0) {
+        trendingGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No trending videos found.</p>';
+    }
 }
 
 // Load home feed with trending section
@@ -4664,8 +4825,6 @@ async function loadHomeFeed() {
     const reactionQueue = new Set();
     let profileTimer = null;
     let reactionTimer = null;
-
-    const globalReactions = new Map();
 
     const updateCardReactions = (eventId, reactions) => {
         const card = document.getElementById(`video-card-${eventId}`);
@@ -4825,65 +4984,14 @@ async function loadHomeFeed() {
         });
     };
 
-    const calculateReactions = (videoId) => {
-        const reactions = { likes: 0, dislikes: 0, userReaction: null };
-        const videoReactions = globalReactions.get(videoId);
-
-        if (videoReactions) {
-            videoReactions.forEach((data, userPubkey) => {
-                if (data.reaction === '👍') {
-                    reactions.likes++;
-                    if (currentUser && userPubkey === currentUser.pubkey) {
-                        reactions.userReaction = 'like';
-                    }
-                } else if (data.reaction === '👎') {
-                    reactions.dislikes++;
-                    if (currentUser && userPubkey === currentUser.pubkey) {
-                        reactions.userReaction = 'dislike';
-                    }
-                }
-            });
-        }
-
-        return reactions;
-    };
-
     const loadReactionsBatch = async () => {
         if (reactionQueue.size === 0) return;
 
         const videoIds = Array.from(reactionQueue);
         reactionQueue.clear();
 
-        const filter = {
-            kinds: [7],
-            '#e': videoIds,
-            '#t': ['pv69420']
-        };
-
-        await requestEventsStream(filter, (reactionEvent) => {
-            const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
-            if (videoId && videoIds.includes(videoId)) {
-                if (!globalReactions.has(videoId)) {
-                    globalReactions.set(videoId, new Map());
-                }
-
-                const videoReactions = globalReactions.get(videoId);
-                const userPubkey = reactionEvent.pubkey;
-                const timestamp = reactionEvent.created_at;
-
-                const existingReaction = videoReactions.get(userPubkey);
-                if (!existingReaction || existingReaction.timestamp < timestamp) {
-                    videoReactions.set(userPubkey, {
-                        reaction: reactionEvent.content,
-                        timestamp: timestamp
-                    });
-
-                    const reactions = calculateReactions(videoId);
-                    reactionsCache.set(videoId, reactions);
-
-                    updateCardReactions(videoId, reactions);
-                }
-            }
+        await loadReactionsForVideos(videoIds, (videoId, reactions) => {
+            updateCardReactions(videoId, reactions);
         });
     };
 
@@ -5061,17 +5169,17 @@ async function switchTrendingPeriod(period) {
     await loadTrendingSection();
 }
 
-// Load subscriptions
-async function loadSubscriptions() {
+// Load following
+async function loadFollowing() {
     if (!currentUser) {
         await checkStoredLogin(); // Wait for login check
         if (!currentUser) {
-            document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view your subscriptions.</p>';
+            document.getElementById('mainContent').innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Please login to view who you are following.</p>';
             return;
         }
     }
 
-    currentView = 'subscriptions';
+    currentView = 'following';
 
     const mainContent = document.getElementById('mainContent');
     mainContent.innerHTML = '<div class="spinner"></div>';
@@ -5093,7 +5201,7 @@ async function loadSubscriptions() {
 
         if (followingList.length === 0) {
             mainContent.innerHTML = `
-                <h2 style="margin-bottom: 1.5rem;">Subscriptions</h2>
+                <h2 style="margin-bottom: 1.5rem;">Following</h2>
                 <p style="text-align: center; color: var(--text-secondary);">You're not following anyone yet. Find creators to follow!</p>
             `;
             return;
@@ -5106,11 +5214,11 @@ async function loadSubscriptions() {
             limit: 50
         };
 
-        await displayVideosStream('Subscriptions', filter);
+        await displayVideosStream('Following', filter);
 
     } catch (error) {
-        console.error('Failed to load subscriptions:', error);
-        mainContent.innerHTML = '<div class="error-message">Failed to load subscriptions. Please try again.</div>';
+        console.error('Failed to load following:', error);
+        mainContent.innerHTML = '<div class="error-message">Failed to load following. Please try again.</div>';
     }
 }
 
@@ -5500,8 +5608,6 @@ async function performSearch(query) {
     let profileTimer = null;
     let reactionTimer = null;
 
-    const globalReactions = new Map();
-
     const matchesSearch = (event) => {
         const videoData = parseVideoEvent(event);
         if (!videoData) return false;
@@ -5593,68 +5699,17 @@ async function performSearch(query) {
         });
     };
 
-    const calculateReactions = (videoId) => {
-        const reactions = { likes: 0, dislikes: 0, userReaction: null };
-        const videoReactions = globalReactions.get(videoId);
-
-        if (videoReactions) {
-            videoReactions.forEach((data, userPubkey) => {
-                if (data.reaction === '👍') {
-                    reactions.likes++;
-                    if (currentUser && userPubkey === currentUser.pubkey) {
-                        reactions.userReaction = 'like';
-                    }
-                } else if (data.reaction === '👎') {
-                    reactions.dislikes++;
-                    if (currentUser && userPubkey === currentUser.pubkey) {
-                        reactions.userReaction = 'dislike';
-                    }
-                }
-            });
-        }
-
-        return reactions;
-    };
-
     const loadReactionsBatch = async () => {
         if (reactionQueue.size === 0) return;
 
         const videoIds = Array.from(reactionQueue);
         reactionQueue.clear();
 
-        const filter = {
-            kinds: [7],
-            '#e': videoIds,
-            '#t': ['pv69420']
-        };
-
-        await requestEventsStream(filter, (reactionEvent) => {
-            const videoId = reactionEvent.tags.find(tag => tag[0] === 'e')?.[1];
-            if (videoId && videoIds.includes(videoId)) {
-                if (!globalReactions.has(videoId)) {
-                    globalReactions.set(videoId, new Map());
-                }
-
-                const videoReactions = globalReactions.get(videoId);
-                const userPubkey = reactionEvent.pubkey;
-                const timestamp = reactionEvent.created_at;
-
-                const existingReaction = videoReactions.get(userPubkey);
-                if (!existingReaction || existingReaction.timestamp < timestamp) {
-                    videoReactions.set(userPubkey, {
-                        reaction: reactionEvent.content,
-                        timestamp: timestamp
-                    });
-
-                    const reactions = calculateReactions(videoId);
-                    reactionsCache.set(videoId, reactions);
-
-                    const event = videoEvents.find(e => e.id === videoId);
-                    if (event) {
-                        const profile = profileCache.get(event.pubkey);
-                        updateVideoCard(event, profile, reactions);
-                    }
-                }
+        await loadReactionsForVideos(videoIds, (videoId, reactions) => {
+            const event = videoEvents.find(e => e.id === videoId);
+            if (event) {
+                const profile = profileCache.get(event.pubkey);
+                updateVideoCard(event, profile, reactions);
             }
         });
     };
@@ -7063,6 +7118,11 @@ async function validateNip05(nip05, pubkey) {
             return false;
         }
 
+        if (domain.includes('/uploads')) {
+            nip05ValidationCache.set(cacheKey, false);
+            return false;
+        }
+
         const response = await fetch(`https://${domain}/.well-known/nostr.json?name=${name}`, {
             method: 'GET',
             headers: {
@@ -7118,7 +7178,7 @@ function createImageValidationPromise(url) {
 }
 
 // Function to create cards for videos
-function createVideoCard(event, profile, reactions, isTrending = false, trendingRank = null) {
+function createVideoCard(event, profile, reactions, isTrending = false) {
     const videoData = parseVideoEvent(event);
     if (!videoData) return '';
 
@@ -7168,14 +7228,6 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
                             <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" stroke-width="2"/>
                         </svg>
                         ${formatSats(boostAmount)}
-                    </div>
-                ` : ''}
-                ${isTrending && trendingRank ? `
-                    <div class="trending-badge ${isBoosted ? 'with-boost' : ''}">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19.48,12.35c-1.57-4.08-7.16-4.3-5.81-10.23c0.1-0.44-0.37-0.78-0.75-0.55C9.29,3.71,6.68,8,8.87,13.62 c0.18,0.46-0.36,0.89-0.75,0.59c-1.81-1.37-2-3.34-1.84-4.75c0.06-0.52-0.62-0.77-0.91-0.34C4.69,10.16,4,11.84,4,14.37 c0.38,5.6,5.11,7.32,6.81,7.54c2.43,0.31,5.06-0.14,6.95-1.87C19.84,18.11,20.6,15.03,19.48,12.35z"/>
-                        </svg>
-                        #${trendingRank}
                     </div>
                 ` : ''}
                 ${!showBlurred && videoData.duration ? `<span class="video-duration">${formatDuration(videoData.duration)}</span>` : ''}
