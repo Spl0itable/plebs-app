@@ -6964,7 +6964,9 @@ const INVALID_NIP05 = [
     'r2a.primal.net',
     'blossom.primal.net',
     'localhost',
-    '127.0.0.1'
+    '127.0.0.1',
+    'files',
+    'uploads'
 ];
 
 // Helper function to validate NIP-05
