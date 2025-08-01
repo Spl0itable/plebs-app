@@ -2052,12 +2052,6 @@ nostr-zap {
         width: 36px;
         height: 36px;
     }
-    .channel-nip05 {
-        max-width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
 }
 
 @media (max-width: 480px) {
