@@ -4871,9 +4871,11 @@ async function loadHomeFeed() {
             </div>
         </div>
         <hr class="section-divider">
-        <h2 style="margin-bottom: 1.5rem;">Latest Videos</h2>
-        <div class="video-grid" id="videoGrid">
-            <div class="spinner"></div>
+        <div class="latest-videos-section">
+            <h2 style="margin-bottom: 1.5rem;">Latest Videos</h2>
+            <div class="video-grid" id="videoGrid">
+                <div class="spinner"></div>
+            </div>
         </div>
     `;
 
