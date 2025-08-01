@@ -6959,6 +6959,14 @@ function isVideoNSFW(event) {
     return tags.some(tag => tag[0] === 'content-warning' && tag[1] === 'nsfw');
 }
 
+// Invalid patterns for NIP-05 validation
+const INVALID_NIP05 = [
+    'r2a.primal.net',
+    'blossom.primal.net',
+    'localhost',
+    '127.0.0.1'
+];
+
 // Helper function to validate NIP-05
 async function validateNip05(nip05, pubkey) {
     const cacheKey = `${nip05}:${pubkey}`;
@@ -6973,7 +6981,11 @@ async function validateNip05(nip05, pubkey) {
             return false;
         }
 
-        if (domain.includes('/uploads')) {
+        const isBlocked = INVALID_NIP05.some(pattern => 
+            domain.toLowerCase().includes(pattern.toLowerCase())
+        );
+
+        if (isBlocked) {
             nip05ValidationCache.set(cacheKey, false);
             return false;
         }
