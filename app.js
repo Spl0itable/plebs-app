@@ -3497,8 +3497,54 @@ async function displayVideosStream(title, filter, clientFilter = null) {
     const videoEvents = [];
     const profileQueue = new Set();
     const reactionQueue = new Set();
+    const boostQueue = new Set();
     let profileTimer = null;
     let reactionTimer = null;
+    let boostTimer = null;
+
+    const updateCardBoosts = (eventId, boostAmount) => {
+        const card = document.getElementById(`video-card-${eventId}`);
+        if (!card) return;
+
+        const boostLevel = getBoostLevel(boostAmount);
+        const isBoosted = boostLevel > 0;
+
+        // Update card classes
+        if (isBoosted) {
+            card.classList.add('boosted', `boost-level-${boostLevel}`);
+            // Remove old boost levels
+            for (let i = 1; i <= 4; i++) {
+                if (i !== boostLevel) {
+                    card.classList.remove(`boost-level-${i}`);
+                }
+            }
+        } else {
+            card.classList.remove('boosted', 'boost-level-1', 'boost-level-2', 'boost-level-3', 'boost-level-4');
+        }
+
+        // Update boost indicator
+        const thumbnail = card.querySelector('.video-thumbnail');
+        const existingIndicator = thumbnail.querySelector('.boost-indicator');
+
+        if (isBoosted) {
+            const indicatorHTML = `
+                <div class="boost-indicator">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" stroke-width="2"/>
+                    </svg>
+                    ${formatSats(boostAmount)}
+                </div>
+            `;
+
+            if (existingIndicator) {
+                existingIndicator.outerHTML = indicatorHTML;
+            } else {
+                thumbnail.insertAdjacentHTML('beforeend', indicatorHTML);
+            }
+        } else if (existingIndicator) {
+            existingIndicator.remove();
+        }
+    };
 
     const updateCardReactions = (eventId, reactions) => {
         const card = document.getElementById(`video-card-${eventId}`);
@@ -3669,6 +3715,20 @@ async function displayVideosStream(title, filter, clientFilter = null) {
         });
     };
 
+    const loadBoostsBatch = async () => {
+        if (boostQueue.size === 0) return;
+
+        const videoIds = Array.from(boostQueue);
+        boostQueue.clear();
+
+        // Load boosts for each video
+        for (const videoId of videoIds) {
+            loadBoostsForVideo(videoId, (totalBoosts) => {
+                updateCardBoosts(videoId, totalBoosts);
+            });
+        }
+    };
+
     await requestEventsStream(filter, (event) => {
         const tags = event.tags || [];
         if (!tags.some(tag => tag[0] === 'x')) return;
@@ -3699,6 +3759,10 @@ async function displayVideosStream(title, filter, clientFilter = null) {
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(loadReactionsBatch, 200);
 
+        boostQueue.add(event.id);
+        clearTimeout(boostTimer);
+        boostTimer = setTimeout(loadBoostsBatch, 300);
+
     }, (allEvents) => {
         if (videoEvents.length === 0) {
             videoGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No videos found.</p>';
@@ -3709,6 +3773,9 @@ async function displayVideosStream(title, filter, clientFilter = null) {
         }
         if (reactionQueue.size > 0) {
             loadReactionsBatch();
+        }
+        if (boostQueue.size > 0) {
+            loadBoostsBatch();
         }
     });
 }
@@ -4823,8 +4890,54 @@ async function loadHomeFeed() {
     const videoEvents = [];
     const profileQueue = new Set();
     const reactionQueue = new Set();
+    const boostQueue = new Set();
     let profileTimer = null;
     let reactionTimer = null;
+    let boostTimer = null;
+
+    const updateCardBoosts = (eventId, boostAmount) => {
+        const card = document.getElementById(`video-card-${eventId}`);
+        if (!card) return;
+
+        const boostLevel = getBoostLevel(boostAmount);
+        const isBoosted = boostLevel > 0;
+
+        // Update card classes
+        if (isBoosted) {
+            card.classList.add('boosted', `boost-level-${boostLevel}`);
+            // Remove old boost levels
+            for (let i = 1; i <= 4; i++) {
+                if (i !== boostLevel) {
+                    card.classList.remove(`boost-level-${i}`);
+                }
+            }
+        } else {
+            card.classList.remove('boosted', 'boost-level-1', 'boost-level-2', 'boost-level-3', 'boost-level-4');
+        }
+
+        // Update boost indicator
+        const thumbnail = card.querySelector('.video-thumbnail');
+        const existingIndicator = thumbnail.querySelector('.boost-indicator');
+
+        if (isBoosted) {
+            const indicatorHTML = `
+                <div class="boost-indicator">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" stroke-width="2"/>
+                    </svg>
+                    ${formatSats(boostAmount)}
+                </div>
+            `;
+
+            if (existingIndicator) {
+                existingIndicator.outerHTML = indicatorHTML;
+            } else {
+                thumbnail.insertAdjacentHTML('beforeend', indicatorHTML);
+            }
+        } else if (existingIndicator) {
+            existingIndicator.remove();
+        }
+    };
 
     const updateCardReactions = (eventId, reactions) => {
         const card = document.getElementById(`video-card-${eventId}`);
@@ -4995,6 +5108,20 @@ async function loadHomeFeed() {
         });
     };
 
+    const loadBoostsBatch = async () => {
+        if (boostQueue.size === 0) return;
+
+        const videoIds = Array.from(boostQueue);
+        boostQueue.clear();
+
+        // Load boosts for each video
+        for (const videoId of videoIds) {
+            loadBoostsForVideo(videoId, (totalBoosts) => {
+                updateCardBoosts(videoId, totalBoosts);
+            });
+        }
+    };
+
     await requestEventsStream(filter, (event) => {
         const tags = event.tags || [];
         if (!tags.some(tag => tag[0] === 'x')) return;
@@ -5023,6 +5150,10 @@ async function loadHomeFeed() {
         clearTimeout(reactionTimer);
         reactionTimer = setTimeout(loadReactionsBatch, 200);
 
+        boostQueue.add(event.id);
+        clearTimeout(boostTimer);
+        boostTimer = setTimeout(loadBoostsBatch, 300);
+
     }, (allEvents) => {
         if (videoEvents.length === 0) {
             videoGrid.innerHTML = '<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No videos found.</p>';
@@ -5033,6 +5164,9 @@ async function loadHomeFeed() {
         }
         if (reactionQueue.size > 0) {
             loadReactionsBatch();
+        }
+        if (boostQueue.size > 0) {
+            loadBoostsBatch();
         }
     });
 }
@@ -7178,7 +7312,7 @@ function createImageValidationPromise(url) {
 }
 
 // Function to create cards for videos
-function createVideoCard(event, profile, reactions, isTrending = false) {
+function createVideoCard(event, profile, reactions, isTrending = false, trendingRank = null) {
     const videoData = parseVideoEvent(event);
     if (!videoData) return '';
 
@@ -7191,7 +7325,7 @@ function createVideoCard(event, profile, reactions, isTrending = false) {
     const cardId = `video-card-${event.id}`;
     const isSuspiciousProfile = !avatarUrl || !nip05;
 
-    // Get boost data
+    // Get boost data from cache
     const boostAmount = boostsCache.get(event.id) || 0;
     const boostLevel = getBoostLevel(boostAmount);
     const isBoosted = boostLevel > 0;
@@ -7222,7 +7356,7 @@ function createVideoCard(event, profile, reactions, isTrending = false) {
                         <div>Click to view</div>
                     </div>
                 ` : ''}
-                ${isBoosted && !showBlurred ? `
+                ${isBoosted ? `
                     <div class="boost-indicator">
                         <svg viewBox="0 0 24 24" fill="currentColor">
                             <path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" stroke-width="2"/>
@@ -7251,6 +7385,7 @@ function createVideoCard(event, profile, reactions, isTrending = false) {
                         ` : ''}
                     </div>
                 ` : ''}
+                ${isTrending && trendingRank ? `<div class="trending-rank">#${trendingRank}</div>` : ''}
             </div>
             <div class="video-info">
                 <a href="#/profile/${event.pubkey}" class="channel-info">

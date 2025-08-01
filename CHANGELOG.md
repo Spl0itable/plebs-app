@@ -1,3 +1,7 @@
+## v1.6.8 - 2025-08-01
+
+Hotfix: boosted videos not properly showing
+
 ## v1.6.7 - 2025-08-01
 
 Hotfix: locked down how likes/dislikes are counted from bot attacks
