@@ -660,7 +660,7 @@ header {
 
 /* Boost button styling */
 .action-btn.boost {
-    color: white;
+   color: var(--text-primary);
 }
 
 .action-btn.boost:hover {
