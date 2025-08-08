@@ -152,7 +152,8 @@
                 Liked
             </a>
             <hr style="border: none; border-top: 1px solid var(--border); margin: 1rem 0;">
-            <div style="padding: 0 1rem; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">TOPICS
+            <div style="padding: 0 1rem; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                TOPICS
             </div>
             <a href="#/tag/bitcoin" class="sidebar-item">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"
@@ -568,21 +569,35 @@
                             <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z" />
                         </svg>
                         <p>Click to select video or drag and drop</p>
-                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">MP4, AVI, MOV,
-                            etc (max 100MB)</p>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                            MP4, AVI, MOV, etc (max 5GB input, will compress to <100MB) </p>
                     </div>
                     <input type="file" id="videoFile" accept="video/*" style="display: none;"
                         onchange="handleFileSelect(event)">
                 </div>
 
-                <div class="upload-progress" id="uploadProgress">
-                    <p>Uploading to Blossom servers...</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                <!-- Video Compression Options -->
+                <div class="form-group" id="compressionOptions" style="display: none;">
+                    <label>Compression</label>
+                    <div class="compression-settings">
+                        <div class="compression-toggle">
+                            <input type="checkbox" id="enableCompression" checked>
+                            <label for="enableCompression">Enable compression (required for files > 100MB)</label>
+                        </div>
+                        <div class="compression-quality" id="compressionQuality">
+                            <label>Quality:</label>
+                            <select id="compressionQualitySelect">
+                                <option value="high">High (larger file, better quality)</option>
+                                <option value="medium" selected>Medium (balanced)</option>
+                                <option value="low">Low (smaller file, lower quality)</option>
+                                <option value="ultra-low">Ultra Low (smallest file, minimal quality)</option>
+                            </select>
+                        </div>
+                        <div class="compression-info" id="compressionInfo"></div>
+                        <div class="compression-warning" id="compressionWarning"
+                            style="display: none; color: var(--error-color); margin-top: 0.5rem; font-size: 0.875rem;">
+                        </div>
                     </div>
-                    <p id="uploadStatus" style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
-                    </p>
-                    <div class="server-status" id="serverStatus"></div>
                 </div>
 
                 <div class="form-group">
@@ -613,6 +628,23 @@
                     <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
                         Content containing adult material should be marked as NSFW
                     </p>
+                </div>
+
+                <!-- Upload Progress Section -->
+                <div class="upload-progress" id="uploadProgress">
+                    <p id="uploadStatus">Preparing...</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+
+                    <!-- Compression Progress -->
+                    <div id="compressionProgress" style="display: none;">
+                        <p id="compressionStatus">Compressing video...</p>
+                        <div class="compression-stats" id="compressionStats"></div>
+                    </div>
+
+                    <!-- Server Upload Status -->
+                    <div class="server-status" id="serverStatus"></div>
                 </div>
 
                 <button type="submit" class="upload-btn" style="margin-top: 1rem;">

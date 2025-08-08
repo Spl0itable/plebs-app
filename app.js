@@ -40,7 +40,7 @@ const STORAGE_KEYS = {
 const BLOSSOM_SERVERS = [
     'https://blossom.primal.net',
     'https://blossom.band',
-    'https://24242.io'
+    'https://nostr.media'
 ];
 
 // Premium Blossom server
@@ -128,6 +128,731 @@ function monitorRelayConnections() {
         });
     }, 10000); // Check every 10 seconds
 }
+
+// Video compression
+const VideoCompressor = {
+    isAvailable: true,
+    compressionInProgress: false,
+
+    async compressVideo(file, options = {}) {
+        const { maxSizeMB = 100, onProgress = () => { } } = options;
+
+        if (this.compressionInProgress) {
+            throw new Error('Compression already in progress');
+        }
+
+        const fileSizeMB = file.size / (1024 * 1024);
+
+        // If file is already small enough, return it
+        if (fileSizeMB <= maxSizeMB) {
+            console.log('File already meets size requirements');
+            return file;
+        }
+
+        this.compressionInProgress = true;
+
+        try {
+            onProgress({ stage: 'analyzing', progress: 5 });
+
+            // Get video metadata first
+            const metadata = await this.getVideoMetadata(file);
+            if (!metadata) {
+                throw new Error('Could not read video metadata');
+            }
+
+            // Calculate compression settings based on file size and duration
+            const compressionSettings = this.calculateCompressionSettings(
+                fileSizeMB,
+                maxSizeMB,
+                metadata
+            );
+
+            onProgress({
+                stage: 'preparing',
+                progress: 10,
+                originalSize: file.size,
+                quality: compressionSettings.quality
+            });
+
+            // Perform compression
+            const compressedBlob = await this.performCompression(
+                file,
+                compressionSettings,
+                metadata,
+                onProgress
+            );
+
+            let compressedSizeMB = compressedBlob.size / (1024 * 1024);
+
+            console.log(`Compressed blob size: ${compressedBlob.size} bytes (${compressedSizeMB.toFixed(2)} MB)`);
+
+            // If still too large, try again with progressively lower quality
+            if (compressedSizeMB > maxSizeMB) {
+                onProgress({
+                    stage: 'retrying',
+                    message: `Result is ${compressedSizeMB.toFixed(1)}MB, must be under ${maxSizeMB}MB. Trying lower quality...`
+                });
+
+                // Determine next quality level based on how far over we are
+                const overageRatio = compressedSizeMB / maxSizeMB;
+                let nextQuality;
+
+                if (compressionSettings.quality === 'high') {
+                    // High failed, try medium
+                    nextQuality = overageRatio > 1.5 ? 'low' : 'medium';
+                } else if (compressionSettings.quality === 'medium') {
+                    // Medium failed, try low
+                    nextQuality = 'low';
+                } else if (compressionSettings.quality === 'low') {
+                    // Low failed, use ultra-low as last resort
+                    nextQuality = 'ultra-low';
+                } else {
+                    // Ultra-low failed, we can't compress enough
+                    throw new Error(
+                        `Unable to compress video to under ${maxSizeMB}MB. ` +
+                        `Final size: ${compressedSizeMB.toFixed(1)}MB. ` +
+                        `Consider using a shorter video or lower resolution.`
+                    );
+                }
+
+                console.log(`First attempt resulted in ${compressedSizeMB.toFixed(1)}MB, retrying with ${nextQuality} quality...`);
+
+                // Update the quality for retry
+                window.userSelectedQuality = nextQuality;
+
+                // Recalculate settings with new quality
+                const retrySettings = this.calculateCompressionSettings(
+                    fileSizeMB,
+                    maxSizeMB,
+                    metadata
+                );
+
+                onProgress({
+                    stage: 'retrying',
+                    message: `Retrying with ${nextQuality} quality...`,
+                    quality: nextQuality
+                });
+
+                const finalBlob = await this.performCompression(
+                    file,
+                    retrySettings,
+                    metadata,
+                    onProgress
+                );
+
+                const finalSizeMB = finalBlob.size / (1024 * 1024);
+
+                console.log(`Final compressed blob size: ${finalBlob.size} bytes (${finalSizeMB.toFixed(2)} MB)`);
+
+                if (finalSizeMB > maxSizeMB) {
+                    if (nextQuality !== 'ultra-low') {
+                        console.log(`Still ${finalSizeMB.toFixed(1)}MB, trying ultra-low as last resort...`);
+
+                        window.userSelectedQuality = 'ultra-low';
+                        const lastResortSettings = this.calculateCompressionSettings(
+                            fileSizeMB,
+                            maxSizeMB,
+                            metadata
+                        );
+
+                        const lastResortBlob = await this.performCompression(
+                            file,
+                            lastResortSettings,
+                            metadata,
+                            onProgress
+                        );
+
+                        const lastResortSizeMB = lastResortBlob.size / (1024 * 1024);
+
+                        if (lastResortSizeMB > maxSizeMB) {
+                            throw new Error(
+                                `Unable to compress video to under ${maxSizeMB}MB even with ultra-low quality. ` +
+                                `Final size: ${lastResortSizeMB.toFixed(1)}MB. ` +
+                                `Please use a shorter video or lower resolution.`
+                            );
+                        }
+
+                        const mimeType = this.currentMimeType || 'video/webm';
+                        const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
+
+                        const compressedFile = new File(
+                            [lastResortBlob],
+                            file.name.replace(/\.[^/.]+$/, extension),
+                            { type: mimeType }
+                        );
+
+                        onProgress({
+                            stage: 'complete',
+                            progress: 100,
+                            originalSize: file.size,
+                            compressedSize: compressedFile.size,
+                            compressionRatio: compressedFile.size / file.size,
+                            quality: 'ultra-low',
+                            outputFormat: mimeType
+                        });
+
+                        return compressedFile;
+                    }
+
+                    throw new Error(
+                        `Unable to compress video to under ${maxSizeMB}MB. ` +
+                        `Final size: ${finalSizeMB.toFixed(1)}MB. ` +
+                        `Consider using a shorter video or lower resolution.`
+                    );
+                }
+
+                const mimeType = this.currentMimeType || 'video/webm';
+                const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
+
+                const compressedFile = new File(
+                    [finalBlob],
+                    file.name.replace(/\.[^/.]+$/, extension),
+                    { type: mimeType }
+                );
+
+                onProgress({
+                    stage: 'complete',
+                    progress: 100,
+                    originalSize: file.size,
+                    compressedSize: compressedFile.size,
+                    compressionRatio: compressedFile.size / file.size,
+                    quality: nextQuality,
+                    outputFormat: mimeType
+                });
+
+                return compressedFile;
+            }
+
+            const mimeType = this.currentMimeType || 'video/webm';
+            const extension = mimeType.includes('mp4') ? '.mp4' : '.webm';
+
+            const compressedFile = new File(
+                [compressedBlob],
+                file.name.replace(/\.[^/.]+$/, extension),
+                { type: mimeType }
+            );
+
+            onProgress({
+                stage: 'complete',
+                progress: 100,
+                originalSize: file.size,
+                compressedSize: compressedFile.size,
+                compressionRatio: compressedFile.size / file.size,
+                quality: compressionSettings.quality,
+                outputFormat: mimeType
+            });
+
+            return compressedFile;
+
+        } catch (error) {
+            console.error('Video compression failed:', error);
+            throw error;
+        } finally {
+            this.compressionInProgress = false;
+            this.currentMimeType = null;
+            window.userSelectedQuality = null;
+        }
+    },
+
+    calculateCompressionSettings(fileSizeMB, maxSizeMB, metadata) {
+    const duration = metadata.duration;
+
+    let settings = {
+        quality: 'high',
+        scale: 1,
+        fps: 30,
+        bitrate: 2000000
+    };
+
+    const userQuality = window.userSelectedQuality || window.suggestedCompressionQuality || 'medium';
+
+    const getCompensationFactor = (sizeMB) => {
+        const baseFactor = 3.8;
+        const minFactor = 1.5;
+        const scaleRange = 3000;
+        
+        const factor = minFactor + (baseFactor - minFactor) * Math.exp(-sizeMB / scaleRange);
+        
+        if (sizeMB >= 800 && sizeMB <= 1200) {
+            return factor * 1.15;
+        }
+        
+        return Math.max(minFactor, Math.min(baseFactor, factor));
+    };
+
+    const getQualitySettings = (quality, sizeMB) => {
+        const qualityBase = {
+            'ultra-low': { scaleBase: 0.12, fpsBase: 15, scaleMax: 0.40, fpsMax: 24 },
+            'low':       { scaleBase: 0.15, fpsBase: 20, scaleMax: 0.50, fpsMax: 30 },
+            'medium':    { scaleBase: 0.18, fpsBase: 24, scaleMax: 0.65, fpsMax: 30 },
+            'high':      { scaleBase: 0.22, fpsBase: 24, scaleMax: 0.85, fpsMax: 30 }
+        };
+
+        const params = qualityBase[quality] || qualityBase['medium'];
+        const sizeNormalized = Math.min(5000, sizeMB) / 5000;
+        const qualityMultiplier = Math.exp(-sizeNormalized * 2.5);
+
+        const scale = params.scaleBase + (params.scaleMax - params.scaleBase) * qualityMultiplier;
+        let fps = Math.round(params.fpsBase + (params.fpsMax - params.fpsBase) * qualityMultiplier);
+        
+        if (fps > 24) fps = 30;
+        else if (fps > 20) fps = 24;
+        else if (fps > 15) fps = 20;
+        else if (fps > 12) fps = 15;
+        else fps = Math.max(12, fps);
+
+        const minScale = quality === 'ultra-low' ? 0.12 : 0.15;
+        const minFps = quality === 'ultra-low' ? 12 : 15;
+
+        return {
+            scale: Math.max(minScale, Math.min(params.scaleMax, scale)),
+            fps: Math.max(minFps, fps)
+        };
+    };
+
+    const getTargetSize = (quality, sizeMB) => {
+        const baseTargets = {
+            'ultra-low': 65,
+            'low': 73,
+            'medium': 80,
+            'high': 88
+        };
+
+        let targetSize = baseTargets[quality] || 80;
+        
+        const safetyMargin = 1 - (sizeMB / 40000);
+        targetSize = targetSize * Math.max(0.88, safetyMargin);
+
+        if (metadata.duration > 3600) {
+            targetSize *= 0.94;
+        } else if (metadata.duration > 1800) {
+            targetSize *= 0.96;
+        }
+
+        return Math.floor(targetSize);
+    };
+
+    const calculateOptimalBitrate = (targetSizeMB, duration, compensationFactor) => {
+        const audioBitrate = 64000;
+        const audioSizeMB = (audioBitrate * duration) / (8 * 1024 * 1024);
+        const videoTargetSizeMB = targetSizeMB - audioSizeMB;
+        
+        const theoreticalBitrate = (videoTargetSizeMB * 8 * 1024 * 1024) / duration;
+        const compensatedBitrate = theoreticalBitrate * compensationFactor;
+
+        return compensatedBitrate;
+    };
+
+    const compensationFactor = getCompensationFactor(fileSizeMB);
+    const qualitySettings = getQualitySettings(userQuality, fileSizeMB);
+    const targetSizeMB = getTargetSize(userQuality, fileSizeMB);
+
+    settings.quality = userQuality;
+    settings.scale = qualitySettings.scale;
+    settings.fps = qualitySettings.fps;
+    settings.bitrate = calculateOptimalBitrate(targetSizeMB, duration, compensationFactor);
+
+    const resolutionFactor = Math.pow(settings.scale, 1.6);
+    const maxReasonableBitrate = resolutionFactor * 7000000;
+    const minReasonableBitrate = resolutionFactor * 400000;
+
+    settings.bitrate = Math.max(minReasonableBitrate, Math.min(maxReasonableBitrate, settings.bitrate));
+
+    const compressionRatio = fileSizeMB / targetSizeMB;
+    if (compressionRatio > 20) {
+        settings.scale *= 0.85;
+        settings.fps = Math.max(15, settings.fps);
+        settings.bitrate *= 0.75;
+    } else if (compressionRatio > 15) {
+        settings.scale *= 0.90;
+        settings.fps = Math.max(20, settings.fps);
+        settings.bitrate *= 0.85;
+    } else if (compressionRatio > 10) {
+        settings.scale *= 0.94;
+        settings.bitrate *= 0.90;
+    }
+
+    const mbPerSecond = fileSizeMB / duration;
+    const complexityFactor = Math.min(1.15, Math.max(0.75, mbPerSecond / 6));
+    settings.bitrate *= complexityFactor;
+
+    const requestedBitrateMbps = settings.bitrate / 1000000;
+    const expectedActualBitrateMbps = requestedBitrateMbps / compensationFactor;
+    const audioBitrateMbps = 0.064;
+    const totalExpectedBitrateMbps = expectedActualBitrateMbps + audioBitrateMbps;
+    const expectedSizeMB = (totalExpectedBitrateMbps * 1000000 * duration) / (8 * 1024 * 1024);
+
+    if (expectedSizeMB > targetSizeMB) {
+        const reductionFactor = (targetSizeMB * 0.97) / expectedSizeMB;
+        settings.bitrate *= reductionFactor;
+        
+        const newExpectedBitrateMbps = (settings.bitrate / 1000000) / compensationFactor;
+        const newExpectedSizeMB = ((newExpectedBitrateMbps + audioBitrateMbps) * 1000000 * duration) / (8 * 1024 * 1024);
+        
+        console.log(`Applied final bitrate reduction of ${((1 - reductionFactor) * 100).toFixed(1)}% to ensure target`);
+        console.log(`New expected size: ${newExpectedSizeMB.toFixed(1)}MB`);
+    }
+
+    console.log(`File: ${fileSizeMB.toFixed(1)}MB (${formatDuration(Math.floor(duration))}) → Target: ${targetSizeMB}MB`);
+    console.log(`Compression ratio needed: ${compressionRatio.toFixed(1)}x`);
+    console.log(`Quality: ${userQuality} | Scale: ${(settings.scale * 100).toFixed(0)}% | FPS: ${settings.fps}`);
+    console.log(`Compensation factor: ${compensationFactor.toFixed(2)}x (MediaRecorder efficiency)`);
+    console.log(`Bitrate: ${requestedBitrateMbps.toFixed(2)} Mbps requested → ${expectedActualBitrateMbps.toFixed(2)} Mbps expected`);
+    console.log(`Expected output: ~${expectedSizeMB.toFixed(1)}MB (including audio)`);
+
+    settings.metrics = {
+        inputSize: fileSizeMB,
+        targetSize: targetSizeMB,
+        compressionRatio,
+        compensationFactor,
+        expectedSize: expectedSizeMB,
+        complexity: mbPerSecond
+    };
+
+    return settings;
+},
+
+    async performCompression(file, settings, metadata, onProgress) {
+        return new Promise((resolve, reject) => {
+            const video = document.createElement('video');
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d', {
+                alpha: false,
+                desynchronized: true,
+                willReadFrequently: false,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high'
+            });
+
+            video.muted = true;
+            video.playsInline = true;
+
+            let videoUrl;
+            try {
+                videoUrl = URL.createObjectURL(file);
+            } catch (error) {
+                console.error('Failed to create blob URL:', error);
+                reject(new Error('Failed to create video URL'));
+                return;
+            }
+
+            video.onloadedmetadata = async () => {
+                try {
+                    const targetWidth = Math.round(video.videoWidth * settings.scale);
+                    const targetHeight = Math.round(video.videoHeight * settings.scale);
+
+                    canvas.width = targetWidth % 2 === 0 ? targetWidth : targetWidth - 1;
+                    canvas.height = targetHeight % 2 === 0 ? targetHeight : targetHeight - 1;
+
+                    console.log(`Compressing: ${video.videoWidth}x${video.videoHeight} -> ${canvas.width}x${canvas.height}`);
+                    console.log(`Bitrate: ${settings.bitrate}, FPS: ${settings.fps}`);
+
+                    const stream = canvas.captureStream(settings.fps);
+
+                    let hasAudio = false;
+
+                    if (video.mozCaptureStream || video.captureStream) {
+                        try {
+                            const videoStream = video.mozCaptureStream ? video.mozCaptureStream() : video.captureStream();
+                            const audioTracks = videoStream.getAudioTracks();
+
+                            if (audioTracks.length > 0) {
+                                audioTracks.forEach(track => {
+                                    stream.addTrack(track);
+                                    hasAudio = true;
+                                    console.log('Added audio track from video.captureStream()');
+                                });
+                            }
+                        } catch (e) {
+                            console.warn('video.captureStream() failed:', e);
+                        }
+                    }
+
+                    if (!hasAudio) {
+                        try {
+                            const audioUrl = URL.createObjectURL(file);
+                            const audio = new Audio(audioUrl);
+                            audio.muted = true;
+
+                            await new Promise((resolve, reject) => {
+                                const timeout = setTimeout(() => {
+                                    reject(new Error('Audio load timeout'));
+                                }, 5000);
+
+                                audio.addEventListener('loadedmetadata', () => {
+                                    clearTimeout(timeout);
+                                    resolve();
+                                }, { once: true });
+
+                                audio.addEventListener('error', (e) => {
+                                    clearTimeout(timeout);
+                                    console.warn('Audio element error:', e);
+                                    resolve();
+                                }, { once: true });
+                            });
+
+                            if (audio.duration && audio.duration > 0) {
+                                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                                const source = audioContext.createMediaElementSource(audio);
+                                const destination = audioContext.createMediaStreamDestination();
+
+                                source.connect(destination);
+
+                                const audioTracks = destination.stream.getAudioTracks();
+                                audioTracks.forEach(track => {
+                                    stream.addTrack(track);
+                                    hasAudio = true;
+                                    console.log('Added audio track from Audio element');
+                                });
+
+                                video.addEventListener('play', () => {
+                                    audio.currentTime = video.currentTime;
+                                    audio.play().catch(e => console.warn('Audio play failed:', e));
+                                });
+
+                                video.addEventListener('pause', () => {
+                                    audio.pause();
+                                });
+
+                                video.addEventListener('seeked', () => {
+                                    audio.currentTime = video.currentTime;
+                                });
+
+                                video.addEventListener('ended', () => {
+                                    URL.revokeObjectURL(audioUrl);
+                                }, { once: true });
+                            }
+
+                        } catch (audioError) {
+                            console.warn('Audio element approach failed:', audioError);
+                        }
+                    }
+
+                    console.log(`Audio tracks in final stream: ${stream.getAudioTracks().length}`);
+
+                    const mimeType = this.getSupportedMimeType();
+
+                    // Keep audio at 64kbps to save space for video
+                    const recorderOptions = {
+                        mimeType: mimeType,
+                        videoBitsPerSecond: settings.bitrate,
+                        audioBitsPerSecond: hasAudio ? 64000 : undefined,
+                    };
+
+                    const mediaRecorder = new MediaRecorder(stream, recorderOptions);
+
+                    this.currentMimeType = mediaRecorder.mimeType ?
+                        mediaRecorder.mimeType.split(';')[0] :
+                        mimeType.split(';')[0];
+
+                    const chunks = [];
+                    let lastProgressUpdate = 0;
+                    let frameCount = 0;
+                    let rafId = null;
+
+                    mediaRecorder.ondataavailable = (e) => {
+                        if (e.data && e.data.size > 0) {
+                            chunks.push(e.data);
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        console.log(`Total chunks: ${chunks.length}, frames: ${frameCount}`);
+                        const blob = new Blob(chunks, { type: this.currentMimeType });
+                        const sizeMB = blob.size / (1024 * 1024);
+                        console.log(`Final blob size: ${blob.size} bytes (${sizeMB.toFixed(2)} MB)`);
+
+                        // Log compression ratio
+                        const originalSizeMB = file.size / (1024 * 1024);
+                        const compressionRatio = ((originalSizeMB - sizeMB) / originalSizeMB * 100).toFixed(1);
+                        console.log(`Compression: ${originalSizeMB.toFixed(1)}MB -> ${sizeMB.toFixed(1)}MB (${compressionRatio}% reduction)`);
+
+                        video.pause();
+                        URL.revokeObjectURL(videoUrl);
+                        resolve(blob);
+                    };
+
+                    mediaRecorder.onerror = (e) => {
+                        console.error('MediaRecorder error:', e);
+                        reject(new Error('MediaRecorder error: ' + e.error));
+                    };
+
+                    mediaRecorder.start(100);
+                    console.log('MediaRecorder started with options:', recorderOptions);
+
+                    video.currentTime = 0;
+
+                    const targetDuration = metadata.duration;
+                    let lastDrawTime = 0;
+                    const minFrameInterval = 1000 / (settings.fps * 2);
+
+                    const drawFrame = (timestamp) => {
+                        if (!video.paused && !video.ended && mediaRecorder.state === 'recording') {
+                            if (timestamp - lastDrawTime >= minFrameInterval) {
+                                try {
+                                    ctx.imageSmoothingEnabled = true;
+                                    ctx.imageSmoothingQuality = 'high';
+                                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                    frameCount++;
+                                    lastDrawTime = timestamp;
+                                } catch (e) {
+                                    console.warn('Frame draw error:', e);
+                                }
+                            }
+
+                            const now = Date.now();
+                            if (now - lastProgressUpdate > 500) {
+                                const videoTime = video.currentTime;
+                                const progress = Math.min(95, 20 + (videoTime / targetDuration) * 75);
+
+                                onProgress({
+                                    stage: 'compressing',
+                                    progress: Math.round(progress),
+                                    quality: settings.quality,
+                                    currentTime: videoTime.toFixed(1),
+                                    duration: targetDuration.toFixed(1)
+                                });
+                                lastProgressUpdate = now;
+                            }
+
+                            rafId = requestAnimationFrame(drawFrame);
+                        }
+                    };
+
+                    video.addEventListener('timeupdate', () => {
+                        if (mediaRecorder.state === 'recording') {
+                            try {
+                                ctx.imageSmoothingEnabled = true;
+                                ctx.imageSmoothingQuality = 'high';
+                                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                            } catch (e) {
+                            }
+                        }
+                    });
+
+                    video.addEventListener('ended', () => {
+                        console.log('Video ended');
+                        if (rafId) {
+                            cancelAnimationFrame(rafId);
+                        }
+                        setTimeout(() => {
+                            if (mediaRecorder.state === 'recording') {
+                                mediaRecorder.stop();
+                            }
+                        }, 100);
+                    });
+
+                    video.muted = false;
+                    video.volume = 0.001;
+                    video.playbackRate = 1.0;
+
+                    const startPlayback = async () => {
+                        try {
+                            await video.play();
+                            console.log(`Video playback started at ${video.playbackRate}x speed`);
+                            rafId = requestAnimationFrame(drawFrame);
+                        } catch (err) {
+                            console.error('Failed to start video playback:', err);
+                            video.muted = true;
+                            try {
+                                await video.play();
+                                console.log('Video playback started (muted)');
+                                rafId = requestAnimationFrame(drawFrame);
+                            } catch (err2) {
+                                console.error('Failed to start video playback even when muted:', err2);
+                                reject(err2);
+                            }
+                        }
+                    };
+
+                    startPlayback();
+
+                } catch (error) {
+                    console.error('Compression setup error:', error);
+                    URL.revokeObjectURL(videoUrl);
+                    reject(error);
+                }
+            };
+
+            video.onerror = (e) => {
+                console.error('Video loading error:', e);
+                URL.revokeObjectURL(videoUrl);
+                reject(new Error('Video loading error: ' + (e.message || 'Unknown error')));
+            };
+
+            video.src = videoUrl;
+            video.load();
+        });
+    },
+
+    getSupportedMimeType() {
+        const types = [
+            'video/mp4;codecs="avc1.640034"',
+            'video/mp4;codecs="avc1.640033"',
+            'video/mp4;codecs="avc1.640032"',
+            'video/mp4;codecs="avc1.64002A"',
+            'video/mp4;codecs="avc1.640029"',
+            'video/mp4;codecs="avc1.640028"',
+            'video/mp4;codecs="avc1.4D402A"',
+            'video/mp4;codecs="avc1.4D4029"',
+            'video/mp4;codecs="avc1.4D401F"',
+            'video/mp4;codecs=avc1',
+            'video/mp4',
+            'video/webm;codecs="vp9,opus"',
+            'video/webm;codecs=vp9',
+            'video/webm'
+        ];
+
+        for (const type of types) {
+            if (MediaRecorder.isTypeSupported(type)) {
+                console.log('Using mime type:', type);
+                return type;
+            }
+        }
+
+        console.warn('No preferred mime type supported, using default');
+        return 'video/mp4';
+    },
+
+    async getVideoMetadata(file) {
+        return new Promise((resolve, reject) => {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.muted = true;
+
+            const timeout = setTimeout(() => {
+                URL.revokeObjectURL(video.src);
+                reject(new Error('Video metadata loading timeout'));
+            }, 30000);
+
+            video.onloadedmetadata = () => {
+                clearTimeout(timeout);
+                URL.revokeObjectURL(video.src);
+
+                // Validate metadata
+                if (!video.duration || video.duration === Infinity) {
+                    reject(new Error('Invalid video duration'));
+                    return;
+                }
+
+                resolve({
+                    duration: video.duration,
+                    width: video.videoWidth,
+                    height: video.videoHeight,
+                    aspectRatio: video.videoWidth / video.videoHeight
+                });
+            };
+
+            video.onerror = () => {
+                clearTimeout(timeout);
+                URL.revokeObjectURL(video.src);
+                reject(new Error('Failed to load video metadata'));
+            };
+
+            video.src = URL.createObjectURL(file);
+        });
+    },
+};
 
 // Initialize app without checking for login
 async function initializeApp() {
@@ -1737,7 +2462,7 @@ function applySettings() {
     BLOSSOM_SERVERS.push(
         'https://blossom.primal.net',
         'https://blossom.band',
-        'https://24242.io'
+        'https://nostr.media'
     );
 
     if (userSettings.usePremiumBlossom) {
@@ -4263,9 +4988,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            const videoFile = document.getElementById('videoFile').files[0];
+            // Disable the submit button to prevent re-clicking
+            const submitBtn = uploadForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Processing...';
+            }
+
+            // Check for dropped file first, then fall back to input
+            let videoFile = window.droppedVideoFile || document.getElementById('videoFile').files[0];
+
             if (!videoFile) {
                 alert('Please select a video file');
+                // Re-enable button if validation fails
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Publish Video';
+                }
                 return;
             }
 
@@ -4279,17 +5018,123 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             document.getElementById('uploadProgress').style.display = 'block';
-            document.getElementById('uploadStatus').textContent = 'Calculating hash...';
+            document.getElementById('uploadStatus').textContent = 'Preparing video...';
 
             try {
+                const maxFinalSize = 100 * 1024 * 1024; // 100MB in bytes
+                const fileSizeMB = videoFile.size / (1024 * 1024);
+
+                // MANDATORY compression for files over 100MB
+                if (videoFile.size > maxFinalSize) {
+                    console.log(`File is ${fileSizeMB.toFixed(1)}MB - compression is REQUIRED`);
+
+                    document.getElementById('compressionProgress').style.display = 'block';
+                    document.getElementById('compressionStatus').textContent = 'Compression required - initializing...';
+                    document.getElementById('compressionWarning').style.display = 'block';
+                    document.getElementById('compressionWarning').innerHTML = `
+                    ⚠️ Your video is ${fileSizeMB.toFixed(1)}MB. Compressing to under 100MB...
+                    <br>This process may take several minutes. Please do not close this window.
+                `;
+
+                    try {
+                        const compressedFile = await VideoCompressor.compressVideo(videoFile, {
+                            maxSizeMB: 100,
+                            onProgress: (info) => {
+                                const compressionStatus = document.getElementById('compressionStatus');
+                                const compressionStats = document.getElementById('compressionStats');
+                                const progressFill = document.getElementById('progressFill');
+
+                                switch (info.stage) {
+                                    case 'analyzing':
+                                        compressionStatus.textContent = 'Analyzing video...';
+                                        progressFill.style.width = '5%';
+                                        break;
+                                    case 'preparing':
+                                        compressionStatus.textContent = `Preparing compression (${info.quality} quality)...`;
+                                        progressFill.style.width = '10%';
+                                        break;
+                                    case 'compressing':
+                                        compressionStatus.textContent = `Compressing video... ${info.progress}%`;
+                                        progressFill.style.width = `${info.progress * 0.9}%`;
+                                        if (info.currentTime && info.duration) {
+                                            compressionStats.innerHTML = `
+                                            Processing: ${info.currentTime}s / ${info.duration}s<br>
+                                            Quality: ${info.quality}
+                                        `;
+                                        }
+                                        break;
+                                    case 'retrying':
+                                        compressionStatus.textContent = info.message || 'Applying stronger compression...';
+                                        compressionStats.innerHTML += `<br><small style="color: var(--accent);">${info.message}</small>`;
+                                        break;
+                                    case 'complete':
+                                        compressionStatus.textContent = 'Compression complete!';
+                                        progressFill.style.width = '100%';
+                                        const savedPercentage = ((1 - info.compressionRatio) * 100).toFixed(1);
+                                        compressionStats.innerHTML = `
+                                        Original: ${(info.originalSize / 1024 / 1024).toFixed(1)} MB<br>
+                                        Compressed: ${(info.compressedSize / 1024 / 1024).toFixed(1)} MB<br>
+                                        <strong>Reduced by ${savedPercentage}%</strong><br>
+                                        Final quality: ${info.quality}
+                                    `;
+                                        break;
+                                }
+                            }
+                        });
+
+                        const compressedSizeBytes = compressedFile.size;
+                        const compressedSizeMB = compressedSizeBytes / (1024 * 1024);
+
+                        console.log('Compressed file details:', {
+                            sizeBytes: compressedSizeBytes,
+                            sizeMB: compressedSizeMB,
+                            type: compressedFile.type,
+                            name: compressedFile.name
+                        });
+
+                        if (compressedSizeMB > 100) {
+                            throw new Error(
+                                `Compression failed to meet requirements. ` +
+                                `Final size: ${compressedSizeMB.toFixed(1)}MB. ` +
+                                `Please use a shorter video or upload in parts.`
+                            );
+                        }
+
+                        console.log(`Successfully compressed: ${fileSizeMB.toFixed(1)}MB → ${compressedSizeMB.toFixed(1)}MB`);
+                        videoFile = compressedFile;
+
+                        // Update the UI to show compression success
+                        setTimeout(() => {
+                            document.getElementById('compressionProgress').style.display = 'none';
+                        }, 2000);
+
+                    } catch (compressionError) {
+                        console.error('Compression error:', compressionError);
+
+                        console.error('Compression error details:', {
+                            message: compressionError.message,
+                            stack: compressionError.stack
+                        });
+
+                        throw new Error(
+                            `Video compression failed: ${compressionError.message}. ` +
+                            `Your video is too large (${fileSizeMB.toFixed(1)}MB). ` +
+                            `Please use a video editing tool to reduce the file size to under 100MB before uploading.`
+                        );
+                    }
+                }
+
+                // Proceed with upload only if file is under 100MB
                 document.getElementById('uploadStatus').textContent = 'Uploading video to multiple servers...';
+                document.getElementById('progressFill').style.width = '50%';
+
                 const videoResult = await uploadToBlossom(videoFile);
 
                 if (!videoResult.success || !videoResult.url) {
                     throw new Error(videoResult.error || 'Failed to upload video to any server');
                 }
 
-                document.getElementById('progressFill').style.width = '50%';
+                document.getElementById('progressFill').style.width = '60%';
 
                 let thumbnailUrl = '';
                 const thumbnailFile = document.getElementById('thumbnailFile').files[0];
@@ -4307,6 +5152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('progressFill').style.width = '75%';
                 document.getElementById('uploadStatus').textContent = 'Publishing to Nostr...';
 
+                // Get video duration
                 const video = document.createElement('video');
                 video.preload = 'metadata';
 
@@ -4318,6 +5164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
 
                 const videoDuration = Math.floor(video.duration);
+                URL.revokeObjectURL(video.src);
 
                 const eventContent = {
                     kind: 1,
@@ -4361,6 +5208,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('progressFill').style.width = '100%';
                 document.getElementById('uploadStatus').textContent = 'Video published successfully!';
 
+                // Clear the dropped file reference after successful upload
+                window.droppedVideoFile = null;
+
                 setTimeout(() => {
                     hideUploadModal();
                     navigateTo('/my-videos');
@@ -4368,8 +5218,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('Upload failed:', error);
-                alert('Failed to upload video: ' + error.message);
+                alert(error.message || 'Failed to upload video');
                 document.getElementById('uploadProgress').style.display = 'none';
+                document.getElementById('compressionProgress').style.display = 'none';
+
+                // Re-enable the submit button on error
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Publish Video';
+                }
             }
         });
     }
@@ -4379,21 +5236,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fileUpload) {
         fileUpload.addEventListener('dragover', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             fileUpload.classList.add('active');
         });
 
-        fileUpload.addEventListener('dragleave', () => {
+        fileUpload.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             fileUpload.classList.remove('active');
         });
 
         fileUpload.addEventListener('drop', (e) => {
             e.preventDefault();
+            e.stopPropagation();
             fileUpload.classList.remove('active');
 
             const file = e.dataTransfer.files[0];
             if (file && file.type.startsWith('video/')) {
-                document.getElementById('videoFile').files = e.dataTransfer.files;
-                handleFileSelect({ target: { files: [file] } });
+                // Create a new FileList-like object for the input
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+
+                const videoFileInput = document.getElementById('videoFile');
+                videoFileInput.files = dataTransfer.files;
+
+                // Trigger the file select handler
+                handleFileSelect({ target: videoFileInput });
+            } else if (file) {
+                alert('Please drop a video file');
             }
         });
     }
@@ -5822,14 +6692,17 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     </div>
                     
                     <div style="margin-top: 1.5rem;">
-                        <h3>Description</h3>
-                        <p style="white-space: pre-wrap; margin-top: 0.5rem;">${videoData.description || 'No description provided.'}</p>
-                    </div>
-                    ${videoData.tags.length > 0 ? `
-                        <div class="tags">
-                            ${videoData.tags.map(tag => `<span class="tag" onclick="navigateTo('/tag/${tag}')">#${tag}</span>`).join('')}
+                    <h3>Description</h3>
+                    <div class="video-description-container">
+                        <div id="video-description" class="video-description ${videoData.description && videoData.description.length > 300 ? 'collapsed' : ''}">
+                            <p style="white-space: pre-wrap; margin-top: 0.5rem;">${videoData.description || 'No description provided.'}</p>
                         </div>
-                    ` : ''}
+                        ${videoData.description && videoData.description.length > 300 ? `
+                            <button id="description-toggle" class="description-toggle-btn" onclick="toggleDescription()">
+                                Show More
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
                 
                 <div class="comments-section">
@@ -5883,6 +6756,20 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
     } catch (error) {
         console.error('Failed to play video:', error);
         mainContent.innerHTML = '<div class="error-message">Failed to load video. Please try again.</div>';
+    }
+}
+
+// Handle description expand/collapse
+function toggleDescription() {
+    const descriptionDiv = document.getElementById('video-description');
+    const toggleBtn = document.getElementById('description-toggle');
+
+    if (descriptionDiv.classList.contains('collapsed')) {
+        descriptionDiv.classList.remove('collapsed');
+        toggleBtn.textContent = 'Show Less';
+    } else {
+        descriptionDiv.classList.add('collapsed');
+        toggleBtn.textContent = 'Show More';
     }
 }
 
@@ -6580,11 +7467,9 @@ function escapeHtml(text) {
     const map = {
         '&': '&amp;',
         '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
+        '>': '&gt;'
     };
-    return text.replace(/[&<>"']/g, m => map[m]);
+    return text.replace(/[&<>]/g, m => map[m]);
 }
 
 // Upload modal functions
@@ -6600,18 +7485,81 @@ function hideUploadModal() {
     document.getElementById('uploadModal').classList.remove('active');
     document.getElementById('uploadForm').reset();
     document.getElementById('uploadProgress').style.display = 'none';
+
+    // Reset file upload display
+    const fileUpload = document.getElementById('fileUpload');
+    fileUpload.classList.remove('active');
+    fileUpload.innerHTML = `
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.5;">
+            <path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v-2H5z"/>
+        </svg>
+        <p>Click to select video or drag and drop</p>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
+            MP4, AVI, MOV, etc (max 500MB input, will compress to <100MB)
+        </p>
+    `;
+
+    // Reset compression options
+    const compressionOptions = document.getElementById('compressionOptions');
+    if (compressionOptions) {
+        compressionOptions.style.display = 'none';
+
+        // Reset compression checkbox
+        const enableCompressionCheckbox = document.getElementById('enableCompression');
+        if (enableCompressionCheckbox) {
+            enableCompressionCheckbox.checked = false;
+            enableCompressionCheckbox.disabled = false;
+        }
+
+        // Reset quality select
+        const qualitySelect = document.getElementById('compressionQualitySelect');
+        if (qualitySelect) {
+            qualitySelect.value = 'medium';
+        }
+
+        // Clear compression warnings and info
+        const compressionWarning = document.getElementById('compressionWarning');
+        if (compressionWarning) {
+            compressionWarning.style.display = 'none';
+            compressionWarning.innerHTML = '';
+        }
+
+        const compressionInfo = document.getElementById('compressionInfo');
+        if (compressionInfo) {
+            compressionInfo.innerHTML = '';
+        }
+    }
+
+    // Reset compression progress if it exists
+    const compressionProgress = document.getElementById('compressionProgress');
+    if (compressionProgress) {
+        compressionProgress.style.display = 'none';
+    }
+
+    // Clear server status
+    const serverStatus = document.getElementById('serverStatus');
+    if (serverStatus) {
+        serverStatus.innerHTML = '';
+    }
+
+    // Clear any dropped file reference
+    window.droppedVideoFile = null;
+
     uploadedVideoHash = null;
 }
 
 // Handle file selection
-function handleFileSelect(event) {
+async function handleFileSelect(event) {
     const input = event.target;
     const file = input.files[0];
     if (!file) return;
 
-    const maxSize = 100 * 1024 * 1024; // 100MB
-    if (file.size > maxSize) {
-        alert('File size must be less than 100MB');
+    // Allow up to 5GB input files (they will be compressed)
+    const maxInputSize = 5 * 1024 * 1024 * 1024; // 5GB
+    const maxFinalSize = 100 * 1024 * 1024; // 100MB final size
+
+    if (file.size > maxInputSize) {
+        alert(`File size must be less than 5GB. Your file is ${(file.size / 1024 / 1024).toFixed(1)}MB. Please use a video editing tool to reduce the file size first.`);
         input.value = '';
         return;
     }
@@ -6623,9 +7571,13 @@ function handleFileSelect(event) {
             'video/mov',
             'video/avi',
             'video/mkv',
-            'video/wmv'
+            'video/wmv',
+            'video/quicktime'
         ];
-        if (!allowedVideoTypes.includes(file.type)) {
+
+        const fileType = file.type || 'video/' + file.name.split('.').pop().toLowerCase();
+
+        if (!allowedVideoTypes.some(type => fileType.includes(type.split('/')[1]))) {
             alert('Invalid video file type. Please upload a video file (mp4, webm, mov, avi, mkv, wmv)');
             input.value = '';
             return;
@@ -6633,10 +7585,150 @@ function handleFileSelect(event) {
 
         const fileUpload = document.getElementById('fileUpload');
         fileUpload.classList.add('active');
+
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
         fileUpload.innerHTML = `
             <p style="font-weight: 500;">${file.name}</p>
-            <p style="font-size: 0.875rem; color: var(--text-secondary);">${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+            <p style="font-size: 0.875rem; color: var(--text-secondary);">${fileSizeMB} MB</p>
         `;
+
+        // Store the file reference for later use
+        window.selectedVideoFile = file;
+
+        // Show compression options
+        const compressionOptions = document.getElementById('compressionOptions');
+        if (compressionOptions) {
+            compressionOptions.style.display = 'block';
+
+            const enableCompressionCheckbox = document.getElementById('enableCompression');
+            const compressionWarning = document.getElementById('compressionWarning');
+            const compressionInfo = document.getElementById('compressionInfo');
+            const qualitySelect = document.getElementById('compressionQualitySelect');
+
+            // Determine compression requirements
+            if (file.size > maxFinalSize) {
+                // File MUST be compressed
+                enableCompressionCheckbox.checked = true;
+                enableCompressionCheckbox.disabled = true;
+
+                const requiredRatio = maxFinalSize / file.size;
+                const requiredReduction = ((1 - requiredRatio) * 100).toFixed(0);
+
+                // More realistic quality recommendations
+                let suggestedQuality = 'medium';
+
+                if (requiredRatio < 0.05) {
+                    // File is > 2GB - definitely need low or ultra-low
+                    suggestedQuality = 'low';
+                    compressionWarning.style.display = 'block';
+                    compressionWarning.innerHTML = `
+            ⚠️ Very large file (${fileSizeMB}MB) requires ${requiredReduction}% reduction. 
+            Low quality required. Ultra-low may be needed for final compression.
+        `;
+                } else if (requiredRatio < 0.1) {
+                    // File is 1-2GB - start with medium, may need low
+                    suggestedQuality = 'medium';
+                    compressionWarning.style.display = 'block';
+                    compressionWarning.innerHTML = `
+            ⚠️ Large file (${fileSizeMB}MB) requires ${requiredReduction}% reduction. 
+            Medium quality selected, but low quality may be needed.
+        `;
+                } else if (requiredRatio < 0.2) {
+                    // File is 500MB-1GB
+                    suggestedQuality = 'medium';
+                    compressionWarning.style.display = 'block';
+                    compressionWarning.innerHTML = `
+            This file requires ${requiredReduction}% reduction. 
+            Medium quality should work.
+        `;
+                } else if (requiredRatio < 0.4) {
+                    // File is 250-500MB
+                    suggestedQuality = 'high';
+                    compressionWarning.style.display = 'block';
+                    compressionWarning.innerHTML = `
+            This file needs compression. High quality should work well.
+        `;
+                } else {
+                    // File is 100-250MB
+                    suggestedQuality = 'high';
+                    compressionWarning.style.display = 'none';
+                }
+
+                qualitySelect.value = suggestedQuality;
+                window.suggestedCompressionQuality = suggestedQuality;
+
+                // Add change listener to quality select
+                qualitySelect.onchange = () => {
+                    const selectedQuality = qualitySelect.value;
+                    window.userSelectedQuality = selectedQuality;
+
+                    // Update info when user changes quality
+                    compressionInfo.innerHTML = `
+                        <small>Original: ${fileSizeMB} MB → Target: <100 MB</small><br>
+                        <small style="color: var(--accent);">Using ${selectedQuality} quality compression</small>
+                    `;
+                };
+
+                compressionInfo.innerHTML = `
+                    <small>Original: ${fileSizeMB} MB → Target: <100 MB</small><br>
+                    <small style="color: var(--accent);">Using ${suggestedQuality} quality (you can change this)</small>
+                `;
+
+            } else if (file.size > 10 * 1024 * 1024) {
+                // File is between 10MB and 100MB - compression recommended but optional
+                enableCompressionCheckbox.checked = true;
+                enableCompressionCheckbox.disabled = false;
+                compressionWarning.style.display = 'none';
+                qualitySelect.value = 'high';
+
+                const estimatedSize = file.size * 0.6;
+                compressionInfo.innerHTML = `
+                    <small>Estimated size after compression: ~${(estimatedSize / 1024 / 1024).toFixed(1)} MB</small><br>
+                    <small style="color: var(--text-secondary);">Compression recommended for faster uploads</small>
+                `;
+
+            } else {
+                // File is small enough, compression optional
+                enableCompressionCheckbox.checked = false;
+                enableCompressionCheckbox.disabled = false;
+                compressionWarning.style.display = 'none';
+
+                compressionInfo.innerHTML = `
+                    <small style="color: var(--text-secondary);">File is small enough to upload without compression</small>
+                `;
+            }
+        }
+
+        // Get video metadata for preview
+        try {
+            const metadata = await VideoCompressor.getVideoMetadata(file);
+            if (metadata) {
+                // Clear existing content first to prevent duplicates
+                const existingMetadata = fileUpload.querySelector('.video-metadata');
+                if (existingMetadata) {
+                    existingMetadata.remove();
+                }
+
+                // Add new metadata
+                const metadataHTML = `
+                    <p class="video-metadata" style="font-size: 0.75rem; color: var(--text-secondary);">
+                        ${metadata.width}x${metadata.height} • ${formatDuration(Math.floor(metadata.duration))}
+                    </p>
+                `;
+                fileUpload.insertAdjacentHTML('beforeend', metadataHTML);
+
+                // Additional warning for very long videos
+                if (metadata.duration > 1800 && file.size > maxFinalSize) { // > 30 minutes
+                    const compressionWarning = document.getElementById('compressionWarning');
+                    if (compressionWarning) {
+                        compressionWarning.style.display = 'block';
+                        compressionWarning.innerHTML += `<br>⚠️ Long video detected (${formatDuration(Math.floor(metadata.duration))}). Consider splitting into parts for better quality.`;
+                    }
+                }
+            }
+        } catch (e) {
+            console.log('Could not read video metadata:', e);
+        }
     } else if (input.id === 'thumbnailFile') {
         const allowedImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
         if (!allowedImageTypes.includes(file.type)) {
@@ -6983,7 +8075,7 @@ async function validateNip05(nip05, pubkey) {
             return false;
         }
 
-        const isBlocked = INVALID_NIP05.some(pattern => 
+        const isBlocked = INVALID_NIP05.some(pattern =>
             domain.toLowerCase().includes(pattern.toLowerCase())
         );
 

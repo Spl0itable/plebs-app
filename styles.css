@@ -1779,6 +1779,128 @@ nostr-zap {
     }
 }
 
+/* Compression UI Styles */
+.compression-settings {
+    background: var(--bg-primary);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+}
+
+.compression-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.compression-toggle input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+.compression-quality {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.compression-quality select {
+    flex: 1;
+    padding: 0.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-primary);
+}
+
+.compression-info {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+#compressionProgress {
+    background: var(--bg-primary);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+}
+
+#compressionStatus {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+}
+
+.compression-stats {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.compression-stats strong {
+    color: var(--accent);
+}
+
+/* Update file upload area */
+.file-upload.active {
+    background: var(--bg-primary);
+    border-color: var(--accent);
+}
+
+.file-upload p {
+    margin: 0.25rem 0;
+}
+
+.file-upload-info {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+.video-description-container {
+    position: relative;
+}
+
+.video-description {
+    position: relative;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.video-description.collapsed {
+    max-height: 100px;
+}
+
+.video-description.collapsed::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(to bottom, transparent, var(--bg-primary));
+    pointer-events: none;
+}
+
+.description-toggle-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+}
+
+.description-toggle-btn:hover {
+    background: var(--accent);
+    color: var(--bg-primary);
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     :root {

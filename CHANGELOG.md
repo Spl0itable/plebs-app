@@ -1,3 +1,7 @@
+## v1.7.8 - 2025-08-08
+
+New: increased max "upload size" to 5GB and added client-side compression
+
 ## v1.6.8 - 2025-08-01
 
 Hotfix: boosted videos not properly showing
