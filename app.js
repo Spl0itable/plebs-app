@@ -7495,7 +7495,7 @@ function hideUploadModal() {
         </svg>
         <p>Click to select video or drag and drop</p>
         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;">
-            MP4, AVI, MOV, etc (max 500MB input, will compress to <100MB)
+            MP4, AVI, MOV, etc (max 5GB input, will compress to <100MB)
         </p>
     `;
 
