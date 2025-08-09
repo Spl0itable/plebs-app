@@ -355,162 +355,175 @@ const VideoCompressor = {
     },
 
     calculateCompressionSettings(fileSizeMB, maxSizeMB, metadata) {
-    const duration = metadata.duration;
+        const duration = metadata.duration;
 
-    let settings = {
-        quality: 'high',
-        scale: 1,
-        fps: 30,
-        bitrate: 2000000
-    };
+        let settings = {
+            quality: 'high',
+            scale: 1,
+            fps: 30,
+            bitrate: 2000000
+        };
 
-    const userQuality = window.userSelectedQuality || window.suggestedCompressionQuality || 'medium';
+        const userQuality = window.userSelectedQuality || window.suggestedCompressionQuality || 'medium';
 
-    const getCompensationFactor = (sizeMB) => {
-        const baseFactor = 3.8;
-        const minFactor = 1.5;
-        const scaleRange = 3000;
-        
-        const factor = minFactor + (baseFactor - minFactor) * Math.exp(-sizeMB / scaleRange);
-        
-        if (sizeMB >= 800 && sizeMB <= 1200) {
-            return factor * 1.15;
+        // Check which codec we're using
+        const mimeType = this.getSupportedMimeType();
+        const isH264Baseline = mimeType.includes('avc1.42');
+
+        const getCompensationFactor = (sizeMB) => {
+            // H.264 Baseline is more efficient, so we need different factors
+            const baseFactor = isH264Baseline ? 2.8 : 3.8;
+            const minFactor = isH264Baseline ? 1.2 : 1.5;
+            const scaleRange = 3000;
+
+            const factor = minFactor + (baseFactor - minFactor) * Math.exp(-sizeMB / scaleRange);
+
+            if (sizeMB >= 800 && sizeMB <= 1200) {
+                return factor * 1.15;
+            }
+
+            return Math.max(minFactor, Math.min(baseFactor, factor));
+        };
+
+        const getQualitySettings = (quality, sizeMB) => {
+            const qualityBase = {
+                'ultra-low': { scaleBase: 0.12, fpsBase: 15, scaleMax: 0.40, fpsMax: 24 },
+                'low': { scaleBase: 0.15, fpsBase: 20, scaleMax: 0.50, fpsMax: 30 },
+                'medium': { scaleBase: 0.18, fpsBase: 24, scaleMax: 0.65, fpsMax: 30 },
+                'high': { scaleBase: 0.22, fpsBase: 24, scaleMax: 0.85, fpsMax: 30 }
+            };
+
+            const params = qualityBase[quality] || qualityBase['medium'];
+            const sizeNormalized = Math.min(5000, sizeMB) / 5000;
+            const qualityMultiplier = Math.exp(-sizeNormalized * 2.5);
+
+            const scale = params.scaleBase + (params.scaleMax - params.scaleBase) * qualityMultiplier;
+            let fps = Math.round(params.fpsBase + (params.fpsMax - params.fpsBase) * qualityMultiplier);
+
+            if (fps > 24) fps = 30;
+            else if (fps > 20) fps = 24;
+            else if (fps > 15) fps = 20;
+            else if (fps > 12) fps = 15;
+            else fps = Math.max(12, fps);
+
+            const minScale = quality === 'ultra-low' ? 0.12 : 0.15;
+            const minFps = quality === 'ultra-low' ? 12 : 15;
+
+            return {
+                scale: Math.max(minScale, Math.min(params.scaleMax, scale)),
+                fps: Math.max(minFps, fps)
+            };
+        };
+
+        const getTargetSize = (quality, sizeMB) => {
+            // Adjust target sizes for H.264 - it's more efficient so we can be more conservative
+            const baseTargets = isH264Baseline ? {
+                'ultra-low': 70,
+                'low': 78,
+                'medium': 85,
+                'high': 92
+            } : {
+                'ultra-low': 65,
+                'low': 73,
+                'medium': 80,
+                'high': 88
+            };
+
+            let targetSize = baseTargets[quality] || 80;
+
+            const safetyMargin = 1 - (sizeMB / 40000);
+            targetSize = targetSize * Math.max(0.88, safetyMargin);
+
+            if (metadata.duration > 3600) {
+                targetSize *= 0.94;
+            } else if (metadata.duration > 1800) {
+                targetSize *= 0.96;
+            }
+
+            return Math.floor(targetSize);
+        };
+
+        const calculateOptimalBitrate = (targetSizeMB, duration, compensationFactor) => {
+            const audioBitrate = 64000;
+            const audioSizeMB = (audioBitrate * duration) / (8 * 1024 * 1024);
+            const videoTargetSizeMB = targetSizeMB - audioSizeMB;
+
+            const theoreticalBitrate = (videoTargetSizeMB * 8 * 1024 * 1024) / duration;
+            const compensatedBitrate = theoreticalBitrate * compensationFactor;
+
+            return compensatedBitrate;
+        };
+
+        const compensationFactor = getCompensationFactor(fileSizeMB);
+        const qualitySettings = getQualitySettings(userQuality, fileSizeMB);
+        const targetSizeMB = getTargetSize(userQuality, fileSizeMB);
+
+        settings.quality = userQuality;
+        settings.scale = qualitySettings.scale;
+        settings.fps = qualitySettings.fps;
+        settings.bitrate = calculateOptimalBitrate(targetSizeMB, duration, compensationFactor);
+
+        const resolutionFactor = Math.pow(settings.scale, 1.6);
+        const maxReasonableBitrate = resolutionFactor * 7000000;
+        const minReasonableBitrate = resolutionFactor * 400000;
+
+        settings.bitrate = Math.max(minReasonableBitrate, Math.min(maxReasonableBitrate, settings.bitrate));
+
+        const compressionRatio = fileSizeMB / targetSizeMB;
+        if (compressionRatio > 20) {
+            settings.scale *= 0.85;
+            settings.fps = Math.max(15, settings.fps);
+            settings.bitrate *= 0.75;
+        } else if (compressionRatio > 15) {
+            settings.scale *= 0.90;
+            settings.fps = Math.max(20, settings.fps);
+            settings.bitrate *= 0.85;
+        } else if (compressionRatio > 10) {
+            settings.scale *= 0.94;
+            settings.bitrate *= 0.90;
         }
-        
-        return Math.max(minFactor, Math.min(baseFactor, factor));
-    };
 
-    const getQualitySettings = (quality, sizeMB) => {
-        const qualityBase = {
-            'ultra-low': { scaleBase: 0.12, fpsBase: 15, scaleMax: 0.40, fpsMax: 24 },
-            'low':       { scaleBase: 0.15, fpsBase: 20, scaleMax: 0.50, fpsMax: 30 },
-            'medium':    { scaleBase: 0.18, fpsBase: 24, scaleMax: 0.65, fpsMax: 30 },
-            'high':      { scaleBase: 0.22, fpsBase: 24, scaleMax: 0.85, fpsMax: 30 }
-        };
+        const mbPerSecond = fileSizeMB / duration;
+        const complexityFactor = Math.min(1.15, Math.max(0.75, mbPerSecond / 6));
+        settings.bitrate *= complexityFactor;
 
-        const params = qualityBase[quality] || qualityBase['medium'];
-        const sizeNormalized = Math.min(5000, sizeMB) / 5000;
-        const qualityMultiplier = Math.exp(-sizeNormalized * 2.5);
+        const requestedBitrateMbps = settings.bitrate / 1000000;
+        const expectedActualBitrateMbps = requestedBitrateMbps / compensationFactor;
+        const audioBitrateMbps = 0.064;
+        const totalExpectedBitrateMbps = expectedActualBitrateMbps + audioBitrateMbps;
+        const expectedSizeMB = (totalExpectedBitrateMbps * 1000000 * duration) / (8 * 1024 * 1024);
 
-        const scale = params.scaleBase + (params.scaleMax - params.scaleBase) * qualityMultiplier;
-        let fps = Math.round(params.fpsBase + (params.fpsMax - params.fpsBase) * qualityMultiplier);
-        
-        if (fps > 24) fps = 30;
-        else if (fps > 20) fps = 24;
-        else if (fps > 15) fps = 20;
-        else if (fps > 12) fps = 15;
-        else fps = Math.max(12, fps);
+        if (expectedSizeMB > targetSizeMB) {
+            const reductionFactor = (targetSizeMB * 0.97) / expectedSizeMB;
+            settings.bitrate *= reductionFactor;
 
-        const minScale = quality === 'ultra-low' ? 0.12 : 0.15;
-        const minFps = quality === 'ultra-low' ? 12 : 15;
+            const newExpectedBitrateMbps = (settings.bitrate / 1000000) / compensationFactor;
+            const newExpectedSizeMB = ((newExpectedBitrateMbps + audioBitrateMbps) * 1000000 * duration) / (8 * 1024 * 1024);
 
-        return {
-            scale: Math.max(minScale, Math.min(params.scaleMax, scale)),
-            fps: Math.max(minFps, fps)
-        };
-    };
-
-    const getTargetSize = (quality, sizeMB) => {
-        const baseTargets = {
-            'ultra-low': 65,
-            'low': 73,
-            'medium': 80,
-            'high': 88
-        };
-
-        let targetSize = baseTargets[quality] || 80;
-        
-        const safetyMargin = 1 - (sizeMB / 40000);
-        targetSize = targetSize * Math.max(0.88, safetyMargin);
-
-        if (metadata.duration > 3600) {
-            targetSize *= 0.94;
-        } else if (metadata.duration > 1800) {
-            targetSize *= 0.96;
+            console.log(`Applied final bitrate reduction of ${((1 - reductionFactor) * 100).toFixed(1)}% to ensure target`);
+            console.log(`New expected size: ${newExpectedSizeMB.toFixed(1)}MB`);
         }
 
-        return Math.floor(targetSize);
-    };
+        const codecInfo = isH264Baseline ? ' (H.264 Baseline)' : '';
+        console.log(`File: ${fileSizeMB.toFixed(1)}MB (${formatDuration(Math.floor(duration))}) → Target: ${targetSizeMB}MB`);
+        console.log(`Compression ratio needed: ${compressionRatio.toFixed(1)}x`);
+        console.log(`Quality: ${userQuality} | Scale: ${(settings.scale * 100).toFixed(0)}% | FPS: ${settings.fps}`);
+        console.log(`Codec: ${mimeType}${codecInfo}`);
+        console.log(`Compensation factor: ${compensationFactor.toFixed(2)}x (MediaRecorder efficiency)`);
+        console.log(`Bitrate: ${requestedBitrateMbps.toFixed(2)} Mbps requested → ${expectedActualBitrateMbps.toFixed(2)} Mbps expected`);
+        console.log(`Expected output: ~${expectedSizeMB.toFixed(1)}MB (including audio)`);
 
-    const calculateOptimalBitrate = (targetSizeMB, duration, compensationFactor) => {
-        const audioBitrate = 64000;
-        const audioSizeMB = (audioBitrate * duration) / (8 * 1024 * 1024);
-        const videoTargetSizeMB = targetSizeMB - audioSizeMB;
-        
-        const theoreticalBitrate = (videoTargetSizeMB * 8 * 1024 * 1024) / duration;
-        const compensatedBitrate = theoreticalBitrate * compensationFactor;
+        settings.metrics = {
+            inputSize: fileSizeMB,
+            targetSize: targetSizeMB,
+            compressionRatio,
+            compensationFactor,
+            expectedSize: expectedSizeMB,
+            complexity: mbPerSecond
+        };
 
-        return compensatedBitrate;
-    };
-
-    const compensationFactor = getCompensationFactor(fileSizeMB);
-    const qualitySettings = getQualitySettings(userQuality, fileSizeMB);
-    const targetSizeMB = getTargetSize(userQuality, fileSizeMB);
-
-    settings.quality = userQuality;
-    settings.scale = qualitySettings.scale;
-    settings.fps = qualitySettings.fps;
-    settings.bitrate = calculateOptimalBitrate(targetSizeMB, duration, compensationFactor);
-
-    const resolutionFactor = Math.pow(settings.scale, 1.6);
-    const maxReasonableBitrate = resolutionFactor * 7000000;
-    const minReasonableBitrate = resolutionFactor * 400000;
-
-    settings.bitrate = Math.max(minReasonableBitrate, Math.min(maxReasonableBitrate, settings.bitrate));
-
-    const compressionRatio = fileSizeMB / targetSizeMB;
-    if (compressionRatio > 20) {
-        settings.scale *= 0.85;
-        settings.fps = Math.max(15, settings.fps);
-        settings.bitrate *= 0.75;
-    } else if (compressionRatio > 15) {
-        settings.scale *= 0.90;
-        settings.fps = Math.max(20, settings.fps);
-        settings.bitrate *= 0.85;
-    } else if (compressionRatio > 10) {
-        settings.scale *= 0.94;
-        settings.bitrate *= 0.90;
-    }
-
-    const mbPerSecond = fileSizeMB / duration;
-    const complexityFactor = Math.min(1.15, Math.max(0.75, mbPerSecond / 6));
-    settings.bitrate *= complexityFactor;
-
-    const requestedBitrateMbps = settings.bitrate / 1000000;
-    const expectedActualBitrateMbps = requestedBitrateMbps / compensationFactor;
-    const audioBitrateMbps = 0.064;
-    const totalExpectedBitrateMbps = expectedActualBitrateMbps + audioBitrateMbps;
-    const expectedSizeMB = (totalExpectedBitrateMbps * 1000000 * duration) / (8 * 1024 * 1024);
-
-    if (expectedSizeMB > targetSizeMB) {
-        const reductionFactor = (targetSizeMB * 0.97) / expectedSizeMB;
-        settings.bitrate *= reductionFactor;
-        
-        const newExpectedBitrateMbps = (settings.bitrate / 1000000) / compensationFactor;
-        const newExpectedSizeMB = ((newExpectedBitrateMbps + audioBitrateMbps) * 1000000 * duration) / (8 * 1024 * 1024);
-        
-        console.log(`Applied final bitrate reduction of ${((1 - reductionFactor) * 100).toFixed(1)}% to ensure target`);
-        console.log(`New expected size: ${newExpectedSizeMB.toFixed(1)}MB`);
-    }
-
-    console.log(`File: ${fileSizeMB.toFixed(1)}MB (${formatDuration(Math.floor(duration))}) → Target: ${targetSizeMB}MB`);
-    console.log(`Compression ratio needed: ${compressionRatio.toFixed(1)}x`);
-    console.log(`Quality: ${userQuality} | Scale: ${(settings.scale * 100).toFixed(0)}% | FPS: ${settings.fps}`);
-    console.log(`Compensation factor: ${compensationFactor.toFixed(2)}x (MediaRecorder efficiency)`);
-    console.log(`Bitrate: ${requestedBitrateMbps.toFixed(2)} Mbps requested → ${expectedActualBitrateMbps.toFixed(2)} Mbps expected`);
-    console.log(`Expected output: ~${expectedSizeMB.toFixed(1)}MB (including audio)`);
-
-    settings.metrics = {
-        inputSize: fileSizeMB,
-        targetSize: targetSizeMB,
-        compressionRatio,
-        compensationFactor,
-        expectedSize: expectedSizeMB,
-        complexity: mbPerSecond
-    };
-
-    return settings;
-},
+        return settings;
+    },
 
     async performCompression(file, settings, metadata, onProgress) {
         return new Promise((resolve, reject) => {
@@ -526,6 +539,7 @@ const VideoCompressor = {
 
             video.muted = true;
             video.playsInline = true;
+            video.crossOrigin = 'anonymous';
 
             let videoUrl;
             try {
@@ -568,76 +582,26 @@ const VideoCompressor = {
                         }
                     }
 
-                    if (!hasAudio) {
-                        try {
-                            const audioUrl = URL.createObjectURL(file);
-                            const audio = new Audio(audioUrl);
-                            audio.muted = true;
-
-                            await new Promise((resolve, reject) => {
-                                const timeout = setTimeout(() => {
-                                    reject(new Error('Audio load timeout'));
-                                }, 5000);
-
-                                audio.addEventListener('loadedmetadata', () => {
-                                    clearTimeout(timeout);
-                                    resolve();
-                                }, { once: true });
-
-                                audio.addEventListener('error', (e) => {
-                                    clearTimeout(timeout);
-                                    console.warn('Audio element error:', e);
-                                    resolve();
-                                }, { once: true });
-                            });
-
-                            if (audio.duration && audio.duration > 0) {
-                                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                                const source = audioContext.createMediaElementSource(audio);
-                                const destination = audioContext.createMediaStreamDestination();
-
-                                source.connect(destination);
-
-                                const audioTracks = destination.stream.getAudioTracks();
-                                audioTracks.forEach(track => {
-                                    stream.addTrack(track);
-                                    hasAudio = true;
-                                    console.log('Added audio track from Audio element');
-                                });
-
-                                video.addEventListener('play', () => {
-                                    audio.currentTime = video.currentTime;
-                                    audio.play().catch(e => console.warn('Audio play failed:', e));
-                                });
-
-                                video.addEventListener('pause', () => {
-                                    audio.pause();
-                                });
-
-                                video.addEventListener('seeked', () => {
-                                    audio.currentTime = video.currentTime;
-                                });
-
-                                video.addEventListener('ended', () => {
-                                    URL.revokeObjectURL(audioUrl);
-                                }, { once: true });
-                            }
-
-                        } catch (audioError) {
-                            console.warn('Audio element approach failed:', audioError);
-                        }
-                    }
-
                     console.log(`Audio tracks in final stream: ${stream.getAudioTracks().length}`);
 
                     const mimeType = this.getSupportedMimeType();
 
-                    // Keep audio at 64kbps to save space for video
                     const recorderOptions = {
                         mimeType: mimeType,
-                        videoBitsPerSecond: settings.bitrate,
-                        audioBitsPerSecond: hasAudio ? 64000 : undefined,
+                        videoBitsPerSecond: settings.bitrate
                     };
+
+                    if (hasAudio) {
+                        recorderOptions.audioBitsPerSecond = 64000;
+                    }
+
+                    if (mimeType.includes('avc1.42')) {
+                        recorderOptions.videoConstraints = {
+                            width: canvas.width,
+                            height: canvas.height,
+                            frameRate: settings.fps
+                        };
+                    }
 
                     const mediaRecorder = new MediaRecorder(stream, recorderOptions);
 
@@ -658,11 +622,14 @@ const VideoCompressor = {
 
                     mediaRecorder.onstop = () => {
                         console.log(`Total chunks: ${chunks.length}, frames: ${frameCount}`);
-                        const blob = new Blob(chunks, { type: this.currentMimeType });
+
+                        const blob = new Blob(chunks, {
+                            type: this.currentMimeType.includes('mp4') ? 'video/mp4' : this.currentMimeType
+                        });
+
                         const sizeMB = blob.size / (1024 * 1024);
                         console.log(`Final blob size: ${blob.size} bytes (${sizeMB.toFixed(2)} MB)`);
 
-                        // Log compression ratio
                         const originalSizeMB = file.size / (1024 * 1024);
                         const compressionRatio = ((originalSizeMB - sizeMB) / originalSizeMB * 100).toFixed(1);
                         console.log(`Compression: ${originalSizeMB.toFixed(1)}MB -> ${sizeMB.toFixed(1)}MB (${compressionRatio}% reduction)`);
@@ -677,21 +644,21 @@ const VideoCompressor = {
                         reject(new Error('MediaRecorder error: ' + e.error));
                     };
 
-                    mediaRecorder.start(100);
+                    mediaRecorder.start(1000);
                     console.log('MediaRecorder started with options:', recorderOptions);
 
                     video.currentTime = 0;
 
                     const targetDuration = metadata.duration;
                     let lastDrawTime = 0;
-                    const minFrameInterval = 1000 / (settings.fps * 2);
+                    const minFrameInterval = 1000 / (settings.fps * 1.5);
 
                     const drawFrame = (timestamp) => {
                         if (!video.paused && !video.ended && mediaRecorder.state === 'recording') {
                             if (timestamp - lastDrawTime >= minFrameInterval) {
                                 try {
-                                    ctx.imageSmoothingEnabled = true;
-                                    ctx.imageSmoothingQuality = 'high';
+                                    ctx.fillStyle = '#000000';
+                                    ctx.fillRect(0, 0, canvas.width, canvas.height);
                                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                                     frameCount++;
                                     lastDrawTime = timestamp;
@@ -719,17 +686,6 @@ const VideoCompressor = {
                         }
                     };
 
-                    video.addEventListener('timeupdate', () => {
-                        if (mediaRecorder.state === 'recording') {
-                            try {
-                                ctx.imageSmoothingEnabled = true;
-                                ctx.imageSmoothingQuality = 'high';
-                                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                            } catch (e) {
-                            }
-                        }
-                    });
-
                     video.addEventListener('ended', () => {
                         console.log('Video ended');
                         if (rafId) {
@@ -739,33 +695,25 @@ const VideoCompressor = {
                             if (mediaRecorder.state === 'recording') {
                                 mediaRecorder.stop();
                             }
-                        }, 100);
+                        }, 500);
                     });
 
-                    video.muted = false;
-                    video.volume = 0.001;
+                    video.muted = true;
+                    video.volume = 0;
                     video.playbackRate = 1.0;
 
                     const startPlayback = async () => {
                         try {
                             await video.play();
-                            console.log(`Video playback started at ${video.playbackRate}x speed`);
+                            console.log('Video playback started');
                             rafId = requestAnimationFrame(drawFrame);
                         } catch (err) {
                             console.error('Failed to start video playback:', err);
-                            video.muted = true;
-                            try {
-                                await video.play();
-                                console.log('Video playback started (muted)');
-                                rafId = requestAnimationFrame(drawFrame);
-                            } catch (err2) {
-                                console.error('Failed to start video playback even when muted:', err2);
-                                reject(err2);
-                            }
+                            reject(err);
                         }
                     };
 
-                    startPlayback();
+                    setTimeout(startPlayback, 100);
 
                 } catch (error) {
                     console.error('Compression setup error:', error);
@@ -787,20 +735,11 @@ const VideoCompressor = {
 
     getSupportedMimeType() {
         const types = [
-            'video/mp4;codecs="avc1.640034"',
-            'video/mp4;codecs="avc1.640033"',
-            'video/mp4;codecs="avc1.640032"',
-            'video/mp4;codecs="avc1.64002A"',
-            'video/mp4;codecs="avc1.640029"',
-            'video/mp4;codecs="avc1.640028"',
-            'video/mp4;codecs="avc1.4D402A"',
-            'video/mp4;codecs="avc1.4D4029"',
-            'video/mp4;codecs="avc1.4D401F"',
+            'video/mp4;codecs="avc1.42E01E"',
+            'video/mp4;codecs="avc1.42001E"',
+            'video/mp4;codecs="avc1.4D401E"',
             'video/mp4;codecs=avc1',
-            'video/mp4',
-            'video/webm;codecs="vp9,opus"',
-            'video/webm;codecs=vp9',
-            'video/webm'
+            'video/mp4'
         ];
 
         for (const type of types) {
