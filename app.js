@@ -6643,6 +6643,11 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                         ` : ''}
                     </div>
                 </div>
+                ${videoData.tags.length > 0 ? `
+                    <div class="tags">
+                        ${videoData.tags.map(tag => `<span class="tag" onclick="navigateTo('/tag/${tag}')">#${tag}</span>`).join('')}
+                    </div>
+                ` : ''}
                 
                 <div class="comments-section">
                     <h3>Comments</h3>

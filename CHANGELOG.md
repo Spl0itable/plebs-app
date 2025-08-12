@@ -1,3 +1,7 @@
+## v1.7.9 - 2025-08-13
+
+Hotfix: accidental removal of tags
+
 ## v1.7.8 - 2025-08-08
 
 New: increased max "upload size" to 5GB and added client-side compression
