@@ -3115,7 +3115,7 @@ async function processBoost(eventId, amount) {
                 ['e', eventId],
                 ['purpose', 'boost']
             ],
-            content: `Boost for video ${eventId}`
+            content: ''
         };
 
         const signedZapRequest = await signEvent(boostZapRequest);

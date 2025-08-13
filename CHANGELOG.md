@@ -1,3 +1,7 @@
+## v1.7.10 - 2025-08-13
+
+Hotfix: broken boost ln invoice generation
+
 ## v1.7.9 - 2025-08-13
 
 Hotfix: accidental removal of tags
