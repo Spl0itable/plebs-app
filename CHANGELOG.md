@@ -1,3 +1,7 @@
+## v1.7.11 - 2025-08-13
+
+Hotfix: changed wallet
+
 ## v1.7.10 - 2025-08-13
 
 Hotfix: broken boost ln invoice generation

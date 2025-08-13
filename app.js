@@ -3149,7 +3149,7 @@ async function processBoost(eventId, amount) {
 
 // Fetch boost invoice from walletofsatoshi
 async function fetchBoostInvoice(amount, zapRequest) {
-    const url = `https://walletofsatoshi.com/.well-known/lnurlp/69420`;
+    const url = `https://wallet.yakihonne.com/.well-known/lnurlp/69420`;
 
     try {
         const response = await fetch(url);
