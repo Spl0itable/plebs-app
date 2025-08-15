@@ -1,3 +1,7 @@
+## v1.7.12 - 2025-08-15
+
+Hotfix: tag normalization
+
 ## v1.7.11 - 2025-08-13
 
 Hotfix: changed wallet

@@ -2681,21 +2681,28 @@ async function handleRoute() {
 
         loadProfile(pubkey);
     } else if (pathParts[0] === 'tag' && pathParts[1]) {
-        const tag = pathParts[1];
+        const originalTag = pathParts[1];
+        const normalizedTag = originalTag.toLowerCase();
+
+        if (originalTag !== normalizedTag) {
+            navigateTo(`/tag/${normalizedTag}`);
+            return;
+        }
+
         updateMetaTags(
-            `${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos - Plebs`,
-            `Watch ${tag} videos on Plebs, the censorship-resistant decentralized video platform`
+            `${normalizedTag.charAt(0).toUpperCase() + normalizedTag.slice(1)} Videos - Plebs`,
+            `Watch ${normalizedTag} videos on Plebs, the censorship-resistant decentralized video platform`
         );
 
         setStructuredData({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            "name": `${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos`,
-            "description": `Watch ${tag} videos on Plebs`,
+            "name": `${normalizedTag.charAt(0).toUpperCase() + normalizedTag.slice(1)} Videos`,
+            "description": `Watch ${normalizedTag} videos on Plebs`,
             "url": window.location.href
         });
 
-        loadTag(tag);
+        loadTag(normalizedTag);
     } else if (pathParts[0] === 'search' && pathParts[1]) {
         const query = decodeURIComponent(pathParts[1]);
         updateMetaTags(
@@ -5909,7 +5916,8 @@ async function loadMyVideos() {
 
 // Load videos by tag with streaming
 async function loadTag(tag) {
-    currentView = `tag-${tag}`;
+    const normalizedTag = tag.toLowerCase();
+    currentView = `tag-${normalizedTag}`;
 
     const filter = {
         kinds: [1],
@@ -5919,10 +5927,11 @@ async function loadTag(tag) {
 
     const tagFilter = (event) => {
         const tags = event.tags || [];
-        return tags.some(t => t[0] === 't' && t[1] === tag);
+        return tags.some(t => t[0] === 't' && t[1].toLowerCase() === normalizedTag);
     };
 
-    await displayVideosStream(`${tag.charAt(0).toUpperCase() + tag.slice(1)} Videos`, filter, tagFilter);
+    const displayTag = normalizedTag.charAt(0).toUpperCase() + normalizedTag.slice(1);
+    await displayVideosStream(`${displayTag} Videos`, filter, tagFilter);
 }
 
 // Handle deleting video
@@ -6645,7 +6654,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                 </div>
                 ${videoData.tags.length > 0 ? `
                     <div class="tags">
-                        ${videoData.tags.map(tag => `<span class="tag" onclick="navigateTo('/tag/${tag}')">#${tag}</span>`).join('')}
+                        ${videoData.tags.map(tag => `<span class="tag" onclick="navigateTo('/tag/${tag.toLowerCase()}')">#${tag}</span>`).join('')}
                     </div>
                 ` : ''}
                 
