@@ -660,11 +660,11 @@ header {
 
 /* Boost button styling */
 .action-btn.boost {
-    color: white;
+    color: var(--text-primary);
 }
 
 .action-btn.boost:hover {
-    color: white;
+    color: var(--text-primary);
     transform: translateY(-2px);
 }
 
