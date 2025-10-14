@@ -76,31 +76,30 @@ let userSettings = {
 };
 
 // Theme management
-function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    updateThemeIcon(savedTheme);
-}
+const ThemeManager = (() => {
+  const rootElement = document.documentElement;
+  const themeToggle = document.querySelector('.theme-toggle');
+  const osPrefersLight = window.matchMedia('(prefers-color-scheme: light)');
 
-function toggleTheme() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    updateThemeIcon(newTheme);
-}
+  const newTheme = (theme) =>
+    theme ||
+    localStorage.getItem('theme') ||
+    (osPrefersLight.matches ? 'light' : 'dark');
+  const applyTheme = (theme) => rootElement.setAttribute('data-theme', newTheme(theme));
 
-function updateThemeIcon(theme) {
-    const lightIcon = document.querySelector('.theme-icon-light');
-    const darkIcon = document.querySelector('.theme-icon-dark');
-    if (theme === 'dark') {
-        lightIcon.style.display = 'block';
-        darkIcon.style.display = 'none';
-    } else {
-        lightIcon.style.display = 'none';
-        darkIcon.style.display = 'block';
-    }
-}
+  osPrefersLight.addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'light' : 'dark');
+  });
+
+  themeToggle.addEventListener('click', () => {
+    const nextTheme =
+      rootElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    localStorage.setItem('theme', nextTheme);
+    applyTheme(nextTheme);
+  });
+
+  applyTheme();
+})();
 
 // Initialize all relay connections
 async function initializeRelayConnections() {
