@@ -26,6 +26,18 @@
 
     <!-- Plebs Styling -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Theme Preload -->
+    <script>
+      (function () {
+        const storedTheme = localStorage.getItem('theme');
+        const osPrefersLight = window.matchMedia(
+          '(prefers-color-scheme: light)'
+        ).matches;
+        const theme = storedTheme || (osPrefersLight ? 'light' : 'dark');
+        document.documentElement.setAttribute('data-theme', theme);
+      })();
+    </script>
 </head>
 
 <body>
