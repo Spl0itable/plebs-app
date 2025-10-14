@@ -794,8 +794,6 @@ const VideoCompressor = {
 
 // Initialize app without checking for login
 async function initializeApp() {
-    initTheme();
-
     // Initialize relay connections
     await initializeRelayConnections();
 
