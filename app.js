@@ -77,28 +77,28 @@ let userSettings = {
 
 // Theme management
 const ThemeManager = (() => {
-  const rootElement = document.documentElement;
-  const themeToggle = document.querySelector('.theme-toggle');
-  const osPrefersLight = window.matchMedia('(prefers-color-scheme: light)');
+    const rootElement = document.documentElement;
+    const themeToggle = document.querySelector('.theme-toggle');
+    const osPrefersLight = window.matchMedia('(prefers-color-scheme: light)');
 
-  const newTheme = (theme) =>
-    theme ||
-    localStorage.getItem('theme') ||
-    (osPrefersLight.matches ? 'light' : 'dark');
-  const applyTheme = (theme) => rootElement.setAttribute('data-theme', newTheme(theme));
+    const newTheme = (theme) =>
+        theme ||
+        localStorage.getItem('theme') ||
+        (osPrefersLight.matches ? 'light' : 'dark');
+    const applyTheme = (theme) => rootElement.setAttribute('data-theme', newTheme(theme));
 
-  osPrefersLight.addEventListener('change', (e) => {
-    if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'light' : 'dark');
-  });
+    osPrefersLight.addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) applyTheme(e.matches ? 'light' : 'dark');
+    });
 
-  themeToggle.addEventListener('click', () => {
-    const nextTheme =
-      rootElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    localStorage.setItem('theme', nextTheme);
-    applyTheme(nextTheme);
-  });
+    themeToggle.addEventListener('click', () => {
+        const nextTheme =
+        rootElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        localStorage.setItem('theme', nextTheme);
+        applyTheme(nextTheme);
+    });
 
-  applyTheme();
+    applyTheme();
 })();
 
 // Initialize all relay connections
