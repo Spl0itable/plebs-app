@@ -5,6 +5,7 @@
 }
 
 :root {
+  color-scheme: dark;
   --bg-primary: #0f0f0f;
   --bg-secondary: #272727;
   --text-primary: #ffffff;
@@ -20,6 +21,7 @@
 
 /* Light mode colors */
 [data-theme="light"] {
+  color-scheme: light;
   --bg-primary: #ffffff;
   --bg-secondary: #f5f5f5;
   --text-primary: #000000;
