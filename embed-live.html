@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plebs Live Stream</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .embed-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+        }
+
+        /* Plebs Logo Watermark */
+        .watermark {
+            position: absolute;
+            bottom: 70px;
+            right: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 6px;
+            text-decoration: none;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+            z-index: 10;
+        }
+
+        .watermark:hover {
+            opacity: 1;
+        }
+
+        .watermark svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Live badge */
+        .live-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #e91e63;
+            border-radius: 4px;
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            z-index: 10;
+        }
+
+        .live-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Stream title overlay */
+        .stream-title {
+            position: absolute;
+            top: 12px;
+            left: 80px;
+            right: 12px;
+            padding: 6px 12px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 4px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            z-index: 10;
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+
+        /* Loading state */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #e91e63;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error/Status state */
+        .status-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .status-message h3 {
+            margin-bottom: 10px;
+            color: #e91e63;
+        }
+
+        .status-message p {
+            color: #aaa;
+            font-size: 14px;
+        }
+
+        .status-message a {
+            color: #e91e63;
+            text-decoration: none;
+        }
+
+        .status-message a:hover {
+            text-decoration: underline;
+        }
+
+        /* Scheduled stream state */
+        .scheduled-info {
+            margin-top: 15px;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+        }
+
+        .scheduled-info .time {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+        }
+    </style>
+    <!-- HLS.js for non-Safari browsers -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
+</head>
+<body>
+    <div class="embed-container" id="embedContainer">
+        <div class="loading" id="loadingState">
+            <div class="spinner"></div>
+            <span>Loading stream...</span>
+        </div>
+    </div>
+
+    <script>
+        // Relay configuration
+        const RELAYS = [
+            'wss://relay.primal.net',
+            'wss://relay.damus.io',
+            'wss://nos.lol',
+            'wss://relay.nostr.band'
+        ];
+
+        // NIP-53 Live Event Kind
+        const NIP53_LIVE_EVENT_KIND = 30311;
+
+        // Get event ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventId = urlParams.get('id');
+
+        if (!eventId) {
+            showStatus('No stream ID provided', 'error');
+        } else {
+            loadLiveStream(eventId);
+        }
+
+        async function loadLiveStream(eventId) {
+            try {
+                // Connect to relays and fetch event
+                const event = await fetchEvent(eventId);
+
+                if (!event) {
+                    showStatus('Stream not found', 'error', 'The stream may have ended or is unavailable.');
+                    return;
+                }
+
+                // Parse live stream data
+                const liveData = parseLiveEvent(event);
+                if (!liveData) {
+                    showStatus('Invalid stream data', 'error', 'Could not parse stream information.');
+                    return;
+                }
+
+                // Handle different stream states
+                if (liveData.status === 'ended') {
+                    showStatus('Stream ended', 'ended', 'This live stream has ended.', liveData);
+                    return;
+                }
+
+                if (liveData.status === 'planned') {
+                    showScheduled(liveData, eventId);
+                    return;
+                }
+
+                // Check for streaming URL
+                if (!liveData.streamUrl) {
+                    showStatus('No stream URL', 'error', 'The streamer has not provided a stream URL.');
+                    return;
+                }
+
+                // Create video player
+                createPlayer(liveData, eventId);
+
+            } catch (error) {
+                console.error('Error loading stream:', error);
+                showStatus('Failed to load stream', 'error', error.message);
+            }
+        }
+
+        async function fetchEvent(eventId) {
+            return new Promise((resolve, reject) => {
+                let resolved = false;
+                let event = null;
+                const sockets = [];
+                const timeout = setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        sockets.forEach(ws => ws.close());
+                        resolve(event);
+                    }
+                }, 10000);
+
+                RELAYS.forEach(relayUrl => {
+                    try {
+                        const ws = new WebSocket(relayUrl);
+                        sockets.push(ws);
+
+                        ws.onopen = () => {
+                            const subId = 'embed_' + Math.random().toString(36).substr(2, 9);
+                            // Try to fetch by event ID directly
+                            const filter = {
+                                ids: [eventId]
+                            };
+                            ws.send(JSON.stringify(['REQ', subId, filter]));
+                        };
+
+                        ws.onmessage = (msg) => {
+                            try {
+                                const data = JSON.parse(msg.data);
+                                if (data[0] === 'EVENT' && data[2]) {
+                                    event = data[2];
+                                    if (!resolved) {
+                                        resolved = true;
+                                        clearTimeout(timeout);
+                                        sockets.forEach(s => s.close());
+                                        resolve(event);
+                                    }
+                                }
+                            } catch (e) {}
+                        };
+
+                        ws.onerror = () => {};
+                    } catch (e) {}
+                });
+            });
+        }
+
+        function parseLiveEvent(event) {
+            if (event.kind !== NIP53_LIVE_EVENT_KIND) return null;
+
+            const getTags = (name) => event.tags.filter(t => t[0] === name);
+            const getTag = (name) => event.tags.find(t => t[0] === name)?.[1] || '';
+
+            const status = getTag('status') || 'live';
+            const startsTag = getTag('starts');
+            const endsTag = getTag('ends');
+
+            return {
+                id: event.id,
+                pubkey: event.pubkey,
+                dTag: getTag('d'),
+                title: getTag('title') || 'Untitled Stream',
+                summary: getTag('summary') || '',
+                thumbnail: getTag('image') || getTag('thumb') || '',
+                streamUrl: getTag('streaming') || '',
+                recordingUrl: getTag('recording') || '',
+                status: status,
+                starts: startsTag ? parseInt(startsTag) : event.created_at,
+                ends: endsTag ? parseInt(endsTag) : null,
+                currentParticipants: parseInt(getTag('current_participants')) || 0,
+                isNSFW: event.tags.some(t => t[0] === 'content-warning')
+            };
+        }
+
+        function createPlayer(liveData, eventId) {
+            const container = document.getElementById('embedContainer');
+
+            // Create video element
+            const video = document.createElement('video');
+            video.controls = true;
+            video.autoplay = true;
+            video.muted = true; // Start muted for autoplay to work
+            video.playsInline = true;
+
+            // Set poster if available
+            if (liveData.thumbnail) {
+                video.poster = liveData.thumbnail;
+            }
+
+            // Determine if HLS stream
+            const isHLS = liveData.streamUrl.includes('.m3u8') ||
+                         liveData.streamUrl.includes('m3u8');
+
+            if (isHLS) {
+                // Check for native HLS support (Safari)
+                if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = liveData.streamUrl;
+                } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    // Use HLS.js for other browsers
+                    const hls = new Hls({
+                        enableWorker: true,
+                        lowLatencyMode: true,
+                        backBufferLength: 30
+                    });
+                    hls.loadSource(liveData.streamUrl);
+                    hls.attachMedia(video);
+
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    console.error('Network error, trying to recover...');
+                                    hls.startLoad();
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    console.error('Media error, trying to recover...');
+                                    hls.recoverMediaError();
+                                    break;
+                                default:
+                                    showStatus('Stream unavailable', 'error', 'Failed to load the stream.');
+                                    hls.destroy();
+                                    break;
+                            }
+                        }
+                    });
+                } else {
+                    showStatus('HLS not supported', 'error', 'Your browser does not support HLS streaming.');
+                    return;
+                }
+            } else {
+                // Direct URL (WebRTC, RTMP via relay, or direct video)
+                video.src = liveData.streamUrl;
+            }
+
+            // Error handler
+            video.onerror = () => {
+                showStatus('Stream unavailable', 'error', 'Failed to connect to the stream.');
+            };
+
+            // Create live badge
+            const liveBadge = document.createElement('div');
+            liveBadge.className = 'live-badge';
+            liveBadge.textContent = 'LIVE';
+
+            // Create title overlay
+            const titleOverlay = document.createElement('div');
+            titleOverlay.className = 'stream-title';
+            titleOverlay.textContent = liveData.title;
+
+            // Create watermark
+            const watermark = document.createElement('a');
+            watermark.className = 'watermark';
+            watermark.href = window.location.origin + '/#/live/' + eventId;
+            watermark.target = '_blank';
+            watermark.rel = 'noopener noreferrer';
+            watermark.innerHTML = `
+                <svg viewBox="0 0 24 24">
+                    <path d="M4 7 Q4 4, 6 5.5 L11 10.5 Q14 12, 11 13.5 L6 18.5 Q4 20, 4 17 Z" fill="#e91e63" opacity="0.4"/>
+                    <path d="M10 7 Q10 4, 12 5.5 L17 10.5 Q20 12, 17 13.5 L12 18.5 Q10 20, 10 17 Z" fill="#e91e63"/>
+                </svg>
+                <span>Watch on Plebs</span>
+            `;
+
+            // Clear loading state and add player
+            container.innerHTML = '';
+            container.appendChild(video);
+            container.appendChild(liveBadge);
+            container.appendChild(titleOverlay);
+            container.appendChild(watermark);
+
+            // Auto-hide title and badge after a few seconds
+            let hideTimeout;
+            const showOverlays = () => {
+                liveBadge.style.opacity = '1';
+                titleOverlay.style.opacity = '1';
+                watermark.style.opacity = '0.8';
+                clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(() => {
+                    if (!video.paused) {
+                        titleOverlay.style.opacity = '0';
+                        watermark.style.opacity = '0.3';
+                    }
+                }, 4000);
+            };
+
+            video.addEventListener('play', showOverlays);
+            video.addEventListener('pause', () => {
+                liveBadge.style.opacity = '1';
+                titleOverlay.style.opacity = '1';
+                watermark.style.opacity = '0.8';
+                clearTimeout(hideTimeout);
+            });
+            container.addEventListener('mousemove', showOverlays);
+
+            // Initial show
+            showOverlays();
+        }
+
+        function showScheduled(liveData, eventId) {
+            const container = document.getElementById('embedContainer');
+            const origin = window.location.origin || window.location.href.split('/embed-live.html')[0];
+
+            const startDate = new Date(liveData.starts * 1000);
+            const formattedDate = startDate.toLocaleDateString(undefined, {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
+            });
+            const formattedTime = startDate.toLocaleTimeString(undefined, {
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+
+            let html = `
+                <div class="status-message">
+                    <h3>Scheduled Stream</h3>
+                    <p>${liveData.title}</p>
+                    <div class="scheduled-info">
+                        <div class="time">${formattedDate}</div>
+                        <div class="time">${formattedTime}</div>
+                    </div>
+                    <p style="margin-top: 15px;">
+                        <a href="${origin}/#/live/${eventId}" target="_blank">View on Plebs</a>
+                    </p>
+                </div>
+            `;
+
+            // Add thumbnail background if available
+            if (liveData.thumbnail) {
+                container.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(${liveData.thumbnail})`;
+                container.style.backgroundSize = 'cover';
+                container.style.backgroundPosition = 'center';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function showStatus(title, type = 'error', message = '', liveData = null) {
+            const container = document.getElementById('embedContainer');
+            const origin = window.location.origin || window.location.href.split('/embed-live.html')[0];
+
+            let additionalContent = '';
+
+            // If stream ended and has recording, offer link to recording
+            if (type === 'ended' && liveData?.recordingUrl) {
+                additionalContent = `
+                    <p style="margin-top: 10px;">
+                        <a href="${liveData.recordingUrl}" target="_blank">Watch Recording</a>
+                    </p>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="status-message">
+                    <h3>${title}</h3>
+                    ${message ? `<p>${message}</p>` : ''}
+                    ${additionalContent}
+                    <p style="margin-top: 15px;">
+                        <a href="${origin}" target="_blank">Visit Plebs</a>
+                    </p>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

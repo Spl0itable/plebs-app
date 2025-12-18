@@ -58,14 +58,29 @@ Visit the live application at [https://plebs.app](https://plebs.app)
 
 ### Nostr Implementation Details
 
+#### Core Events
 - **Kind 0**: User profiles
-- **Kind 1**: Video posts
+- **Kind 1**: Text notes (legacy video posts)
 - **Kind 3**: Contact lists (following)
 - **Kind 5**: Deletion requests
 - **Kind 7**: Reactions (likes/dislikes)
+
+#### Video Events (NIP-71)
+- **Kind 21**: Legacy horizontal videos
+- **Kind 22**: Legacy vertical videos (shorts)
+- **Kind 34235**: Addressable horizontal videos
+- **Kind 34236**: Addressable vertical videos (shorts)
+
+#### Live Streaming Events (NIP-53)
+- **Kind 30311**: Live stream events
+- **Kind 1311**: Live chat messages
+
+#### Zaps & Payments
 - **Kind 9734**: Zap requests
 - **Kind 9735**: Zap receipts
-- **Kind 10063**: User server lists
+
+#### Other
+- **Kind 10063**: User server lists (Blossom)
 - **Kind 24133**: NIP-46 Nostr Connect
 - **Kind 24242**: Blossom authentication
 - **Kind 30078**: Application data (settings sync)

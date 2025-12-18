@@ -1,4 +1,10 @@
-## v2.7.12 - 2025-12-11
+## v2.7.13 - 2025-12-18
+
+Hotfix: preview generation not working on ios/safari on upload
+Hotfix: broken translation text
+Hotfix: notification modal not loading
+
+## v2.7.12 - 2025-12-18
 
 New: complete refactor and redesign
 New: show following list

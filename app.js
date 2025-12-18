@@ -3036,99 +3036,162 @@ const GIFEncoder = {
     }
 };
 
+// Detect iOS/Safari for optimized handling
+function isIOSOrSafari() {
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(ua);
+    return isIOS || isSafari;
+}
+
 // Generate an animated GIF preview from a video URL
 // Captures frames from the first few seconds and creates a looping GIF
+// Optimized for cross-browser compatibility including iOS/Safari
 function generatePreviewGif(videoUrl, options = {}) {
+    // Use fewer frames on iOS/Safari for faster processing
+    const isMobileOrSafari = isIOSOrSafari();
+    const defaultFrameCount = isMobileOrSafari ? 5 : 8;
+
     const {
-        frameCount = 8,        // Number of frames to capture
-        startTime = 0.5,       // Start capturing at 0.5 seconds
-        duration = 3,          // Capture over 3 seconds
-        maxWidth = 320,        // Max width for GIF (smaller = faster)
-        frameDelay = 150       // Delay between frames in ms
+        frameCount = defaultFrameCount,
+        startTime = 0.5,
+        duration = 3,
+        maxWidth = isMobileOrSafari ? 240 : 320,  // Smaller on mobile for speed
+        frameDelay = 150,
+        seekTimeout = isMobileOrSafari ? 3000 : 2000  // Timeout per seek operation
     } = options;
 
     return new Promise((resolve, reject) => {
-        const video = document.createElement('video');
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        // Use parallel video loading for faster frame capture on all browsers
+        const captureFrameAtTime = (url, time, width, height) => {
+            return new Promise((resolveFrame, rejectFrame) => {
+                const video = document.createElement('video');
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
 
-        video.muted = true;
-        video.preload = 'auto';
-        video.crossOrigin = 'anonymous';
+                video.muted = true;
+                video.playsInline = true;  // Required for iOS
+                video.preload = 'metadata';
+                video.crossOrigin = 'anonymous';
 
-        const frames = [];
-        let currentFrame = 0;
-        let width, height;
+                // Timeout for this frame capture
+                const timeout = setTimeout(() => {
+                    video.src = '';
+                    rejectFrame(new Error('Frame capture timeout'));
+                }, seekTimeout);
 
-        video.onloadedmetadata = () => {
-            // Calculate scaled dimensions
-            const aspectRatio = video.videoWidth / video.videoHeight;
-            width = Math.min(maxWidth, video.videoWidth);
-            height = Math.round(width / aspectRatio);
+                video.onloadedmetadata = () => {
+                    canvas.width = width;
+                    canvas.height = height;
+                    video.currentTime = Math.min(time, video.duration - 0.1);
+                };
 
-            // Ensure even dimensions (required for some encoders)
-            width = width - (width % 2);
-            height = height - (height % 2);
+                video.onseeked = () => {
+                    clearTimeout(timeout);
+                    try {
+                        ctx.drawImage(video, 0, 0, width, height);
+                        const imageData = ctx.getImageData(0, 0, width, height);
+                        video.src = '';  // Clean up
+                        resolveFrame(new Uint8Array(imageData.data));
+                    } catch (error) {
+                        video.src = '';
+                        rejectFrame(error);
+                    }
+                };
 
-            canvas.width = width;
-            canvas.height = height;
+                video.onerror = () => {
+                    clearTimeout(timeout);
+                    video.src = '';
+                    rejectFrame(new Error('Failed to load video frame'));
+                };
 
-            // Calculate frame times
-            const videoDuration = video.duration;
-            const actualDuration = Math.min(duration, videoDuration - startTime);
-            const frameInterval = actualDuration / (frameCount - 1);
-
-            // Seek to first frame
-            video.currentTime = Math.min(startTime, videoDuration - 0.5);
+                video.src = url;
+            });
         };
 
-        video.onseeked = () => {
+        // First, get video metadata to calculate dimensions and timing
+        const metaVideo = document.createElement('video');
+        metaVideo.muted = true;
+        metaVideo.playsInline = true;
+        metaVideo.preload = 'metadata';
+        metaVideo.crossOrigin = 'anonymous';
+
+        const metaTimeout = setTimeout(() => {
+            metaVideo.src = '';
+            reject(new Error('Video metadata load timeout'));
+        }, 10000);
+
+        metaVideo.onloadedmetadata = async () => {
+            clearTimeout(metaTimeout);
+
             try {
-                // Draw current frame to canvas
-                ctx.drawImage(video, 0, 0, width, height);
+                // Calculate scaled dimensions
+                const aspectRatio = metaVideo.videoWidth / metaVideo.videoHeight;
+                let width = Math.min(maxWidth, metaVideo.videoWidth);
+                let height = Math.round(width / aspectRatio);
 
-                // Get pixel data
-                const imageData = ctx.getImageData(0, 0, width, height);
-                frames.push(new Uint8Array(imageData.data));
+                // Ensure even dimensions
+                width = width - (width % 2);
+                height = height - (height % 2);
 
-                currentFrame++;
+                // Calculate frame times
+                const videoDuration = metaVideo.duration;
+                const actualDuration = Math.min(duration, videoDuration - startTime);
+                const frameInterval = actualDuration / (frameCount - 1);
 
-                if (currentFrame < frameCount) {
-                    // Calculate time for next frame
-                    const videoDuration = video.duration;
-                    const actualDuration = Math.min(duration, videoDuration - startTime);
-                    const frameInterval = actualDuration / (frameCount - 1);
-                    const nextTime = startTime + (currentFrame * frameInterval);
+                const frameTimes = [];
+                for (let i = 0; i < frameCount; i++) {
+                    frameTimes.push(Math.min(startTime + (i * frameInterval), videoDuration - 0.1));
+                }
 
-                    // Seek to next frame
-                    video.currentTime = Math.min(nextTime, videoDuration - 0.1);
-                } else {
-                    // All frames captured, generate GIF
-                    try {
-                        const gifData = GIFEncoder.encode(width, height, frames, frameDelay);
-                        const blob = new Blob([gifData], { type: 'image/gif' });
-                        const file = new File([blob], 'preview.gif', { type: 'image/gif' });
+                metaVideo.src = '';  // Clean up metadata video
 
-                        resolve({
-                            file: file,
-                            width: width,
-                            height: height,
-                            frameCount: frames.length
-                        });
-                    } catch (encodeError) {
-                        reject(new Error('Failed to encode GIF: ' + encodeError.message));
+                // Capture frames in parallel (up to 3 concurrent for balance)
+                const frames = [];
+                const batchSize = isMobileOrSafari ? 2 : 3;  // Smaller batches on mobile
+
+                for (let i = 0; i < frameTimes.length; i += batchSize) {
+                    const batch = frameTimes.slice(i, i + batchSize);
+                    const batchPromises = batch.map(time =>
+                        captureFrameAtTime(videoUrl, time, width, height)
+                            .catch(() => null)  // Don't fail entire process for one frame
+                    );
+
+                    const batchResults = await Promise.all(batchPromises);
+                    for (const result of batchResults) {
+                        if (result) frames.push(result);
                     }
                 }
+
+                // Need at least 2 frames for a GIF
+                if (frames.length < 2) {
+                    reject(new Error('Could not capture enough frames'));
+                    return;
+                }
+
+                // Generate GIF
+                const gifData = GIFEncoder.encode(width, height, frames, frameDelay);
+                const blob = new Blob([gifData], { type: 'image/gif' });
+                const file = new File([blob], 'preview.gif', { type: 'image/gif' });
+
+                resolve({
+                    file: file,
+                    width: width,
+                    height: height,
+                    frameCount: frames.length
+                });
             } catch (error) {
-                reject(error);
+                reject(new Error('Failed to generate GIF: ' + error.message));
             }
         };
 
-        video.onerror = () => {
+        metaVideo.onerror = () => {
+            clearTimeout(metaTimeout);
+            metaVideo.src = '';
             reject(new Error('Failed to load video for preview generation'));
         };
 
-        video.src = videoUrl;
+        metaVideo.src = videoUrl;
     });
 }
 
@@ -9753,7 +9816,8 @@ async function loadNotifications() {
             } else {
                 const originalVideoId = event.tags.find(t => t[0] === 'e')?.[1];
                 const video = userVideos.find(v => v.id === originalVideoId);
-                videoTitle = video ? parseVideoEvent(video).title : 'Unknown Video';
+                const parsedVideo = video ? parseVideoEvent(video) : null;
+                videoTitle = parsedVideo?.title || 'Unknown Video';
 
                 // For legacy kinds (1, 21, 22), find the NIP-71 addressable counterpart
                 videoId = originalVideoId;
@@ -16534,11 +16598,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 try {
+                    // Let the function use optimized defaults for iOS/Safari
                     const previewData = await generatePreviewGif(uploadState.video.url, {
-                        frameCount: 10,
                         startTime: 0.5,
-                        duration: 5,
-                        maxWidth: 320,
+                        duration: 4,
                         frameDelay: 150
                     });
 
