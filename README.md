@@ -4,41 +4,71 @@
 
 **A censorship-resistant, decentralized video platform powered by the Nostr protocol**
 
-Plebs is a revolutionary video platform that leverages the [Nostr](https://github.com/nostr-protocol/nostr) protocol and [Blossom](https://github.com/hzrd149/blossom) storage servers to create a truly decentralized and censorship-resistant video sharing experience. Built with privacy and freedom of expression at its core, Plebs ensures that content creators maintain full control over their videos.
+Plebs is a decentralized video platform built on the [Nostr](https://github.com/nostr-protocol/nostr) protocol with [Blossom](https://github.com/hzrd149/blossom) storage servers. Videos are stored across multiple servers, and creators maintain full control of their content and identity through Nostr keys.
 
 Visit the live application at [https://plebs.app](https://plebs.app)
 
 ## Features
 
 ### Core Features
-- **Decentralized Storage** - Videos stored on multiple Blossom servers
-- **Lightning Zaps** - Direct Bitcoin payments to content creators  
-- **Nostr Integration** - Login with your Nostr identity (NIP-07)
-- **Comments** - Engage through threaded integration
+- **Decentralized Storage** - Videos stored across multiple Blossom servers with redundancy
+- **Lightning Zaps** - Direct Bitcoin payments to creators on videos and comments
+- **Nostr Integration** - Login via browser extension (NIP-07), Nostr Connect/Bunker (NIP-46), or private key
+- **Comments** - Threaded discussions with reactions and zaps
 - **Reactions** - Like and dislike videos
 - **Search** - Find videos by title, description, or tags
 
-### Advanced Features
-- **Trending Videos** - Discover popular content from today or this week
-- **Subscriptions** - See videos from who you follow
-- **Tag System** - Browse by categories (Bitcoin, Nostr, Tech, etc.)
-- **Dark/Light Mode** - Choose your preferred theme
-- **Mobile Responsive** - Works on all devices
+### Video Features
+- **Live Streams** - Watch and broadcast live content
+- **Shorts** - Short-form video support
+- **Video Downloads** - Download videos directly
+- **Embeddable Player** - Embed videos on external websites
+- **Video Boosting** - Boost videos with zaps to help them trend
+- **Draft Saving** - Save uploads as drafts and publish later
+- **Client-side Compression** - Compress large videos (up to 5GB) before upload
+
+### User Features
+- **Multi-language Support** - Available in 12 languages (English, Spanish, French, German, Portuguese, Korean, Japanese, Chinese, Turkish, Russian, Arabic, Italian)
+- **Watch History** - Track viewed videos with Nostr sync
+- **Liked Videos** - View all your liked content in one place
+- **Following Feed** - See videos from accounts you follow
+- **Notifications** - Stay updated on interactions
+- **Profile Editing** - Customize your profile directly in the app
+- **Account Creation** - Create new Nostr accounts with guided key backup
+
+### Moderation & Filtering
+- **Mute Users** - Hide content from specific accounts
+- **Report Videos** - Flag inappropriate content
+- **Content Filter Packs** - Built-in filters for profanity, spam, and custom keywords
 - **NSFW Filter** - Content warnings with customizable preferences
-- **Community Warnings** - Automatic detection of heavily downvoted "ratioed" content
+- **Community Warnings** - Automatic detection of heavily downvoted content
+- **Web of Trust Relays** - Connect to WoT relays for better spam filtering
+
+### Customization
+- **Dark/Light Mode** - Choose your preferred theme
+- **Custom Blossom Servers** - Add your own upload servers
+- **Premium Blossom Server** - Optional NostrMedia.com integration
+- **Settings Sync** - Save preferences to Nostr across devices
+
+### Discovery
+- **Trending Videos** - Popular content from today or this week with carousel
+- **Tag System** - Browse by categories (Bitcoin, Nostr, Tech, etc.)
+- **Real View Counts** - Actual watched views, not just loads
+- **Mobile Responsive** - Works on all devices
 
 ### Nostr Implementation Details
 
 - **Kind 0**: User profiles
-- **Kind 1**: Normal post content
+- **Kind 1**: Video posts
 - **Kind 3**: Contact lists (following)
-- **Kind 5**: Video deletion requests
-- **Kind 7**: Video reactions (likes/dislikes)
+- **Kind 5**: Deletion requests
+- **Kind 7**: Reactions (likes/dislikes)
 - **Kind 9734**: Zap requests
 - **Kind 9735**: Zap receipts
 - **Kind 10063**: User server lists
+- **Kind 24133**: NIP-46 Nostr Connect
 - **Kind 24242**: Blossom authentication
-- **kind 30078**: Save data to Nostr
+- **Kind 30078**: Application data (settings sync)
 
 ## Contributing
 
@@ -56,4 +86,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-Created by [@Luxas](https://nostr.band/npub16jdfqgazrkapk0yrqm9rdxlnys7ck39c7zmdzxtxqlmmpxg04r0sd733sv)
+Created by [21 Million LLC](https://nostrservices.com)

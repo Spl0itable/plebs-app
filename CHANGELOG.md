@@ -1,3 +1,21 @@
+## v2.7.12 - 2025-12-11
+
+New: complete refactor and redesign
+New: show following list
+New: show watched history
+New: disable warning popups from settings
+New: mute and reporting features
+New: zaps in comments
+New: edit profile
+New: real watched view count on videos
+New: content filter packs
+New: live and shorts videos
+New: draft save videos before publishing
+New: multiple language support
+New: analytics dashboard
+Hotfix: light/dark mode bugs
+Hotfix: improved loading of all pages
+
 ## v1.7.12 - 2025-08-15
 
 Hotfix: tag normalization
