@@ -382,6 +382,8 @@ const translations = {
         'empty.loginToView': 'Please login to view your liked videos.',
         // Time
         'time.justNow': 'just now',
+        'time.secondAgo': '1 second ago',
+        'time.secondsAgo': '{n} seconds ago',
         'time.minuteAgo': '1 minute ago',
         'time.minutesAgo': '{n} minutes ago',
         'time.hourAgo': '1 hour ago',
@@ -777,6 +779,320 @@ const translations = {
         'warning.webmFormat': 'Note: Your browser will output WebM format (may not play on iOS). For iOS-compatible MP4, use Chrome on Windows/Mac.',
         // Footer
         'footer.lastUpdated': 'Last updated: December 2024',
+        // Analytics Page
+        'analytics.title': 'Channel Analytics',
+        'analytics.loading': 'Loading your analytics...',
+        'analytics.loadFailed': 'Failed to load analytics. Please try again.',
+        'analytics.overview': 'Overview',
+        'analytics.views': 'Views',
+        'analytics.followers': 'Followers',
+        'analytics.topByViews': 'Top Videos by Views',
+        'analytics.topByEngagement': 'Top Videos by Engagement',
+        'analytics.allContent': 'All Content Performance',
+        'analytics.totalViews': 'Total Views',
+        'analytics.likes': 'Likes',
+        'analytics.likesRatio': 'Likes ({ratio}% ratio)',
+        'analytics.dislikes': 'Dislikes',
+        'analytics.zapsReceived': '{count} Zaps Received',
+        'analytics.boostsReceived': 'Boosts Received',
+        'analytics.shares': 'Shares',
+        'analytics.comments': 'Comments',
+        'analytics.contentCount': '{videos} Videos, {shorts} Shorts, {streams} Streams',
+        'analytics.last7days': 'Last 7 days',
+        'analytics.last30days': 'Last 30 days',
+        'analytics.last90days': 'Last 90 days',
+        'analytics.lastYear': 'Last year',
+        'analytics.allTime': 'All time',
+        'analytics.lastNDays': 'Last {n} days',
+        'analytics.netGrowth': 'Net Growth',
+        'analytics.newFollowers': 'New Followers',
+        'analytics.unfollowed': 'Unfollowed',
+        'analytics.noVideosYet': 'No videos yet',
+        'analytics.noShortsYet': 'No shorts yet',
+        'analytics.noStreamsYet': 'No live streams yet',
+        'analytics.viewsTooltip': '{count} views',
+        'analytics.subscribersTooltip': '{count} subscribers',
+        'analytics.videosTab': 'Videos ({count})',
+        'analytics.shortsTab': 'Shorts ({count})',
+        'analytics.streamsTab': 'Live Streams ({count})',
+        // About Page
+        'about.title': 'About Plebs',
+        'about.whatIs': 'What is Plebs?',
+        'about.whatIsDesc': 'Plebs is a censorship-resistant, decentralized video platform built on the <a href="https://nostr.com" target="_blank" rel="noopener">Nostr protocol</a>. Unlike traditional video platforms controlled by corporations, Plebs gives you true ownership of your content and identity.',
+        'about.whyNostr': 'Why Nostr?',
+        'about.whyNostrDesc': 'Nostr (Notes and Other Stuff Transmitted by Relays) is a simple, open protocol that enables a truly decentralized social network. Key benefits include:',
+        'about.benefit1': 'Censorship Resistance:',
+        'about.benefit1Desc': 'No single entity can ban you or remove your content',
+        'about.benefit2': 'Portability:',
+        'about.benefit2Desc': 'Your identity and followers work across all Nostr apps',
+        'about.benefit3': 'No Central Authority:',
+        'about.benefit3Desc': 'No company owns or controls the network',
+        'about.benefit4': 'Cryptographic Identity:',
+        'about.benefit4Desc': 'Your keys prove you are who you say you are',
+        'about.howItWorks': 'How It Works',
+        'about.howItWorksDesc': 'Videos on Plebs are stored using <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom</a>, a distributed file storage system, while video metadata and social interactions are broadcast to Nostr relays. This means your content isn\'t stored on our servers - it\'s distributed across the network.',
+        'about.features': 'Features',
+        'about.feature1': 'Upload and share videos with the Nostr community',
+        'about.feature2': 'Like, comment, and share videos using Nostr reactions',
+        'about.feature3': 'Zap creators with Bitcoin via the Lightning Network',
+        'about.feature4': 'Follow your favorite creators across any Nostr app',
+        'about.feature5': 'Browse topics and discover new content',
+        'about.feature6': 'Works with any Nostr identity (use existing keys)',
+        'about.openSource': 'Open Source',
+        'about.openSourceDesc': 'Plebs is open source software. You can view the code, contribute, or run your own instance:',
+        'about.githubRepo': 'GitHub Repository',
+        'about.builtBy': 'Built By',
+        'about.builtByDesc': 'Plebs is developed by <a href="https://nostrservices.com" target="_blank" rel="noopener" class="accent-link">21 Million LLC</a>, a company dedicated to building tools for the Bitcoin and Nostr ecosystem.',
+        // Contact Page
+        'contact.title': 'Contact Us',
+        'contact.getInTouch': 'Get In Touch',
+        'contact.getInTouchDesc': 'Have questions, feedback, or need support? We\'d love to hear from you!',
+        'contact.email': 'Email',
+        'contact.emailDesc': 'The best way to reach us is through Email:',
+        'contact.github': 'GitHub',
+        'contact.githubDesc': 'For bug reports, feature requests, or technical issues, please open an issue on our GitHub repository:',
+        'contact.githubIssues': 'GitHub Issues',
+        'contact.company': 'Company',
+        'contact.companyDesc': 'Plebs is developed by 21 Million LLC',
+        // Terms of Service Page
+        'terms.title': 'Terms of Service',
+        'terms.lastUpdated': 'Last updated: December 2024',
+        'terms.section1Title': '1. Acceptance of Terms',
+        'terms.section1Desc': 'By accessing and using Plebs ("the Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.',
+        'terms.section2Title': '2. Description of Service',
+        'terms.section2Desc': 'Plebs is a decentralized video platform built on the Nostr protocol. The Service provides an interface to browse, upload, and interact with video content stored across distributed networks. Plebs does not host or store video content on centralized servers.',
+        'terms.section3Title': '3. User Responsibilities',
+        'terms.section3Desc': 'You are responsible for:',
+        'terms.section3Item1': 'Maintaining the security of your Nostr private keys',
+        'terms.section3Item2': 'All content you upload or share through the Service',
+        'terms.section3Item3': 'Ensuring your use complies with applicable laws',
+        'terms.section3Item4': 'Not uploading illegal, infringing, or harmful content',
+        'terms.section4Title': '4. Content Guidelines',
+        'terms.section4Desc': 'You agree not to upload, share, or distribute:',
+        'terms.section4Item1': 'Content that infringes on intellectual property rights',
+        'terms.section4Item2': 'Illegal content including but not limited to child exploitation material',
+        'terms.section4Item3': 'Content that promotes violence or harm to others',
+        'terms.section4Item4': 'Spam, malware, or deceptive content',
+        'terms.section4Note': 'Adult content (NSFW) must be properly labeled using the NSFW tag when uploading.',
+        'terms.section5Title': '5. Decentralized Nature',
+        'terms.section5Desc': 'Due to the decentralized nature of Nostr and Blossom storage:',
+        'terms.section5Item1': 'Content may persist on the network even after deletion requests',
+        'terms.section5Item2': 'We cannot guarantee removal of content from all relays or storage servers',
+        'terms.section5Item3': 'Your content and interactions are public by default',
+        'terms.section5Item4': 'You are solely responsible for your private key security',
+        'terms.section6Title': '6. No Warranty',
+        'terms.section6Desc': 'The Service is provided "as is" without warranties of any kind. We do not guarantee continuous, uninterrupted access to the Service.',
+        'terms.section7Title': '7. Limitation of Liability',
+        'terms.section7Desc': 'To the maximum extent permitted by law, Plebs and its operators shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Service.',
+        'terms.section8Title': '8. Changes to Terms',
+        'terms.section8Desc': 'We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the new terms.',
+        'terms.section9Title': '9. Contact',
+        'terms.section9Desc': 'For questions about these Terms, please <a href="#/contact" class="accent-link">contact us</a>.',
+        // Privacy Policy Page
+        'privacy.title': 'Privacy Policy',
+        'privacy.lastUpdated': 'Last updated: December 2024',
+        'privacy.section1Title': '1. Overview',
+        'privacy.section1Desc': 'Plebs is committed to protecting your privacy. This policy explains how we handle information when you use our decentralized video platform.',
+        'privacy.section2Title': '2. Decentralized Architecture',
+        'privacy.section2Desc': 'Plebs is built on Nostr, a decentralized protocol. This means:',
+        'privacy.section2Item1': 'Your content is broadcast to public relays, not stored on our servers',
+        'privacy.section2Item2': 'Your Nostr public key serves as your identity',
+        'privacy.section2Item3': 'Videos are stored on distributed Blossom servers',
+        'privacy.section2Item4': 'We do not have access to your private keys',
+        'privacy.section3Title': '3. Information We Collect',
+        'privacy.section3LocalTitle': 'Information stored locally in your browser:',
+        'privacy.section3LocalItem1': 'Your Nostr public key (when logged in)',
+        'privacy.section3LocalItem2': 'Watch history and preferences',
+        'privacy.section3LocalItem3': 'Theme and settings preferences',
+        'privacy.section3LocalItem4': 'Private key (only if you choose local key storage - not recommended)',
+        'privacy.section3CollectTitle': 'Information we may collect:',
+        'privacy.section3CollectItem1': 'Basic analytics (page views, feature usage) to improve the service',
+        'privacy.section3CollectItem2': 'Error logs for debugging purposes',
+        'privacy.section4Title': '4. Public Information',
+        'privacy.section4Desc': 'When using Nostr, the following is public by design:',
+        'privacy.section4Item1': 'Your Nostr public key and profile information',
+        'privacy.section4Item2': 'Videos you upload',
+        'privacy.section4Item3': 'Comments, likes, and other reactions',
+        'privacy.section4Item4': 'Who you follow',
+        'privacy.section4Item5': 'Zaps (Lightning payments) you send or receive',
+        'privacy.section5Title': '5. Data Storage',
+        'privacy.section5Desc': 'Local data is stored in your browser\'s localStorage. You can clear this data at any time through your browser settings. Content published to Nostr is distributed across relays and cannot be controlled or deleted by Plebs.',
+        'privacy.section6Title': '6. Third-Party Services',
+        'privacy.section6Desc': 'Plebs interacts with:',
+        'privacy.section6Item1': 'Nostr relays (for social data)',
+        'privacy.section6Item2': 'Blossom servers (for video storage)',
+        'privacy.section6Item3': 'Lightning Network (for zaps/payments)',
+        'privacy.section6Note': 'Each of these services has their own privacy practices.',
+        'privacy.section7Title': '7. Your Rights',
+        'privacy.section7Desc': 'You can:',
+        'privacy.section7Item1': 'Clear your local browser data at any time',
+        'privacy.section7Item2': 'Browse videos without creating an account',
+        'privacy.section7Item3': 'Use a Nostr browser extension for enhanced privacy',
+        'privacy.section7Item4': 'Choose which relays and Blossom servers to use',
+        'privacy.section8Title': '8. Security',
+        'privacy.section8Desc': 'We recommend:',
+        'privacy.section8Item1': 'Using a Nostr browser extension or hardware signer',
+        'privacy.section8Item2': 'Never sharing your private key (nsec)',
+        'privacy.section8Item3': 'Using a dedicated browser profile for enhanced privacy',
+        'privacy.section9Title': '9. Changes to This Policy',
+        'privacy.section9Desc': 'We may update this policy from time to time. Changes will be posted on this page with an updated revision date.',
+        'privacy.section10Title': '10. Contact',
+        'privacy.section10Desc': 'For privacy-related questions, please <a href="#/contact" class="accent-link">contact us</a>.',
+        // FAQ Page
+        'faq.title': 'Frequently Asked Questions',
+        'faq.aboutPlebs': 'About Plebs',
+        'faq.nostrProtocol': 'Nostr Protocol',
+        'faq.videoStorage': 'Video Storage & Blossom',
+        'faq.featuresUsage': 'Features & Usage',
+        'faq.q1': 'What is Plebs?',
+        'faq.a1': 'Plebs is a censorship-resistant, decentralized video platform built on the Nostr protocol. Unlike traditional video platforms controlled by corporations, Plebs gives you true ownership of your content and identity. There are no central servers that can ban you or remove your content.',
+        'faq.q2': 'Is Plebs free to use?',
+        'faq.a2': 'Yes, Plebs is completely free to use for watching videos. You can browse and watch content without creating an account. To upload videos, comment, like, or interact with other users, you\'ll need a Nostr identity (which is also free).',
+        'faq.q3': 'Who develops Plebs?',
+        'faq.a3': 'Plebs is developed by <a href="https://nostrservices.com" target="_blank" rel="noopener">21 Million LLC</a>, a company dedicated to building tools for the Bitcoin and Nostr ecosystem. Plebs is open source, and you can view the code or contribute on <a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener">GitHub</a>.',
+        'faq.q4': 'What is Nostr?',
+        'faq.a4': 'Nostr stands for "Notes and Other Stuff Transmitted by Relays." It\'s a simple, open protocol that enables a truly decentralized social network. Unlike traditional platforms, Nostr doesn\'t rely on any central server. Instead, it uses a network of relays to transmit messages between users, and cryptographic keys for identity.',
+        'faq.q5': 'Why does Plebs use Nostr?',
+        'faq.a5Title': 'Nostr provides several key benefits:',
+        'faq.a5Item1': 'Censorship Resistance:',
+        'faq.a5Item1Desc': 'No single entity can ban you or remove your content',
+        'faq.a5Item2': 'Portability:',
+        'faq.a5Item2Desc': 'Your identity and followers work across all Nostr apps',
+        'faq.a5Item3': 'No Central Authority:',
+        'faq.a5Item3Desc': 'No company owns or controls the network',
+        'faq.a5Item4': 'Cryptographic Identity:',
+        'faq.a5Item4Desc': 'Your keys prove you are who you say you are',
+        'faq.q6': 'What are Nostr keys (npub/nsec)?',
+        'faq.a6': 'Your Nostr identity consists of two keys: a public key (npub) and a private key (nsec). Your npub is like your username - you can share it with anyone. Your nsec is like your password - never share it! Anyone with your nsec can post as you and access your account. We recommend using a browser extension like Alby or nos2x to manage your keys securely.',
+        'faq.q7': 'Can I use my existing Nostr account?',
+        'faq.a7': 'Absolutely! If you already have a Nostr identity from apps like Damus, Primal, Amethyst, or any other Nostr client, you can use the same keys to log into Plebs. Your followers, profile, and reputation carry over automatically.',
+        'faq.q8': 'What are Nostr relays?',
+        'faq.a8': 'Relays are servers that store and transmit Nostr messages. When you post something, it gets sent to multiple relays. Other users connect to relays to read messages. Because there are many independent relays, no single one can censor you - if one relay blocks you, your content still exists on others.',
+        'faq.q9': 'Where are videos stored?',
+        'faq.a9': 'Videos are stored on Blossom servers, not on Plebs itself. Blossom is a distributed file storage system designed to work with Nostr. When you upload a video, it goes to one or more Blossom servers of your choice. The video metadata (title, description, etc.) is published to Nostr relays.',
+        'faq.q10': 'What is Blossom?',
+        'faq.a10': 'Blossom is an open protocol for storing and serving media files in a decentralized way. Files are identified by their SHA-256 hash, which means the same file will have the same address regardless of which server hosts it. This enables redundancy - your files can exist on multiple servers. Learn more at <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom GitHub</a>.',
+        'faq.q11': 'Does Plebs host my videos?',
+        'faq.a11': 'No. Plebs is a client/interface that helps you browse and upload content, but it doesn\'t store any video or image files. All media is stored on independent Blossom servers. Plebs simply displays content from these distributed storage providers.',
+        'faq.q12': 'Can I choose which Blossom server to use?',
+        'faq.a12': 'Yes! You can configure which Blossom servers you want to use for uploading in your settings. You can even run your own Blossom server if you want complete control over your media storage.',
+        'faq.q13': 'How do I create an account?',
+        'faq.a13Title': 'Click the "Login" button and choose your preferred method:',
+        'faq.a13Item1': 'Browser Extension:',
+        'faq.a13Item1Desc': 'If you have a Nostr extension like Alby or nos2x installed, you can use it to sign in securely',
+        'faq.a13Item2': 'Generate New Keys:',
+        'faq.a13Item2Desc': 'Create a brand new Nostr identity',
+        'faq.a13Item3': 'Import Keys:',
+        'faq.a13Item3Desc': 'Use your existing Nostr private key (nsec)',
+        'faq.a13Note': 'We recommend using a browser extension for the best security.',
+        'faq.q14': 'What are Zaps?',
+        'faq.a14': 'Zaps are Bitcoin payments sent over the Lightning Network. They allow you to send real money (satoshis, or "sats") to content creators as tips or appreciation. Unlike traditional platform tips that take large fees, zaps go directly to the creator. To send zaps, you need a Lightning wallet with a Nostr connection (like Alby or Zeus).',
+        'faq.q15': 'How do I upload a video?',
+        'faq.a15Title': 'To upload a video:',
+        'faq.a15Item1': 'Log in with your Nostr identity',
+        'faq.a15Item2': 'Click the "Create" button and select "Upload Video"',
+        'faq.a15Item3': 'Select your video file (supports most common formats)',
+        'faq.a15Item4': 'Add a title, description, and tags',
+        'faq.a15Item5': 'Click "Publish" to share with the network',
+        'faq.a15Note': 'Videos are automatically compressed and uploaded to Blossom servers.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'Self-Moderation',
+        'faq.q16': 'How does moderation work on a decentralized platform?',
+        'faq.a16': 'Unlike traditional platforms with centralized moderators, Plebs puts you in control of what you see. We provide powerful self-moderation tools including content filter packs, user muting, community warnings, and ratioed video indicators. You decide what content is appropriate for you - there\'s no central authority making those decisions.',
+        'faq.q17': 'What are Content Filter Packs?',
+        'faq.a17Intro': 'Content Filter Packs are predefined keyword filters you can enable to hide specific types of content. Available packs include:',
+        'faq.a17Pack1': 'Racism & Hate Speech:',
+        'faq.a17Pack1Desc': 'Filters racial slurs and discriminatory content',
+        'faq.a17Pack2': 'Sexually Explicit:',
+        'faq.a17Pack2Desc': 'Filters pornographic and adult content',
+        'faq.a17Pack3': 'Violence & Gore:',
+        'faq.a17Pack3Desc': 'Filters graphic violence and self-harm content',
+        'faq.a17Pack4': 'Drugs & Substances:',
+        'faq.a17Pack4Desc': 'Filters drug-related content',
+        'faq.a17Pack5': 'Spam & Scams:',
+        'faq.a17Pack5Desc': 'Filters common spam and scam patterns',
+        'faq.a17Pack6': 'Cryptocurrency:',
+        'faq.a17Pack6Desc': 'Filters crypto promotion and token shilling',
+        'faq.a17Pack7': 'Political Content:',
+        'faq.a17Pack7Desc': 'Filters partisan political content',
+        'faq.a17Pack8': 'Strong Profanity:',
+        'faq.a17Pack8Desc': 'Filters vulgar language',
+        'faq.a17Note': 'Enable these in Settings > Content Filters. You can also add custom keywords. Filtered content shows a placeholder with a "Show anyway" button if you want to view it temporarily.',
+        'faq.q18': 'How do I mute a user?',
+        'faq.a18': 'To mute a user, visit their profile and click the mute button. Once muted, all their videos will be hidden from your feed, their comments will show as "Message from muted user," and their live chat messages will be hidden. Your mute list is stored on Nostr, so it syncs across devices. You can manage muted users in your Profile Settings under "Muted Users."',
+        'faq.q19': 'What does "Ratioed" mean?',
+        'faq.a19': 'A video is marked as "ratioed" when it has significantly more dislikes than likes, indicating negative community reception. Specifically, a video is ratioed when it has at least 10 reactions, dislikes are at least double the likes, and dislikes make up 70% or more of total reactions. Ratioed videos display a warning badge, and you\'ll be asked to confirm before viewing.',
+        'faq.q20': 'How do community warnings work?',
+        'faq.a20': 'Users can report content for various reasons (spam, illegal content, abuse, misleading, etc.). When a video or user receives 5 or more reports from people you follow, a warning indicator appears. This leverages your social graph - warnings come from your trusted network, not anonymous strangers. You can toggle "Show warnings from accounts I follow" in Settings.',
+        'faq.q21': 'How do I report content?',
+        'faq.a21': 'Click the flag icon on any video, comment, or user profile to report it. Select a reason (Spam, Illegal, Abuse, Misleading, Impersonation, Copyright, or Other) and optionally add details. Reports are published to Nostr as events, making them transparent and decentralized. Your reports help others in your network identify problematic content.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'Privacy & Security',
+        'faq.q22': 'Is my activity private?',
+        'faq.a22': 'On Nostr, most activity is public by design. Your likes, comments, follows, and zaps are visible on the public network. However, Plebs stores your watch history locally in your browser - it\'s never sent to any server. You can clear your local data at any time.',
+        'faq.q23': 'How do I keep my account secure?',
+        'faq.a23': 'Never share your private key (nsec) with anyone. We strongly recommend using a Nostr browser extension like Alby, nos2x, or a hardware signer. These keep your private key secure and only sign events when you approve them. Avoid storing your nsec directly in websites.',
+        'faq.q24': 'Can I delete my content?',
+        'faq.a24': 'You can request deletion by publishing a delete event on Nostr. Most well-behaved relays and clients will respect this. However, due to the decentralized nature of the network, content may persist on some relays or Blossom servers. There\'s no central authority that can force complete deletion across the entire network.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'Troubleshooting',
+        'faq.q25': 'Videos aren\'t loading - what should I do?',
+        'faq.a25Intro': 'If videos aren\'t loading, try these steps:',
+        'faq.a25Item1': 'Refresh the page',
+        'faq.a25Item2': 'Check your internet connection',
+        'faq.a25Item3': 'The Blossom server hosting the video might be down - this is independent of Plebs',
+        'faq.a25Item4': 'Try disabling browser extensions that might block content',
+        'faq.a25Item5': 'Clear your browser cache and try again',
+        'faq.q26': 'I lost my private key - can you help me recover it?',
+        'faq.a26': 'Unfortunately, no. Nostr keys are cryptographic - there\'s no password reset or account recovery because there\'s no central authority. This is why we strongly recommend backing up your keys and using a secure key management solution. If you lose your nsec, you\'ll need to create a new identity.',
+        'faq.q27': 'How do I report a bug or request a feature?',
+        'faq.a27': 'You can report bugs or request features on our <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a> page. You can also reach out to us on Nostr - visit our <a href="#/contact">Contact</a> page for details.',
+        // Page Titles
+        'pageTitle.following': 'Following',
+        'pageTitle.myVideos': 'My Videos',
+        'pageTitle.likedVideos': 'Liked Videos',
+        'pageTitle.watchHistory': 'Watch History',
+        'pageTitle.liveStreams': 'Live Streams',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- Live on Plebs',
+        // Home Page Sections
+        'section.trending': 'Trending',
+        'section.recommended': 'Recommended For You',
+        'section.shorts': 'Shorts',
+        'section.live': 'Live',
+        'section.liveNow': 'Live Now',
+        'section.latestVideos': 'Latest Videos',
+        'section.videos': 'Videos',
+        'section.usersYouFollow': 'Users You Follow',
+        // Trending Period
+        'trending.thisWeek': 'This Week',
+        'trending.today': 'Today',
+        // Buttons
+        'button.viewMore': 'View More',
+        'button.clearAll': 'Clear All',
+        'button.showAnyway': 'Show anyway',
+        // Confirmation Modals
+        'confirm.logout': 'Logout',
+        'confirm.logoutMessage': 'Are you sure you want to logout?',
+        'confirm.resetSettings': 'Reset Settings',
+        'confirm.resetSettingsMessage': 'Are you sure you want to reset all settings to defaults?',
+        'confirm.reset': 'Reset',
+        'confirm.clearHistory': 'Clear History',
+        'confirm.clearHistoryMessage': 'Are you sure you want to clear your entire watch history? This cannot be undone.',
+        'confirm.deleteDraft': 'Delete Draft',
+        'confirm.deleteDraftMessage': 'Are you sure you want to delete this draft?',
+        'confirm.delete': 'Delete',
+        'confirm.deleteVideo': 'Delete Video',
+        'confirm.deleteVideoMessage': 'Are you sure you want to delete this video? This action cannot be undone.',
+        'confirm.endStream': 'End Live Stream',
+        'confirm.endStreamMessage': 'Are you sure you want to end this live stream? This action cannot be undone.',
+        'confirm.endStreamButton': 'End Stream',
+        // Content Filters
+        'filter.hiddenByPack': 'Hidden by {pack}',
+        'filter.showAnyway': 'Show anyway',
+        'filter.contentHidden': 'Content hidden by content filter',
+        // Following Page
+        'following.noFollowingYet': 'You\'re not following anyone yet. Find creators to follow!',
     },
     es: {
         // Navigation & Header
@@ -821,7 +1137,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': '¡Sesión iniciada!', 'toast.settingsSaved': '¡Configuración guardada!', 'toast.languageChanged': 'Idioma cambiado', 'toast.copied': '¡Copiado!', 'toast.reported': 'Reporte enviado', 'toast.followed': 'Siguiendo', 'toast.unfollowed': 'Dejaste de seguir',
         // Time
-        'time.justNow': 'ahora mismo', 'time.minuteAgo': 'hace 1 minuto', 'time.minutesAgo': 'hace {n} minutos', 'time.hourAgo': 'hace 1 hora', 'time.hoursAgo': 'hace {n} horas', 'time.dayAgo': 'hace 1 día', 'time.daysAgo': 'hace {n} días', 'time.weekAgo': 'hace 1 semana', 'time.weeksAgo': 'hace {n} semanas', 'time.monthAgo': 'hace 1 mes', 'time.monthsAgo': 'hace {n} meses', 'time.yearAgo': 'hace 1 año', 'time.yearsAgo': 'hace {n} años',
+        'time.justNow': 'ahora mismo', 'time.secondAgo': 'hace 1 segundo', 'time.secondsAgo': 'hace {n} segundos', 'time.minuteAgo': 'hace 1 minuto', 'time.minutesAgo': 'hace {n} minutos', 'time.hourAgo': 'hace 1 hora', 'time.hoursAgo': 'hace {n} horas', 'time.dayAgo': 'hace 1 día', 'time.daysAgo': 'hace {n} días', 'time.weekAgo': 'hace 1 semana', 'time.weeksAgo': 'hace {n} semanas', 'time.monthAgo': 'hace 1 mes', 'time.monthsAgo': 'hace {n} meses', 'time.yearAgo': 'hace 1 año', 'time.yearsAgo': 'hace {n} años',
         // Empty States
         'empty.noVideos': 'No se encontraron videos.', 'empty.noLikedVideos': 'Aún no has dado me gusta a ningún video.', 'empty.noHistory': 'Sin historial de reproducción.', 'empty.noFollowing': 'No estás siguiendo a nadie todavía.', 'empty.noNotifications': 'No hay notificaciones.',
         // Misc
@@ -865,6 +1181,385 @@ const translations = {
         'warning.webmFormat': 'Nota: Tu navegador producirá formato WebM (puede no reproducirse en iOS). Para MP4 compatible con iOS, usa Chrome en Windows/Mac.',
         // New Footer
         'footer.lastUpdated': 'Última actualización: Diciembre 2024',
+        // DMCA Page
+        'dmca.title': 'DMCA y Política de Contenido',
+        'dmca.lastUpdated': 'Última actualización: Diciembre 2024',
+        'dmca.architectureTitle': 'Entendiendo la Arquitectura de Plebs',
+        'dmca.architectureDesc': 'Plebs es una interfaz de plataforma de video descentralizada que opera diferente a los servicios tradicionales de alojamiento de video. Es importante entender cómo se distribuye el contenido en nuestra plataforma:',
+        'dmca.architectureItem1': 'Plebs no aloja ningún contenido de video o imagen.',
+        'dmca.architectureItem1Desc': 'Somos un cliente/interfaz que muestra contenido almacenado en otro lugar.',
+        'dmca.architectureItem2': 'Todos los archivos multimedia (videos, imágenes, miniaturas) se almacenan en servidores Blossom independientes operados por terceros.',
+        'dmca.architectureItem3': 'Los metadatos de video (títulos, descripciones, etc.) se publican en relays Nostr, que también son operados independientemente.',
+        'dmca.architectureItem4': 'Plebs simplemente agrega y muestra este contenido distribuido a través de una interfaz fácil de usar.',
+        'dmca.filingTitle': 'Presentar una Reclamación DMCA',
+        'dmca.filingDesc': 'Debido a que Plebs no aloja contenido, no podemos eliminar directamente material infractor. Para abordar la infracción de derechos de autor, debe contactar a las partes apropiadas:',
+        'dmca.forVideoTitle': '1. Para Contenido de Video/Imagen',
+        'dmca.forVideoDesc': 'Los archivos multimedia se almacenan en servidores Blossom. Necesita:',
+        'dmca.forVideoItem1': 'Identificar qué servidor Blossom está alojando el contenido (la URL lo indicará)',
+        'dmca.forVideoItem2': 'Contactar directamente al operador del servidor Blossom con su solicitud de eliminación DMCA',
+        'dmca.forVideoItem3': 'Cada servidor Blossom opera independientemente y tiene sus propias políticas',
+        'dmca.forMetadataTitle': '2. Para Metadatos/Descripciones',
+        'dmca.forMetadataDesc': 'Si el contenido infractor está en el título del video, descripción u otros metadatos:',
+        'dmca.forMetadataItem1': 'Esta información se almacena en relays Nostr',
+        'dmca.forMetadataItem2': 'Contacte a los operadores específicos del relay Nostr donde aparece el contenido',
+        'dmca.forMetadataItem3': 'Múltiples relays pueden almacenar los mismos datos debido a la naturaleza distribuida de Nostr',
+        'dmca.whatWeCanDoTitle': 'Lo que Plebs Puede Hacer',
+        'dmca.whatWeCanDoDesc': 'Aunque no alojamos contenido, podemos:',
+        'dmca.whatWeCanDoItem1': 'Ayudarle a identificar qué servidores Blossom o relays están alojando contenido específico',
+        'dmca.whatWeCanDoItem2': 'Agregar contenido a una lista de bloqueo local para que no aparezca en nuestra interfaz (nota: esto solo afecta a plebs.app, no a otros clientes Nostr)',
+        'dmca.whatWeCanDoItem3': 'Proporcionar orientación sobre cómo contactar a los operadores de servicio apropiados',
+        'dmca.toRequestAssistance': 'Para solicitar asistencia, por favor contáctenos con:',
+        'dmca.assistanceItem1': 'La URL o identificador del contenido infractor',
+        'dmca.assistanceItem2': 'Prueba de su propiedad de derechos de autor',
+        'dmca.assistanceItem3': 'Una descripción del trabajo protegido',
+        'dmca.blossomOperatorsTitle': 'Operadores de Servidores Blossom',
+        'dmca.blossomOperatorsDesc': 'Si opera un servidor Blossom y recibe una solicitud de eliminación DMCA, usted es responsable de manejarla según las leyes de su jurisdicción.',
+        'dmca.blossomOperatorsLink': 'Para una lista de servidores Blossom conocidos, consulte la documentación del proyecto Blossom.',
+        'dmca.considerationsTitle': 'Consideraciones Importantes',
+        'dmca.considerationsItem1': 'Descentralización:',
+        'dmca.considerationsItem1Desc': 'Debido a la naturaleza descentralizada de Nostr y Blossom, la eliminación completa del contenido de todas las fuentes puede no ser posible.',
+        'dmca.considerationsItem2': 'Múltiples Copias:',
+        'dmca.considerationsItem2Desc': 'El contenido puede estar replicado en múltiples servidores Blossom, requiriendo solicitudes de eliminación separadas para cada uno.',
+        'dmca.considerationsItem3': 'Persistencia de Metadatos:',
+        'dmca.considerationsItem3Desc': 'Incluso si los archivos multimedia se eliminan, los metadatos en los relays Nostr pueden persistir.',
+        'dmca.considerationsItem4': 'Sin Control Central:',
+        'dmca.considerationsItem4Desc': 'No hay una sola entidad que pueda eliminar contenido de toda la red.',
+        'dmca.counterNotificationTitle': 'Contra-Notificación',
+        'dmca.counterNotificationDesc': 'Si cree que su contenido fue eliminado erróneamente de un servidor Blossom, debe contactar directamente al operador de ese servidor para presentar una contra-notificación.',
+        'dmca.contactTitle': 'Contacto',
+        'dmca.contactDesc': 'Para preguntas sobre esta política o asistencia identificando hosts de contenido, por favor contáctenos.',
+        // Admin Dashboard
+        'admin.title': 'Panel de Administración',
+        'admin.loading': 'Cargando análisis de plataforma...',
+        'admin.platformOverview': 'Resumen de la Plataforma',
+        'admin.totalVideos': 'Total de Videos',
+        'admin.videos7Days': 'Videos (7 días)',
+        'admin.videos30Days': 'Videos (30 días)',
+        'admin.uniqueCreators': 'Creadores Únicos',
+        'admin.likes30Days': 'Me gusta (30 días)',
+        'admin.dislikes30Days': 'No me gusta (30 días)',
+        'admin.monthlyActiveUsers': 'Usuarios Activos Mensuales',
+        'admin.mauDesc': 'Usuarios únicos que subieron videos, reaccionaron o comentaron cada mes (últimos 6 meses)',
+        'admin.boostRevenue': 'Ingresos de Boost (Últimos 30 Días)',
+        'admin.totalBoostRevenue': 'Ingresos Totales de Boost',
+        'admin.totalBoosts': 'Total de Boosts',
+        'admin.blocklistManagement': 'Gestión de Lista de Bloqueo',
+        'admin.blocklistDesc': 'Bloquee videos o usuarios específicos para que no aparezcan en la plataforma.',
+        'admin.blockedVideos': 'Videos Bloqueados',
+        'admin.blockedUsers': 'Usuarios Bloqueados',
+        'admin.blockByEventId': 'Bloquear Video por ID de Evento',
+        'admin.blockByPubkey': 'Bloquear Usuario por Pubkey',
+        'admin.blockVideo': 'Bloquear Video',
+        'admin.blockUser': 'Bloquear Usuario',
+        'admin.noBlockedVideos': 'Sin videos bloqueados',
+        'admin.noBlockedUsers': 'Sin usuarios bloqueados',
+        'admin.unblock': 'Desbloquear',
+        'admin.accessDenied': 'Acceso denegado. Solo administrador.',
+        // Search/Trending/Channel/Buttons/Common
+        'search.noVideosFound': 'No se encontraron videos que coincidan con "{query}".',
+        'search.noFullLengthVideos': 'No se encontraron videos de larga duración que coincidan con "{query}".',
+        'trending.noVideosToday': 'No hay videos en tendencia hoy.',
+        'trending.noVideosThisWeek': 'No hay videos en tendencia esta semana.',
+        'channel.video': 'video',
+        'channel.videos': 'videos',
+        'channel.follower': 'seguidor',
+        'channel.followers': 'seguidores',
+        'button.follow': 'Seguir',
+        'button.following': 'Siguiendo',
+        'button.unfollow': 'Dejar de seguir',
+        'button.mute': 'Silenciar',
+        'button.unmute': 'Desilenciar',
+        'button.report': 'Reportar',
+        'button.muteUser': 'Silenciar usuario',
+        'button.unmuteUser': 'Desilenciar usuario',
+        'button.reportComment': 'Reportar comentario',
+        'button.reportUser': 'Reportar este usuario',
+        'live.goalReached': '¡Meta Alcanzada!',
+        'live.goalProgress': '{percent}% de la meta',
+        'common.loading': 'Cargando...',
+        'common.sats': 'sats',
+        // Analytics Page
+        'analytics.title': 'Análisis del Canal',
+        'analytics.loading': 'Cargando tus análisis...',
+        'analytics.loadFailed': 'Error al cargar análisis. Por favor intenta de nuevo.',
+        'analytics.overview': 'Resumen',
+        'analytics.views': 'Vistas',
+        'analytics.followers': 'Seguidores',
+        'analytics.topByViews': 'Videos Más Vistos',
+        'analytics.topByEngagement': 'Videos con Mayor Interacción',
+        'analytics.allContent': 'Rendimiento de Todo el Contenido',
+        'analytics.totalViews': 'Vistas Totales',
+        'analytics.likes': 'Me Gusta',
+        'analytics.likesRatio': 'Me Gusta ({ratio}% proporción)',
+        'analytics.dislikes': 'No Me Gusta',
+        'analytics.zapsReceived': '{count} Zaps Recibidos',
+        'analytics.boostsReceived': 'Boosts Recibidos',
+        'analytics.shares': 'Compartidos',
+        'analytics.comments': 'Comentarios',
+        'analytics.contentCount': '{videos} Videos, {shorts} Shorts, {streams} Streams',
+        'analytics.last7days': 'Últimos 7 días',
+        'analytics.last30days': 'Últimos 30 días',
+        'analytics.last90days': 'Últimos 90 días',
+        'analytics.lastYear': 'Último año',
+        'analytics.allTime': 'Todo el tiempo',
+        'analytics.lastNDays': 'Últimos {n} días',
+        'analytics.netGrowth': 'Crecimiento Neto',
+        'analytics.newFollowers': 'Nuevos Seguidores',
+        'analytics.unfollowed': 'Dejaron de Seguir',
+        'analytics.noVideosYet': 'Sin videos aún',
+        'analytics.noShortsYet': 'Sin shorts aún',
+        'analytics.noStreamsYet': 'Sin transmisiones aún',
+        'analytics.viewsTooltip': '{count} vistas',
+        'analytics.subscribersTooltip': '{count} suscriptores',
+        'analytics.videosTab': 'Videos ({count})',
+        'analytics.shortsTab': 'Shorts ({count})',
+        'analytics.streamsTab': 'Transmisiones ({count})',
+        // About Page
+        'about.title': 'Acerca de Plebs',
+        'about.whatIs': '¿Qué es Plebs?',
+        'about.whatIsDesc': 'Plebs es una plataforma de videos descentralizada y resistente a la censura construida sobre el <a href="https://nostr.com" target="_blank" rel="noopener">protocolo Nostr</a>. A diferencia de las plataformas tradicionales controladas por corporaciones, Plebs te da verdadera propiedad de tu contenido e identidad.',
+        'about.whyNostr': '¿Por qué Nostr?',
+        'about.whyNostrDesc': 'Nostr (Notes and Other Stuff Transmitted by Relays) es un protocolo simple y abierto que permite una red social verdaderamente descentralizada. Los beneficios clave incluyen:',
+        'about.benefit1': 'Resistencia a la Censura:',
+        'about.benefit1Desc': 'Ninguna entidad puede banearte o eliminar tu contenido',
+        'about.benefit2': 'Portabilidad:',
+        'about.benefit2Desc': 'Tu identidad y seguidores funcionan en todas las apps Nostr',
+        'about.benefit3': 'Sin Autoridad Central:',
+        'about.benefit3Desc': 'Ninguna empresa posee o controla la red',
+        'about.benefit4': 'Identidad Criptográfica:',
+        'about.benefit4Desc': 'Tus claves prueban que eres quien dices ser',
+        'about.howItWorks': 'Cómo Funciona',
+        'about.howItWorksDesc': 'Los videos en Plebs se almacenan usando <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom</a>, un sistema de almacenamiento distribuido, mientras que los metadatos e interacciones sociales se transmiten a relays Nostr. Esto significa que tu contenido no se almacena en nuestros servidores - está distribuido en la red.',
+        'about.features': 'Características',
+        'about.feature1': 'Sube y comparte videos con la comunidad Nostr',
+        'about.feature2': 'Da me gusta, comenta y comparte videos usando reacciones Nostr',
+        'about.feature3': 'Envía Zaps a creadores con Bitcoin vía Lightning Network',
+        'about.feature4': 'Sigue a tus creadores favoritos en cualquier app Nostr',
+        'about.feature5': 'Explora temas y descubre nuevo contenido',
+        'about.feature6': 'Funciona con cualquier identidad Nostr (usa claves existentes)',
+        'about.openSource': 'Código Abierto',
+        'about.openSourceDesc': 'Plebs es software de código abierto. Puedes ver el código, contribuir o ejecutar tu propia instancia:',
+        'about.githubRepo': 'Repositorio GitHub',
+        'about.builtBy': 'Desarrollado Por',
+        'about.builtByDesc': 'Plebs es desarrollado por <a href="https://nostrservices.com" target="_blank" rel="noopener" class="accent-link">21 Million LLC</a>, una empresa dedicada a construir herramientas para el ecosistema Bitcoin y Nostr.',
+        // Contact Page
+        'contact.title': 'Contáctanos',
+        'contact.getInTouch': 'Ponte en Contacto',
+        'contact.getInTouchDesc': '¿Tienes preguntas, comentarios o necesitas soporte? ¡Nos encantaría saber de ti!',
+        'contact.email': 'Correo Electrónico',
+        'contact.emailDesc': 'La mejor forma de contactarnos es por correo:',
+        'contact.github': 'GitHub',
+        'contact.githubDesc': 'Para reportar errores, solicitar funciones o problemas técnicos, abre un issue en nuestro repositorio:',
+        'contact.githubIssues': 'Issues de GitHub',
+        'contact.company': 'Empresa',
+        'contact.companyDesc': 'Plebs es desarrollado por 21 Million LLC',
+        // Terms of Service
+        'terms.title': 'Términos de Servicio',
+        'terms.lastUpdated': 'Última actualización: Diciembre 2024',
+        'terms.section1Title': '1. Aceptación de Términos',
+        'terms.section1Desc': 'Al acceder y usar Plebs ("el Servicio"), aceptas estar sujeto a estos Términos de Servicio. Si no estás de acuerdo con estos términos, por favor no uses el Servicio.',
+        'terms.section2Title': '2. Descripción del Servicio',
+        'terms.section2Desc': 'Plebs es una plataforma de videos descentralizada construida sobre el protocolo Nostr. El Servicio proporciona una interfaz para navegar, subir e interactuar con contenido de video almacenado en redes distribuidas. Plebs no aloja ni almacena contenido de video en servidores centralizados.',
+        'terms.section3Title': '3. Responsabilidades del Usuario',
+        'terms.section3Desc': 'Eres responsable de:',
+        'terms.section3Item1': 'Mantener la seguridad de tus claves privadas Nostr',
+        'terms.section3Item2': 'Todo el contenido que subas o compartas a través del Servicio',
+        'terms.section3Item3': 'Asegurar que tu uso cumpla con las leyes aplicables',
+        'terms.section3Item4': 'No subir contenido ilegal, infractor o dañino',
+        'terms.section4Title': '4. Directrices de Contenido',
+        'terms.section4Desc': 'Aceptas no subir, compartir o distribuir:',
+        'terms.section4Item1': 'Contenido que infrinja derechos de propiedad intelectual',
+        'terms.section4Item2': 'Contenido ilegal incluyendo pero no limitado a material de explotación infantil',
+        'terms.section4Item3': 'Contenido que promueva violencia o daño a otros',
+        'terms.section4Item4': 'Spam, malware o contenido engañoso',
+        'terms.section4Note': 'El contenido adulto (NSFW) debe ser etiquetado apropiadamente usando la etiqueta NSFW al subir.',
+        'terms.section5Title': '5. Naturaleza Descentralizada',
+        'terms.section5Desc': 'Debido a la naturaleza descentralizada de Nostr y almacenamiento Blossom:',
+        'terms.section5Item1': 'El contenido puede persistir en la red incluso después de solicitudes de eliminación',
+        'terms.section5Item2': 'No podemos garantizar la eliminación de contenido de todos los relays o servidores',
+        'terms.section5Item3': 'Tu contenido e interacciones son públicos por defecto',
+        'terms.section5Item4': 'Eres el único responsable de la seguridad de tu clave privada',
+        'terms.section6Title': '6. Sin Garantía',
+        'terms.section6Desc': 'El Servicio se proporciona "tal cual" sin garantías de ningún tipo. No garantizamos acceso continuo e ininterrumpido al Servicio.',
+        'terms.section7Title': '7. Limitación de Responsabilidad',
+        'terms.section7Desc': 'En la máxima medida permitida por la ley, Plebs y sus operadores no serán responsables de ningún daño indirecto, incidental, especial o consecuente derivado de tu uso del Servicio.',
+        'terms.section8Title': '8. Cambios a los Términos',
+        'terms.section8Desc': 'Nos reservamos el derecho de modificar estos términos en cualquier momento. El uso continuado del Servicio después de los cambios constituye aceptación de los nuevos términos.',
+        'terms.section9Title': '9. Contacto',
+        'terms.section9Desc': 'Para preguntas sobre estos Términos, por favor <a href="#/contact" class="accent-link">contáctanos</a>.',
+        // Privacy Policy
+        'privacy.title': 'Política de Privacidad',
+        'privacy.lastUpdated': 'Última actualización: Diciembre 2024',
+        'privacy.section1Title': '1. Resumen',
+        'privacy.section1Desc': 'Plebs está comprometido con proteger tu privacidad. Esta política explica cómo manejamos la información cuando usas nuestra plataforma de videos descentralizada.',
+        'privacy.section2Title': '2. Arquitectura Descentralizada',
+        'privacy.section2Desc': 'Plebs está construido sobre Nostr, un protocolo descentralizado. Esto significa:',
+        'privacy.section2Item1': 'Tu contenido se transmite a relays públicos, no se almacena en nuestros servidores',
+        'privacy.section2Item2': 'Tu clave pública Nostr sirve como tu identidad',
+        'privacy.section2Item3': 'Los videos se almacenan en servidores Blossom distribuidos',
+        'privacy.section2Item4': 'No tenemos acceso a tus claves privadas',
+        'privacy.section3Title': '3. Información que Recopilamos',
+        'privacy.section3LocalTitle': 'Información almacenada localmente en tu navegador:',
+        'privacy.section3LocalItem1': 'Tu clave pública Nostr (cuando inicias sesión)',
+        'privacy.section3LocalItem2': 'Historial de visualización y preferencias',
+        'privacy.section3LocalItem3': 'Preferencias de tema y configuración',
+        'privacy.section3LocalItem4': 'Clave privada (solo si eliges almacenamiento local - no recomendado)',
+        'privacy.section3CollectTitle': 'Información que podemos recopilar:',
+        'privacy.section3CollectItem1': 'Análisis básicos (vistas de página, uso de funciones) para mejorar el servicio',
+        'privacy.section3CollectItem2': 'Registros de errores para depuración',
+        'privacy.section4Title': '4. Información Pública',
+        'privacy.section4Desc': 'Al usar Nostr, lo siguiente es público por diseño:',
+        'privacy.section4Item1': 'Tu clave pública Nostr e información de perfil',
+        'privacy.section4Item2': 'Videos que subes',
+        'privacy.section4Item3': 'Comentarios, me gusta y otras reacciones',
+        'privacy.section4Item4': 'A quién sigues',
+        'privacy.section4Item5': 'Zaps (pagos Lightning) que envías o recibes',
+        'privacy.section5Title': '5. Almacenamiento de Datos',
+        'privacy.section5Desc': 'Los datos locales se almacenan en el localStorage de tu navegador. Puedes borrar estos datos en cualquier momento a través de la configuración de tu navegador. El contenido publicado en Nostr se distribuye a través de relays y no puede ser controlado o eliminado por Plebs.',
+        'privacy.section6Title': '6. Servicios de Terceros',
+        'privacy.section6Desc': 'Plebs interactúa con:',
+        'privacy.section6Item1': 'Relays Nostr (para datos sociales)',
+        'privacy.section6Item2': 'Servidores Blossom (para almacenamiento de video)',
+        'privacy.section6Item3': 'Lightning Network (para zaps/pagos)',
+        'privacy.section6Note': 'Cada uno de estos servicios tiene sus propias prácticas de privacidad.',
+        'privacy.section7Title': '7. Tus Derechos',
+        'privacy.section7Desc': 'Puedes:',
+        'privacy.section7Item1': 'Borrar tus datos locales del navegador en cualquier momento',
+        'privacy.section7Item2': 'Navegar videos sin crear una cuenta',
+        'privacy.section7Item3': 'Usar una extensión de navegador Nostr para mayor privacidad',
+        'privacy.section7Item4': 'Elegir qué relays y servidores Blossom usar',
+        'privacy.section8Title': '8. Seguridad',
+        'privacy.section8Desc': 'Recomendamos:',
+        'privacy.section8Item1': 'Usar una extensión de navegador Nostr o firmante de hardware',
+        'privacy.section8Item2': 'Nunca compartir tu clave privada (nsec)',
+        'privacy.section8Item3': 'Usar un perfil de navegador dedicado para mayor privacidad',
+        'privacy.section9Title': '9. Cambios a Esta Política',
+        'privacy.section9Desc': 'Podemos actualizar esta política de vez en cuando. Los cambios se publicarán en esta página con una fecha de revisión actualizada.',
+        'privacy.section10Title': '10. Contacto',
+        'privacy.section10Desc': 'Para preguntas relacionadas con privacidad, por favor <a href="#/contact" class="accent-link">contáctanos</a>.',
+        // FAQ Page
+        'faq.title': 'Preguntas Frecuentes',
+        'faq.aboutPlebs': 'Acerca de Plebs',
+        'faq.nostrProtocol': 'Protocolo Nostr',
+        'faq.videoStorage': 'Almacenamiento de Video y Blossom',
+        'faq.featuresUsage': 'Características y Uso',
+        'faq.q1': '¿Qué es Plebs?',
+        'faq.a1': 'Plebs es una plataforma de videos descentralizada y resistente a la censura construida sobre el protocolo Nostr. A diferencia de las plataformas tradicionales controladas por corporaciones, Plebs te da verdadera propiedad de tu contenido e identidad. No hay servidores centrales que puedan banearte o eliminar tu contenido.',
+        'faq.q2': '¿Es Plebs gratis?',
+        'faq.a2': 'Sí, Plebs es completamente gratis para ver videos. Puedes navegar y ver contenido sin crear una cuenta. Para subir videos, comentar, dar me gusta o interactuar con otros usuarios, necesitarás una identidad Nostr (que también es gratis).',
+        'faq.q3': '¿Quién desarrolla Plebs?',
+        'faq.a3': 'Plebs es desarrollado por <a href="https://nostrservices.com" target="_blank" rel="noopener">21 Million LLC</a>, una empresa dedicada a construir herramientas para el ecosistema Bitcoin y Nostr. Plebs es de código abierto, y puedes ver el código o contribuir en <a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener">GitHub</a>.',
+        'faq.q4': '¿Qué es Nostr?',
+        'faq.a4': 'Nostr significa "Notes and Other Stuff Transmitted by Relays." Es un protocolo simple y abierto que permite una red social verdaderamente descentralizada. A diferencia de las plataformas tradicionales, Nostr no depende de ningún servidor central. En su lugar, usa una red de relays para transmitir mensajes entre usuarios, y claves criptográficas para identidad.',
+        'faq.q5': '¿Por qué Plebs usa Nostr?',
+        'faq.a5Title': 'Nostr proporciona varios beneficios clave:',
+        'faq.a5Item1': 'Resistencia a la Censura:',
+        'faq.a5Item1Desc': 'Ninguna entidad puede banearte o eliminar tu contenido',
+        'faq.a5Item2': 'Portabilidad:',
+        'faq.a5Item2Desc': 'Tu identidad y seguidores funcionan en todas las apps Nostr',
+        'faq.a5Item3': 'Sin Autoridad Central:',
+        'faq.a5Item3Desc': 'Ninguna empresa posee o controla la red',
+        'faq.a5Item4': 'Identidad Criptográfica:',
+        'faq.a5Item4Desc': 'Tus claves prueban que eres quien dices ser',
+        'faq.q6': '¿Qué son las claves Nostr (npub/nsec)?',
+        'faq.a6': 'Tu identidad Nostr consiste en dos claves: una clave pública (npub) y una clave privada (nsec). Tu npub es como tu nombre de usuario - puedes compartirla con cualquiera. Tu nsec es como tu contraseña - ¡nunca la compartas! Cualquiera con tu nsec puede publicar como tú y acceder a tu cuenta. Recomendamos usar una extensión de navegador como Alby o nos2x para gestionar tus claves de forma segura.',
+        'faq.q7': '¿Puedo usar mi cuenta Nostr existente?',
+        'faq.a7': '¡Absolutamente! Si ya tienes una identidad Nostr de apps como Damus, Primal, Amethyst u otro cliente Nostr, puedes usar las mismas claves para iniciar sesión en Plebs. Tus seguidores, perfil y reputación se transfieren automáticamente.',
+        'faq.q8': '¿Qué son los relays Nostr?',
+        'faq.a8': 'Los relays son servidores que almacenan y transmiten mensajes Nostr. Cuando publicas algo, se envía a múltiples relays. Otros usuarios se conectan a relays para leer mensajes. Como hay muchos relays independientes, ninguno puede censurarte - si un relay te bloquea, tu contenido sigue existiendo en otros.',
+        'faq.q9': '¿Dónde se almacenan los videos?',
+        'faq.a9': 'Los videos se almacenan en servidores Blossom, no en Plebs. Blossom es un sistema de almacenamiento distribuido diseñado para funcionar con Nostr. Cuando subes un video, va a uno o más servidores Blossom de tu elección. Los metadatos del video (título, descripción, etc.) se publican en relays Nostr.',
+        'faq.q10': '¿Qué es Blossom?',
+        'faq.a10': 'Blossom es un protocolo abierto para almacenar y servir archivos multimedia de forma descentralizada. Los archivos se identifican por su hash SHA-256, lo que significa que el mismo archivo tendrá la misma dirección independientemente de qué servidor lo aloje. Esto permite redundancia - tus archivos pueden existir en múltiples servidores. Aprende más en <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom GitHub</a>.',
+        'faq.q11': '¿Plebs aloja mis videos?',
+        'faq.a11': 'No. Plebs es un cliente/interfaz que te ayuda a navegar y subir contenido, pero no almacena ningún archivo de video o imagen. Todos los medios se almacenan en servidores Blossom independientes. Plebs simplemente muestra contenido de estos proveedores de almacenamiento distribuido.',
+        'faq.q12': '¿Puedo elegir qué servidor Blossom usar?',
+        'faq.a12': '¡Sí! Puedes configurar qué servidores Blossom quieres usar para subir en tu configuración. Incluso puedes ejecutar tu propio servidor Blossom si quieres control completo sobre tu almacenamiento de medios.',
+        'faq.q13': '¿Cómo creo una cuenta?',
+        'faq.a13Title': 'Haz clic en el botón "Iniciar Sesión" y elige tu método preferido:',
+        'faq.a13Item1': 'Extensión de Navegador:',
+        'faq.a13Item1Desc': 'Si tienes una extensión Nostr como Alby o nos2x instalada, puedes usarla para iniciar sesión de forma segura',
+        'faq.a13Item2': 'Generar Nuevas Claves:',
+        'faq.a13Item2Desc': 'Crea una nueva identidad Nostr',
+        'faq.a13Item3': 'Importar Claves:',
+        'faq.a13Item3Desc': 'Usa tu clave privada Nostr existente (nsec)',
+        'faq.a13Note': 'Recomendamos usar una extensión de navegador para la mejor seguridad.',
+        'faq.q14': '¿Qué son los Zaps?',
+        'faq.a14': 'Los Zaps son pagos de Bitcoin enviados a través de Lightning Network. Te permiten enviar dinero real (satoshis, o "sats") a creadores de contenido como propinas o apreciación. A diferencia de las propinas tradicionales de plataformas que cobran grandes comisiones, los zaps van directamente al creador. Para enviar zaps, necesitas una billetera Lightning con conexión Nostr (como Alby o Zeus).',
+        'faq.q15': '¿Cómo subo un video?',
+        'faq.a15Title': 'Para subir un video:',
+        'faq.a15Item1': 'Inicia sesión con tu identidad Nostr',
+        'faq.a15Item2': 'Haz clic en el botón "Crear" y selecciona "Subir Video"',
+        'faq.a15Item3': 'Selecciona tu archivo de video (soporta la mayoría de formatos comunes)',
+        'faq.a15Item4': 'Añade un título, descripción y etiquetas',
+        'faq.a15Item5': 'Haz clic en "Publicar" para compartir con la red',
+        'faq.a15Note': 'Los videos se comprimen automáticamente y se suben a servidores Blossom.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'Auto-Moderación',
+        'faq.q16': '¿Cómo funciona la moderación en una plataforma descentralizada?',
+        'faq.a16': 'A diferencia de las plataformas tradicionales con moderadores centralizados, Plebs te da el control de lo que ves. Proporcionamos poderosas herramientas de auto-moderación que incluyen paquetes de filtros de contenido, silenciamiento de usuarios, advertencias de la comunidad e indicadores de videos con muchos votos negativos. Tú decides qué contenido es apropiado para ti - no hay una autoridad central tomando esas decisiones.',
+        'faq.q17': '¿Qué son los Paquetes de Filtros de Contenido?',
+        'faq.a17Intro': 'Los Paquetes de Filtros de Contenido son filtros de palabras clave predefinidos que puedes habilitar para ocultar tipos específicos de contenido. Los paquetes disponibles incluyen:',
+        'faq.a17Pack1': 'Racismo y Discurso de Odio:',
+        'faq.a17Pack1Desc': 'Filtra insultos raciales y contenido discriminatorio',
+        'faq.a17Pack2': 'Sexualmente Explícito:',
+        'faq.a17Pack2Desc': 'Filtra contenido pornográfico y para adultos',
+        'faq.a17Pack3': 'Violencia y Gore:',
+        'faq.a17Pack3Desc': 'Filtra violencia gráfica y contenido de autolesión',
+        'faq.a17Pack4': 'Drogas y Sustancias:',
+        'faq.a17Pack4Desc': 'Filtra contenido relacionado con drogas',
+        'faq.a17Pack5': 'Spam y Estafas:',
+        'faq.a17Pack5Desc': 'Filtra patrones comunes de spam y estafas',
+        'faq.a17Pack6': 'Criptomonedas:',
+        'faq.a17Pack6Desc': 'Filtra promoción de criptomonedas y tokens',
+        'faq.a17Pack7': 'Contenido Político:',
+        'faq.a17Pack7Desc': 'Filtra contenido político partidista',
+        'faq.a17Pack8': 'Lenguaje Fuerte:',
+        'faq.a17Pack8Desc': 'Filtra lenguaje vulgar',
+        'faq.a17Note': 'Activa estos en Configuración > Filtros de Contenido. También puedes agregar palabras clave personalizadas. El contenido filtrado muestra un marcador de posición con un botón "Mostrar de todos modos" si quieres verlo temporalmente.',
+        'faq.q18': '¿Cómo silencio a un usuario?',
+        'faq.a18': 'Para silenciar a un usuario, visita su perfil y haz clic en el botón de silenciar. Una vez silenciado, todos sus videos se ocultarán de tu feed, sus comentarios se mostrarán como "Mensaje de usuario silenciado" y sus mensajes de chat en vivo se ocultarán. Tu lista de silenciados se almacena en Nostr, por lo que se sincroniza entre dispositivos. Puedes gestionar usuarios silenciados en la Configuración de tu Perfil bajo "Usuarios Silenciados".',
+        'faq.q19': '¿Qué significa "Ratioed"?',
+        'faq.a19': 'Un video se marca como "ratioed" cuando tiene significativamente más no me gusta que me gusta, indicando una recepción negativa de la comunidad. Específicamente, un video es ratioed cuando tiene al menos 10 reacciones, los no me gusta son al menos el doble de los me gusta, y los no me gusta representan el 70% o más de las reacciones totales. Los videos ratioed muestran una insignia de advertencia, y se te pedirá que confirmes antes de verlo.',
+        'faq.q20': '¿Cómo funcionan las advertencias de la comunidad?',
+        'faq.a20': 'Los usuarios pueden reportar contenido por varias razones (spam, contenido ilegal, abuso, engañoso, etc.). Cuando un video o usuario recibe 5 o más reportes de personas que sigues, aparece un indicador de advertencia. Esto aprovecha tu grafo social - las advertencias provienen de tu red de confianza, no de extraños anónimos. Puedes activar "Mostrar advertencias de cuentas que sigo" en Configuración.',
+        'faq.q21': '¿Cómo reporto contenido?',
+        'faq.a21': 'Haz clic en el ícono de bandera en cualquier video, comentario o perfil de usuario para reportarlo. Selecciona una razón (Spam, Ilegal, Abuso, Engañoso, Suplantación, Derechos de Autor u Otro) y opcionalmente agrega detalles. Los reportes se publican en Nostr como eventos, haciéndolos transparentes y descentralizados. Tus reportes ayudan a otros en tu red a identificar contenido problemático.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'Privacidad y Seguridad',
+        'faq.q22': '¿Es mi actividad privada?',
+        'faq.a22': 'En Nostr, la mayoría de la actividad es pública por diseño. Tus me gusta, comentarios, seguidos y zaps son visibles en la red pública. Sin embargo, Plebs almacena tu historial de visualización localmente en tu navegador - nunca se envía a ningún servidor. Puedes borrar tus datos locales en cualquier momento.',
+        'faq.q23': '¿Cómo mantengo mi cuenta segura?',
+        'faq.a23': 'Nunca compartas tu clave privada (nsec) con nadie. Recomendamos encarecidamente usar una extensión de navegador Nostr como Alby, nos2x o un firmante de hardware. Estos mantienen tu clave privada segura y solo firman eventos cuando los apruebas. Evita almacenar tu nsec directamente en sitios web.',
+        'faq.q24': '¿Puedo eliminar mi contenido?',
+        'faq.a24': 'Puedes solicitar la eliminación publicando un evento de eliminación en Nostr. La mayoría de los relays y clientes bien comportados respetarán esto. Sin embargo, debido a la naturaleza descentralizada de la red, el contenido puede persistir en algunos relays o servidores Blossom. No hay una autoridad central que pueda forzar la eliminación completa en toda la red.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'Solución de Problemas',
+        'faq.q25': 'Los videos no se cargan - ¿qué debo hacer?',
+        'faq.a25Intro': 'Si los videos no se cargan, prueba estos pasos:',
+        'faq.a25Item1': 'Actualiza la página',
+        'faq.a25Item2': 'Verifica tu conexión a internet',
+        'faq.a25Item3': 'El servidor Blossom que aloja el video podría estar caído - esto es independiente de Plebs',
+        'faq.a25Item4': 'Intenta deshabilitar extensiones del navegador que puedan bloquear contenido',
+        'faq.a25Item5': 'Borra la caché de tu navegador e intenta de nuevo',
+        'faq.q26': 'Perdí mi clave privada - ¿pueden ayudarme a recuperarla?',
+        'faq.a26': 'Desafortunadamente, no. Las claves Nostr son criptográficas - no hay restablecimiento de contraseña ni recuperación de cuenta porque no hay una autoridad central. Por esto recomendamos encarecidamente hacer copias de seguridad de tus claves y usar una solución segura de gestión de claves. Si pierdes tu nsec, necesitarás crear una nueva identidad.',
+        'faq.q27': '¿Cómo reporto un error o solicito una función?',
+        'faq.a27': 'Puedes reportar errores o solicitar funciones en nuestra página de <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a>. También puedes contactarnos en Nostr - visita nuestra página de <a href="#/contact">Contacto</a> para más detalles.',
+        // Page Titles
+        'pageTitle.following': 'Siguiendo', 'pageTitle.myVideos': 'Mis Videos', 'pageTitle.likedVideos': 'Videos que Me Gustan', 'pageTitle.watchHistory': 'Historial de Reproducción', 'pageTitle.liveStreams': 'Transmisiones en Vivo', 'pageTitle.suffix': '- Plebs', 'pageTitle.liveSuffix': '- En Vivo en Plebs',
+        // Home Page Sections
+        'section.trending': 'Tendencias', 'section.recommended': 'Recomendado Para Ti', 'section.shorts': 'Shorts', 'section.live': 'En Vivo', 'section.liveNow': 'En Vivo Ahora', 'section.latestVideos': 'Últimos Videos', 'section.videos': 'Videos', 'section.usersYouFollow': 'Usuarios que Sigues',
+        // Trending Period
+        'trending.thisWeek': 'Esta Semana', 'trending.today': 'Hoy',
+        // Buttons
+        'button.viewMore': 'Ver Más', 'button.clearAll': 'Borrar Todo', 'button.showAnyway': 'Mostrar de todos modos',
+        // Confirmation Modals
+        'confirm.logout': 'Cerrar Sesión', 'confirm.logoutMessage': '¿Estás seguro de que quieres cerrar sesión?', 'confirm.resetSettings': 'Restablecer Configuración', 'confirm.resetSettingsMessage': '¿Estás seguro de que quieres restablecer toda la configuración a los valores predeterminados?', 'confirm.reset': 'Restablecer', 'confirm.clearHistory': 'Borrar Historial', 'confirm.clearHistoryMessage': '¿Estás seguro de que quieres borrar todo tu historial de reproducción? Esto no se puede deshacer.', 'confirm.deleteDraft': 'Eliminar Borrador', 'confirm.deleteDraftMessage': '¿Estás seguro de que quieres eliminar este borrador?', 'confirm.delete': 'Eliminar', 'confirm.deleteVideo': 'Eliminar Video', 'confirm.deleteVideoMessage': '¿Estás seguro de que quieres eliminar este video? Esta acción no se puede deshacer.', 'confirm.endStream': 'Finalizar Transmisión en Vivo', 'confirm.endStreamMessage': '¿Estás seguro de que quieres finalizar esta transmisión en vivo? Esta acción no se puede deshacer.', 'confirm.endStreamButton': 'Finalizar Transmisión',
+        // Content Filters
+        'filter.hiddenByPack': 'Oculto por {pack}', 'filter.showAnyway': 'Mostrar de todos modos', 'filter.contentHidden': 'Contenido oculto por filtro de contenido',
+        // Following Page
+        'following.noFollowingYet': 'Aún no sigues a nadie. ¡Encuentra creadores para seguir!',
     },
     fr: {
         // Navigation & Header
@@ -909,7 +1604,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': 'Connexion réussie!', 'toast.settingsSaved': 'Paramètres enregistrés!', 'toast.languageChanged': 'Langue modifiée', 'toast.copied': 'Copié!',
         // Time
-        'time.justNow': 'à l\'instant', 'time.minuteAgo': 'il y a 1 minute', 'time.minutesAgo': 'il y a {n} minutes', 'time.hourAgo': 'il y a 1 heure', 'time.hoursAgo': 'il y a {n} heures', 'time.dayAgo': 'il y a 1 jour', 'time.daysAgo': 'il y a {n} jours',
+        'time.justNow': 'à l\'instant', 'time.secondAgo': 'il y a 1 seconde', 'time.secondsAgo': 'il y a {n} secondes', 'time.minuteAgo': 'il y a 1 minute', 'time.minutesAgo': 'il y a {n} minutes', 'time.hourAgo': 'il y a 1 heure', 'time.hoursAgo': 'il y a {n} heures', 'time.dayAgo': 'il y a 1 jour', 'time.daysAgo': 'il y a {n} jours', 'time.weekAgo': 'il y a 1 semaine', 'time.weeksAgo': 'il y a {n} semaines', 'time.monthAgo': 'il y a 1 mois', 'time.monthsAgo': 'il y a {n} mois', 'time.yearAgo': 'il y a 1 an', 'time.yearsAgo': 'il y a {n} ans',
         // Empty States
         'empty.noVideos': 'Aucune vidéo trouvée.', 'empty.noLikedVideos': 'Vous n\'avez encore aimé aucune vidéo.', 'empty.noHistory': 'Pas d\'historique.',
         // Misc
@@ -953,6 +1648,385 @@ const translations = {
         'warning.webmFormat': 'Note: Votre navigateur produira le format WebM (peut ne pas fonctionner sur iOS). Pour MP4 compatible iOS, utilisez Chrome sur Windows/Mac.',
         // New Footer
         'footer.lastUpdated': 'Dernière mise à jour: Décembre 2024',
+        // DMCA Page
+        'dmca.title': 'DMCA et Politique de Contenu',
+        'dmca.lastUpdated': 'Dernière mise à jour : Décembre 2024',
+        'dmca.architectureTitle': 'Comprendre l\'Architecture de Plebs',
+        'dmca.architectureDesc': 'Plebs est une interface de plateforme vidéo décentralisée qui fonctionne différemment des services d\'hébergement vidéo traditionnels.',
+        'dmca.architectureItem1': 'Plebs n\'héberge aucun contenu vidéo ou image.',
+        'dmca.architectureItem1Desc': 'Nous sommes un client/interface qui affiche du contenu stocké ailleurs.',
+        'dmca.architectureItem2': 'Tous les fichiers multimédias sont stockés sur des serveurs Blossom indépendants.',
+        'dmca.architectureItem3': 'Les métadonnées vidéo sont publiées sur des relais Nostr.',
+        'dmca.architectureItem4': 'Plebs agrège et affiche simplement ce contenu distribué.',
+        'dmca.filingTitle': 'Déposer une Réclamation DMCA',
+        'dmca.filingDesc': 'Puisque Plebs n\'héberge pas de contenu, nous ne pouvons pas supprimer directement le matériel contrefaisant.',
+        'dmca.forVideoTitle': '1. Pour le Contenu Vidéo/Image',
+        'dmca.forVideoDesc': 'Les fichiers multimédias sont stockés sur des serveurs Blossom.',
+        'dmca.forVideoItem1': 'Identifier quel serveur Blossom héberge le contenu',
+        'dmca.forVideoItem2': 'Contacter directement l\'opérateur du serveur Blossom',
+        'dmca.forVideoItem3': 'Chaque serveur Blossom fonctionne indépendamment',
+        'dmca.forMetadataTitle': '2. Pour les Métadonnées/Descriptions',
+        'dmca.forMetadataDesc': 'Si le contenu contrefaisant est dans le titre, la description ou autres métadonnées:',
+        'dmca.forMetadataItem1': 'Ces informations sont stockées sur les relais Nostr',
+        'dmca.forMetadataItem2': 'Contactez les opérateurs de relais Nostr spécifiques',
+        'dmca.forMetadataItem3': 'Plusieurs relais peuvent stocker les mêmes données',
+        'dmca.whatWeCanDoTitle': 'Ce que Plebs Peut Faire',
+        'dmca.whatWeCanDoDesc': 'Bien que nous n\'hébergeons pas de contenu, nous pouvons:',
+        'dmca.whatWeCanDoItem1': 'Vous aider à identifier quels serveurs hébergent du contenu spécifique',
+        'dmca.whatWeCanDoItem2': 'Ajouter du contenu à une liste de blocage locale',
+        'dmca.whatWeCanDoItem3': 'Fournir des conseils pour contacter les opérateurs appropriés',
+        'dmca.toRequestAssistance': 'Pour demander de l\'aide, veuillez nous contacter avec:',
+        'dmca.assistanceItem1': 'L\'URL ou identifiant du contenu contrefaisant',
+        'dmca.assistanceItem2': 'Preuve de votre propriété du droit d\'auteur',
+        'dmca.assistanceItem3': 'Une description de l\'œuvre protégée',
+        'dmca.blossomOperatorsTitle': 'Opérateurs de Serveurs Blossom',
+        'dmca.blossomOperatorsDesc': 'Si vous exploitez un serveur Blossom, vous êtes responsable du traitement des demandes DMCA.',
+        'dmca.blossomOperatorsLink': 'Pour une liste des serveurs Blossom connus, consultez la documentation.',
+        'dmca.considerationsTitle': 'Considérations Importantes',
+        'dmca.considerationsItem1': 'Décentralisation:',
+        'dmca.considerationsItem1Desc': 'La suppression complète du contenu peut ne pas être possible.',
+        'dmca.considerationsItem2': 'Copies Multiples:',
+        'dmca.considerationsItem2Desc': 'Le contenu peut être répliqué sur plusieurs serveurs.',
+        'dmca.considerationsItem3': 'Persistance des Métadonnées:',
+        'dmca.considerationsItem3Desc': 'Les métadonnées peuvent persister même après suppression.',
+        'dmca.considerationsItem4': 'Pas de Contrôle Central:',
+        'dmca.considerationsItem4Desc': 'Aucune entité unique ne peut supprimer du contenu de tout le réseau.',
+        'dmca.counterNotificationTitle': 'Contre-Notification',
+        'dmca.counterNotificationDesc': 'Si vous pensez que votre contenu a été supprimé par erreur, contactez l\'opérateur du serveur.',
+        'dmca.contactTitle': 'Contact',
+        'dmca.contactDesc': 'Pour des questions, veuillez nous contacter.',
+        // Admin Dashboard
+        'admin.title': 'Tableau de Bord Admin',
+        'admin.loading': 'Chargement des analyses...',
+        'admin.platformOverview': 'Aperçu de la Plateforme',
+        'admin.totalVideos': 'Total des Vidéos',
+        'admin.videos7Days': 'Vidéos (7 jours)',
+        'admin.videos30Days': 'Vidéos (30 jours)',
+        'admin.uniqueCreators': 'Créateurs Uniques',
+        'admin.likes30Days': 'J\'aime (30 jours)',
+        'admin.dislikes30Days': 'Je n\'aime pas (30 jours)',
+        'admin.monthlyActiveUsers': 'Utilisateurs Actifs Mensuels',
+        'admin.mauDesc': 'Utilisateurs uniques ayant téléchargé, réagi ou commenté (6 derniers mois)',
+        'admin.boostRevenue': 'Revenus Boost (30 Derniers Jours)',
+        'admin.totalBoostRevenue': 'Revenus Boost Totaux',
+        'admin.totalBoosts': 'Total des Boosts',
+        'admin.blocklistManagement': 'Gestion de la Liste de Blocage',
+        'admin.blocklistDesc': 'Bloquer des vidéos ou utilisateurs spécifiques.',
+        'admin.blockedVideos': 'Vidéos Bloquées',
+        'admin.blockedUsers': 'Utilisateurs Bloqués',
+        'admin.blockByEventId': 'Bloquer Vidéo par ID',
+        'admin.blockByPubkey': 'Bloquer Utilisateur par Pubkey',
+        'admin.blockVideo': 'Bloquer Vidéo',
+        'admin.blockUser': 'Bloquer Utilisateur',
+        'admin.noBlockedVideos': 'Aucune vidéo bloquée',
+        'admin.noBlockedUsers': 'Aucun utilisateur bloqué',
+        'admin.unblock': 'Débloquer',
+        'admin.accessDenied': 'Accès refusé. Admin uniquement.',
+        // Search/Trending/Channel/Buttons/Common
+        'search.noVideosFound': 'Aucune vidéo trouvée pour "{query}".',
+        'search.noFullLengthVideos': 'Aucune vidéo longue trouvée pour "{query}".',
+        'trending.noVideosToday': 'Pas de vidéos tendance aujourd\'hui.',
+        'trending.noVideosThisWeek': 'Pas de vidéos tendance cette semaine.',
+        'channel.video': 'vidéo',
+        'channel.videos': 'vidéos',
+        'channel.follower': 'abonné',
+        'channel.followers': 'abonnés',
+        'button.follow': 'Suivre',
+        'button.following': 'Abonné',
+        'button.unfollow': 'Se désabonner',
+        'button.mute': 'Masquer',
+        'button.unmute': 'Afficher',
+        'button.report': 'Signaler',
+        'button.muteUser': 'Masquer l\'utilisateur',
+        'button.unmuteUser': 'Afficher l\'utilisateur',
+        'button.reportComment': 'Signaler le commentaire',
+        'button.reportUser': 'Signaler cet utilisateur',
+        'live.goalReached': 'Objectif Atteint!',
+        'live.goalProgress': '{percent}% de l\'objectif',
+        'common.loading': 'Chargement...',
+        'common.sats': 'sats',
+        // Analytics Page
+        'analytics.title': 'Analytiques de la Chaîne',
+        'analytics.loading': 'Chargement de vos analytiques...',
+        'analytics.loadFailed': 'Échec du chargement des analytiques. Veuillez réessayer.',
+        'analytics.overview': 'Aperçu',
+        'analytics.views': 'Vues',
+        'analytics.followers': 'Abonnés',
+        'analytics.topByViews': 'Meilleures Vidéos par Vues',
+        'analytics.topByEngagement': 'Meilleures Vidéos par Engagement',
+        'analytics.allContent': 'Performance de Tout le Contenu',
+        'analytics.totalViews': 'Vues Totales',
+        'analytics.likes': 'J\'aime',
+        'analytics.likesRatio': 'J\'aime ({ratio}% ratio)',
+        'analytics.dislikes': 'Je n\'aime pas',
+        'analytics.zapsReceived': '{count} Zaps Reçus',
+        'analytics.boostsReceived': 'Boosts Reçus',
+        'analytics.shares': 'Partages',
+        'analytics.comments': 'Commentaires',
+        'analytics.contentCount': '{videos} Vidéos, {shorts} Shorts, {streams} Streams',
+        'analytics.last7days': '7 derniers jours',
+        'analytics.last30days': '30 derniers jours',
+        'analytics.last90days': '90 derniers jours',
+        'analytics.lastYear': 'Dernière année',
+        'analytics.allTime': 'Tout le temps',
+        'analytics.lastNDays': '{n} derniers jours',
+        'analytics.netGrowth': 'Croissance Nette',
+        'analytics.newFollowers': 'Nouveaux Abonnés',
+        'analytics.unfollowed': 'Désabonnements',
+        'analytics.noVideosYet': 'Pas encore de vidéos',
+        'analytics.noShortsYet': 'Pas encore de shorts',
+        'analytics.noStreamsYet': 'Pas encore de streams',
+        'analytics.viewsTooltip': '{count} vues',
+        'analytics.subscribersTooltip': '{count} abonnés',
+        'analytics.videosTab': 'Vidéos ({count})',
+        'analytics.shortsTab': 'Shorts ({count})',
+        'analytics.streamsTab': 'Streams ({count})',
+        // About Page
+        'about.title': 'À Propos de Plebs',
+        'about.whatIs': 'Qu\'est-ce que Plebs?',
+        'about.whatIsDesc': 'Plebs est une plateforme vidéo décentralisée et résistante à la censure construite sur le <a href="https://nostr.com" target="_blank" rel="noopener">protocole Nostr</a>. Contrairement aux plateformes traditionnelles contrôlées par des entreprises, Plebs vous donne la vraie propriété de votre contenu et identité.',
+        'about.whyNostr': 'Pourquoi Nostr?',
+        'about.whyNostrDesc': 'Nostr (Notes and Other Stuff Transmitted by Relays) est un protocole simple et ouvert qui permet un réseau social vraiment décentralisé. Les avantages clés incluent:',
+        'about.benefit1': 'Résistance à la Censure:',
+        'about.benefit1Desc': 'Aucune entité ne peut vous bannir ou supprimer votre contenu',
+        'about.benefit2': 'Portabilité:',
+        'about.benefit2Desc': 'Votre identité et abonnés fonctionnent sur toutes les apps Nostr',
+        'about.benefit3': 'Pas d\'Autorité Centrale:',
+        'about.benefit3Desc': 'Aucune entreprise ne possède ou contrôle le réseau',
+        'about.benefit4': 'Identité Cryptographique:',
+        'about.benefit4Desc': 'Vos clés prouvent que vous êtes qui vous dites être',
+        'about.howItWorks': 'Comment Ça Marche',
+        'about.howItWorksDesc': 'Les vidéos sur Plebs sont stockées en utilisant <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom</a>, un système de stockage distribué, tandis que les métadonnées et interactions sociales sont diffusées aux relais Nostr. Cela signifie que votre contenu n\'est pas stocké sur nos serveurs - il est distribué sur le réseau.',
+        'about.features': 'Fonctionnalités',
+        'about.feature1': 'Téléchargez et partagez des vidéos avec la communauté Nostr',
+        'about.feature2': 'Aimez, commentez et partagez des vidéos avec les réactions Nostr',
+        'about.feature3': 'Envoyez des Zaps aux créateurs avec Bitcoin via Lightning Network',
+        'about.feature4': 'Suivez vos créateurs préférés sur n\'importe quelle app Nostr',
+        'about.feature5': 'Parcourez les sujets et découvrez du nouveau contenu',
+        'about.feature6': 'Fonctionne avec n\'importe quelle identité Nostr (utilisez vos clés existantes)',
+        'about.openSource': 'Open Source',
+        'about.openSourceDesc': 'Plebs est un logiciel open source. Vous pouvez voir le code, contribuer ou exécuter votre propre instance:',
+        'about.githubRepo': 'Dépôt GitHub',
+        'about.builtBy': 'Développé Par',
+        'about.builtByDesc': 'Plebs est développé par <a href="https://nostrservices.com" target="_blank" rel="noopener" class="accent-link">21 Million LLC</a>, une entreprise dédiée à la création d\'outils pour l\'écosystème Bitcoin et Nostr.',
+        // Contact Page
+        'contact.title': 'Contactez-nous',
+        'contact.getInTouch': 'Entrer en Contact',
+        'contact.getInTouchDesc': 'Vous avez des questions, des commentaires ou besoin d\'aide? Nous serions ravis de vous entendre!',
+        'contact.email': 'Email',
+        'contact.emailDesc': 'La meilleure façon de nous contacter est par email:',
+        'contact.github': 'GitHub',
+        'contact.githubDesc': 'Pour signaler des bugs, demander des fonctionnalités ou des problèmes techniques, ouvrez un issue sur notre dépôt:',
+        'contact.githubIssues': 'Issues GitHub',
+        'contact.company': 'Entreprise',
+        'contact.companyDesc': 'Plebs est développé par 21 Million LLC',
+        // Terms of Service
+        'terms.title': 'Conditions d\'Utilisation',
+        'terms.lastUpdated': 'Dernière mise à jour: Décembre 2024',
+        'terms.section1Title': '1. Acceptation des Conditions',
+        'terms.section1Desc': 'En accédant et en utilisant Plebs ("le Service"), vous acceptez d\'être lié par ces Conditions d\'Utilisation. Si vous n\'acceptez pas ces conditions, veuillez ne pas utiliser le Service.',
+        'terms.section2Title': '2. Description du Service',
+        'terms.section2Desc': 'Plebs est une plateforme vidéo décentralisée construite sur le protocole Nostr. Le Service fournit une interface pour parcourir, télécharger et interagir avec du contenu vidéo stocké sur des réseaux distribués. Plebs n\'héberge pas et ne stocke pas de contenu vidéo sur des serveurs centralisés.',
+        'terms.section3Title': '3. Responsabilités de l\'Utilisateur',
+        'terms.section3Desc': 'Vous êtes responsable de:',
+        'terms.section3Item1': 'Maintenir la sécurité de vos clés privées Nostr',
+        'terms.section3Item2': 'Tout le contenu que vous téléchargez ou partagez via le Service',
+        'terms.section3Item3': 'Assurer que votre utilisation respecte les lois applicables',
+        'terms.section3Item4': 'Ne pas télécharger de contenu illégal, contrefait ou nuisible',
+        'terms.section4Title': '4. Directives de Contenu',
+        'terms.section4Desc': 'Vous acceptez de ne pas télécharger, partager ou distribuer:',
+        'terms.section4Item1': 'Contenu qui viole les droits de propriété intellectuelle',
+        'terms.section4Item2': 'Contenu illégal y compris mais non limité au matériel d\'exploitation d\'enfants',
+        'terms.section4Item3': 'Contenu qui promeut la violence ou le mal envers autrui',
+        'terms.section4Item4': 'Spam, malware ou contenu trompeur',
+        'terms.section4Note': 'Le contenu adulte (NSFW) doit être correctement étiqueté en utilisant le tag NSFW lors du téléchargement.',
+        'terms.section5Title': '5. Nature Décentralisée',
+        'terms.section5Desc': 'En raison de la nature décentralisée de Nostr et du stockage Blossom:',
+        'terms.section5Item1': 'Le contenu peut persister sur le réseau même après les demandes de suppression',
+        'terms.section5Item2': 'Nous ne pouvons pas garantir la suppression du contenu de tous les relais ou serveurs de stockage',
+        'terms.section5Item3': 'Votre contenu et interactions sont publics par défaut',
+        'terms.section5Item4': 'Vous êtes seul responsable de la sécurité de votre clé privée',
+        'terms.section6Title': '6. Aucune Garantie',
+        'terms.section6Desc': 'Le Service est fourni "tel quel" sans garanties d\'aucune sorte. Nous ne garantissons pas un accès continu et ininterrompu au Service.',
+        'terms.section7Title': '7. Limitation de Responsabilité',
+        'terms.section7Desc': 'Dans la mesure maximale permise par la loi, Plebs et ses opérateurs ne seront pas responsables de tout dommage indirect, accessoire, spécial ou consécutif découlant de votre utilisation du Service.',
+        'terms.section8Title': '8. Modifications des Conditions',
+        'terms.section8Desc': 'Nous nous réservons le droit de modifier ces conditions à tout moment. L\'utilisation continue du Service après les modifications constitue l\'acceptation des nouvelles conditions.',
+        'terms.section9Title': '9. Contact',
+        'terms.section9Desc': 'Pour des questions sur ces Conditions, veuillez <a href="#/contact" class="accent-link">nous contacter</a>.',
+        // Privacy Policy
+        'privacy.title': 'Politique de Confidentialité',
+        'privacy.lastUpdated': 'Dernière mise à jour: Décembre 2024',
+        'privacy.section1Title': '1. Aperçu',
+        'privacy.section1Desc': 'Plebs s\'engage à protéger votre vie privée. Cette politique explique comment nous traitons les informations lorsque vous utilisez notre plateforme vidéo décentralisée.',
+        'privacy.section2Title': '2. Architecture Décentralisée',
+        'privacy.section2Desc': 'Plebs est construit sur Nostr, un protocole décentralisé. Cela signifie:',
+        'privacy.section2Item1': 'Votre contenu est diffusé aux relais publics, pas stocké sur nos serveurs',
+        'privacy.section2Item2': 'Votre clé publique Nostr sert d\'identité',
+        'privacy.section2Item3': 'Les vidéos sont stockées sur des serveurs Blossom distribués',
+        'privacy.section2Item4': 'Nous n\'avons pas accès à vos clés privées',
+        'privacy.section3Title': '3. Informations que Nous Collectons',
+        'privacy.section3LocalTitle': 'Informations stockées localement dans votre navigateur:',
+        'privacy.section3LocalItem1': 'Votre clé publique Nostr (une fois connecté)',
+        'privacy.section3LocalItem2': 'Historique de visionnage et préférences',
+        'privacy.section3LocalItem3': 'Préférences de thème et paramètres',
+        'privacy.section3LocalItem4': 'Clé privée (uniquement si vous choisissez le stockage local - non recommandé)',
+        'privacy.section3CollectTitle': 'Informations que nous pouvons collecter:',
+        'privacy.section3CollectItem1': 'Analytiques de base (pages vues, utilisation des fonctionnalités) pour améliorer le service',
+        'privacy.section3CollectItem2': 'Journaux d\'erreurs pour le débogage',
+        'privacy.section4Title': '4. Informations Publiques',
+        'privacy.section4Desc': 'Lors de l\'utilisation de Nostr, les éléments suivants sont publics par conception:',
+        'privacy.section4Item1': 'Votre clé publique Nostr et informations de profil',
+        'privacy.section4Item2': 'Vidéos que vous téléchargez',
+        'privacy.section4Item3': 'Commentaires, likes et autres réactions',
+        'privacy.section4Item4': 'Qui vous suivez',
+        'privacy.section4Item5': 'Zaps (paiements Lightning) que vous envoyez ou recevez',
+        'privacy.section5Title': '5. Stockage des Données',
+        'privacy.section5Desc': 'Les données locales sont stockées dans le localStorage de votre navigateur. Vous pouvez effacer ces données à tout moment via les paramètres de votre navigateur. Le contenu publié sur Nostr est distribué sur les relais et ne peut pas être contrôlé ou supprimé par Plebs.',
+        'privacy.section6Title': '6. Services Tiers',
+        'privacy.section6Desc': 'Plebs interagit avec:',
+        'privacy.section6Item1': 'Relais Nostr (pour les données sociales)',
+        'privacy.section6Item2': 'Serveurs Blossom (pour le stockage vidéo)',
+        'privacy.section6Item3': 'Lightning Network (pour les zaps/paiements)',
+        'privacy.section6Note': 'Chacun de ces services a ses propres pratiques de confidentialité.',
+        'privacy.section7Title': '7. Vos Droits',
+        'privacy.section7Desc': 'Vous pouvez:',
+        'privacy.section7Item1': 'Effacer vos données locales du navigateur à tout moment',
+        'privacy.section7Item2': 'Parcourir les vidéos sans créer de compte',
+        'privacy.section7Item3': 'Utiliser une extension de navigateur Nostr pour une confidentialité améliorée',
+        'privacy.section7Item4': 'Choisir quels relais et serveurs Blossom utiliser',
+        'privacy.section8Title': '8. Sécurité',
+        'privacy.section8Desc': 'Nous recommandons:',
+        'privacy.section8Item1': 'Utiliser une extension de navigateur Nostr ou un signataire matériel',
+        'privacy.section8Item2': 'Ne jamais partager votre clé privée (nsec)',
+        'privacy.section8Item3': 'Utiliser un profil de navigateur dédié pour une confidentialité améliorée',
+        'privacy.section9Title': '9. Modifications de Cette Politique',
+        'privacy.section9Desc': 'Nous pouvons mettre à jour cette politique de temps en temps. Les modifications seront publiées sur cette page avec une date de révision mise à jour.',
+        'privacy.section10Title': '10. Contact',
+        'privacy.section10Desc': 'Pour des questions relatives à la confidentialité, veuillez <a href="#/contact" class="accent-link">nous contacter</a>.',
+        // FAQ Page
+        'faq.title': 'Questions Fréquemment Posées',
+        'faq.aboutPlebs': 'À Propos de Plebs',
+        'faq.nostrProtocol': 'Protocole Nostr',
+        'faq.videoStorage': 'Stockage Vidéo et Blossom',
+        'faq.featuresUsage': 'Fonctionnalités et Utilisation',
+        'faq.q1': 'Qu\'est-ce que Plebs?',
+        'faq.a1': 'Plebs est une plateforme vidéo décentralisée et résistante à la censure construite sur le protocole Nostr. Contrairement aux plateformes traditionnelles contrôlées par des entreprises, Plebs vous donne la vraie propriété de votre contenu et identité. Il n\'y a pas de serveurs centraux qui peuvent vous bannir ou supprimer votre contenu.',
+        'faq.q2': 'Plebs est-il gratuit?',
+        'faq.a2': 'Oui, Plebs est entièrement gratuit pour regarder des vidéos. Vous pouvez parcourir et regarder du contenu sans créer de compte. Pour télécharger des vidéos, commenter, aimer ou interagir avec d\'autres utilisateurs, vous aurez besoin d\'une identité Nostr (qui est également gratuite).',
+        'faq.q3': 'Qui développe Plebs?',
+        'faq.a3': 'Plebs est développé par <a href="https://nostrservices.com" target="_blank" rel="noopener">21 Million LLC</a>, une entreprise dédiée à la création d\'outils pour l\'écosystème Bitcoin et Nostr. Plebs est open source, et vous pouvez voir le code ou contribuer sur <a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener">GitHub</a>.',
+        'faq.q4': 'Qu\'est-ce que Nostr?',
+        'faq.a4': 'Nostr signifie "Notes and Other Stuff Transmitted by Relays." C\'est un protocole simple et ouvert qui permet un réseau social vraiment décentralisé. Contrairement aux plateformes traditionnelles, Nostr ne dépend d\'aucun serveur central. Au lieu de cela, il utilise un réseau de relais pour transmettre des messages entre utilisateurs, et des clés cryptographiques pour l\'identité.',
+        'faq.q5': 'Pourquoi Plebs utilise-t-il Nostr?',
+        'faq.a5Title': 'Nostr offre plusieurs avantages clés:',
+        'faq.a5Item1': 'Résistance à la Censure:',
+        'faq.a5Item1Desc': 'Aucune entité ne peut vous bannir ou supprimer votre contenu',
+        'faq.a5Item2': 'Portabilité:',
+        'faq.a5Item2Desc': 'Votre identité et abonnés fonctionnent sur toutes les apps Nostr',
+        'faq.a5Item3': 'Pas d\'Autorité Centrale:',
+        'faq.a5Item3Desc': 'Aucune entreprise ne possède ou contrôle le réseau',
+        'faq.a5Item4': 'Identité Cryptographique:',
+        'faq.a5Item4Desc': 'Vos clés prouvent que vous êtes qui vous dites être',
+        'faq.q6': 'Que sont les clés Nostr (npub/nsec)?',
+        'faq.a6': 'Votre identité Nostr se compose de deux clés: une clé publique (npub) et une clé privée (nsec). Votre npub est comme votre nom d\'utilisateur - vous pouvez la partager avec n\'importe qui. Votre nsec est comme votre mot de passe - ne la partagez jamais! Quiconque ayant votre nsec peut publier en votre nom et accéder à votre compte. Nous recommandons d\'utiliser une extension de navigateur comme Alby ou nos2x pour gérer vos clés en toute sécurité.',
+        'faq.q7': 'Puis-je utiliser mon compte Nostr existant?',
+        'faq.a7': 'Absolument! Si vous avez déjà une identité Nostr d\'apps comme Damus, Primal, Amethyst ou tout autre client Nostr, vous pouvez utiliser les mêmes clés pour vous connecter à Plebs. Vos abonnés, profil et réputation se transfèrent automatiquement.',
+        'faq.q8': 'Que sont les relais Nostr?',
+        'faq.a8': 'Les relais sont des serveurs qui stockent et transmettent les messages Nostr. Lorsque vous publiez quelque chose, il est envoyé à plusieurs relais. D\'autres utilisateurs se connectent aux relais pour lire les messages. Parce qu\'il y a de nombreux relais indépendants, aucun ne peut vous censurer - si un relais vous bloque, votre contenu existe toujours sur d\'autres.',
+        'faq.q9': 'Où sont stockées les vidéos?',
+        'faq.a9': 'Les vidéos sont stockées sur des serveurs Blossom, pas sur Plebs lui-même. Blossom est un système de stockage distribué conçu pour fonctionner avec Nostr. Lorsque vous téléchargez une vidéo, elle va sur un ou plusieurs serveurs Blossom de votre choix. Les métadonnées vidéo (titre, description, etc.) sont publiées sur les relais Nostr.',
+        'faq.q10': 'Qu\'est-ce que Blossom?',
+        'faq.a10': 'Blossom est un protocole ouvert pour stocker et servir des fichiers multimédias de manière décentralisée. Les fichiers sont identifiés par leur hash SHA-256, ce qui signifie que le même fichier aura la même adresse quel que soit le serveur qui l\'héberge. Cela permet la redondance - vos fichiers peuvent exister sur plusieurs serveurs. En savoir plus sur <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom GitHub</a>.',
+        'faq.q11': 'Plebs héberge-t-il mes vidéos?',
+        'faq.a11': 'Non. Plebs est un client/interface qui vous aide à parcourir et télécharger du contenu, mais il ne stocke aucun fichier vidéo ou image. Tous les médias sont stockés sur des serveurs Blossom indépendants. Plebs affiche simplement le contenu de ces fournisseurs de stockage distribués.',
+        'faq.q12': 'Puis-je choisir quel serveur Blossom utiliser?',
+        'faq.a12': 'Oui! Vous pouvez configurer quels serveurs Blossom vous voulez utiliser pour le téléchargement dans vos paramètres. Vous pouvez même exécuter votre propre serveur Blossom si vous voulez un contrôle complet sur votre stockage multimédia.',
+        'faq.q13': 'Comment créer un compte?',
+        'faq.a13Title': 'Cliquez sur le bouton "Connexion" et choisissez votre méthode préférée:',
+        'faq.a13Item1': 'Extension de Navigateur:',
+        'faq.a13Item1Desc': 'Si vous avez une extension Nostr comme Alby ou nos2x installée, vous pouvez l\'utiliser pour vous connecter en toute sécurité',
+        'faq.a13Item2': 'Générer de Nouvelles Clés:',
+        'faq.a13Item2Desc': 'Créer une toute nouvelle identité Nostr',
+        'faq.a13Item3': 'Importer des Clés:',
+        'faq.a13Item3Desc': 'Utiliser votre clé privée Nostr existante (nsec)',
+        'faq.a13Note': 'Nous recommandons d\'utiliser une extension de navigateur pour la meilleure sécurité.',
+        'faq.q14': 'Que sont les Zaps?',
+        'faq.a14': 'Les Zaps sont des paiements Bitcoin envoyés via le Lightning Network. Ils vous permettent d\'envoyer de l\'argent réel (satoshis, ou "sats") aux créateurs de contenu comme pourboires ou appréciation. Contrairement aux pourboires traditionnels des plateformes qui prennent de gros frais, les zaps vont directement au créateur. Pour envoyer des zaps, vous avez besoin d\'un portefeuille Lightning avec une connexion Nostr (comme Alby ou Zeus).',
+        'faq.q15': 'Comment télécharger une vidéo?',
+        'faq.a15Title': 'Pour télécharger une vidéo:',
+        'faq.a15Item1': 'Connectez-vous avec votre identité Nostr',
+        'faq.a15Item2': 'Cliquez sur le bouton "Créer" et sélectionnez "Télécharger Vidéo"',
+        'faq.a15Item3': 'Sélectionnez votre fichier vidéo (supporte la plupart des formats courants)',
+        'faq.a15Item4': 'Ajoutez un titre, une description et des tags',
+        'faq.a15Item5': 'Cliquez sur "Publier" pour partager avec le réseau',
+        'faq.a15Note': 'Les vidéos sont automatiquement compressées et téléchargées vers les serveurs Blossom.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'Auto-Modération',
+        'faq.q16': 'Comment fonctionne la modération sur une plateforme décentralisée?',
+        'faq.a16': 'Contrairement aux plateformes traditionnelles avec des modérateurs centralisés, Plebs vous met en contrôle de ce que vous voyez. Nous fournissons des outils d\'auto-modération puissants incluant des packs de filtres de contenu, la mise en sourdine d\'utilisateurs, des avertissements de la communauté et des indicateurs de vidéos fortement négativées. Vous décidez quel contenu est approprié pour vous - il n\'y a pas d\'autorité centrale prenant ces décisions.',
+        'faq.q17': 'Que sont les Packs de Filtres de Contenu?',
+        'faq.a17Intro': 'Les Packs de Filtres de Contenu sont des filtres de mots-clés prédéfinis que vous pouvez activer pour masquer des types spécifiques de contenu. Les packs disponibles incluent:',
+        'faq.a17Pack1': 'Racisme et Discours de Haine:',
+        'faq.a17Pack1Desc': 'Filtre les insultes raciales et le contenu discriminatoire',
+        'faq.a17Pack2': 'Sexuellement Explicite:',
+        'faq.a17Pack2Desc': 'Filtre le contenu pornographique et pour adultes',
+        'faq.a17Pack3': 'Violence et Gore:',
+        'faq.a17Pack3Desc': 'Filtre la violence graphique et le contenu d\'automutilation',
+        'faq.a17Pack4': 'Drogues et Substances:',
+        'faq.a17Pack4Desc': 'Filtre le contenu lié aux drogues',
+        'faq.a17Pack5': 'Spam et Arnaques:',
+        'faq.a17Pack5Desc': 'Filtre les modèles courants de spam et d\'arnaques',
+        'faq.a17Pack6': 'Cryptomonnaie:',
+        'faq.a17Pack6Desc': 'Filtre la promotion de crypto et le shilling de tokens',
+        'faq.a17Pack7': 'Contenu Politique:',
+        'faq.a17Pack7Desc': 'Filtre le contenu politique partisan',
+        'faq.a17Pack8': 'Langage Grossier:',
+        'faq.a17Pack8Desc': 'Filtre le langage vulgaire',
+        'faq.a17Note': 'Activez-les dans Paramètres > Filtres de Contenu. Vous pouvez également ajouter des mots-clés personnalisés. Le contenu filtré affiche un espace réservé avec un bouton "Afficher quand même" si vous souhaitez le voir temporairement.',
+        'faq.q18': 'Comment mettre un utilisateur en sourdine?',
+        'faq.a18': 'Pour mettre un utilisateur en sourdine, visitez son profil et cliquez sur le bouton de mise en sourdine. Une fois en sourdine, toutes leurs vidéos seront cachées de votre flux, leurs commentaires s\'afficheront comme "Message d\'un utilisateur en sourdine" et leurs messages de chat en direct seront masqués. Votre liste de mise en sourdine est stockée sur Nostr, elle se synchronise donc entre les appareils. Vous pouvez gérer les utilisateurs en sourdine dans les Paramètres de votre Profil sous "Utilisateurs en Sourdine".',
+        'faq.q19': 'Que signifie "Ratioed"?',
+        'faq.a19': 'Une vidéo est marquée comme "ratioed" lorsqu\'elle a significativement plus de je n\'aime pas que de j\'aime, indiquant une réception négative de la communauté. Spécifiquement, une vidéo est ratioed lorsqu\'elle a au moins 10 réactions, les je n\'aime pas sont au moins le double des j\'aime, et les je n\'aime pas représentent 70% ou plus des réactions totales. Les vidéos ratioed affichent un badge d\'avertissement, et vous serez invité à confirmer avant de voir.',
+        'faq.q20': 'Comment fonctionnent les avertissements de la communauté?',
+        'faq.a20': 'Les utilisateurs peuvent signaler du contenu pour diverses raisons (spam, contenu illégal, abus, trompeur, etc.). Lorsqu\'une vidéo ou un utilisateur reçoit 5 signalements ou plus de personnes que vous suivez, un indicateur d\'avertissement apparaît. Cela exploite votre graphe social - les avertissements proviennent de votre réseau de confiance, pas d\'inconnus anonymes. Vous pouvez activer "Afficher les avertissements des comptes que je suis" dans les Paramètres.',
+        'faq.q21': 'Comment signaler du contenu?',
+        'faq.a21': 'Cliquez sur l\'icône de drapeau sur n\'importe quelle vidéo, commentaire ou profil d\'utilisateur pour le signaler. Sélectionnez une raison (Spam, Illégal, Abus, Trompeur, Usurpation d\'identité, Droits d\'auteur ou Autre) et ajoutez éventuellement des détails. Les signalements sont publiés sur Nostr en tant qu\'événements, les rendant transparents et décentralisés. Vos signalements aident les autres dans votre réseau à identifier le contenu problématique.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'Confidentialité et Sécurité',
+        'faq.q22': 'Mon activité est-elle privée?',
+        'faq.a22': 'Sur Nostr, la plupart des activités sont publiques par conception. Vos j\'aime, commentaires, abonnements et zaps sont visibles sur le réseau public. Cependant, Plebs stocke votre historique de visionnage localement dans votre navigateur - il n\'est jamais envoyé à un serveur. Vous pouvez effacer vos données locales à tout moment.',
+        'faq.q23': 'Comment garder mon compte sécurisé?',
+        'faq.a23': 'Ne partagez jamais votre clé privée (nsec) avec quiconque. Nous recommandons fortement d\'utiliser une extension de navigateur Nostr comme Alby, nos2x ou un signataire matériel. Ceux-ci gardent votre clé privée sécurisée et ne signent les événements que lorsque vous les approuvez. Évitez de stocker votre nsec directement dans les sites web.',
+        'faq.q24': 'Puis-je supprimer mon contenu?',
+        'faq.a24': 'Vous pouvez demander la suppression en publiant un événement de suppression sur Nostr. La plupart des relais et clients bien comportés respecteront cela. Cependant, en raison de la nature décentralisée du réseau, le contenu peut persister sur certains relais ou serveurs Blossom. Il n\'y a pas d\'autorité centrale qui peut forcer la suppression complète sur l\'ensemble du réseau.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'Dépannage',
+        'faq.q25': 'Les vidéos ne se chargent pas - que dois-je faire?',
+        'faq.a25Intro': 'Si les vidéos ne se chargent pas, essayez ces étapes:',
+        'faq.a25Item1': 'Actualisez la page',
+        'faq.a25Item2': 'Vérifiez votre connexion Internet',
+        'faq.a25Item3': 'Le serveur Blossom hébergeant la vidéo pourrait être hors ligne - ceci est indépendant de Plebs',
+        'faq.a25Item4': 'Essayez de désactiver les extensions de navigateur qui pourraient bloquer le contenu',
+        'faq.a25Item5': 'Effacez le cache de votre navigateur et réessayez',
+        'faq.q26': 'J\'ai perdu ma clé privée - pouvez-vous m\'aider à la récupérer?',
+        'faq.a26': 'Malheureusement, non. Les clés Nostr sont cryptographiques - il n\'y a pas de réinitialisation de mot de passe ni de récupération de compte car il n\'y a pas d\'autorité centrale. C\'est pourquoi nous recommandons fortement de sauvegarder vos clés et d\'utiliser une solution de gestion de clés sécurisée. Si vous perdez votre nsec, vous devrez créer une nouvelle identité.',
+        'faq.q27': 'Comment signaler un bug ou demander une fonctionnalité?',
+        'faq.a27': 'Vous pouvez signaler des bugs ou demander des fonctionnalités sur notre page <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a>. Vous pouvez également nous contacter sur Nostr - visitez notre page <a href="#/contact">Contact</a> pour plus de détails.',
+        // Page Titles
+        'pageTitle.following': 'Abonnements', 'pageTitle.myVideos': 'Mes Vidéos', 'pageTitle.likedVideos': 'Vidéos Aimées', 'pageTitle.watchHistory': 'Historique de Visionnage', 'pageTitle.liveStreams': 'Diffusions en Direct', 'pageTitle.suffix': '- Plebs', 'pageTitle.liveSuffix': '- En Direct sur Plebs',
+        // Home Page Sections
+        'section.trending': 'Tendances', 'section.recommended': 'Recommandé Pour Vous', 'section.shorts': 'Shorts', 'section.live': 'En Direct', 'section.liveNow': 'En Direct Maintenant', 'section.latestVideos': 'Dernières Vidéos', 'section.videos': 'Vidéos', 'section.usersYouFollow': 'Utilisateurs Que Vous Suivez',
+        // Trending Period
+        'trending.thisWeek': 'Cette Semaine', 'trending.today': 'Aujourd\'hui',
+        // Buttons
+        'button.viewMore': 'Voir Plus', 'button.clearAll': 'Tout Effacer', 'button.showAnyway': 'Afficher quand même',
+        // Confirmation Modals
+        'confirm.logout': 'Déconnexion', 'confirm.logoutMessage': 'Êtes-vous sûr de vouloir vous déconnecter?', 'confirm.resetSettings': 'Réinitialiser les Paramètres', 'confirm.resetSettingsMessage': 'Êtes-vous sûr de vouloir réinitialiser tous les paramètres aux valeurs par défaut?', 'confirm.reset': 'Réinitialiser', 'confirm.clearHistory': 'Effacer l\'Historique', 'confirm.clearHistoryMessage': 'Êtes-vous sûr de vouloir effacer tout votre historique de visionnage? Cette action ne peut pas être annulée.', 'confirm.deleteDraft': 'Supprimer le Brouillon', 'confirm.deleteDraftMessage': 'Êtes-vous sûr de vouloir supprimer ce brouillon?', 'confirm.delete': 'Supprimer', 'confirm.deleteVideo': 'Supprimer la Vidéo', 'confirm.deleteVideoMessage': 'Êtes-vous sûr de vouloir supprimer cette vidéo? Cette action ne peut pas être annulée.', 'confirm.endStream': 'Terminer la Diffusion en Direct', 'confirm.endStreamMessage': 'Êtes-vous sûr de vouloir terminer cette diffusion en direct? Cette action ne peut pas être annulée.', 'confirm.endStreamButton': 'Terminer la Diffusion',
+        // Content Filters
+        'filter.hiddenByPack': 'Masqué par {pack}', 'filter.showAnyway': 'Afficher quand même', 'filter.contentHidden': 'Contenu masqué par filtre de contenu',
+        // Following Page
+        'following.noFollowingYet': 'Vous ne suivez personne encore. Trouvez des créateurs à suivre!',
     },
     de: {
         // Navigation & Header
@@ -997,7 +2071,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': 'Erfolgreich angemeldet!', 'toast.settingsSaved': 'Einstellungen gespeichert!', 'toast.languageChanged': 'Sprache geändert', 'toast.copied': 'Kopiert!',
         // Time
-        'time.justNow': 'gerade eben', 'time.minuteAgo': 'vor 1 Minute', 'time.minutesAgo': 'vor {n} Minuten', 'time.hourAgo': 'vor 1 Stunde', 'time.hoursAgo': 'vor {n} Stunden', 'time.dayAgo': 'vor 1 Tag', 'time.daysAgo': 'vor {n} Tagen',
+        'time.justNow': 'gerade eben', 'time.secondAgo': 'vor 1 Sekunde', 'time.secondsAgo': 'vor {n} Sekunden', 'time.minuteAgo': 'vor 1 Minute', 'time.minutesAgo': 'vor {n} Minuten', 'time.hourAgo': 'vor 1 Stunde', 'time.hoursAgo': 'vor {n} Stunden', 'time.dayAgo': 'vor 1 Tag', 'time.daysAgo': 'vor {n} Tagen', 'time.weekAgo': 'vor 1 Woche', 'time.weeksAgo': 'vor {n} Wochen', 'time.monthAgo': 'vor 1 Monat', 'time.monthsAgo': 'vor {n} Monaten', 'time.yearAgo': 'vor 1 Jahr', 'time.yearsAgo': 'vor {n} Jahren',
         // Empty States
         'empty.noVideos': 'Keine Videos gefunden.', 'empty.noLikedVideos': 'Sie haben noch keine Videos geliked.', 'empty.noHistory': 'Kein Verlauf.',
         // Misc
@@ -1041,6 +2115,385 @@ const translations = {
         'warning.webmFormat': 'Hinweis: Ihr Browser gibt das WebM-Format aus (funktioniert möglicherweise nicht auf iOS). Für iOS-kompatibles MP4 verwenden Sie Chrome auf Windows/Mac.',
         // New Footer
         'footer.lastUpdated': 'Zuletzt aktualisiert: Dezember 2024',
+        // DMCA Page
+        'dmca.title': 'DMCA und Inhaltsrichtlinie',
+        'dmca.lastUpdated': 'Zuletzt aktualisiert: Dezember 2024',
+        'dmca.architectureTitle': 'Verständnis der Plebs-Architektur',
+        'dmca.architectureDesc': 'Plebs ist eine dezentrale Video-Plattform-Schnittstelle, die anders funktioniert als traditionelle Video-Hosting-Dienste. Es ist wichtig zu verstehen, wie Inhalte auf unserer Plattform verteilt werden:',
+        'dmca.architectureItem1': 'Plebs hostet keine Video- oder Bildinhalte.',
+        'dmca.architectureItem1Desc': 'Wir sind ein Client/eine Schnittstelle, die anderswo gespeicherte Inhalte anzeigt.',
+        'dmca.architectureItem2': 'Alle Mediendateien (Videos, Bilder, Miniaturansichten) werden auf unabhängigen Blossom-Servern gespeichert, die von Dritten betrieben werden.',
+        'dmca.architectureItem3': 'Video-Metadaten (Titel, Beschreibungen usw.) werden auf Nostr-Relays veröffentlicht, die ebenfalls unabhängig betrieben werden.',
+        'dmca.architectureItem4': 'Plebs aggregiert und zeigt diese verteilten Inhalte einfach über eine benutzerfreundliche Oberfläche an.',
+        'dmca.filingTitle': 'Einreichen einer DMCA-Beschwerde',
+        'dmca.filingDesc': 'Da Plebs keine Inhalte hostet, können wir rechtsverletzende Materialien nicht direkt entfernen. Um Urheberrechtsverletzungen zu behandeln, müssen Sie die entsprechenden Parteien kontaktieren:',
+        'dmca.forVideoTitle': '1. Für Video-/Bildinhalte',
+        'dmca.forVideoDesc': 'Mediendateien werden auf Blossom-Servern gespeichert. Sie müssen:',
+        'dmca.forVideoItem1': 'Identifizieren Sie, welcher Blossom-Server den Inhalt hostet (die URL zeigt dies an)',
+        'dmca.forVideoItem2': 'Kontaktieren Sie den Blossom-Server-Betreiber direkt mit Ihrer DMCA-Löschanfrage',
+        'dmca.forVideoItem3': 'Jeder Blossom-Server arbeitet unabhängig und hat seine eigenen Richtlinien',
+        'dmca.forMetadataTitle': '2. Für Metadaten/Beschreibungen',
+        'dmca.forMetadataDesc': 'Wenn sich der rechtsverletzende Inhalt im Videotitel, der Beschreibung oder anderen Metadaten befindet:',
+        'dmca.forMetadataItem1': 'Diese Informationen werden auf Nostr-Relays gespeichert',
+        'dmca.forMetadataItem2': 'Kontaktieren Sie die spezifischen Nostr-Relay-Betreiber, auf denen der Inhalt erscheint',
+        'dmca.forMetadataItem3': 'Mehrere Relays können aufgrund der verteilten Natur von Nostr dieselben Daten speichern',
+        'dmca.whatWeCanDoTitle': 'Was Plebs tun kann',
+        'dmca.whatWeCanDoDesc': 'Obwohl wir keine Inhalte hosten, können wir:',
+        'dmca.whatWeCanDoItem1': 'Ihnen helfen zu identifizieren, welche Blossom-Server oder Relays bestimmte Inhalte hosten',
+        'dmca.whatWeCanDoItem2': 'Inhalte zu einer lokalen Sperrliste hinzufügen, damit sie nicht in unserer Schnittstelle erscheinen (Hinweis: Dies betrifft nur plebs.app, nicht andere Nostr-Clients)',
+        'dmca.whatWeCanDoItem3': 'Anleitung geben, wie Sie die entsprechenden Dienstanbieter kontaktieren können',
+        'dmca.toRequestAssistance': 'Um Unterstützung anzufordern, kontaktieren Sie uns bitte mit:',
+        'dmca.assistanceItem1': 'Die URL oder Kennung des rechtsverletzenden Inhalts',
+        'dmca.assistanceItem2': 'Nachweis Ihres Urheberrechtseigentums',
+        'dmca.assistanceItem3': 'Eine Beschreibung der geschützten Arbeit',
+        'dmca.blossomOperatorsTitle': 'Blossom-Server-Betreiber',
+        'dmca.blossomOperatorsDesc': 'Wenn Sie einen Blossom-Server betreiben und eine DMCA-Löschanfrage erhalten, sind Sie dafür verantwortlich, diese gemäß den Gesetzen Ihrer Gerichtsbarkeit zu bearbeiten.',
+        'dmca.blossomOperatorsLink': 'Für eine Liste bekannter Blossom-Server, konsultieren Sie die Blossom-Projektdokumentation.',
+        'dmca.considerationsTitle': 'Wichtige Überlegungen',
+        'dmca.considerationsItem1': 'Dezentralisierung:',
+        'dmca.considerationsItem1Desc': 'Aufgrund der dezentralen Natur von Nostr und Blossom ist die vollständige Entfernung von Inhalten aus allen Quellen möglicherweise nicht möglich.',
+        'dmca.considerationsItem2': 'Mehrere Kopien:',
+        'dmca.considerationsItem2Desc': 'Inhalte können auf mehreren Blossom-Servern repliziert werden, was separate Löschanfragen für jeden erfordert.',
+        'dmca.considerationsItem3': 'Metadaten-Persistenz:',
+        'dmca.considerationsItem3Desc': 'Selbst wenn Mediendateien entfernt werden, können Metadaten auf Nostr-Relays bestehen bleiben.',
+        'dmca.considerationsItem4': 'Keine zentrale Kontrolle:',
+        'dmca.considerationsItem4Desc': 'Es gibt keine einzelne Instanz, die Inhalte aus dem gesamten Netzwerk entfernen kann.',
+        'dmca.counterNotificationTitle': 'Gegendarstellung',
+        'dmca.counterNotificationDesc': 'Wenn Sie glauben, dass Ihr Inhalt fälschlicherweise von einem Blossom-Server entfernt wurde, müssen Sie den Betreiber dieses Servers direkt kontaktieren, um eine Gegendarstellung einzureichen.',
+        'dmca.contactTitle': 'Kontakt',
+        'dmca.contactDesc': 'Für Fragen zu dieser Richtlinie oder Hilfe bei der Identifizierung von Inhalts-Hosts, kontaktieren Sie uns bitte.',
+        // Admin Dashboard
+        'admin.title': 'Admin-Dashboard',
+        'admin.loading': 'Lade Plattform-Analysen...',
+        'admin.platformOverview': 'Plattform-Übersicht',
+        'admin.totalVideos': 'Gesamtvideos',
+        'admin.videos7Days': 'Videos (7 Tage)',
+        'admin.videos30Days': 'Videos (30 Tage)',
+        'admin.uniqueCreators': 'Einzigartige Ersteller',
+        'admin.likes30Days': 'Gefällt mir (30 Tage)',
+        'admin.dislikes30Days': 'Gefällt mir nicht (30 Tage)',
+        'admin.monthlyActiveUsers': 'Monatlich aktive Benutzer',
+        'admin.mauDesc': 'Einzigartige Benutzer, die jeden Monat Videos hochgeladen, reagiert oder kommentiert haben (letzte 6 Monate)',
+        'admin.boostRevenue': 'Boost-Einnahmen (Letzte 30 Tage)',
+        'admin.totalBoostRevenue': 'Gesamte Boost-Einnahmen',
+        'admin.totalBoosts': 'Gesamte Boosts',
+        'admin.blocklistManagement': 'Sperrlisten-Verwaltung',
+        'admin.blocklistDesc': 'Blockieren Sie bestimmte Videos oder Benutzer, damit sie nicht auf der Plattform erscheinen.',
+        'admin.blockedVideos': 'Blockierte Videos',
+        'admin.blockedUsers': 'Blockierte Benutzer',
+        'admin.blockByEventId': 'Video nach Event-ID blockieren',
+        'admin.blockByPubkey': 'Benutzer nach Pubkey blockieren',
+        'admin.blockVideo': 'Video blockieren',
+        'admin.blockUser': 'Benutzer blockieren',
+        'admin.noBlockedVideos': 'Keine blockierten Videos',
+        'admin.noBlockedUsers': 'Keine blockierten Benutzer',
+        'admin.unblock': 'Entsperren',
+        'admin.accessDenied': 'Zugriff verweigert. Nur Administrator.',
+        // Search/Trending/Channel/Buttons/Common
+        'search.noVideosFound': 'Keine Videos gefunden, die "{query}" entsprechen.',
+        'search.noFullLengthVideos': 'Keine Langvideos gefunden, die "{query}" entsprechen.',
+        'trending.noVideosToday': 'Heute keine trendenden Videos.',
+        'trending.noVideosThisWeek': 'Diese Woche keine trendenden Videos.',
+        'channel.video': 'Video',
+        'channel.videos': 'Videos',
+        'channel.follower': 'Abonnent',
+        'channel.followers': 'Abonnenten',
+        'button.follow': 'Folgen',
+        'button.following': 'Folge ich',
+        'button.unfollow': 'Entfolgen',
+        'button.mute': 'Stummschalten',
+        'button.unmute': 'Stummschaltung aufheben',
+        'button.report': 'Melden',
+        'button.muteUser': 'Benutzer stummschalten',
+        'button.unmuteUser': 'Benutzer-Stummschaltung aufheben',
+        'button.reportComment': 'Kommentar melden',
+        'button.reportUser': 'Diesen Benutzer melden',
+        'live.goalReached': 'Ziel erreicht!',
+        'live.goalProgress': '{percent}% des Ziels',
+        'common.loading': 'Wird geladen...',
+        'common.sats': 'Sats',
+        // Analytics Page
+        'analytics.title': 'Kanal-Statistiken',
+        'analytics.loading': 'Ihre Statistiken werden geladen...',
+        'analytics.loadFailed': 'Fehler beim Laden der Statistiken. Bitte versuchen Sie es erneut.',
+        'analytics.overview': 'Übersicht',
+        'analytics.views': 'Aufrufe',
+        'analytics.followers': 'Abonnenten',
+        'analytics.topByViews': 'Meistgesehene Videos',
+        'analytics.topByEngagement': 'Videos mit höchstem Engagement',
+        'analytics.allContent': 'Leistung aller Inhalte',
+        'analytics.totalViews': 'Gesamtaufrufe',
+        'analytics.likes': 'Gefällt mir',
+        'analytics.likesRatio': 'Gefällt mir ({ratio}% Verhältnis)',
+        'analytics.dislikes': 'Gefällt mir nicht',
+        'analytics.zapsReceived': '{count} erhaltene Zaps',
+        'analytics.boostsReceived': 'Erhaltene Boosts',
+        'analytics.shares': 'Geteilte',
+        'analytics.comments': 'Kommentare',
+        'analytics.contentCount': '{videos} Videos, {shorts} Shorts, {streams} Streams',
+        'analytics.last7days': 'Letzte 7 Tage',
+        'analytics.last30days': 'Letzte 30 Tage',
+        'analytics.last90days': 'Letzte 90 Tage',
+        'analytics.lastYear': 'Letztes Jahr',
+        'analytics.allTime': 'Gesamt',
+        'analytics.lastNDays': 'Letzte {n} Tage',
+        'analytics.netGrowth': 'Nettowachstum',
+        'analytics.newFollowers': 'Neue Abonnenten',
+        'analytics.unfollowed': 'Abmeldungen',
+        'analytics.noVideosYet': 'Noch keine Videos',
+        'analytics.noShortsYet': 'Noch keine Shorts',
+        'analytics.noStreamsYet': 'Noch keine Streams',
+        'analytics.viewsTooltip': '{count} Aufrufe',
+        'analytics.subscribersTooltip': '{count} Abonnenten',
+        'analytics.videosTab': 'Videos ({count})',
+        'analytics.shortsTab': 'Shorts ({count})',
+        'analytics.streamsTab': 'Streams ({count})',
+        // About Page
+        'about.title': 'Über Plebs',
+        'about.whatIs': 'Was ist Plebs?',
+        'about.whatIsDesc': 'Plebs ist eine dezentrale und zensurresistente Video-Plattform, die auf dem <a href="https://nostr.com" target="_blank" rel="noopener">Nostr-Protokoll</a> basiert. Anders als traditionelle unternehmensgesteuerte Plattformen gibt Ihnen Plebs echtes Eigentum an Ihren Inhalten und Ihrer Identität.',
+        'about.whyNostr': 'Warum Nostr?',
+        'about.whyNostrDesc': 'Nostr (Notes and Other Stuff Transmitted by Relays) ist ein einfaches, offenes Protokoll, das ein wirklich dezentrales soziales Netzwerk ermöglicht. Die wichtigsten Vorteile sind:',
+        'about.benefit1': 'Zensurresistenz:',
+        'about.benefit1Desc': 'Keine Instanz kann Sie sperren oder Ihre Inhalte löschen',
+        'about.benefit2': 'Portabilität:',
+        'about.benefit2Desc': 'Ihre Identität und Follower funktionieren in allen Nostr-Apps',
+        'about.benefit3': 'Keine zentrale Autorität:',
+        'about.benefit3Desc': 'Kein Unternehmen besitzt oder kontrolliert das Netzwerk',
+        'about.benefit4': 'Kryptographische Identität:',
+        'about.benefit4Desc': 'Ihre Schlüssel beweisen, dass Sie sind, wer Sie sagen',
+        'about.howItWorks': 'Wie es funktioniert',
+        'about.howItWorksDesc': 'Videos auf Plebs werden mit <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom</a> gespeichert, einem verteilten Speichersystem, während Metadaten und soziale Interaktionen zu Nostr-Relays gesendet werden. Das bedeutet, dass Ihre Inhalte nicht auf unseren Servern gespeichert werden - sie sind über das Netzwerk verteilt.',
+        'about.features': 'Funktionen',
+        'about.feature1': 'Videos hochladen und mit der Nostr-Community teilen',
+        'about.feature2': 'Videos mit Nostr-Reaktionen liken, kommentieren und teilen',
+        'about.feature3': 'Creators mit Bitcoin über Lightning Network zappen',
+        'about.feature4': 'Folgen Sie Ihren Lieblings-Creators auf jeder Nostr-App',
+        'about.feature5': 'Themen durchsuchen und neue Inhalte entdecken',
+        'about.feature6': 'Funktioniert mit jeder Nostr-Identität (verwenden Sie bestehende Schlüssel)',
+        'about.openSource': 'Open Source',
+        'about.openSourceDesc': 'Plebs ist Open-Source-Software. Sie können den Code einsehen, beitragen oder Ihre eigene Instanz betreiben:',
+        'about.githubRepo': 'GitHub Repository',
+        'about.builtBy': 'Entwickelt von',
+        'about.builtByDesc': 'Plebs wird von <a href="https://nostrservices.com" target="_blank" rel="noopener" class="accent-link">21 Million LLC</a> entwickelt, einem Unternehmen, das sich dem Aufbau von Tools für das Bitcoin- und Nostr-Ökosystem widmet.',
+        // Contact Page
+        'contact.title': 'Kontakt',
+        'contact.getInTouch': 'Kontaktieren Sie uns',
+        'contact.getInTouchDesc': 'Haben Sie Fragen, Feedback oder benötigen Support? Wir würden uns freuen, von Ihnen zu hören!',
+        'contact.email': 'E-Mail',
+        'contact.emailDesc': 'Der beste Weg, uns zu kontaktieren, ist per E-Mail:',
+        'contact.github': 'GitHub',
+        'contact.githubDesc': 'Für Bug-Reports, Feature-Anfragen oder technische Probleme öffnen Sie bitte ein Issue in unserem Repository:',
+        'contact.githubIssues': 'GitHub Issues',
+        'contact.company': 'Unternehmen',
+        'contact.companyDesc': 'Plebs wird von 21 Million LLC entwickelt',
+        // Terms of Service
+        'terms.title': 'Nutzungsbedingungen',
+        'terms.lastUpdated': 'Letzte Aktualisierung: Dezember 2024',
+        'terms.section1Title': '1. Annahme der Bedingungen',
+        'terms.section1Desc': 'Durch den Zugriff auf und die Nutzung von Plebs ("der Dienst") erklären Sie sich damit einverstanden, an diese Nutzungsbedingungen gebunden zu sein. Wenn Sie mit diesen Bedingungen nicht einverstanden sind, nutzen Sie den Dienst bitte nicht.',
+        'terms.section2Title': '2. Beschreibung des Dienstes',
+        'terms.section2Desc': 'Plebs ist eine dezentrale Video-Plattform, die auf dem Nostr-Protokoll basiert. Der Dienst bietet eine Schnittstelle zum Durchsuchen, Hochladen und Interagieren mit Videoinhalten, die in verteilten Netzwerken gespeichert sind. Plebs hostet oder speichert keine Videoinhalte auf zentralisierten Servern.',
+        'terms.section3Title': '3. Verantwortlichkeiten der Nutzer',
+        'terms.section3Desc': 'Sie sind verantwortlich für:',
+        'terms.section3Item1': 'Die Sicherheit Ihrer privaten Nostr-Schlüssel',
+        'terms.section3Item2': 'Alle Inhalte, die Sie über den Dienst hochladen oder teilen',
+        'terms.section3Item3': 'Die Einhaltung geltender Gesetze bei Ihrer Nutzung',
+        'terms.section3Item4': 'Das Nicht-Hochladen illegaler, rechtsverletzender oder schädlicher Inhalte',
+        'terms.section4Title': '4. Inhaltsrichtlinien',
+        'terms.section4Desc': 'Sie verpflichten sich, Folgendes nicht hochzuladen, zu teilen oder zu verbreiten:',
+        'terms.section4Item1': 'Inhalte, die geistige Eigentumsrechte verletzen',
+        'terms.section4Item2': 'Illegale Inhalte, einschließlich aber nicht beschränkt auf Material zur Ausbeutung von Kindern',
+        'terms.section4Item3': 'Inhalte, die Gewalt oder Schaden gegenüber anderen fördern',
+        'terms.section4Item4': 'Spam, Malware oder irreführende Inhalte',
+        'terms.section4Note': 'Inhalte für Erwachsene (NSFW) müssen beim Hochladen ordnungsgemäß mit dem NSFW-Tag gekennzeichnet werden.',
+        'terms.section5Title': '5. Dezentrale Natur',
+        'terms.section5Desc': 'Aufgrund der dezentralen Natur von Nostr und Blossom-Speicherung:',
+        'terms.section5Item1': 'Inhalte können im Netzwerk bestehen bleiben, auch nach Löschanfragen',
+        'terms.section5Item2': 'Wir können die Löschung von Inhalten von allen Relays oder Speicherservern nicht garantieren',
+        'terms.section5Item3': 'Ihre Inhalte und Interaktionen sind standardmäßig öffentlich',
+        'terms.section5Item4': 'Sie allein sind für die Sicherheit Ihres privaten Schlüssels verantwortlich',
+        'terms.section6Title': '6. Keine Garantie',
+        'terms.section6Desc': 'Der Dienst wird "wie besehen" ohne jegliche Garantien bereitgestellt. Wir garantieren keinen kontinuierlichen und ununterbrochenen Zugang zum Dienst.',
+        'terms.section7Title': '7. Haftungsbeschränkung',
+        'terms.section7Desc': 'Im maximal gesetzlich zulässigen Umfang haften Plebs und seine Betreiber nicht für indirekte, zufällige, spezielle oder Folgeschäden, die sich aus Ihrer Nutzung des Dienstes ergeben.',
+        'terms.section8Title': '8. Änderungen der Bedingungen',
+        'terms.section8Desc': 'Wir behalten uns das Recht vor, diese Bedingungen jederzeit zu ändern. Die fortgesetzte Nutzung des Dienstes nach Änderungen stellt die Annahme der neuen Bedingungen dar.',
+        'terms.section9Title': '9. Kontakt',
+        'terms.section9Desc': 'Bei Fragen zu diesen Bedingungen <a href="#/contact" class="accent-link">kontaktieren Sie uns bitte</a>.',
+        // Privacy Policy
+        'privacy.title': 'Datenschutzrichtlinie',
+        'privacy.lastUpdated': 'Letzte Aktualisierung: Dezember 2024',
+        'privacy.section1Title': '1. Übersicht',
+        'privacy.section1Desc': 'Plebs verpflichtet sich, Ihre Privatsphäre zu schützen. Diese Richtlinie erklärt, wie wir Informationen verarbeiten, wenn Sie unsere dezentrale Video-Plattform nutzen.',
+        'privacy.section2Title': '2. Dezentrale Architektur',
+        'privacy.section2Desc': 'Plebs basiert auf Nostr, einem dezentralen Protokoll. Das bedeutet:',
+        'privacy.section2Item1': 'Ihre Inhalte werden an öffentliche Relays gesendet, nicht auf unseren Servern gespeichert',
+        'privacy.section2Item2': 'Ihr öffentlicher Nostr-Schlüssel dient als Ihre Identität',
+        'privacy.section2Item3': 'Videos werden auf verteilten Blossom-Servern gespeichert',
+        'privacy.section2Item4': 'Wir haben keinen Zugriff auf Ihre privaten Schlüssel',
+        'privacy.section3Title': '3. Informationen, die wir sammeln',
+        'privacy.section3LocalTitle': 'Lokal in Ihrem Browser gespeicherte Informationen:',
+        'privacy.section3LocalItem1': 'Ihr öffentlicher Nostr-Schlüssel (wenn Sie angemeldet sind)',
+        'privacy.section3LocalItem2': 'Wiedergabeverlauf und Einstellungen',
+        'privacy.section3LocalItem3': 'Design-Präferenzen und Einstellungen',
+        'privacy.section3LocalItem4': 'Privater Schlüssel (nur wenn Sie lokale Speicherung wählen - nicht empfohlen)',
+        'privacy.section3CollectTitle': 'Informationen, die wir möglicherweise sammeln:',
+        'privacy.section3CollectItem1': 'Grundlegende Analysen (Seitenaufrufe, Funktionsnutzung) zur Verbesserung des Dienstes',
+        'privacy.section3CollectItem2': 'Fehlerprotokolle für Debugging',
+        'privacy.section4Title': '4. Öffentliche Informationen',
+        'privacy.section4Desc': 'Bei der Nutzung von Nostr sind folgende Daten per Design öffentlich:',
+        'privacy.section4Item1': 'Ihr öffentlicher Nostr-Schlüssel und Profilinformationen',
+        'privacy.section4Item2': 'Videos, die Sie hochladen',
+        'privacy.section4Item3': 'Kommentare, Likes und andere Reaktionen',
+        'privacy.section4Item4': 'Wem Sie folgen',
+        'privacy.section4Item5': 'Zaps (Lightning-Zahlungen), die Sie senden oder empfangen',
+        'privacy.section5Title': '5. Datenspeicherung',
+        'privacy.section5Desc': 'Lokale Daten werden im localStorage Ihres Browsers gespeichert. Sie können diese Daten jederzeit über Ihre Browsereinstellungen löschen. Auf Nostr veröffentlichte Inhalte werden über Relays verteilt und können von Plebs nicht kontrolliert oder gelöscht werden.',
+        'privacy.section6Title': '6. Dienste Dritter',
+        'privacy.section6Desc': 'Plebs interagiert mit:',
+        'privacy.section6Item1': 'Nostr-Relays (für soziale Daten)',
+        'privacy.section6Item2': 'Blossom-Servern (für Videospeicherung)',
+        'privacy.section6Item3': 'Lightning Network (für Zaps/Zahlungen)',
+        'privacy.section6Note': 'Jeder dieser Dienste hat seine eigenen Datenschutzpraktiken.',
+        'privacy.section7Title': '7. Ihre Rechte',
+        'privacy.section7Desc': 'Sie können:',
+        'privacy.section7Item1': 'Ihre lokalen Browser-Daten jederzeit löschen',
+        'privacy.section7Item2': 'Videos durchsuchen, ohne ein Konto zu erstellen',
+        'privacy.section7Item3': 'Eine Nostr-Browsererweiterung für erhöhte Privatsphäre verwenden',
+        'privacy.section7Item4': 'Wählen, welche Relays und Blossom-Server verwendet werden sollen',
+        'privacy.section8Title': '8. Sicherheit',
+        'privacy.section8Desc': 'Wir empfehlen:',
+        'privacy.section8Item1': 'Eine Nostr-Browsererweiterung oder Hardware-Signer zu verwenden',
+        'privacy.section8Item2': 'Ihren privaten Schlüssel (nsec) niemals zu teilen',
+        'privacy.section8Item3': 'Ein dediziertes Browserprofil für erhöhte Privatsphäre zu verwenden',
+        'privacy.section9Title': '9. Änderungen dieser Richtlinie',
+        'privacy.section9Desc': 'Wir können diese Richtlinie von Zeit zu Zeit aktualisieren. Änderungen werden auf dieser Seite mit einem aktualisierten Überarbeitungsdatum veröffentlicht.',
+        'privacy.section10Title': '10. Kontakt',
+        'privacy.section10Desc': 'Bei datenschutzbezogenen Fragen <a href="#/contact" class="accent-link">kontaktieren Sie uns bitte</a>.',
+        // FAQ Page
+        'faq.title': 'Häufig gestellte Fragen',
+        'faq.aboutPlebs': 'Über Plebs',
+        'faq.nostrProtocol': 'Nostr-Protokoll',
+        'faq.videoStorage': 'Videospeicherung und Blossom',
+        'faq.featuresUsage': 'Funktionen und Nutzung',
+        'faq.q1': 'Was ist Plebs?',
+        'faq.a1': 'Plebs ist eine dezentrale und zensurresistente Video-Plattform, die auf dem Nostr-Protokoll basiert. Anders als traditionelle unternehmensgesteuerte Plattformen gibt Ihnen Plebs echtes Eigentum an Ihren Inhalten und Ihrer Identität. Es gibt keine zentralen Server, die Sie sperren oder Ihre Inhalte löschen können.',
+        'faq.q2': 'Ist Plebs kostenlos?',
+        'faq.a2': 'Ja, Plebs ist völlig kostenlos zum Ansehen von Videos. Sie können Inhalte durchsuchen und ansehen, ohne ein Konto zu erstellen. Um Videos hochzuladen, zu kommentieren, zu liken oder mit anderen Nutzern zu interagieren, benötigen Sie eine Nostr-Identität (die ebenfalls kostenlos ist).',
+        'faq.q3': 'Wer entwickelt Plebs?',
+        'faq.a3': 'Plebs wird von <a href="https://nostrservices.com" target="_blank" rel="noopener">21 Million LLC</a> entwickelt, einem Unternehmen, das sich dem Aufbau von Tools für das Bitcoin- und Nostr-Ökosystem widmet. Plebs ist Open Source, und Sie können den Code einsehen oder auf <a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener">GitHub</a> beitragen.',
+        'faq.q4': 'Was ist Nostr?',
+        'faq.a4': 'Nostr steht für "Notes and Other Stuff Transmitted by Relays". Es ist ein einfaches, offenes Protokoll, das ein wirklich dezentrales soziales Netzwerk ermöglicht. Anders als traditionelle Plattformen verlässt sich Nostr nicht auf einen zentralen Server. Stattdessen nutzt es ein Netzwerk von Relays, um Nachrichten zwischen Nutzern zu übertragen, und kryptographische Schlüssel für die Identität.',
+        'faq.q5': 'Warum nutzt Plebs Nostr?',
+        'faq.a5Title': 'Nostr bietet mehrere wichtige Vorteile:',
+        'faq.a5Item1': 'Zensurresistenz:',
+        'faq.a5Item1Desc': 'Keine Instanz kann Sie sperren oder Ihre Inhalte löschen',
+        'faq.a5Item2': 'Portabilität:',
+        'faq.a5Item2Desc': 'Ihre Identität und Follower funktionieren in allen Nostr-Apps',
+        'faq.a5Item3': 'Keine zentrale Autorität:',
+        'faq.a5Item3Desc': 'Kein Unternehmen besitzt oder kontrolliert das Netzwerk',
+        'faq.a5Item4': 'Kryptographische Identität:',
+        'faq.a5Item4Desc': 'Ihre Schlüssel beweisen, dass Sie sind, wer Sie sagen',
+        'faq.q6': 'Was sind Nostr-Schlüssel (npub/nsec)?',
+        'faq.a6': 'Ihre Nostr-Identität besteht aus zwei Schlüsseln: einem öffentlichen Schlüssel (npub) und einem privaten Schlüssel (nsec). Ihr npub ist wie Ihr Benutzername - Sie können ihn mit jedem teilen. Ihr nsec ist wie Ihr Passwort - teilen Sie ihn niemals! Jeder mit Ihrem nsec kann in Ihrem Namen posten und auf Ihr Konto zugreifen. Wir empfehlen die Verwendung einer Browsererweiterung wie Alby oder nos2x zur sicheren Verwaltung Ihrer Schlüssel.',
+        'faq.q7': 'Kann ich mein bestehendes Nostr-Konto verwenden?',
+        'faq.a7': 'Absolut! Wenn Sie bereits eine Nostr-Identität von Apps wie Damus, Primal, Amethyst oder einem anderen Nostr-Client haben, können Sie dieselben Schlüssel verwenden, um sich bei Plebs anzumelden. Ihre Follower, Ihr Profil und Ihre Reputation werden automatisch übertragen.',
+        'faq.q8': 'Was sind Nostr-Relays?',
+        'faq.a8': 'Relays sind Server, die Nostr-Nachrichten speichern und übertragen. Wenn Sie etwas posten, wird es an mehrere Relays gesendet. Andere Nutzer verbinden sich mit Relays, um Nachrichten zu lesen. Da es viele unabhängige Relays gibt, kann Sie keines zensieren - wenn ein Relay Sie blockiert, existieren Ihre Inhalte immer noch auf anderen.',
+        'faq.q9': 'Wo werden Videos gespeichert?',
+        'faq.a9': 'Videos werden auf Blossom-Servern gespeichert, nicht auf Plebs selbst. Blossom ist ein verteiltes Speichersystem, das für die Zusammenarbeit mit Nostr entwickelt wurde. Wenn Sie ein Video hochladen, gelangt es zu einem oder mehreren Blossom-Servern Ihrer Wahl. Video-Metadaten (Titel, Beschreibung usw.) werden auf Nostr-Relays veröffentlicht.',
+        'faq.q10': 'Was ist Blossom?',
+        'faq.a10': 'Blossom ist ein offenes Protokoll zum dezentralen Speichern und Bereitstellen von Mediendateien. Dateien werden durch ihren SHA-256-Hash identifiziert, was bedeutet, dass dieselbe Datei dieselbe Adresse hat, unabhängig davon, welcher Server sie hostet. Dies ermöglicht Redundanz - Ihre Dateien können auf mehreren Servern existieren. Erfahren Sie mehr auf <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom GitHub</a>.',
+        'faq.q11': 'Hostet Plebs meine Videos?',
+        'faq.a11': 'Nein. Plebs ist ein Client/Interface, der Ihnen beim Durchsuchen und Hochladen von Inhalten hilft, aber keine Video- oder Bilddateien speichert. Alle Medien werden auf unabhängigen Blossom-Servern gespeichert. Plebs zeigt einfach Inhalte von diesen verteilten Speicheranbietern an.',
+        'faq.q12': 'Kann ich wählen, welchen Blossom-Server ich verwende?',
+        'faq.a12': 'Ja! Sie können in Ihren Einstellungen konfigurieren, welche Blossom-Server Sie zum Hochladen verwenden möchten. Sie können sogar Ihren eigenen Blossom-Server betreiben, wenn Sie vollständige Kontrolle über Ihre Medienspeicherung wünschen.',
+        'faq.q13': 'Wie erstelle ich ein Konto?',
+        'faq.a13Title': 'Klicken Sie auf die Schaltfläche "Anmelden" und wählen Sie Ihre bevorzugte Methode:',
+        'faq.a13Item1': 'Browsererweiterung:',
+        'faq.a13Item1Desc': 'Wenn Sie eine Nostr-Erweiterung wie Alby oder nos2x installiert haben, können Sie diese zur sicheren Anmeldung verwenden',
+        'faq.a13Item2': 'Neue Schlüssel generieren:',
+        'faq.a13Item2Desc': 'Erstellen Sie eine brandneue Nostr-Identität',
+        'faq.a13Item3': 'Schlüssel importieren:',
+        'faq.a13Item3Desc': 'Verwenden Sie Ihren bestehenden privaten Nostr-Schlüssel (nsec)',
+        'faq.a13Note': 'Wir empfehlen die Verwendung einer Browsererweiterung für die beste Sicherheit.',
+        'faq.q14': 'Was sind Zaps?',
+        'faq.a14': 'Zaps sind Bitcoin-Zahlungen, die über das Lightning Network gesendet werden. Sie ermöglichen es Ihnen, echtes Geld (Satoshis oder "Sats") an Content-Creator als Trinkgeld oder Wertschätzung zu senden. Anders als traditionelle Plattform-Trinkgelder, die hohe Gebühren erheben, gehen Zaps direkt an den Creator. Um Zaps zu senden, benötigen Sie eine Lightning-Wallet mit Nostr-Verbindung (wie Alby oder Zeus).',
+        'faq.q15': 'Wie lade ich ein Video hoch?',
+        'faq.a15Title': 'Um ein Video hochzuladen:',
+        'faq.a15Item1': 'Melden Sie sich mit Ihrer Nostr-Identität an',
+        'faq.a15Item2': 'Klicken Sie auf die Schaltfläche "Erstellen" und wählen Sie "Video hochladen"',
+        'faq.a15Item3': 'Wählen Sie Ihre Videodatei aus (unterstützt die meisten gängigen Formate)',
+        'faq.a15Item4': 'Fügen Sie einen Titel, eine Beschreibung und Tags hinzu',
+        'faq.a15Item5': 'Klicken Sie auf "Veröffentlichen", um mit dem Netzwerk zu teilen',
+        'faq.a15Note': 'Videos werden automatisch komprimiert und auf Blossom-Server hochgeladen.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'Selbst-Moderation',
+        'faq.q16': 'Wie funktioniert die Moderation auf einer dezentralen Plattform?',
+        'faq.a16': 'Im Gegensatz zu traditionellen Plattformen mit zentralisierten Moderatoren gibt Ihnen Plebs die Kontrolle darüber, was Sie sehen. Wir bieten leistungsstarke Selbst-Moderationstools einschließlich Inhaltsfilter-Paketen, Benutzer-Stummschaltung, Community-Warnungen und Indikatoren für stark negativ bewertete Videos. Sie entscheiden, welche Inhalte für Sie angemessen sind - es gibt keine zentrale Autorität, die diese Entscheidungen trifft.',
+        'faq.q17': 'Was sind Inhaltsfilter-Pakete?',
+        'faq.a17Intro': 'Inhaltsfilter-Pakete sind vordefinierte Schlüsselwort-Filter, die Sie aktivieren können, um bestimmte Arten von Inhalten auszublenden. Verfügbare Pakete umfassen:',
+        'faq.a17Pack1': 'Rassismus & Hassrede:',
+        'faq.a17Pack1Desc': 'Filtert rassistische Beleidigungen und diskriminierenden Inhalt',
+        'faq.a17Pack2': 'Sexuell Explizit:',
+        'faq.a17Pack2Desc': 'Filtert pornografische und erwachsene Inhalte',
+        'faq.a17Pack3': 'Gewalt & Gore:',
+        'faq.a17Pack3Desc': 'Filtert grafische Gewalt und Selbstverletzungsinhalte',
+        'faq.a17Pack4': 'Drogen & Substanzen:',
+        'faq.a17Pack4Desc': 'Filtert drogenbezogene Inhalte',
+        'faq.a17Pack5': 'Spam & Betrug:',
+        'faq.a17Pack5Desc': 'Filtert gängige Spam- und Betrugsmuster',
+        'faq.a17Pack6': 'Kryptowährung:',
+        'faq.a17Pack6Desc': 'Filtert Krypto-Werbung und Token-Shilling',
+        'faq.a17Pack7': 'Politischer Inhalt:',
+        'faq.a17Pack7Desc': 'Filtert parteiische politische Inhalte',
+        'faq.a17Pack8': 'Starke Schimpfwörter:',
+        'faq.a17Pack8Desc': 'Filtert vulgäre Sprache',
+        'faq.a17Note': 'Aktivieren Sie diese unter Einstellungen > Inhaltsfilter. Sie können auch benutzerdefinierte Schlüsselwörter hinzufügen. Gefilterter Inhalt zeigt einen Platzhalter mit einer "Trotzdem anzeigen"-Schaltfläche, wenn Sie ihn vorübergehend sehen möchten.',
+        'faq.q18': 'Wie schalte ich einen Benutzer stumm?',
+        'faq.a18': 'Um einen Benutzer stummzuschalten, besuchen Sie sein Profil und klicken Sie auf die Stummschalt-Schaltfläche. Einmal stummgeschaltet, werden alle ihre Videos aus Ihrem Feed ausgeblendet, ihre Kommentare werden als "Nachricht von stummgeschaltetem Benutzer" angezeigt und ihre Live-Chat-Nachrichten werden ausgeblendet. Ihre Stummschaltungsliste wird auf Nostr gespeichert, sodass sie geräteübergreifend synchronisiert wird. Sie können stummgeschaltete Benutzer in Ihren Profileinstellungen unter "Stummgeschaltete Benutzer" verwalten.',
+        'faq.q19': 'Was bedeutet "Ratioed"?',
+        'faq.a19': 'Ein Video wird als "ratioed" markiert, wenn es deutlich mehr Dislikes als Likes hat, was auf eine negative Reaktion der Community hinweist. Konkret ist ein Video ratioed, wenn es mindestens 10 Reaktionen hat, Dislikes mindestens doppelt so viele wie Likes sind und Dislikes 70% oder mehr der Gesamtreaktionen ausmachen. Ratioed-Videos zeigen ein Warnabzeichen an, und Sie werden vor dem Ansehen um Bestätigung gebeten.',
+        'faq.q20': 'Wie funktionieren Community-Warnungen?',
+        'faq.a20': 'Benutzer können Inhalte aus verschiedenen Gründen melden (Spam, illegaler Inhalt, Missbrauch, irreführend usw.). Wenn ein Video oder Benutzer 5 oder mehr Meldungen von Personen erhält, denen Sie folgen, erscheint ein Warnindikator. Dies nutzt Ihren sozialen Graph - Warnungen kommen von Ihrem vertrauenswürdigen Netzwerk, nicht von anonymen Fremden. Sie können "Warnungen von Konten anzeigen, denen ich folge" in den Einstellungen aktivieren.',
+        'faq.q21': 'Wie melde ich Inhalte?',
+        'faq.a21': 'Klicken Sie auf das Flaggen-Symbol bei jedem Video, Kommentar oder Benutzerprofil, um es zu melden. Wählen Sie einen Grund (Spam, Illegal, Missbrauch, Irreführend, Identitätsdiebstahl, Urheberrecht oder Sonstiges) und fügen Sie optional Details hinzu. Meldungen werden als Ereignisse auf Nostr veröffentlicht, was sie transparent und dezentral macht. Ihre Meldungen helfen anderen in Ihrem Netzwerk, problematische Inhalte zu identifizieren.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'Privatsphäre & Sicherheit',
+        'faq.q22': 'Ist meine Aktivität privat?',
+        'faq.a22': 'Auf Nostr ist die meiste Aktivität standardmäßig öffentlich. Ihre Likes, Kommentare, Follower und Zaps sind im öffentlichen Netzwerk sichtbar. Allerdings speichert Plebs Ihren Wiedergabeverlauf lokal in Ihrem Browser - er wird niemals an einen Server gesendet. Sie können Ihre lokalen Daten jederzeit löschen.',
+        'faq.q23': 'Wie halte ich mein Konto sicher?',
+        'faq.a23': 'Teilen Sie niemals Ihren privaten Schlüssel (nsec) mit jemandem. Wir empfehlen dringend, eine Nostr-Browsererweiterung wie Alby, nos2x oder einen Hardware-Signer zu verwenden. Diese halten Ihren privaten Schlüssel sicher und signieren Ereignisse nur, wenn Sie sie genehmigen. Vermeiden Sie es, Ihren nsec direkt auf Websites zu speichern.',
+        'faq.q24': 'Kann ich meine Inhalte löschen?',
+        'faq.a24': 'Sie können die Löschung anfordern, indem Sie ein Löschereignis auf Nostr veröffentlichen. Die meisten gut verhaltenen Relays und Clients werden dies respektieren. Aufgrund der dezentralen Natur des Netzwerks können Inhalte jedoch auf einigen Relays oder Blossom-Servern bestehen bleiben. Es gibt keine zentrale Autorität, die eine vollständige Löschung im gesamten Netzwerk erzwingen kann.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'Fehlerbehebung',
+        'faq.q25': 'Videos werden nicht geladen - was soll ich tun?',
+        'faq.a25Intro': 'Wenn Videos nicht geladen werden, versuchen Sie diese Schritte:',
+        'faq.a25Item1': 'Seite aktualisieren',
+        'faq.a25Item2': 'Internetverbindung überprüfen',
+        'faq.a25Item3': 'Der Blossom-Server, der das Video hostet, könnte ausgefallen sein - dies ist unabhängig von Plebs',
+        'faq.a25Item4': 'Versuchen Sie, Browsererweiterungen zu deaktivieren, die Inhalte blockieren könnten',
+        'faq.a25Item5': 'Browser-Cache löschen und erneut versuchen',
+        'faq.q26': 'Ich habe meinen privaten Schlüssel verloren - können Sie mir helfen, ihn wiederherzustellen?',
+        'faq.a26': 'Leider nein. Nostr-Schlüssel sind kryptographisch - es gibt kein Passwort-Reset oder Konto-Wiederherstellung, weil es keine zentrale Autorität gibt. Deshalb empfehlen wir dringend, Ihre Schlüssel zu sichern und eine sichere Schlüsselverwaltungslösung zu verwenden. Wenn Sie Ihren nsec verlieren, müssen Sie eine neue Identität erstellen.',
+        'faq.q27': 'Wie melde ich einen Fehler oder fordere eine Funktion an?',
+        'faq.a27': 'Sie können Fehler melden oder Funktionen auf unserer <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a>-Seite anfordern. Sie können uns auch auf Nostr erreichen - besuchen Sie unsere <a href="#/contact">Kontakt</a>-Seite für Details.',
+        // Page Titles
+        'pageTitle.following': 'Abonniert', 'pageTitle.myVideos': 'Meine Videos', 'pageTitle.likedVideos': 'Gelikte Videos', 'pageTitle.watchHistory': 'Wiedergabeverlauf', 'pageTitle.liveStreams': 'Livestreams', 'pageTitle.suffix': '- Plebs', 'pageTitle.liveSuffix': '- Live auf Plebs',
+        // Home Page Sections
+        'section.trending': 'Trends', 'section.recommended': 'Für Dich Empfohlen', 'section.shorts': 'Shorts', 'section.live': 'Live', 'section.liveNow': 'Jetzt Live', 'section.latestVideos': 'Neueste Videos', 'section.videos': 'Videos', 'section.usersYouFollow': 'Benutzer, Denen Du Folgst',
+        // Trending Period
+        'trending.thisWeek': 'Diese Woche', 'trending.today': 'Heute',
+        // Buttons
+        'button.viewMore': 'Mehr anzeigen', 'button.clearAll': 'Alles löschen', 'button.showAnyway': 'Trotzdem anzeigen',
+        // Confirmation Modals
+        'confirm.logout': 'Abmelden', 'confirm.logoutMessage': 'Sind Sie sicher, dass Sie sich abmelden möchten?', 'confirm.resetSettings': 'Einstellungen zurücksetzen', 'confirm.resetSettingsMessage': 'Sind Sie sicher, dass Sie alle Einstellungen auf die Standardwerte zurücksetzen möchten?', 'confirm.reset': 'Zurücksetzen', 'confirm.clearHistory': 'Verlauf löschen', 'confirm.clearHistoryMessage': 'Sind Sie sicher, dass Sie Ihren gesamten Wiedergabeverlauf löschen möchten? Dies kann nicht rückgängig gemacht werden.', 'confirm.deleteDraft': 'Entwurf löschen', 'confirm.deleteDraftMessage': 'Sind Sie sicher, dass Sie diesen Entwurf löschen möchten?', 'confirm.delete': 'Löschen', 'confirm.deleteVideo': 'Video löschen', 'confirm.deleteVideoMessage': 'Sind Sie sicher, dass Sie dieses Video löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.', 'confirm.endStream': 'Livestream beenden', 'confirm.endStreamMessage': 'Sind Sie sicher, dass Sie diesen Livestream beenden möchten? Diese Aktion kann nicht rückgängig gemacht werden.', 'confirm.endStreamButton': 'Stream beenden',
+        // Content Filters
+        'filter.hiddenByPack': 'Versteckt durch {pack}', 'filter.showAnyway': 'Trotzdem anzeigen', 'filter.contentHidden': 'Inhalt durch Inhaltsfilter versteckt',
+        // Following Page
+        'following.noFollowingYet': 'Du folgst noch niemandem. Finde Creator zum Folgen!',
     },
     pt: {
         // Navigation & Header
@@ -1085,7 +2538,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': 'Login realizado!', 'toast.settingsSaved': 'Configurações salvas!', 'toast.languageChanged': 'Idioma alterado', 'toast.copied': 'Copiado!',
         // Time
-        'time.justNow': 'agora mesmo', 'time.minuteAgo': 'há 1 minuto', 'time.minutesAgo': 'há {n} minutos', 'time.hourAgo': 'há 1 hora', 'time.hoursAgo': 'há {n} horas', 'time.dayAgo': 'há 1 dia', 'time.daysAgo': 'há {n} dias',
+        'time.justNow': 'agora mesmo', 'time.secondAgo': 'há 1 segundo', 'time.secondsAgo': 'há {n} segundos', 'time.minuteAgo': 'há 1 minuto', 'time.minutesAgo': 'há {n} minutos', 'time.hourAgo': 'há 1 hora', 'time.hoursAgo': 'há {n} horas', 'time.dayAgo': 'há 1 dia', 'time.daysAgo': 'há {n} dias', 'time.weekAgo': 'há 1 semana', 'time.weeksAgo': 'há {n} semanas', 'time.monthAgo': 'há 1 mês', 'time.monthsAgo': 'há {n} meses', 'time.yearAgo': 'há 1 ano', 'time.yearsAgo': 'há {n} anos',
         // Empty States
         'empty.noVideos': 'Nenhum vídeo encontrado.', 'empty.noLikedVideos': 'Você ainda não curtiu nenhum vídeo.', 'empty.noHistory': 'Sem histórico.',
         // Misc
@@ -1129,6 +2582,417 @@ const translations = {
         'warning.webmFormat': 'Nota: Seu navegador produzirá formato WebM (pode não funcionar no iOS). Para MP4 compatível com iOS, use Chrome no Windows/Mac.',
         // New Footer
         'footer.lastUpdated': 'Última atualização: Dezembro 2024',
+        // DMCA Page
+        'dmca.title': 'DMCA e Política de Conteúdo',
+        'dmca.lastUpdated': 'Última atualização: Dezembro 2024',
+        'dmca.architectureTitle': 'Entendendo a Arquitetura do Plebs',
+        'dmca.architectureDesc': 'Plebs é uma interface de plataforma de vídeo descentralizada que opera diferente dos serviços tradicionais.',
+        'dmca.architectureItem1': 'Plebs não hospeda nenhum conteúdo de vídeo ou imagem.',
+        'dmca.architectureItem1Desc': 'Somos um cliente/interface que exibe conteúdo armazenado em outro lugar.',
+        'dmca.architectureItem2': 'Todos os arquivos de mídia são armazenados em servidores Blossom independentes.',
+        'dmca.architectureItem3': 'Os metadados de vídeo são publicados em relays Nostr.',
+        'dmca.architectureItem4': 'Plebs simplesmente agrega e exibe este conteúdo distribuído.',
+        'dmca.filingTitle': 'Apresentar uma Reclamação DMCA',
+        'dmca.filingDesc': 'Como o Plebs não hospeda conteúdo, não podemos remover diretamente material infrator.',
+        'dmca.forVideoTitle': '1. Para Conteúdo de Vídeo/Imagem',
+        'dmca.forVideoDesc': 'Os arquivos de mídia são armazenados em servidores Blossom.',
+        'dmca.forVideoItem1': 'Identificar qual servidor Blossom hospeda o conteúdo',
+        'dmca.forVideoItem2': 'Contatar diretamente o operador do servidor Blossom',
+        'dmca.forVideoItem3': 'Cada servidor Blossom opera independentemente',
+        'dmca.forMetadataTitle': '2. Para Metadados/Descrições',
+        'dmca.forMetadataDesc': 'Se o conteúdo infrator estiver no título ou descrição:',
+        'dmca.forMetadataItem1': 'Estas informações são armazenadas em relays Nostr',
+        'dmca.forMetadataItem2': 'Contate os operadores de relay Nostr específicos',
+        'dmca.forMetadataItem3': 'Múltiplos relays podem armazenar os mesmos dados',
+        'dmca.whatWeCanDoTitle': 'O que o Plebs Pode Fazer',
+        'dmca.whatWeCanDoDesc': 'Embora não hospedemos conteúdo, podemos:',
+        'dmca.whatWeCanDoItem1': 'Ajudá-lo a identificar quais servidores hospedam conteúdo específico',
+        'dmca.whatWeCanDoItem2': 'Adicionar conteúdo a uma lista de bloqueio local',
+        'dmca.whatWeCanDoItem3': 'Fornecer orientação sobre como contatar os operadores apropriados',
+        'dmca.toRequestAssistance': 'Para solicitar assistência, entre em contato conosco com:',
+        'dmca.assistanceItem1': 'A URL ou identificador do conteúdo infrator',
+        'dmca.assistanceItem2': 'Prova de sua propriedade de direitos autorais',
+        'dmca.assistanceItem3': 'Uma descrição da obra protegida',
+        'dmca.blossomOperatorsTitle': 'Operadores de Servidores Blossom',
+        'dmca.blossomOperatorsDesc': 'Se você opera um servidor Blossom, é responsável por lidar com solicitações DMCA.',
+        'dmca.blossomOperatorsLink': 'Para uma lista de servidores Blossom conhecidos, consulte a documentação.',
+        'dmca.considerationsTitle': 'Considerações Importantes',
+        'dmca.considerationsItem1': 'Descentralização:',
+        'dmca.considerationsItem1Desc': 'A remoção completa do conteúdo pode não ser possível.',
+        'dmca.considerationsItem2': 'Múltiplas Cópias:',
+        'dmca.considerationsItem2Desc': 'O conteúdo pode estar replicado em múltiplos servidores.',
+        'dmca.considerationsItem3': 'Persistência de Metadados:',
+        'dmca.considerationsItem3Desc': 'Os metadados podem persistir mesmo após a remoção.',
+        'dmca.considerationsItem4': 'Sem Controle Central:',
+        'dmca.considerationsItem4Desc': 'Nenhuma entidade única pode remover conteúdo de toda a rede.',
+        'dmca.counterNotificationTitle': 'Contra-Notificação',
+        'dmca.counterNotificationDesc': 'Se você acredita que seu conteúdo foi removido por engano, contate o operador do servidor.',
+        'dmca.contactTitle': 'Contato',
+        'dmca.contactDesc': 'Para perguntas, entre em contato conosco.',
+        // Admin Dashboard
+        'admin.title': 'Painel de Administração',
+        'admin.loading': 'Carregando análises da plataforma...',
+        'admin.platformOverview': 'Visão Geral da Plataforma',
+        'admin.totalVideos': 'Total de Vídeos',
+        'admin.videos7Days': 'Vídeos (7 dias)',
+        'admin.videos30Days': 'Vídeos (30 dias)',
+        'admin.uniqueCreators': 'Criadores Únicos',
+        'admin.likes30Days': 'Curtidas (30 dias)',
+        'admin.dislikes30Days': 'Descurtidas (30 dias)',
+        'admin.monthlyActiveUsers': 'Usuários Ativos Mensais',
+        'admin.mauDesc': 'Usuários únicos que enviaram vídeos, reagiram ou comentaram (últimos 6 meses)',
+        'admin.boostRevenue': 'Receita de Boost (Últimos 30 Dias)',
+        'admin.totalBoostRevenue': 'Receita Total de Boost',
+        'admin.totalBoosts': 'Total de Boosts',
+        'admin.blocklistManagement': 'Gerenciamento de Lista de Bloqueio',
+        'admin.blocklistDesc': 'Bloqueie vídeos ou usuários específicos.',
+        'admin.blockedVideos': 'Vídeos Bloqueados',
+        'admin.blockedUsers': 'Usuários Bloqueados',
+        'admin.blockByEventId': 'Bloquear Vídeo por ID',
+        'admin.blockByPubkey': 'Bloquear Usuário por Pubkey',
+        'admin.blockVideo': 'Bloquear Vídeo',
+        'admin.blockUser': 'Bloquear Usuário',
+        'admin.noBlockedVideos': 'Nenhum vídeo bloqueado',
+        'admin.noBlockedUsers': 'Nenhum usuário bloqueado',
+        'admin.unblock': 'Desbloquear',
+        'admin.accessDenied': 'Acesso negado. Apenas administrador.',
+        // Search/Trending/Channel/Buttons/Common
+        'search.noVideosFound': 'Nenhum vídeo encontrado para "{query}".',
+        'search.noFullLengthVideos': 'Nenhum vídeo longo encontrado para "{query}".',
+        'trending.noVideosToday': 'Sem vídeos em alta hoje.',
+        'trending.noVideosThisWeek': 'Sem vídeos em alta esta semana.',
+        'channel.video': 'vídeo',
+        'channel.videos': 'vídeos',
+        'channel.follower': 'seguidor',
+        'channel.followers': 'seguidores',
+        'button.follow': 'Seguir',
+        'button.following': 'Seguindo',
+        'button.unfollow': 'Deixar de seguir',
+        'button.mute': 'Silenciar',
+        'button.unmute': 'Ativar som',
+        'button.report': 'Denunciar',
+        'button.muteUser': 'Silenciar usuário',
+        'button.unmuteUser': 'Ativar som do usuário',
+        'button.reportComment': 'Denunciar comentário',
+        'button.reportUser': 'Denunciar este usuário',
+        'live.goalReached': 'Meta Alcançada!',
+        'live.goalProgress': '{percent}% da meta',
+        'common.loading': 'Carregando...',
+        'common.sats': 'sats',
+        // Analytics
+        'analytics.title': 'Análise do Canal',
+        'analytics.loading': 'Carregando suas análises...',
+        'analytics.loadFailed': 'Falha ao carregar análises. Por favor, tente novamente.',
+        'analytics.overview': 'Visão Geral',
+        'analytics.views': 'Visualizações',
+        'analytics.followers': 'Seguidores',
+        'analytics.topByViews': 'Vídeos Mais Vistos',
+        'analytics.topByEngagement': 'Vídeos com Maior Engajamento',
+        'analytics.allContent': 'Desempenho de Todo o Conteúdo',
+        'analytics.totalViews': 'Visualizações Totais',
+        'analytics.likes': 'Curtidas',
+        'analytics.likesRatio': 'Curtidas ({ratio}% proporção)',
+        'analytics.dislikes': 'Descurtidas',
+        'analytics.zapsReceived': '{count} Zaps Recebidos',
+        'analytics.boostsReceived': 'Boosts Recebidos',
+        'analytics.shares': 'Compartilhamentos',
+        'analytics.comments': 'Comentários',
+        'analytics.contentCount': '{videos} Vídeos, {shorts} Shorts, {streams} Streams',
+        'analytics.last7days': 'Últimos 7 dias',
+        'analytics.last30days': 'Últimos 30 dias',
+        'analytics.last90days': 'Últimos 90 dias',
+        'analytics.lastYear': 'Último ano',
+        'analytics.allTime': 'Todo o tempo',
+        'analytics.lastNDays': 'Últimos {n} dias',
+        'analytics.netGrowth': 'Crescimento Líquido',
+        'analytics.newFollowers': 'Novos Seguidores',
+        'analytics.unfollowed': 'Deixaram de Seguir',
+        'analytics.noVideosYet': 'Ainda sem vídeos',
+        'analytics.noShortsYet': 'Ainda sem shorts',
+        'analytics.noStreamsYet': 'Ainda sem transmissões',
+        'analytics.viewsTooltip': '{count} visualizações',
+        'analytics.subscribersTooltip': '{count} inscritos',
+        'analytics.videosTab': 'Vídeos ({count})',
+        'analytics.shortsTab': 'Shorts ({count})',
+        'analytics.streamsTab': 'Transmissões ({count})',
+        // About Page
+        'about.title': 'Sobre o Plebs',
+        'about.whatIs': 'O que é o Plebs?',
+        'about.whatIsDesc': 'Plebs é uma plataforma de vídeos descentralizada e resistente à censura construída sobre o <a href="https://nostr.com" target="_blank" rel="noopener">protocolo Nostr</a>. Diferente das plataformas tradicionais controladas por corporações, o Plebs te dá verdadeira propriedade do seu conteúdo e identidade.',
+        'about.whyNostr': 'Por que Nostr?',
+        'about.whyNostrDesc': 'Nostr (Notes and Other Stuff Transmitted by Relays) é um protocolo simples e aberto que permite uma rede social verdadeiramente descentralizada. Os principais benefícios incluem:',
+        'about.benefit1': 'Resistência à Censura:',
+        'about.benefit1Desc': 'Nenhuma entidade pode te banir ou remover seu conteúdo',
+        'about.benefit2': 'Portabilidade:',
+        'about.benefit2Desc': 'Sua identidade e seguidores funcionam em todos os apps Nostr',
+        'about.benefit3': 'Sem Autoridade Central:',
+        'about.benefit3Desc': 'Nenhuma empresa possui ou controla a rede',
+        'about.benefit4': 'Identidade Criptográfica:',
+        'about.benefit4Desc': 'Suas chaves provam que você é quem diz ser',
+        'about.howItWorks': 'Como Funciona',
+        'about.howItWorksDesc': 'Os vídeos no Plebs são armazenados usando <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom</a>, um sistema de armazenamento distribuído, enquanto os metadados e interações sociais são transmitidos para relays Nostr. Isso significa que seu conteúdo não é armazenado em nossos servidores - está distribuído pela rede.',
+        'about.features': 'Recursos',
+        'about.feature1': 'Envie e compartilhe vídeos com a comunidade Nostr',
+        'about.feature2': 'Curta, comente e compartilhe vídeos usando reações Nostr',
+        'about.feature3': 'Envie Zaps aos criadores com Bitcoin via Lightning Network',
+        'about.feature4': 'Siga seus criadores favoritos em qualquer app Nostr',
+        'about.feature5': 'Explore tópicos e descubra novo conteúdo',
+        'about.feature6': 'Funciona com qualquer identidade Nostr (use chaves existentes)',
+        'about.openSource': 'Código Aberto',
+        'about.openSourceDesc': 'Plebs é software de código aberto. Você pode ver o código, contribuir ou executar sua própria instância:',
+        'about.githubRepo': 'Repositório GitHub',
+        'about.builtBy': 'Desenvolvido Por',
+        'about.builtByDesc': 'Plebs é desenvolvido pela <a href="https://nostrservices.com" target="_blank" rel="noopener" class="accent-link">21 Million LLC</a>, uma empresa dedicada a construir ferramentas para o ecossistema Bitcoin e Nostr.',
+        // Contact Page
+        'contact.title': 'Entre em Contato',
+        'contact.getInTouch': 'Fale Conosco',
+        'contact.getInTouchDesc': 'Tem dúvidas, comentários ou precisa de suporte? Adoraríamos ouvir de você!',
+        'contact.email': 'E-mail',
+        'contact.emailDesc': 'A melhor forma de entrar em contato conosco é por e-mail:',
+        'contact.github': 'GitHub',
+        'contact.githubDesc': 'Para reportar bugs, solicitar recursos ou problemas técnicos, abra uma issue em nosso repositório:',
+        'contact.githubIssues': 'Issues do GitHub',
+        'contact.company': 'Empresa',
+        'contact.companyDesc': 'Plebs é desenvolvido pela 21 Million LLC',
+        // Terms of Service
+        'terms.title': 'Termos de Serviço',
+        'terms.lastUpdated': 'Última atualização: Dezembro 2024',
+        'terms.section1Title': '1. Aceitação dos Termos',
+        'terms.section1Desc': 'Ao acessar e usar o Plebs ("o Serviço"), você concorda em estar sujeito a estes Termos de Serviço. Se você não concorda com estes termos, por favor não use o Serviço.',
+        'terms.section2Title': '2. Descrição do Serviço',
+        'terms.section2Desc': 'Plebs é uma plataforma de vídeos descentralizada construída sobre o protocolo Nostr. O Serviço fornece uma interface para navegar, enviar e interagir com conteúdo de vídeo armazenado em redes distribuídas. Plebs não hospeda nem armazena conteúdo de vídeo em servidores centralizados.',
+        'terms.section3Title': '3. Responsabilidades do Usuário',
+        'terms.section3Desc': 'Você é responsável por:',
+        'terms.section3Item1': 'Manter a segurança de suas chaves privadas Nostr',
+        'terms.section3Item2': 'Todo o conteúdo que você enviar ou compartilhar através do Serviço',
+        'terms.section3Item3': 'Garantir que seu uso esteja em conformidade com as leis aplicáveis',
+        'terms.section3Item4': 'Não enviar conteúdo ilegal, infrator ou prejudicial',
+        'terms.section4Title': '4. Diretrizes de Conteúdo',
+        'terms.section4Desc': 'Você concorda em não enviar, compartilhar ou distribuir:',
+        'terms.section4Item1': 'Conteúdo que infrinja direitos de propriedade intelectual',
+        'terms.section4Item2': 'Conteúdo ilegal incluindo mas não limitado a material de exploração infantil',
+        'terms.section4Item3': 'Conteúdo que promova violência ou dano a outros',
+        'terms.section4Item4': 'Spam, malware ou conteúdo enganoso',
+        'terms.section4Note': 'Conteúdo adulto (NSFW) deve ser apropriadamente marcado usando a tag NSFW ao enviar.',
+        'terms.section5Title': '5. Natureza Descentralizada',
+        'terms.section5Desc': 'Devido à natureza descentralizada do Nostr e armazenamento Blossom:',
+        'terms.section5Item1': 'O conteúdo pode persistir na rede mesmo após solicitações de remoção',
+        'terms.section5Item2': 'Não podemos garantir a remoção de conteúdo de todos os relays ou servidores',
+        'terms.section5Item3': 'Seu conteúdo e interações são públicos por padrão',
+        'terms.section5Item4': 'Você é o único responsável pela segurança de sua chave privada',
+        'terms.section6Title': '6. Sem Garantia',
+        'terms.section6Desc': 'O Serviço é fornecido "como está" sem garantias de qualquer tipo. Não garantimos acesso contínuo e ininterrupto ao Serviço.',
+        'terms.section7Title': '7. Limitação de Responsabilidade',
+        'terms.section7Desc': 'Na máxima extensão permitida pela lei, Plebs e seus operadores não serão responsáveis por quaisquer danos indiretos, incidentais, especiais ou consequenciais decorrentes do seu uso do Serviço.',
+        'terms.section8Title': '8. Alterações nos Termos',
+        'terms.section8Desc': 'Reservamo-nos o direito de modificar estes termos a qualquer momento. O uso continuado do Serviço após as alterações constitui aceitação dos novos termos.',
+        'terms.section9Title': '9. Contato',
+        'terms.section9Desc': 'Para perguntas sobre estes Termos, por favor <a href="#/contact" class="accent-link">entre em contato conosco</a>.',
+        // Privacy Policy
+        'privacy.title': 'Política de Privacidade',
+        'privacy.lastUpdated': 'Última atualização: Dezembro 2024',
+        'privacy.section1Title': '1. Resumo',
+        'privacy.section1Desc': 'Plebs está comprometido em proteger sua privacidade. Esta política explica como lidamos com informações quando você usa nossa plataforma de vídeos descentralizada.',
+        'privacy.section2Title': '2. Arquitetura Descentralizada',
+        'privacy.section2Desc': 'Plebs é construído sobre Nostr, um protocolo descentralizado. Isso significa:',
+        'privacy.section2Item1': 'Seu conteúdo é transmitido para relays públicos, não armazenado em nossos servidores',
+        'privacy.section2Item2': 'Sua chave pública Nostr serve como sua identidade',
+        'privacy.section2Item3': 'Os vídeos são armazenados em servidores Blossom distribuídos',
+        'privacy.section2Item4': 'Não temos acesso às suas chaves privadas',
+        'privacy.section3Title': '3. Informações que Coletamos',
+        'privacy.section3LocalTitle': 'Informações armazenadas localmente no seu navegador:',
+        'privacy.section3LocalItem1': 'Sua chave pública Nostr (quando você faz login)',
+        'privacy.section3LocalItem2': 'Histórico de visualização e preferências',
+        'privacy.section3LocalItem3': 'Preferências de tema e configurações',
+        'privacy.section3LocalItem4': 'Chave privada (somente se você escolher armazenamento local - não recomendado)',
+        'privacy.section3CollectTitle': 'Informações que podemos coletar:',
+        'privacy.section3CollectItem1': 'Análises básicas (visualizações de página, uso de recursos) para melhorar o serviço',
+        'privacy.section3CollectItem2': 'Registros de erros para depuração',
+        'privacy.section4Title': '4. Informações Públicas',
+        'privacy.section4Desc': 'Ao usar Nostr, o seguinte é público por design:',
+        'privacy.section4Item1': 'Sua chave pública Nostr e informações de perfil',
+        'privacy.section4Item2': 'Vídeos que você enviar',
+        'privacy.section4Item3': 'Comentários, curtidas e outras reações',
+        'privacy.section4Item4': 'Quem você segue',
+        'privacy.section4Item5': 'Zaps (pagamentos Lightning) que você envia ou recebe',
+        'privacy.section5Title': '5. Armazenamento de Dados',
+        'privacy.section5Desc': 'Os dados locais são armazenados no localStorage do seu navegador. Você pode limpar esses dados a qualquer momento através das configurações do navegador. O conteúdo publicado no Nostr é distribuído através de relays e não pode ser controlado ou removido pelo Plebs.',
+        'privacy.section6Title': '6. Serviços de Terceiros',
+        'privacy.section6Desc': 'Plebs interage com:',
+        'privacy.section6Item1': 'Relays Nostr (para dados sociais)',
+        'privacy.section6Item2': 'Servidores Blossom (para armazenamento de vídeo)',
+        'privacy.section6Item3': 'Lightning Network (para zaps/pagamentos)',
+        'privacy.section6Note': 'Cada um desses serviços tem suas próprias práticas de privacidade.',
+        'privacy.section7Title': '7. Seus Direitos',
+        'privacy.section7Desc': 'Você pode:',
+        'privacy.section7Item1': 'Limpar seus dados locais do navegador a qualquer momento',
+        'privacy.section7Item2': 'Navegar vídeos sem criar uma conta',
+        'privacy.section7Item3': 'Usar uma extensão de navegador Nostr para maior privacidade',
+        'privacy.section7Item4': 'Escolher quais relays e servidores Blossom usar',
+        'privacy.section8Title': '8. Segurança',
+        'privacy.section8Desc': 'Recomendamos:',
+        'privacy.section8Item1': 'Usar uma extensão de navegador Nostr ou assinador de hardware',
+        'privacy.section8Item2': 'Nunca compartilhar sua chave privada (nsec)',
+        'privacy.section8Item3': 'Usar um perfil de navegador dedicado para maior privacidade',
+        'privacy.section9Title': '9. Alterações a Esta Política',
+        'privacy.section9Desc': 'Podemos atualizar esta política de tempos em tempos. As alterações serão publicadas nesta página com uma data de revisão atualizada.',
+        'privacy.section10Title': '10. Contato',
+        'privacy.section10Desc': 'Para questões relacionadas à privacidade, por favor <a href="#/contact" class="accent-link">entre em contato conosco</a>.',
+        // FAQ Page
+        'faq.title': 'Perguntas Frequentes',
+        'faq.aboutPlebs': 'Sobre o Plebs',
+        'faq.nostrProtocol': 'Protocolo Nostr',
+        'faq.videoStorage': 'Armazenamento de Vídeo e Blossom',
+        'faq.featuresUsage': 'Recursos e Uso',
+        'faq.q1': 'O que é o Plebs?',
+        'faq.a1': 'Plebs é uma plataforma de vídeos descentralizada e resistente à censura construída sobre o protocolo Nostr. Diferente das plataformas tradicionais controladas por corporações, o Plebs te dá verdadeira propriedade do seu conteúdo e identidade. Não há servidores centrais que possam te banir ou remover seu conteúdo.',
+        'faq.q2': 'O Plebs é gratuito?',
+        'faq.a2': 'Sim, o Plebs é completamente gratuito para assistir vídeos. Você pode navegar e assistir conteúdo sem criar uma conta. Para enviar vídeos, comentar, curtir ou interagir com outros usuários, você precisará de uma identidade Nostr (que também é gratuita).',
+        'faq.q3': 'Quem desenvolve o Plebs?',
+        'faq.a3': 'Plebs é desenvolvido pela <a href="https://nostrservices.com" target="_blank" rel="noopener">21 Million LLC</a>, uma empresa dedicada a construir ferramentas para o ecossistema Bitcoin e Nostr. Plebs é de código aberto, e você pode ver o código ou contribuir no <a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener">GitHub</a>.',
+        'faq.q4': 'O que é Nostr?',
+        'faq.a4': 'Nostr significa "Notes and Other Stuff Transmitted by Relays." É um protocolo simples e aberto que permite uma rede social verdadeiramente descentralizada. Diferente das plataformas tradicionais, Nostr não depende de nenhum servidor central. Em vez disso, usa uma rede de relays para transmitir mensagens entre usuários, e chaves criptográficas para identidade.',
+        'faq.q5': 'Por que o Plebs usa Nostr?',
+        'faq.a5Title': 'Nostr fornece vários benefícios importantes:',
+        'faq.a5Item1': 'Resistência à Censura:',
+        'faq.a5Item1Desc': 'Nenhuma entidade pode te banir ou remover seu conteúdo',
+        'faq.a5Item2': 'Portabilidade:',
+        'faq.a5Item2Desc': 'Sua identidade e seguidores funcionam em todos os apps Nostr',
+        'faq.a5Item3': 'Sem Autoridade Central:',
+        'faq.a5Item3Desc': 'Nenhuma empresa possui ou controla a rede',
+        'faq.a5Item4': 'Identidade Criptográfica:',
+        'faq.a5Item4Desc': 'Suas chaves provam que você é quem diz ser',
+        'faq.q6': 'O que são as chaves Nostr (npub/nsec)?',
+        'faq.a6': 'Sua identidade Nostr consiste em duas chaves: uma chave pública (npub) e uma chave privada (nsec). Sua npub é como seu nome de usuário - você pode compartilhá-la com qualquer pessoa. Sua nsec é como sua senha - nunca a compartilhe! Qualquer pessoa com sua nsec pode publicar como você e acessar sua conta. Recomendamos usar uma extensão de navegador como Alby ou nos2x para gerenciar suas chaves com segurança.',
+        'faq.q7': 'Posso usar minha conta Nostr existente?',
+        'faq.a7': 'Absolutamente! Se você já tem uma identidade Nostr de apps como Damus, Primal, Amethyst ou outro cliente Nostr, pode usar as mesmas chaves para fazer login no Plebs. Seus seguidores, perfil e reputação são transferidos automaticamente.',
+        'faq.q8': 'O que são relays Nostr?',
+        'faq.a8': 'Relays são servidores que armazenam e transmitem mensagens Nostr. Quando você publica algo, é enviado para múltiplos relays. Outros usuários se conectam aos relays para ler mensagens. Como há muitos relays independentes, nenhum pode censurar você - se um relay te bloquear, seu conteúdo ainda existe em outros.',
+        'faq.q9': 'Onde os vídeos são armazenados?',
+        'faq.a9': 'Os vídeos são armazenados em servidores Blossom, não no Plebs. Blossom é um sistema de armazenamento distribuído projetado para funcionar com Nostr. Quando você envia um vídeo, ele vai para um ou mais servidores Blossom de sua escolha. Os metadados do vídeo (título, descrição, etc.) são publicados em relays Nostr.',
+        'faq.q10': 'O que é Blossom?',
+        'faq.a10': 'Blossom é um protocolo aberto para armazenar e servir arquivos de mídia de forma descentralizada. Os arquivos são identificados por seu hash SHA-256, o que significa que o mesmo arquivo terá o mesmo endereço independentemente de qual servidor o hospede. Isso permite redundância - seus arquivos podem existir em múltiplos servidores. Saiba mais em <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom GitHub</a>.',
+        'faq.q11': 'O Plebs hospeda meus vídeos?',
+        'faq.a11': 'Não. Plebs é um cliente/interface que te ajuda a navegar e enviar conteúdo, mas não armazena nenhum arquivo de vídeo ou imagem. Todas as mídias são armazenadas em servidores Blossom independentes. Plebs simplesmente exibe conteúdo desses provedores de armazenamento distribuído.',
+        'faq.q12': 'Posso escolher qual servidor Blossom usar?',
+        'faq.a12': 'Sim! Você pode configurar quais servidores Blossom quer usar para envios em suas configurações. Você pode até executar seu próprio servidor Blossom se quiser controle total sobre seu armazenamento de mídia.',
+        'faq.q13': 'Como criar uma conta?',
+        'faq.a13Title': 'Clique no botão "Entrar" e escolha seu método preferido:',
+        'faq.a13Item1': 'Extensão de Navegador:',
+        'faq.a13Item1Desc': 'Se você tem uma extensão Nostr como Alby ou nos2x instalada, pode usá-la para fazer login com segurança',
+        'faq.a13Item2': 'Gerar Novas Chaves:',
+        'faq.a13Item2Desc': 'Crie uma nova identidade Nostr',
+        'faq.a13Item3': 'Importar Chaves:',
+        'faq.a13Item3Desc': 'Use sua chave privada Nostr existente (nsec)',
+        'faq.a13Note': 'Recomendamos usar uma extensão de navegador para melhor segurança.',
+        'faq.q14': 'O que são Zaps?',
+        'faq.a14': 'Zaps são pagamentos de Bitcoin enviados através da Lightning Network. Eles permitem que você envie dinheiro real (satoshis, ou "sats") para criadores de conteúdo como gorjetas ou apreciação. Diferente das gorjetas tradicionais de plataformas que cobram altas taxas, os zaps vão diretamente para o criador. Para enviar zaps, você precisa de uma carteira Lightning com conexão Nostr (como Alby ou Zeus).',
+        'faq.q15': 'Como enviar um vídeo?',
+        'faq.a15Title': 'Para enviar um vídeo:',
+        'faq.a15Item1': 'Faça login com sua identidade Nostr',
+        'faq.a15Item2': 'Clique no botão "Criar" e selecione "Enviar Vídeo"',
+        'faq.a15Item3': 'Selecione seu arquivo de vídeo (suporta a maioria dos formatos comuns)',
+        'faq.a15Item4': 'Adicione um título, descrição e tags',
+        'faq.a15Item5': 'Clique em "Publicar" para compartilhar com a rede',
+        'faq.a15Note': 'Os vídeos são comprimidos automaticamente e enviados para servidores Blossom.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'Auto-Moderação',
+        'faq.q16': 'Como funciona a moderação em uma plataforma descentralizada?',
+        'faq.a16': 'Diferente das plataformas tradicionais com moderadores centralizados, o Plebs coloca você no controle do que você vê. Fornecemos ferramentas poderosas de auto-moderação incluindo pacotes de filtros de conteúdo, silenciamento de usuários, avisos da comunidade e indicadores de vídeos com proporção negativa. Você decide qual conteúdo é apropriado para você - não há autoridade central tomando essas decisões.',
+        'faq.q17': 'O que são Pacotes de Filtros de Conteúdo?',
+        'faq.a17Intro': 'Pacotes de Filtros de Conteúdo são filtros de palavras-chave predefinidos que você pode habilitar para ocultar tipos específicos de conteúdo. Os pacotes disponíveis incluem:',
+        'faq.a17Pack1': 'Racismo e Discurso de Ódio:',
+        'faq.a17Pack1Desc': 'Filtra insultos raciais e conteúdo discriminatório',
+        'faq.a17Pack2': 'Conteúdo Sexualmente Explícito:',
+        'faq.a17Pack2Desc': 'Filtra conteúdo pornográfico e adulto',
+        'faq.a17Pack3': 'Violência e Gore:',
+        'faq.a17Pack3Desc': 'Filtra violência gráfica e conteúdo de automutilação',
+        'faq.a17Pack4': 'Drogas e Substâncias:',
+        'faq.a17Pack4Desc': 'Filtra conteúdo relacionado a drogas',
+        'faq.a17Pack5': 'Spam e Golpes:',
+        'faq.a17Pack5Desc': 'Filtra padrões comuns de spam e golpes',
+        'faq.a17Pack6': 'Criptomoedas:',
+        'faq.a17Pack6Desc': 'Filtra promoção de criptomoedas e tokens',
+        'faq.a17Pack7': 'Conteúdo Político:',
+        'faq.a17Pack7Desc': 'Filtra conteúdo político partidário',
+        'faq.a17Pack8': 'Profanação Forte:',
+        'faq.a17Pack8Desc': 'Filtra linguagem vulgar',
+        'faq.a17Note': 'Habilite estes em Configurações > Filtros de Conteúdo. Você também pode adicionar palavras-chave personalizadas. Conteúdo filtrado mostra um marcador com um botão "Mostrar mesmo assim" se você quiser visualizá-lo temporariamente.',
+        'faq.q18': 'Como silenciar um usuário?',
+        'faq.a18': 'Para silenciar um usuário, visite o perfil dele e clique no botão silenciar. Uma vez silenciado, todos os vídeos dele serão ocultados do seu feed, seus comentários aparecerão como "Mensagem de usuário silenciado" e suas mensagens de chat ao vivo serão ocultadas. Sua lista de silenciados é armazenada no Nostr, então sincroniza entre dispositivos. Você pode gerenciar usuários silenciados nas Configurações do Perfil em "Usuários Silenciados".',
+        'faq.q19': 'O que significa "Ratioed"?',
+        'faq.a19': 'Um vídeo é marcado como "ratioed" quando tem significativamente mais dislikes do que likes, indicando recepção negativa da comunidade. Especificamente, um vídeo é ratioed quando tem pelo menos 10 reações, dislikes são pelo menos o dobro dos likes e dislikes representam 70% ou mais das reações totais. Vídeos ratioed exibem um distintivo de aviso e você será solicitado a confirmar antes de visualizar.',
+        'faq.q20': 'Como funcionam os avisos da comunidade?',
+        'faq.a20': 'Usuários podem denunciar conteúdo por vários motivos (spam, conteúdo ilegal, abuso, enganoso, etc.). Quando um vídeo ou usuário recebe 5 ou mais denúncias de pessoas que você segue, um indicador de aviso aparece. Isso aproveita seu gráfico social - avisos vêm de sua rede confiável, não de estranhos anônimos. Você pode alternar "Mostrar avisos de contas que eu sigo" nas Configurações.',
+        'faq.q21': 'Como denunciar conteúdo?',
+        'faq.a21': 'Clique no ícone de bandeira em qualquer vídeo, comentário ou perfil de usuário para denunciá-lo. Selecione um motivo (Spam, Ilegal, Abuso, Enganoso, Falsificação de Identidade, Direitos Autorais ou Outro) e opcionalmente adicione detalhes. Denúncias são publicadas no Nostr como eventos, tornando-as transparentes e descentralizadas. Suas denúncias ajudam outros em sua rede a identificar conteúdo problemático.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'Privacidade e Segurança',
+        'faq.q22': 'Minha atividade é privada?',
+        'faq.a22': 'No Nostr, a maior parte da atividade é pública por design. Suas curtidas, comentários, seguidas e zaps são visíveis na rede pública. No entanto, o Plebs armazena seu histórico de visualização localmente no seu navegador - nunca é enviado para nenhum servidor. Você pode limpar seus dados locais a qualquer momento.',
+        'faq.q23': 'Como manter minha conta segura?',
+        'faq.a23': 'Nunca compartilhe sua chave privada (nsec) com ninguém. Recomendamos fortemente usar uma extensão de navegador Nostr como Alby, nos2x ou um assinante de hardware. Estes mantêm sua chave privada segura e apenas assinam eventos quando você os aprova. Evite armazenar sua nsec diretamente em sites.',
+        'faq.q24': 'Posso deletar meu conteúdo?',
+        'faq.a24': 'Você pode solicitar a exclusão publicando um evento de exclusão no Nostr. A maioria dos relays e clientes bem comportados respeitará isso. No entanto, devido à natureza descentralizada da rede, o conteúdo pode persistir em alguns relays ou servidores Blossom. Não há autoridade central que possa forçar a exclusão completa em toda a rede.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'Solução de Problemas',
+        'faq.q25': 'Os vídeos não estão carregando - o que devo fazer?',
+        'faq.a25Intro': 'Se os vídeos não estiverem carregando, tente estas etapas:',
+        'faq.a25Item1': 'Atualize a página',
+        'faq.a25Item2': 'Verifique sua conexão com a internet',
+        'faq.a25Item3': 'O servidor Blossom hospedando o vídeo pode estar fora do ar - isso é independente do Plebs',
+        'faq.a25Item4': 'Tente desabilitar extensões do navegador que possam bloquear conteúdo',
+        'faq.a25Item5': 'Limpe o cache do navegador e tente novamente',
+        'faq.q26': 'Perdi minha chave privada - você pode me ajudar a recuperá-la?',
+        'faq.a26': 'Infelizmente, não. As chaves Nostr são criptográficas - não há redefinição de senha ou recuperação de conta porque não há autoridade central. É por isso que recomendamos fortemente fazer backup de suas chaves e usar uma solução segura de gerenciamento de chaves. Se você perder sua nsec, precisará criar uma nova identidade.',
+        'faq.q27': 'Como reportar um bug ou solicitar um recurso?',
+        'faq.a27': 'Você pode reportar bugs ou solicitar recursos em nossa página de <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">Issues do GitHub</a>. Você também pode entrar em contato conosco no Nostr - visite nossa página de <a href="#/contact">Contato</a> para detalhes.',
+        // Page Titles
+        'pageTitle.following': 'Seguindo',
+        'pageTitle.myVideos': 'Meus Vídeos',
+        'pageTitle.likedVideos': 'Vídeos Curtidos',
+        'pageTitle.watchHistory': 'Histórico de Visualização',
+        'pageTitle.liveStreams': 'Transmissões ao Vivo',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- Ao Vivo no Plebs',
+        // Home Page Sections
+        'section.trending': 'Em Alta',
+        'section.recommended': 'Recomendado Para Você',
+        'section.shorts': 'Shorts',
+        'section.live': 'Ao Vivo',
+        'section.liveNow': 'Ao Vivo Agora',
+        'section.latestVideos': 'Vídeos Recentes',
+        'section.videos': 'Vídeos',
+        'section.usersYouFollow': 'Usuários que Você Segue',
+        // Trending Period
+        'trending.thisWeek': 'Esta Semana',
+        'trending.today': 'Hoje',
+        // Buttons
+        'button.viewMore': 'Ver Mais',
+        'button.clearAll': 'Limpar Tudo',
+        'button.showAnyway': 'Mostrar mesmo assim',
+        // Confirmation Modals
+        'confirm.logout': 'Sair',
+        'confirm.logoutMessage': 'Tem certeza que deseja sair?',
+        'confirm.resetSettings': 'Redefinir Configurações',
+        'confirm.resetSettingsMessage': 'Tem certeza que deseja redefinir todas as configurações para os padrões?',
+        'confirm.reset': 'Redefinir',
+        'confirm.clearHistory': 'Limpar Histórico',
+        'confirm.clearHistoryMessage': 'Tem certeza que deseja limpar todo o seu histórico de visualização? Isso não pode ser desfeito.',
+        'confirm.deleteDraft': 'Excluir Rascunho',
+        'confirm.deleteDraftMessage': 'Tem certeza que deseja excluir este rascunho?',
+        'confirm.delete': 'Excluir',
+        'confirm.deleteVideo': 'Excluir Vídeo',
+        'confirm.deleteVideoMessage': 'Tem certeza que deseja excluir este vídeo? Esta ação não pode ser desfeita.',
+        'confirm.endStream': 'Encerrar Transmissão ao Vivo',
+        'confirm.endStreamMessage': 'Tem certeza que deseja encerrar esta transmissão ao vivo? Esta ação não pode ser desfeita.',
+        'confirm.endStreamButton': 'Encerrar Transmissão',
+        // Content Filters
+        'filter.hiddenByPack': 'Oculto por {pack}',
+        'filter.showAnyway': 'Mostrar mesmo assim',
+        'filter.contentHidden': 'Conteúdo oculto pelo filtro de conteúdo',
+        // Following Page
+        'following.noFollowingYet': 'Você ainda não está seguindo ninguém. Encontre criadores para seguir!',
     },
     ru: {
         // Navigation & Header
@@ -1173,7 +3037,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': 'Вход выполнен!', 'toast.loggedOut': 'Выход выполнен', 'toast.settingsSaved': 'Настройки сохранены!', 'toast.settingsReset': 'Настройки сброшены', 'toast.videoUploaded': 'Видео загружено!', 'toast.videoDeleted': 'Видео удалено', 'toast.profileUpdated': 'Профиль обновлён!', 'toast.linkCopied': 'Ссылка скопирована!', 'toast.embedCopied': 'Код скопирован!', 'toast.zapSent': 'Зап отправлен!', 'toast.followed': 'Вы подписались!', 'toast.unfollowed': 'Вы отписались', 'toast.reported': 'Жалоба отправлена', 'toast.saved': 'Сохранено!', 'toast.error': 'Произошла ошибка', 'toast.networkError': 'Ошибка сети. Попробуйте снова.', 'toast.uploadError': 'Ошибка загрузки. Попробуйте снова.', 'toast.languageChanged': 'Язык изменён', 'toast.commentPosted': 'Комментарий опубликован', 'toast.keyCopied': 'Ключ скопирован!',
         // Time
-        'time.now': 'только что', 'time.minutesAgo': '{count} мин. назад', 'time.hoursAgo': '{count} ч. назад', 'time.daysAgo': '{count} дн. назад', 'time.weeksAgo': '{count} нед. назад', 'time.monthsAgo': '{count} мес. назад', 'time.yearsAgo': '{count} г. назад',
+        'time.justNow': 'только что', 'time.secondAgo': '1 сек. назад', 'time.secondsAgo': '{n} сек. назад', 'time.minuteAgo': '1 мин. назад', 'time.minutesAgo': '{n} мин. назад', 'time.hourAgo': '1 ч. назад', 'time.hoursAgo': '{n} ч. назад', 'time.dayAgo': '1 дн. назад', 'time.daysAgo': '{n} дн. назад', 'time.weekAgo': '1 нед. назад', 'time.weeksAgo': '{n} нед. назад', 'time.monthAgo': '1 мес. назад', 'time.monthsAgo': '{n} мес. назад', 'time.yearAgo': '1 г. назад', 'time.yearsAgo': '{n} г. назад',
         // Empty States
         'empty.noVideos': 'Видео не найдены', 'empty.noVideosDesc': 'Попробуйте другой поиск', 'empty.noFollowing': 'Вы ещё никого не подписаны', 'empty.noFollowingDesc': 'Следите за авторами, чтобы видеть их видео', 'empty.noHistory': 'История пуста', 'empty.noHistoryDesc': 'Посмотренные видео появятся здесь', 'empty.noLiked': 'Понравившихся видео пока нет', 'empty.noLikedDesc': 'Лайкайте видео, и они появятся здесь', 'empty.noResults': 'Результатов не найдено', 'empty.noResultsDesc': 'Попробуйте другие ключевые слова',
         // Misc
@@ -1217,6 +3081,417 @@ const translations = {
         'warning.webmFormat': 'Примечание: Ваш браузер выводит формат WebM (может не работать на iOS). Для iOS используйте Chrome на Windows/Mac.',
         // New Footer
         'footer.lastUpdated': 'Обновлено: Декабрь 2024',
+        // DMCA Page
+        'dmca.title': 'DMCA и Политика Контента',
+        'dmca.lastUpdated': 'Последнее обновление: Декабрь 2024',
+        'dmca.architectureTitle': 'Понимание Архитектуры Plebs',
+        'dmca.architectureDesc': 'Plebs — это децентрализованный интерфейс видеоплатформы, который работает иначе, чем традиционные сервисы.',
+        'dmca.architectureItem1': 'Plebs не размещает никакого видео- или изображенческого контента.',
+        'dmca.architectureItem1Desc': 'Мы — клиент/интерфейс, который отображает контент, хранящийся в другом месте.',
+        'dmca.architectureItem2': 'Все медиафайлы хранятся на независимых серверах Blossom.',
+        'dmca.architectureItem3': 'Метаданные видео публикуются на релеях Nostr.',
+        'dmca.architectureItem4': 'Plebs просто агрегирует и отображает этот распределённый контент.',
+        'dmca.filingTitle': 'Подача Жалобы DMCA',
+        'dmca.filingDesc': 'Поскольку Plebs не размещает контент, мы не можем напрямую удалять нарушающий материал.',
+        'dmca.forVideoTitle': '1. Для Видео/Изображений',
+        'dmca.forVideoDesc': 'Медиафайлы хранятся на серверах Blossom.',
+        'dmca.forVideoItem1': 'Определите, какой сервер Blossom размещает контент',
+        'dmca.forVideoItem2': 'Свяжитесь напрямую с оператором сервера Blossom',
+        'dmca.forVideoItem3': 'Каждый сервер Blossom работает независимо',
+        'dmca.forMetadataTitle': '2. Для Метаданных/Описаний',
+        'dmca.forMetadataDesc': 'Если нарушающий контент находится в заголовке или описании:',
+        'dmca.forMetadataItem1': 'Эта информация хранится на релеях Nostr',
+        'dmca.forMetadataItem2': 'Свяжитесь с конкретными операторами релеев Nostr',
+        'dmca.forMetadataItem3': 'Несколько релеев могут хранить одни и те же данные',
+        'dmca.whatWeCanDoTitle': 'Что Может Сделать Plebs',
+        'dmca.whatWeCanDoDesc': 'Хотя мы не размещаем контент, мы можем:',
+        'dmca.whatWeCanDoItem1': 'Помочь вам определить, какие серверы размещают конкретный контент',
+        'dmca.whatWeCanDoItem2': 'Добавить контент в локальный список блокировки',
+        'dmca.whatWeCanDoItem3': 'Предоставить рекомендации по связи с соответствующими операторами',
+        'dmca.toRequestAssistance': 'Для запроса помощи свяжитесь с нами с:',
+        'dmca.assistanceItem1': 'URL или идентификатор нарушающего контента',
+        'dmca.assistanceItem2': 'Доказательство вашего владения авторскими правами',
+        'dmca.assistanceItem3': 'Описание защищённого произведения',
+        'dmca.blossomOperatorsTitle': 'Операторы Серверов Blossom',
+        'dmca.blossomOperatorsDesc': 'Если вы управляете сервером Blossom, вы несёте ответственность за обработку запросов DMCA.',
+        'dmca.blossomOperatorsLink': 'Список известных серверов Blossom см. в документации.',
+        'dmca.considerationsTitle': 'Важные Соображения',
+        'dmca.considerationsItem1': 'Децентрализация:',
+        'dmca.considerationsItem1Desc': 'Полное удаление контента может быть невозможным.',
+        'dmca.considerationsItem2': 'Множественные Копии:',
+        'dmca.considerationsItem2Desc': 'Контент может быть реплицирован на нескольких серверах.',
+        'dmca.considerationsItem3': 'Сохранение Метаданных:',
+        'dmca.considerationsItem3Desc': 'Метаданные могут сохраняться даже после удаления.',
+        'dmca.considerationsItem4': 'Отсутствие Централизованного Контроля:',
+        'dmca.considerationsItem4Desc': 'Ни одна организация не может удалить контент из всей сети.',
+        'dmca.counterNotificationTitle': 'Встречное Уведомление',
+        'dmca.counterNotificationDesc': 'Если вы считаете, что ваш контент был удалён по ошибке, свяжитесь с оператором сервера.',
+        'dmca.contactTitle': 'Контакт',
+        'dmca.contactDesc': 'По вопросам свяжитесь с нами.',
+        // Admin Dashboard
+        'admin.title': 'Панель Администратора',
+        'admin.loading': 'Загрузка аналитики платформы...',
+        'admin.platformOverview': 'Обзор Платформы',
+        'admin.totalVideos': 'Всего Видео',
+        'admin.videos7Days': 'Видео (7 дней)',
+        'admin.videos30Days': 'Видео (30 дней)',
+        'admin.uniqueCreators': 'Уникальные Создатели',
+        'admin.likes30Days': 'Лайки (30 дней)',
+        'admin.dislikes30Days': 'Дизлайки (30 дней)',
+        'admin.monthlyActiveUsers': 'Активные Пользователи за Месяц',
+        'admin.mauDesc': 'Уникальные пользователи, которые загрузили видео, отреагировали или прокомментировали (последние 6 месяцев)',
+        'admin.boostRevenue': 'Доход от Буста (Последние 30 Дней)',
+        'admin.totalBoostRevenue': 'Общий Доход от Буста',
+        'admin.totalBoosts': 'Всего Бустов',
+        'admin.blocklistManagement': 'Управление Списком Блокировки',
+        'admin.blocklistDesc': 'Блокируйте конкретные видео или пользователей.',
+        'admin.blockedVideos': 'Заблокированные Видео',
+        'admin.blockedUsers': 'Заблокированные Пользователи',
+        'admin.blockByEventId': 'Блокировать Видео по ID',
+        'admin.blockByPubkey': 'Блокировать Пользователя по Pubkey',
+        'admin.blockVideo': 'Блокировать Видео',
+        'admin.blockUser': 'Блокировать Пользователя',
+        'admin.noBlockedVideos': 'Нет заблокированных видео',
+        'admin.noBlockedUsers': 'Нет заблокированных пользователей',
+        'admin.unblock': 'Разблокировать',
+        'admin.accessDenied': 'Доступ запрещён. Только администратор.',
+        // Search/Trending/Channel/Buttons/Common
+        'search.noVideosFound': 'Видео не найдено для "{query}".',
+        'search.noFullLengthVideos': 'Полнометражные видео не найдены для "{query}".',
+        'trending.noVideosToday': 'Сегодня нет популярных видео.',
+        'trending.noVideosThisWeek': 'На этой неделе нет популярных видео.',
+        'channel.video': 'видео',
+        'channel.videos': 'видео',
+        'channel.follower': 'подписчик',
+        'channel.followers': 'подписчиков',
+        'button.follow': 'Подписаться',
+        'button.following': 'Подписан',
+        'button.unfollow': 'Отписаться',
+        'button.mute': 'Отключить звук',
+        'button.unmute': 'Включить звук',
+        'button.report': 'Пожаловаться',
+        'button.muteUser': 'Заглушить пользователя',
+        'button.unmuteUser': 'Разглушить пользователя',
+        'button.reportComment': 'Пожаловаться на комментарий',
+        'button.reportUser': 'Пожаловаться на пользователя',
+        'live.goalReached': 'Цель Достигнута!',
+        'live.goalProgress': '{percent}% от цели',
+        'common.loading': 'Загрузка...',
+        'common.sats': 'sats',
+        // Analytics
+        'analytics.title': 'Аналитика Канала',
+        'analytics.loading': 'Загрузка аналитики...',
+        'analytics.loadFailed': 'Не удалось загрузить аналитику. Попробуйте снова.',
+        'analytics.overview': 'Обзор',
+        'analytics.views': 'Просмотры',
+        'analytics.followers': 'Подписчики',
+        'analytics.topByViews': 'Топ Видео по Просмотрам',
+        'analytics.topByEngagement': 'Топ Видео по Вовлечённости',
+        'analytics.allContent': 'Производительность Всего Контента',
+        'analytics.totalViews': 'Всего Просмотров',
+        'analytics.likes': 'Лайки',
+        'analytics.likesRatio': 'Лайки ({ratio}% соотношение)',
+        'analytics.dislikes': 'Дизлайки',
+        'analytics.zapsReceived': '{count} Zaps Получено',
+        'analytics.boostsReceived': 'Boosts Получено',
+        'analytics.shares': 'Поделились',
+        'analytics.comments': 'Комментарии',
+        'analytics.contentCount': '{videos} Видео, {shorts} Shorts, {streams} Стримов',
+        'analytics.last7days': 'Последние 7 дней',
+        'analytics.last30days': 'Последние 30 дней',
+        'analytics.last90days': 'Последние 90 дней',
+        'analytics.lastYear': 'Последний год',
+        'analytics.allTime': 'За всё время',
+        'analytics.lastNDays': 'Последние {n} дней',
+        'analytics.netGrowth': 'Чистый Прирост',
+        'analytics.newFollowers': 'Новые Подписчики',
+        'analytics.unfollowed': 'Отписались',
+        'analytics.noVideosYet': 'Пока нет видео',
+        'analytics.noShortsYet': 'Пока нет shorts',
+        'analytics.noStreamsYet': 'Пока нет стримов',
+        'analytics.viewsTooltip': '{count} просмотров',
+        'analytics.subscribersTooltip': '{count} подписчиков',
+        'analytics.videosTab': 'Видео ({count})',
+        'analytics.shortsTab': 'Shorts ({count})',
+        'analytics.streamsTab': 'Стримы ({count})',
+        // About
+        'about.title': 'О Plebs',
+        'about.whatIs': 'Что такое Plebs?',
+        'about.whatIsDesc': 'Plebs — это децентрализованная платформа видео, устойчивая к цензуре, построенная на <a href="https://nostr.com" target="_blank" rel="noopener">протоколе Nostr</a>. В отличие от традиционных видеоплатформ, контролируемых корпорациями, Plebs даёт вам истинное владение вашим контентом и личностью.',
+        'about.whyNostr': 'Почему Nostr?',
+        'about.whyNostrDesc': 'Nostr (Notes and Other Stuff Transmitted by Relays) — это простой, открытый протокол, который обеспечивает действительно децентрализованную социальную сеть. Ключевые преимущества включают:',
+        'about.benefit1': 'Устойчивость к Цензуре:',
+        'about.benefit1Desc': 'Ни одна организация не может забанить вас или удалить ваш контент',
+        'about.benefit2': 'Портативность:',
+        'about.benefit2Desc': 'Ваша личность и подписчики работают во всех приложениях Nostr',
+        'about.benefit3': 'Нет Центральной Власти:',
+        'about.benefit3Desc': 'Ни одна компания не владеет и не контролирует сеть',
+        'about.benefit4': 'Криптографическая Личность:',
+        'about.benefit4Desc': 'Ваши ключи доказывают, что вы — это вы',
+        'about.howItWorks': 'Как Это Работает',
+        'about.howItWorksDesc': 'Видео на Plebs хранятся с использованием <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom</a>, распределённой системы хранения файлов, в то время как метаданные видео и социальные взаимодействия транслируются на релеи Nostr. Это означает, что ваш контент не хранится на наших серверах — он распределён по сети.',
+        'about.features': 'Возможности',
+        'about.feature1': 'Загружайте и делитесь видео с сообществом Nostr',
+        'about.feature2': 'Ставьте лайки, комментируйте и делитесь видео, используя реакции Nostr',
+        'about.feature3': 'Отправляйте Zaps создателям с помощью Bitcoin через Lightning Network',
+        'about.feature4': 'Подписывайтесь на любимых создателей в любом приложении Nostr',
+        'about.feature5': 'Просматривайте темы и открывайте новый контент',
+        'about.feature6': 'Работает с любой личностью Nostr (используйте существующие ключи)',
+        'about.openSource': 'Открытый Исходный Код',
+        'about.openSourceDesc': 'Plebs — это программное обеспечение с открытым исходным кодом. Вы можете просмотреть код, внести свой вклад или запустить собственный экземпляр:',
+        'about.githubRepo': 'Репозиторий GitHub',
+        'about.builtBy': 'Создано',
+        'about.builtByDesc': 'Plebs разработан <a href="https://nostrservices.com" target="_blank" rel="noopener" class="accent-link">21 Million LLC</a>, компанией, посвящённой созданию инструментов для экосистемы Bitcoin и Nostr.',
+        // Contact
+        'contact.title': 'Связаться с Нами',
+        'contact.getInTouch': 'Связаться',
+        'contact.getInTouchDesc': 'Есть вопросы, отзывы или нужна поддержка? Мы будем рады услышать вас!',
+        'contact.email': 'Электронная Почта',
+        'contact.emailDesc': 'Лучший способ связаться с нами — через электронную почту:',
+        'contact.github': 'GitHub',
+        'contact.githubDesc': 'Для сообщений об ошибках, запросов функций или технических проблем, пожалуйста, откройте issue в нашем репозитории GitHub:',
+        'contact.githubIssues': 'GitHub Issues',
+        'contact.company': 'Компания',
+        'contact.companyDesc': 'Plebs разработан 21 Million LLC',
+        // Terms
+        'terms.title': 'Условия Использования',
+        'terms.lastUpdated': 'Последнее обновление: Декабрь 2024',
+        'terms.section1Title': '1. Принятие Условий',
+        'terms.section1Desc': 'Получая доступ и используя Plebs ("Сервис"), вы соглашаетесь соблюдать эти Условия Использования. Если вы не согласны с этими условиями, пожалуйста, не используйте Сервис.',
+        'terms.section2Title': '2. Описание Сервиса',
+        'terms.section2Desc': 'Plebs — это децентрализованная видеоплатформа, построенная на протоколе Nostr. Сервис предоставляет интерфейс для просмотра, загрузки и взаимодействия с видеоконтентом, хранящимся в распределённых сетях. Plebs не размещает и не хранит видеоконтент на централизованных серверах.',
+        'terms.section3Title': '3. Обязанности Пользователя',
+        'terms.section3Desc': 'Вы несёте ответственность за:',
+        'terms.section3Item1': 'Обеспечение безопасности ваших приватных ключей Nostr',
+        'terms.section3Item2': 'Весь контент, который вы загружаете или делитесь через Сервис',
+        'terms.section3Item3': 'Обеспечение соответствия вашего использования применимым законам',
+        'terms.section3Item4': 'Не загружать незаконный, нарушающий права или вредный контент',
+        'terms.section4Title': '4. Руководство по Контенту',
+        'terms.section4Desc': 'Вы соглашаетесь не загружать, не делиться и не распространять:',
+        'terms.section4Item1': 'Контент, нарушающий права интеллектуальной собственности',
+        'terms.section4Item2': 'Незаконный контент, включая, но не ограничиваясь материалами эксплуатации детей',
+        'terms.section4Item3': 'Контент, пропагандирующий насилие или вред другим',
+        'terms.section4Item4': 'Спам, вредоносное ПО или обманчивый контент',
+        'terms.section4Note': 'Контент для взрослых (NSFW) должен быть правильно помечен тегом NSFW при загрузке.',
+        'terms.section5Title': '5. Децентрализованная Природа',
+        'terms.section5Desc': 'Из-за децентрализованной природы Nostr и хранилища Blossom:',
+        'terms.section5Item1': 'Контент может сохраняться в сети даже после запросов на удаление',
+        'terms.section5Item2': 'Мы не можем гарантировать удаление контента со всех релеев или серверов хранения',
+        'terms.section5Item3': 'Ваш контент и взаимодействия являются публичными по умолчанию',
+        'terms.section5Item4': 'Вы несёте единоличную ответственность за безопасность вашего приватного ключа',
+        'terms.section6Title': '6. Отсутствие Гарантий',
+        'terms.section6Desc': 'Сервис предоставляется "как есть" без каких-либо гарантий. Мы не гарантируем непрерывный, бесперебойный доступ к Сервису.',
+        'terms.section7Title': '7. Ограничение Ответственности',
+        'terms.section7Desc': 'В максимальной степени, разрешённой законом, Plebs и его операторы не несут ответственности за любые косвенные, случайные, особые или последующие убытки, возникающие в результате вашего использования Сервиса.',
+        'terms.section8Title': '8. Изменения Условий',
+        'terms.section8Desc': 'Мы оставляем за собой право изменять эти условия в любое время. Продолжение использования Сервиса после изменений означает принятие новых условий.',
+        'terms.section9Title': '9. Контакт',
+        'terms.section9Desc': 'По вопросам об этих Условиях, пожалуйста, <a href="#/contact" class="accent-link">свяжитесь с нами</a>.',
+        // Privacy
+        'privacy.title': 'Политика Конфиденциальности',
+        'privacy.lastUpdated': 'Последнее обновление: Декабрь 2024',
+        'privacy.section1Title': '1. Обзор',
+        'privacy.section1Desc': 'Plebs привержен защите вашей конфиденциальности. Эта политика объясняет, как мы обрабатываем информацию при использовании нашей децентрализованной видеоплатформы.',
+        'privacy.section2Title': '2. Децентрализованная Архитектура',
+        'privacy.section2Desc': 'Plebs построен на Nostr, децентрализованном протоколе. Это означает:',
+        'privacy.section2Item1': 'Ваш контент транслируется на публичные релеи, а не хранится на наших серверах',
+        'privacy.section2Item2': 'Ваш публичный ключ Nostr служит вашей личностью',
+        'privacy.section2Item3': 'Видео хранятся на распределённых серверах Blossom',
+        'privacy.section2Item4': 'У нас нет доступа к вашим приватным ключам',
+        'privacy.section3Title': '3. Информация, Которую Мы Собираем',
+        'privacy.section3LocalTitle': 'Информация, хранящаяся локально в вашем браузере:',
+        'privacy.section3LocalItem1': 'Ваш публичный ключ Nostr (при входе в систему)',
+        'privacy.section3LocalItem2': 'История просмотров и предпочтения',
+        'privacy.section3LocalItem3': 'Предпочтения темы и настроек',
+        'privacy.section3LocalItem4': 'Приватный ключ (только если вы выбираете локальное хранилище ключей - не рекомендуется)',
+        'privacy.section3CollectTitle': 'Информация, которую мы можем собирать:',
+        'privacy.section3CollectItem1': 'Базовая аналитика (просмотры страниц, использование функций) для улучшения сервиса',
+        'privacy.section3CollectItem2': 'Журналы ошибок для отладки',
+        'privacy.section4Title': '4. Публичная Информация',
+        'privacy.section4Desc': 'При использовании Nostr следующая информация является публичной по умолчанию:',
+        'privacy.section4Item1': 'Ваш публичный ключ Nostr и информация профиля',
+        'privacy.section4Item2': 'Видео, которые вы загружаете',
+        'privacy.section4Item3': 'Комментарии, лайки и другие реакции',
+        'privacy.section4Item4': 'На кого вы подписаны',
+        'privacy.section4Item5': 'Zaps (платежи Lightning), которые вы отправляете или получаете',
+        'privacy.section5Title': '5. Хранение Данных',
+        'privacy.section5Desc': 'Локальные данные хранятся в localStorage вашего браузера. Вы можете очистить эти данные в любое время через настройки браузера. Контент, опубликованный в Nostr, распределяется по релеям и не может контролироваться или удаляться Plebs.',
+        'privacy.section6Title': '6. Сторонние Сервисы',
+        'privacy.section6Desc': 'Plebs взаимодействует с:',
+        'privacy.section6Item1': 'Релеями Nostr (для социальных данных)',
+        'privacy.section6Item2': 'Серверами Blossom (для хранения видео)',
+        'privacy.section6Item3': 'Lightning Network (для zaps/платежей)',
+        'privacy.section6Note': 'Каждый из этих сервисов имеет свои собственные практики конфиденциальности.',
+        'privacy.section7Title': '7. Ваши Права',
+        'privacy.section7Desc': 'Вы можете:',
+        'privacy.section7Item1': 'Очистить локальные данные браузера в любое время',
+        'privacy.section7Item2': 'Просматривать видео без создания учётной записи',
+        'privacy.section7Item3': 'Использовать расширение браузера Nostr для повышенной конфиденциальности',
+        'privacy.section7Item4': 'Выбирать, какие релеи и серверы Blossom использовать',
+        'privacy.section8Title': '8. Безопасность',
+        'privacy.section8Desc': 'Мы рекомендуем:',
+        'privacy.section8Item1': 'Использовать расширение браузера Nostr или аппаратный подписант',
+        'privacy.section8Item2': 'Никогда не делиться вашим приватным ключом (nsec)',
+        'privacy.section8Item3': 'Использовать выделенный профиль браузера для повышенной конфиденциальности',
+        'privacy.section9Title': '9. Изменения в Этой Политике',
+        'privacy.section9Desc': 'Мы можем обновлять эту политику время от времени. Изменения будут опубликованы на этой странице с обновлённой датой редакции.',
+        'privacy.section10Title': '10. Контакт',
+        'privacy.section10Desc': 'По вопросам, связанным с конфиденциальностью, пожалуйста, <a href="#/contact" class="accent-link">свяжитесь с нами</a>.',
+        // FAQ
+        'faq.title': 'Часто Задаваемые Вопросы',
+        'faq.aboutPlebs': 'О Plebs',
+        'faq.nostrProtocol': 'Протокол Nostr',
+        'faq.videoStorage': 'Хранение Видео и Blossom',
+        'faq.featuresUsage': 'Функции и Использование',
+        'faq.q1': 'Что такое Plebs?',
+        'faq.a1': 'Plebs — это децентрализованная платформа видео, устойчивая к цензуре, построенная на протоколе Nostr. В отличие от традиционных видеоплатформ, контролируемых корпорациями, Plebs даёт вам истинное владение вашим контентом и личностью. Нет центральных серверов, которые могут забанить вас или удалить ваш контент.',
+        'faq.q2': 'Бесплатен ли Plebs?',
+        'faq.a2': 'Да, Plebs полностью бесплатен для просмотра видео. Вы можете просматривать и смотреть контент без создания учётной записи. Для загрузки видео, комментирования, лайков или взаимодействия с другими пользователями вам понадобится личность Nostr (которая также бесплатна).',
+        'faq.q3': 'Кто разрабатывает Plebs?',
+        'faq.a3': 'Plebs разработан <a href="https://nostrservices.com" target="_blank" rel="noopener">21 Million LLC</a>, компанией, посвящённой созданию инструментов для экосистемы Bitcoin и Nostr. Plebs имеет открытый исходный код, и вы можете просмотреть код или внести свой вклад на <a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener">GitHub</a>.',
+        'faq.q4': 'Что такое Nostr?',
+        'faq.a4': 'Nostr означает "Notes and Other Stuff Transmitted by Relays." Это простой, открытый протокол, который обеспечивает действительно децентрализованную социальную сеть. В отличие от традиционных платформ, Nostr не полагается на какой-либо центральный сервер. Вместо этого он использует сеть релеев для передачи сообщений между пользователями и криптографические ключи для идентификации.',
+        'faq.q5': 'Почему Plebs использует Nostr?',
+        'faq.a5Title': 'Nostr предоставляет несколько ключевых преимуществ:',
+        'faq.a5Item1': 'Устойчивость к Цензуре:',
+        'faq.a5Item1Desc': 'Ни одна организация не может забанить вас или удалить ваш контент',
+        'faq.a5Item2': 'Портативность:',
+        'faq.a5Item2Desc': 'Ваша личность и подписчики работают во всех приложениях Nostr',
+        'faq.a5Item3': 'Нет Центральной Власти:',
+        'faq.a5Item3Desc': 'Ни одна компания не владеет и не контролирует сеть',
+        'faq.a5Item4': 'Криптографическая Личность:',
+        'faq.a5Item4Desc': 'Ваши ключи доказывают, что вы — это вы',
+        'faq.q6': 'Что такое ключи Nostr (npub/nsec)?',
+        'faq.a6': 'Ваша личность Nostr состоит из двух ключей: публичного ключа (npub) и приватного ключа (nsec). Ваш npub похож на ваше имя пользователя — вы можете делиться им с кем угодно. Ваш nsec похож на ваш пароль — никогда не делитесь им! Любой, у кого есть ваш nsec, может публиковать от вашего имени и получать доступ к вашей учётной записи. Мы рекомендуем использовать расширение браузера, такое как Alby или nos2x, для безопасного управления вашими ключами.',
+        'faq.q7': 'Могу ли я использовать свою существующую учётную запись Nostr?',
+        'faq.a7': 'Абсолютно! Если у вас уже есть личность Nostr из приложений, таких как Damus, Primal, Amethyst или любого другого клиента Nostr, вы можете использовать те же ключи для входа в Plebs. Ваши подписчики, профиль и репутация переносятся автоматически.',
+        'faq.q8': 'Что такое релеи Nostr?',
+        'faq.a8': 'Релеи — это серверы, которые хранят и передают сообщения Nostr. Когда вы публикуете что-то, оно отправляется на несколько релеев. Другие пользователи подключаются к релеям для чтения сообщений. Поскольку существует множество независимых релеев, ни один из них не может подвергнуть вас цензуре — если один релей блокирует вас, ваш контент всё ещё существует на других.',
+        'faq.q9': 'Где хранятся видео?',
+        'faq.a9': 'Видео хранятся на серверах Blossom, а не на самом Plebs. Blossom — это распределённая система хранения файлов, разработанная для работы с Nostr. Когда вы загружаете видео, оно попадает на один или несколько серверов Blossom по вашему выбору. Метаданные видео (название, описание и т.д.) публикуются на релеях Nostr.',
+        'faq.q10': 'Что такое Blossom?',
+        'faq.a10': 'Blossom — это открытый протокол для хранения и обслуживания медиафайлов децентрализованным способом. Файлы идентифицируются по их хешу SHA-256, что означает, что один и тот же файл будет иметь один и тот же адрес независимо от того, какой сервер его размещает. Это обеспечивает избыточность — ваши файлы могут существовать на нескольких серверах. Узнайте больше на <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom GitHub</a>.',
+        'faq.q11': 'Размещает ли Plebs мои видео?',
+        'faq.a11': 'Нет. Plebs — это клиент/интерфейс, который помогает вам просматривать и загружать контент, но он не хранит никаких видео- или изображений. Все медиа хранятся на независимых серверах Blossom. Plebs просто отображает контент от этих распределённых провайдеров хранилища.',
+        'faq.q12': 'Могу ли я выбрать, какой сервер Blossom использовать?',
+        'faq.a12': 'Да! Вы можете настроить, какие серверы Blossom вы хотите использовать для загрузки в своих настройках. Вы даже можете запустить свой собственный сервер Blossom, если хотите полный контроль над хранением ваших медиа.',
+        'faq.q13': 'Как создать учётную запись?',
+        'faq.a13Title': 'Нажмите кнопку "Войти" и выберите предпочитаемый метод:',
+        'faq.a13Item1': 'Расширение Браузера:',
+        'faq.a13Item1Desc': 'Если у вас установлено расширение Nostr, такое как Alby или nos2x, вы можете использовать его для безопасного входа',
+        'faq.a13Item2': 'Сгенерировать Новые Ключи:',
+        'faq.a13Item2Desc': 'Создайте совершенно новую личность Nostr',
+        'faq.a13Item3': 'Импортировать Ключи:',
+        'faq.a13Item3Desc': 'Используйте свой существующий приватный ключ Nostr (nsec)',
+        'faq.a13Note': 'Мы рекомендуем использовать расширение браузера для лучшей безопасности.',
+        'faq.q14': 'Что такое Zaps?',
+        'faq.a14': 'Zaps — это платежи в Bitcoin, отправленные через Lightning Network. Они позволяют отправлять реальные деньги (сатоши, или "sats") создателям контента в качестве чаевых или благодарности. В отличие от традиционных чаевых на платформах, которые берут большие комиссии, zaps идут напрямую создателю. Для отправки zaps вам нужен кошелёк Lightning с подключением Nostr (например, Alby или Zeus).',
+        'faq.q15': 'Как загрузить видео?',
+        'faq.a15Title': 'Чтобы загрузить видео:',
+        'faq.a15Item1': 'Войдите с вашей личностью Nostr',
+        'faq.a15Item2': 'Нажмите кнопку "Создать" и выберите "Загрузить Видео"',
+        'faq.a15Item3': 'Выберите ваш видеофайл (поддерживает большинство распространённых форматов)',
+        'faq.a15Item4': 'Добавьте название, описание и теги',
+        'faq.a15Item5': 'Нажмите "Опубликовать", чтобы поделиться с сетью',
+        'faq.a15Note': 'Видео автоматически сжимаются и загружаются на серверы Blossom.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'Самомодерация',
+        'faq.q16': 'Как работает модерация на децентрализованной платформе?',
+        'faq.a16': 'В отличие от традиционных платформ с централизованными модераторами, Plebs даёт вам контроль над тем, что вы видите. Мы предоставляем мощные инструменты самомодерации, включая пакеты фильтров контента, отключение пользователей, предупреждения сообщества и индикаторы видео с негативным соотношением. Вы решаете, какой контент для вас приемлем - нет центральной власти, принимающей эти решения.',
+        'faq.q17': 'Что такое Пакеты Фильтров Контента?',
+        'faq.a17Intro': 'Пакеты Фильтров Контента - это предопределённые фильтры ключевых слов, которые вы можете включить, чтобы скрыть определённые типы контента. Доступные пакеты включают:',
+        'faq.a17Pack1': 'Расизм и разжигание ненависти:',
+        'faq.a17Pack1Desc': 'Фильтрует расовые оскорбления и дискриминационный контент',
+        'faq.a17Pack2': 'Откровенно сексуальное:',
+        'faq.a17Pack2Desc': 'Фильтрует порнографический и взрослый контент',
+        'faq.a17Pack3': 'Насилие и жестокость:',
+        'faq.a17Pack3Desc': 'Фильтрует графическое насилие и контент с самоповреждением',
+        'faq.a17Pack4': 'Наркотики и вещества:',
+        'faq.a17Pack4Desc': 'Фильтрует контент, связанный с наркотиками',
+        'faq.a17Pack5': 'Спам и мошенничество:',
+        'faq.a17Pack5Desc': 'Фильтрует распространённые паттерны спама и мошенничества',
+        'faq.a17Pack6': 'Криптовалюта:',
+        'faq.a17Pack6Desc': 'Фильтрует продвижение криптовалюты и токенов',
+        'faq.a17Pack7': 'Политический контент:',
+        'faq.a17Pack7Desc': 'Фильтрует партийный политический контент',
+        'faq.a17Pack8': 'Грубая ненормативная лексика:',
+        'faq.a17Pack8Desc': 'Фильтрует вульгарную лексику',
+        'faq.a17Note': 'Включите их в Настройки > Фильтры Контента. Вы также можете добавить свои ключевые слова. Отфильтрованный контент показывает заполнитель с кнопкой "Всё равно показать", если вы хотите временно его просмотреть.',
+        'faq.q18': 'Как отключить пользователя?',
+        'faq.a18': 'Чтобы отключить пользователя, посетите его профиль и нажмите кнопку отключения. После отключения все его видео будут скрыты из вашей ленты, его комментарии будут показаны как "Сообщение от отключённого пользователя", а его сообщения в чате будут скрыты. Ваш список отключённых хранится в Nostr, поэтому синхронизируется между устройствами. Вы можете управлять отключёнными пользователями в Настройках Профиля в разделе "Отключённые пользователи".',
+        'faq.q19': 'Что означает "Ratioed"?',
+        'faq.a19': 'Видео помечается как "ratioed", когда у него значительно больше дизлайков, чем лайков, что указывает на негативную реакцию сообщества. Конкретно, видео считается ratioed, когда у него есть как минимум 10 реакций, дизлайков как минимум в два раза больше лайков, и дизлайки составляют 70% или более от общего числа реакций. Видео с ratioed отображают значок предупреждения, и вас попросят подтвердить перед просмотром.',
+        'faq.q20': 'Как работают предупреждения сообщества?',
+        'faq.a20': 'Пользователи могут сообщать о контенте по разным причинам (спам, незаконный контент, оскорбления, вводящий в заблуждение и т.д.). Когда видео или пользователь получает 5 или более жалоб от людей, на которых вы подписаны, появляется индикатор предупреждения. Это использует ваш социальный граф - предупреждения приходят от вашей доверенной сети, а не от анонимных незнакомцев. Вы можете переключить "Показывать предупреждения от аккаунтов, на которые я подписан" в Настройках.',
+        'faq.q21': 'Как пожаловаться на контент?',
+        'faq.a21': 'Нажмите значок флага на любом видео, комментарии или профиле пользователя, чтобы пожаловаться на него. Выберите причину (Спам, Незаконный, Оскорбление, Вводящий в заблуждение, Выдача себя за другого, Авторское право или Другое) и при желании добавьте подробности. Жалобы публикуются в Nostr как события, делая их прозрачными и децентрализованными. Ваши жалобы помогают другим в вашей сети идентифицировать проблемный контент.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'Конфиденциальность и Безопасность',
+        'faq.q22': 'Является ли моя активность приватной?',
+        'faq.a22': 'В Nostr большая часть активности является публичной по дизайну. Ваши лайки, комментарии, подписки и зап видны в публичной сети. Однако Plebs хранит вашу историю просмотров локально в вашем браузере - она никогда не отправляется на какой-либо сервер. Вы можете очистить свои локальные данные в любое время.',
+        'faq.q23': 'Как сохранить мой аккаунт в безопасности?',
+        'faq.a23': 'Никогда не делитесь своим приватным ключом (nsec) ни с кем. Мы настоятельно рекомендуем использовать расширение для браузера Nostr, такое как Alby, nos2x или аппаратный подписчик. Они хранят ваш приватный ключ в безопасности и подписывают события только когда вы их одобряете. Избегайте хранения вашего nsec непосредственно на веб-сайтах.',
+        'faq.q24': 'Могу ли я удалить свой контент?',
+        'faq.a24': 'Вы можете запросить удаление, опубликовав событие удаления в Nostr. Большинство хорошо себя ведущих релеев и клиентов будут это уважать. Однако из-за децентрализованной природы сети контент может сохраниться на некоторых релеях или серверах Blossom. Нет центральной власти, которая могла бы принудительно удалить контент во всей сети.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'Устранение неполадок',
+        'faq.q25': 'Видео не загружаются - что делать?',
+        'faq.a25Intro': 'Если видео не загружаются, попробуйте эти шаги:',
+        'faq.a25Item1': 'Обновите страницу',
+        'faq.a25Item2': 'Проверьте ваше интернет-соединение',
+        'faq.a25Item3': 'Сервер Blossom, хостящий видео, может быть недоступен - это независимо от Plebs',
+        'faq.a25Item4': 'Попробуйте отключить расширения браузера, которые могут блокировать контент',
+        'faq.a25Item5': 'Очистите кеш браузера и попробуйте снова',
+        'faq.q26': 'Я потерял свой приватный ключ - можете помочь мне восстановить его?',
+        'faq.a26': 'К сожалению, нет. Ключи Nostr криптографические - нет сброса пароля или восстановления аккаунта, потому что нет центральной власти. Вот почему мы настоятельно рекомендуем делать резервные копии ваших ключей и использовать безопасное решение для управления ключами. Если вы потеряете свой nsec, вам нужно будет создать новую личность.',
+        'faq.q27': 'Как сообщить об ошибке или запросить функцию?',
+        'faq.a27': 'Вы можете сообщить об ошибках или запросить функции на нашей странице <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a>. Вы также можете связаться с нами в Nostr - посетите нашу страницу <a href="#/contact">Контакты</a> для подробностей.',
+        // Page Titles
+        'pageTitle.following': 'Подписки',
+        'pageTitle.myVideos': 'Мои Видео',
+        'pageTitle.likedVideos': 'Понравившиеся Видео',
+        'pageTitle.watchHistory': 'История Просмотров',
+        'pageTitle.liveStreams': 'Прямые Трансляции',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- Прямой эфир на Plebs',
+        // Home Page Sections
+        'section.trending': 'В тренде',
+        'section.recommended': 'Рекомендовано для вас',
+        'section.shorts': 'Shorts',
+        'section.live': 'Прямой эфир',
+        'section.liveNow': 'Прямой эфир сейчас',
+        'section.latestVideos': 'Последние видео',
+        'section.videos': 'Видео',
+        'section.usersYouFollow': 'Пользователи, на которых вы подписаны',
+        // Trending Period
+        'trending.thisWeek': 'На этой неделе',
+        'trending.today': 'Сегодня',
+        // Buttons
+        'button.viewMore': 'Посмотреть больше',
+        'button.clearAll': 'Очистить всё',
+        'button.showAnyway': 'Показать в любом случае',
+        // Confirmation Modals
+        'confirm.logout': 'Выход',
+        'confirm.logoutMessage': 'Вы уверены, что хотите выйти?',
+        'confirm.resetSettings': 'Сбросить настройки',
+        'confirm.resetSettingsMessage': 'Вы уверены, что хотите сбросить все настройки до значений по умолчанию?',
+        'confirm.reset': 'Сбросить',
+        'confirm.clearHistory': 'Очистить историю',
+        'confirm.clearHistoryMessage': 'Вы уверены, что хотите очистить всю историю просмотров? Это действие нельзя отменить.',
+        'confirm.deleteDraft': 'Удалить черновик',
+        'confirm.deleteDraftMessage': 'Вы уверены, что хотите удалить этот черновик?',
+        'confirm.delete': 'Удалить',
+        'confirm.deleteVideo': 'Удалить видео',
+        'confirm.deleteVideoMessage': 'Вы уверены, что хотите удалить это видео? Это действие нельзя отменить.',
+        'confirm.endStream': 'Завершить прямую трансляцию',
+        'confirm.endStreamMessage': 'Вы уверены, что хотите завершить эту прямую трансляцию? Это действие нельзя отменить.',
+        'confirm.endStreamButton': 'Завершить трансляцию',
+        // Content Filters
+        'filter.hiddenByPack': 'Скрыто {pack}',
+        'filter.showAnyway': 'Показать в любом случае',
+        'filter.contentHidden': 'Контент скрыт фильтром контента',
+        // Following Page
+        'following.noFollowingYet': 'Вы пока ни на кого не подписаны. Найдите авторов, на которых можно подписаться!',
     },
     zh: {
         // Navigation & Header
@@ -1261,7 +3536,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': '登录成功！', 'toast.loggedOut': '已登出', 'toast.settingsSaved': '设置已保存！', 'toast.settingsReset': '设置已重置', 'toast.videoUploaded': '视频已上传！', 'toast.videoDeleted': '视频已删除', 'toast.profileUpdated': '个人资料已更新！', 'toast.linkCopied': '链接已复制！', 'toast.embedCopied': '嵌入代码已复制！', 'toast.zapSent': '打赏已发送！', 'toast.followed': '已关注！', 'toast.unfollowed': '已取消关注', 'toast.reported': '举报已提交', 'toast.saved': '已保存！', 'toast.error': '发生错误', 'toast.networkError': '网络错误。请重试。', 'toast.uploadError': '上传失败。请重试。', 'toast.languageChanged': '语言已更改', 'toast.commentPosted': '评论已发布', 'toast.keyCopied': '密钥已复制！',
         // Time
-        'time.now': '刚刚', 'time.minutesAgo': '{count} 分钟前', 'time.hoursAgo': '{count} 小时前', 'time.daysAgo': '{count} 天前', 'time.weeksAgo': '{count} 周前', 'time.monthsAgo': '{count} 个月前', 'time.yearsAgo': '{count} 年前',
+        'time.justNow': '刚刚', 'time.secondAgo': '1 秒前', 'time.secondsAgo': '{n} 秒前', 'time.minuteAgo': '1 分钟前', 'time.minutesAgo': '{n} 分钟前', 'time.hourAgo': '1 小时前', 'time.hoursAgo': '{n} 小时前', 'time.dayAgo': '1 天前', 'time.daysAgo': '{n} 天前', 'time.weekAgo': '1 周前', 'time.weeksAgo': '{n} 周前', 'time.monthAgo': '1 个月前', 'time.monthsAgo': '{n} 个月前', 'time.yearAgo': '1 年前', 'time.yearsAgo': '{n} 年前',
         // Empty States
         'empty.noVideos': '没有找到视频', 'empty.noVideosDesc': '尝试其他搜索词', 'empty.noFollowing': '您还没有关注任何人', 'empty.noFollowingDesc': '关注创作者以查看他们的视频', 'empty.noHistory': '没有观看历史', 'empty.noHistoryDesc': '您观看的视频将显示在这里', 'empty.noLiked': '还没有喜欢的视频', 'empty.noLikedDesc': '喜欢视频后将显示在这里', 'empty.noResults': '没有找到结果', 'empty.noResultsDesc': '尝试其他关键词',
         // Misc
@@ -1305,6 +3580,254 @@ const translations = {
         'warning.webmFormat': '注意：您的浏览器将输出WebM格式（可能无法在iOS上播放）。如需iOS兼容的MP4，请在Windows/Mac上使用Chrome。',
         // New Footer
         'footer.lastUpdated': '最后更新: 2024年12月',
+
+        // Analytics
+        'analytics.title': '频道分析',
+        'analytics.description': '查看您频道的表现指标和见解。',
+        'analytics.loading': '正在加载分析数据...',
+        'analytics.error': '加载分析数据失败',
+        'analytics.overview': '概览',
+        'analytics.videos': '视频',
+        'analytics.engagement': '互动',
+        'analytics.totalViews': '总观看次数',
+        'analytics.totalVideos': '总视频数',
+        'analytics.totalLikes': '总点赞数',
+        'analytics.totalZaps': '总打赏',
+        'analytics.avgViews': '平均观看次数',
+        'analytics.avgLikes': '平均点赞数',
+        'analytics.avgZaps': '平均打赏',
+        'analytics.viewsOverTime': '观看趋势',
+        'analytics.topVideos': '热门视频',
+        'analytics.recentActivity': '近期活动',
+        'analytics.viewsLabel': '观看次数',
+        'analytics.likesLabel': '点赞数',
+        'analytics.zapsLabel': '打赏',
+        'analytics.dateLabel': '日期',
+        'analytics.videoTitle': '视频标题',
+        'analytics.performance': '表现',
+        'analytics.noData': '暂无分析数据',
+        'analytics.noDataDesc': '开始上传视频以查看您的分析数据。',
+        'analytics.last7Days': '最近7天',
+        'analytics.last30Days': '最近30天',
+        'analytics.last90Days': '最近90天',
+        'analytics.allTime': '全部时间',
+        'analytics.views': '观看',
+        'analytics.likes': '点赞',
+        'analytics.zaps': '打赏',
+        'analytics.rank': '排名',
+        'analytics.noVideos': '暂无视频',
+        'analytics.noVideosDesc': '上传您的第一个视频以开始追踪表现。',
+
+        // About Page
+        'about.title': '关于 Plebs.place',
+        'about.subtitle': '去中心化视频平台',
+        'about.welcome': '欢迎来到 Plebs.place',
+        'about.description': 'Plebs.place 是一个建立在 Nostr 协议上的去中心化视频共享平台，让创作者能够完全掌控自己的内容和受众。',
+        'about.feature1Title': '去中心化',
+        'about.feature1Desc': '建立在 Nostr 上，确保抗审查并实现真正的内容所有权。',
+        'about.feature2Title': '创作者优先',
+        'about.feature2Desc': '保留对内容、数据和与受众关系的完全控制权。',
+        'about.feature3Title': '通过比特币变现',
+        'about.feature3Desc': '通过闪电网络和打赏直接从观众获得支持。',
+        'about.feature4Title': '开源',
+        'about.feature4Desc': '透明、社区驱动的开发，与我们的去中心化理念相符。',
+        'about.missionTitle': '我们的使命',
+        'about.missionDesc': '为创作者和观众创建一个免于审查、平台锁定和任意规则变更的视频平台。您的内容属于您自己。',
+        'about.techTitle': '技术',
+        'about.techDesc': '使用 Nostr 进行身份验证和社交功能，使用闪电网络进行即时小额支付，以及去中心化存储解决方案构建。',
+
+        // Contact Page
+        'contact.title': '联系我们',
+        'contact.subtitle': '联系方式',
+        'contact.description': '有问题、反馈或建议？我们很乐意听取您的意见。',
+        'contact.nostrTitle': '在 Nostr 上关注我们',
+        'contact.nostrDesc': '在 Nostr 上关注我们获取更新和社区讨论。',
+        'contact.githubTitle': 'GitHub',
+        'contact.githubDesc': '查看源代码、报告问题或为项目做贡献。',
+        'contact.emailTitle': '电子邮件',
+        'contact.emailDesc': '如有商业咨询或支持问题，请联系我们的团队。',
+
+        // Terms Page
+        'terms.title': '服务条款',
+        'terms.lastUpdated': '最后更新',
+        'terms.section1Title': '1. 条款接受',
+        'terms.section1Content': '使用 Plebs.place 即表示您同意受这些条款的约束。如果您不同意这些条款，请不要使用该平台。',
+        'terms.section2Title': '2. 服务描述',
+        'terms.section2Content': 'Plebs.place 是一个利用 Nostr 协议的去中心化视频共享平台。我们提供视频托管、共享和通过闪电网络进行变现的工具。',
+        'terms.section3Title': '3. 用户责任',
+        'terms.section3Content': '您对通过平台发布的所有内容负责。您同意不上传任何非法、有害或侵犯他人权利的内容。',
+        'terms.section4Title': '4. 内容所有权',
+        'terms.section4Content': '您保留对内容的完全所有权。上传即表示您授予 Plebs.place 一个有限许可来托管和提供您的视频。',
+        'terms.section5Title': '5. 禁止使用',
+        'terms.section5Content': '您不得将平台用于任何非法活动、骚扰、垃圾信息或散布恶意内容。',
+        'terms.section6Title': '6. 账户管理',
+        'terms.section6Content': '您有责任通过正确管理 Nostr 密钥来保护您的账户。我们不存储您的私钥，也无法恢复丢失的账户。',
+        'terms.section7Title': '7. 支付条款',
+        'terms.section7Content': '所有支付均通过闪电网络进行。交易是最终的，无法撤销。请确保交易前仔细核实所有支付详情。',
+        'terms.section8Title': '8. 责任限制',
+        'terms.section8Content': 'Plebs.place 按"原样"提供，不作任何保证。我们对任何损失、损害或服务中断概不负责。',
+        'terms.section9Title': '9. 条款变更',
+        'terms.section9Content': '我们可能会不时更新这些条款。继续使用即表示接受更新后的条款。',
+
+        // Privacy Page
+        'privacy.title': '隐私政策',
+        'privacy.lastUpdated': '最后更新',
+        'privacy.section1Title': '1. 引言',
+        'privacy.section1Content': '本隐私政策解释了 Plebs.place 如何处理与您对我们去中心化视频平台的使用相关的信息。',
+        'privacy.section2Title': '2. 我们收集的信息',
+        'privacy.section2Content': '作为去中心化平台，我们收集的数据极少。您的 Nostr 公钥用于身份验证，视频元数据存储在 Nostr 中继上。',
+        'privacy.section3Title': '3. 数据存储',
+        'privacy.section3Content': '您的内容存储在去中心化存储解决方案上。我们不会在集中式服务器上存储个人数据。您的私钥永远不会与我们分享。',
+        'privacy.section4Title': '4. 数据使用',
+        'privacy.section4Content': '我们收集的任何数据仅用于提供和改进平台服务。我们绝不会将您的数据出售给第三方。',
+        'privacy.section5Title': '5. Cookie 和追踪',
+        'privacy.section5Content': '我们使用最少的 cookie 以确保基本功能。我们不会进行广告追踪或出于营销目的收集数据。',
+        'privacy.section6Title': '6. 第三方服务',
+        'privacy.section6Content': '我们与 Nostr 中继和闪电网络节点集成。这些服务有各自的隐私政策。',
+        'privacy.section7Title': '7. 数据安全',
+        'privacy.section7Content': '我们通过去中心化架构来保护您的信息。但是，您有责任保护您的私钥。',
+        'privacy.section8Title': '8. 您的权利',
+        'privacy.section8Content': '您完全控制您的数据。您可以随时删除内容或停止使用该平台。',
+        'privacy.section9Title': '9. 儿童隐私',
+        'privacy.section9Content': 'Plebs.place 不适用于 13 岁以下的儿童。我们不会有意收集未成年人的信息。',
+        'privacy.section10Title': '10. 隐私政策变更',
+        'privacy.section10Content': '我们可能会更新本隐私政策。变更将在此页面上发布，并附有更新日期。',
+
+        // FAQ Page
+        'faq.title': '常见问题',
+        'faq.subtitle': '常见问题及解答',
+        'faq.general': '一般问题',
+        'faq.technical': '技术问题',
+        'faq.monetization': '变现',
+        'faq.content': '内容',
+        'faq.q1': 'Plebs.place 是什么？',
+        'faq.a1': 'Plebs.place 是一个建立在 Nostr 协议上的去中心化视频共享平台，让您完全拥有自己的内容和受众。',
+        'faq.q2': 'Plebs.place 是如何工作的？',
+        'faq.a2': '平台使用 Nostr 进行身份验证和社交功能，使用去中心化存储托管视频，使用闪电网络进行即时支付。',
+        'faq.q3': '使用 Plebs.place 是免费的吗？',
+        'faq.a3': '是的，创建账户、上传和观看视频都是免费的。您只需要一个 Nostr 密钥即可开始。',
+        'faq.q4': '什么是 Nostr？',
+        'faq.a4': 'Nostr 是一种去中心化的通信协议，让您能够控制自己的身份和数据，无需依赖中心化平台。',
+        'faq.q5': '我如何创建账户？',
+        'faq.a5': '您可以使用 Alby 或 nos2x 等 Nostr 浏览器扩展登录，或生成新的 Nostr 密钥。',
+        'faq.q6': '支持哪些视频格式？',
+        'faq.a6': '我们支持大多数常见格式，包括 MP4、WebM 和 MOV。视频在上传后会进行转码以获得最佳播放效果。',
+        'faq.q7': '我的视频存储在哪里？',
+        'faq.a7': '视频存储在去中心化存储解决方案上，确保您的内容不受任何单一服务器的控制。',
+        'faq.q8': '什么是闪电网络？',
+        'faq.a8': '闪电网络是比特币的第二层支付协议，可实现即时、低费用的交易。',
+        'faq.q9': '什么是打赏？',
+        'faq.a9': '打赏是通过闪电网络发送的比特币小额支付，用于支持创作者。',
+        'faq.q10': '我如何通过内容变现？',
+        'faq.a10': '创作者可以通过观众打赏、付费内容和闪电网络直接捐赠获得收入。',
+        'faq.q11': '我如何提取收入？',
+        'faq.a11': '收入直接到达您的闪电钱包。无需最低提现金额或等待期。',
+        'faq.q12': '哪些内容是允许的？',
+        'faq.a12': '合法内容均可发布。请遵守我们的服务条款，避免有害或非法材料。',
+        'faq.q13': '我可以删除我的视频吗？',
+        'faq.a13': '是的，您可以随时删除视频。由于去中心化的特性，已分发的副本可能仍然存在于其他节点上。',
+        'faq.q14': '有内容审核吗？',
+        'faq.a14': '作为去中心化平台，审核通过社区驱动的方法和用户控制进行。',
+        'faq.q15': '我如何报告有问题的内容？',
+        'faq.a15': '使用视频上的举报功能或通过我们的联系方式告知我们。社区反馈有助于维护平台质量。',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': '自我审核',
+        'faq.q16': '去中心化平台上的审核是如何工作的？',
+        'faq.a16': '与拥有中心化审核员的传统平台不同，Plebs 让您掌控自己看到的内容。我们提供强大的自我审核工具，包括内容过滤包、用户屏蔽、社区警告和负面反应视频指示器。您决定什么内容适合您 - 没有中央机构做出这些决定。',
+        'faq.q17': '什么是内容过滤包？',
+        'faq.a17Intro': '内容过滤包是预定义的关键词过滤器，您可以启用它们来隐藏特定类型的内容。可用的过滤包包括：',
+        'faq.a17Pack1': '种族主义和仇恨言论：',
+        'faq.a17Pack1Desc': '过滤种族诽谤和歧视性内容',
+        'faq.a17Pack2': '露骨色情：',
+        'faq.a17Pack2Desc': '过滤色情和成人内容',
+        'faq.a17Pack3': '暴力和血腥：',
+        'faq.a17Pack3Desc': '过滤血腥暴力和自残内容',
+        'faq.a17Pack4': '毒品和物质：',
+        'faq.a17Pack4Desc': '过滤与毒品相关的内容',
+        'faq.a17Pack5': '垃圾信息和诈骗：',
+        'faq.a17Pack5Desc': '过滤常见的垃圾信息和诈骗模式',
+        'faq.a17Pack6': '加密货币：',
+        'faq.a17Pack6Desc': '过滤加密货币推广和代币营销',
+        'faq.a17Pack7': '政治内容：',
+        'faq.a17Pack7Desc': '过滤党派政治内容',
+        'faq.a17Pack8': '严重亵渎：',
+        'faq.a17Pack8Desc': '过滤粗俗语言',
+        'faq.a17Note': '在设置 > 内容过滤器中启用这些。您还可以添加自定义关键词。过滤的内容会显示一个占位符，如果您想临时查看，可以点击"仍然显示"按钮。',
+        'faq.q18': '如何屏蔽用户？',
+        'faq.a18': '要屏蔽用户，请访问他们的个人资料并点击屏蔽按钮。屏蔽后，他们的所有视频将从您的信息流中隐藏，他们的评论将显示为"来自屏蔽用户的消息"，他们的直播聊天消息将被隐藏。您的屏蔽列表存储在 Nostr 上，因此可以跨设备同步。您可以在个人资料设置的"屏蔽用户"下管理屏蔽的用户。',
+        'faq.q19': '"Ratioed"是什么意思？',
+        'faq.a19': '当一个视频的不喜欢数量明显多于喜欢数量时，会被标记为"ratioed"，表示社区的负面反应。具体来说，当视频至少有 10 个反应，不喜欢至少是喜欢的两倍，并且不喜欢占总反应的 70% 或更多时，视频就会被标记为 ratioed。Ratioed 视频会显示警告徽章，在查看之前会要求您确认。',
+        'faq.q20': '社区警告是如何工作的？',
+        'faq.a20': '用户可以出于各种原因举报内容（垃圾信息、非法内容、滥用、误导等）。当一个视频或用户收到来自您关注的人的 5 个或更多举报时，会出现警告指示器。这利用了您的社交图谱 - 警告来自您信任的网络，而不是匿名陌生人。您可以在设置中切换"显示来自我关注账户的警告"。',
+        'faq.q21': '如何举报内容？',
+        'faq.a21': '点击任何视频、评论或用户个人资料上的旗帜图标进行举报。选择一个原因（垃圾信息、非法、滥用、误导、冒充、版权或其他）并可选择添加详细信息。举报作为事件发布到 Nostr，使其透明和去中心化。您的举报帮助您网络中的其他人识别有问题的内容。',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': '隐私与安全',
+        'faq.q22': '我的活动是私密的吗？',
+        'faq.a22': '在 Nostr 上，大多数活动在设计上是公开的。您的点赞、评论、关注和 zap 在公共网络上是可见的。然而，Plebs 将您的观看历史本地存储在浏览器中 - 它从不发送到任何服务器。您可以随时清除本地数据。',
+        'faq.q23': '如何保持账户安全？',
+        'faq.a23': '永远不要与任何人分享您的私钥（nsec）。我们强烈建议使用 Nostr 浏览器扩展，如 Alby、nos2x 或硬件签名器。这些工具会安全地保存您的私钥，并且只在您批准时签署事件。避免直接在网站上存储您的 nsec。',
+        'faq.q24': '我可以删除我的内容吗？',
+        'faq.a24': '您可以通过在 Nostr 上发布删除事件来请求删除。大多数行为良好的中继和客户端会尊重这一点。然而，由于网络的去中心化性质，内容可能会在某些中继或 Blossom 服务器上持续存在。没有中央机构可以强制在整个网络中完全删除。',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': '故障排除',
+        'faq.q25': '视频无法加载 - 我应该怎么做？',
+        'faq.a25Intro': '如果视频无法加载，请尝试以下步骤：',
+        'faq.a25Item1': '刷新页面',
+        'faq.a25Item2': '检查您的互联网连接',
+        'faq.a25Item3': '托管视频的 Blossom 服务器可能已关闭 - 这与 Plebs 无关',
+        'faq.a25Item4': '尝试禁用可能阻止内容的浏览器扩展',
+        'faq.a25Item5': '清除浏览器缓存并重试',
+        'faq.q26': '我丢失了私钥 - 您能帮我恢复吗？',
+        'faq.a26': '不幸的是，不能。Nostr 密钥是加密的 - 没有密码重置或账户恢复，因为没有中央机构。这就是为什么我们强烈建议备份您的密钥并使用安全的密钥管理解决方案。如果您丢失了 nsec，您将需要创建一个新身份。',
+        'faq.q27': '如何报告错误或请求功能？',
+        'faq.a27': '您可以在我们的 <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a> 页面上报告错误或请求功能。您也可以在 Nostr 上联系我们 - 访问我们的<a href="#/contact">联系</a>页面了解详情。',
+        // Page Titles
+        'pageTitle.following': '关注',
+        'pageTitle.myVideos': '我的视频',
+        'pageTitle.likedVideos': '已赞视频',
+        'pageTitle.watchHistory': '观看历史',
+        'pageTitle.liveStreams': '直播',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- Plebs 直播',
+        // Home Page Sections
+        'section.trending': '热门',
+        'section.recommended': '为您推荐',
+        'section.shorts': '短视频',
+        'section.live': '直播',
+        'section.liveNow': '正在直播',
+        'section.latestVideos': '最新视频',
+        'section.videos': '视频',
+        'section.usersYouFollow': '您关注的用户',
+        // Trending Period
+        'trending.thisWeek': '本周',
+        'trending.today': '今天',
+        // Buttons
+        'button.viewMore': '查看更多',
+        'button.clearAll': '全部清除',
+        'button.showAnyway': '仍然显示',
+        // Confirmation Modals
+        'confirm.logout': '登出',
+        'confirm.logoutMessage': '您确定要登出吗？',
+        'confirm.resetSettings': '重置设置',
+        'confirm.resetSettingsMessage': '您确定要将所有设置重置为默认值吗？',
+        'confirm.reset': '重置',
+        'confirm.clearHistory': '清除历史',
+        'confirm.clearHistoryMessage': '您确定要清除整个观看历史吗？此操作无法撤销。',
+        'confirm.deleteDraft': '删除草稿',
+        'confirm.deleteDraftMessage': '您确定要删除此草稿吗？',
+        'confirm.delete': '删除',
+        'confirm.deleteVideo': '删除视频',
+        'confirm.deleteVideoMessage': '您确定要删除此视频吗？此操作无法撤销。',
+        'confirm.endStream': '结束直播',
+        'confirm.endStreamMessage': '您确定要结束此直播吗？此操作无法撤销。',
+        'confirm.endStreamButton': '结束直播',
+        // Content Filters
+        'filter.hiddenByPack': '被{pack}隐藏',
+        'filter.showAnyway': '仍然显示',
+        'filter.contentHidden': '内容已被内容过滤器隐藏',
+        // Following Page
+        'following.noFollowingYet': '您还没有关注任何人。找到创作者关注吧！',
     },
     ja: {
         // Navigation & Header
@@ -1349,7 +3872,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': 'ログインしました！', 'toast.loggedOut': 'ログアウトしました', 'toast.settingsSaved': '設定を保存しました！', 'toast.settingsReset': '設定をリセットしました', 'toast.videoUploaded': '動画をアップロードしました！', 'toast.videoDeleted': '動画を削除しました', 'toast.profileUpdated': 'プロフィールを更新しました！', 'toast.linkCopied': 'リンクをコピーしました！', 'toast.embedCopied': '埋め込みコードをコピーしました！', 'toast.zapSent': 'Zapを送りました！', 'toast.followed': 'フォローしました！', 'toast.unfollowed': 'フォロー解除しました', 'toast.reported': '報告を送信しました', 'toast.saved': '保存しました！', 'toast.error': 'エラーが発生しました', 'toast.networkError': 'ネットワークエラー。再試行してください。', 'toast.uploadError': 'アップロードに失敗しました。再試行してください。', 'toast.languageChanged': '言語を変更しました', 'toast.commentPosted': 'コメントを投稿しました', 'toast.keyCopied': '鍵をコピーしました！',
         // Time
-        'time.now': 'たった今', 'time.minutesAgo': '{count}分前', 'time.hoursAgo': '{count}時間前', 'time.daysAgo': '{count}日前', 'time.weeksAgo': '{count}週間前', 'time.monthsAgo': '{count}ヶ月前', 'time.yearsAgo': '{count}年前',
+        'time.justNow': 'たった今', 'time.secondAgo': '1秒前', 'time.secondsAgo': '{n}秒前', 'time.minuteAgo': '1分前', 'time.minutesAgo': '{n}分前', 'time.hourAgo': '1時間前', 'time.hoursAgo': '{n}時間前', 'time.dayAgo': '1日前', 'time.daysAgo': '{n}日前', 'time.weekAgo': '1週間前', 'time.weeksAgo': '{n}週間前', 'time.monthAgo': '1ヶ月前', 'time.monthsAgo': '{n}ヶ月前', 'time.yearAgo': '1年前', 'time.yearsAgo': '{n}年前',
         // Empty States
         'empty.noVideos': '動画が見つかりません', 'empty.noVideosDesc': '別の検索をお試しください', 'empty.noFollowing': 'まだ誰もフォローしていません', 'empty.noFollowingDesc': 'クリエイターをフォローして動画を見る', 'empty.noHistory': '視聴履歴はありません', 'empty.noHistoryDesc': '視聴した動画がここに表示されます', 'empty.noLiked': 'いいねした動画はありません', 'empty.noLikedDesc': 'いいねした動画がここに表示されます', 'empty.noResults': '結果が見つかりません', 'empty.noResultsDesc': '別のキーワードをお試しください',
         // Misc
@@ -1393,6 +3916,255 @@ const translations = {
         'warning.webmFormat': '注意: ブラウザはWebM形式で出力します（iOSでは再生できない場合があります）。iOS互換のMP4にはWindows/MacのChromeをお使いください。',
         // New Footer
         'footer.lastUpdated': '最終更新: 2024年12月',
+
+        // Analytics
+        'analytics.title': 'チャンネル分析',
+        'analytics.description': 'チャンネルのパフォーマンス指標とインサイトを確認できます。',
+        'analytics.loading': '分析データを読み込み中...',
+        'analytics.error': '分析データの読み込みに失敗しました',
+        'analytics.overview': '概要',
+        'analytics.videos': '動画',
+        'analytics.engagement': 'エンゲージメント',
+        'analytics.totalViews': '総再生回数',
+        'analytics.totalVideos': '総動画数',
+        'analytics.totalLikes': '総いいね数',
+        'analytics.totalZaps': '総Zaps',
+        'analytics.avgViews': '平均再生回数',
+        'analytics.avgLikes': '平均いいね数',
+        'analytics.avgZaps': '平均Zaps',
+        'analytics.viewsOverTime': '再生回数の推移',
+        'analytics.topVideos': '人気動画',
+        'analytics.recentActivity': '最近のアクティビティ',
+        'analytics.viewsLabel': '再生回数',
+        'analytics.likesLabel': 'いいね',
+        'analytics.zapsLabel': 'Zaps',
+        'analytics.dateLabel': '日付',
+        'analytics.videoTitle': '動画タイトル',
+        'analytics.performance': 'パフォーマンス',
+        'analytics.noData': '分析データがありません',
+        'analytics.noDataDesc': '動画をアップロードして分析を開始しましょう。',
+        'analytics.last7Days': '過去7日間',
+        'analytics.last30Days': '過去30日間',
+        'analytics.last90Days': '過去90日間',
+        'analytics.allTime': '全期間',
+        'analytics.views': '再生',
+        'analytics.likes': 'いいね',
+        'analytics.zaps': 'Zaps',
+        'analytics.rank': '順位',
+        'analytics.noVideos': '動画がありません',
+        'analytics.noVideosDesc': '最初の動画をアップロードしてパフォーマンスを追跡しましょう。',
+
+        // About Page
+        'about.title': 'Plebs.placeについて',
+        'about.subtitle': '分散型ビデオプラットフォーム',
+        'about.welcome': 'Plebs.placeへようこそ',
+        'about.description': 'Plebs.placeはNostrプロトコル上に構築された分散型ビデオ共有プラットフォームで、クリエイターがコンテンツと視聴者を完全にコントロールできます。',
+        'about.feature1Title': '分散型',
+        'about.feature1Desc': 'Nostr上に構築されており、検閲耐性と真のコンテンツ所有権を確保します。',
+        'about.feature2Title': 'クリエイター優先',
+        'about.feature2Desc': 'コンテンツ、データ、視聴者との関係を完全にコントロールできます。',
+        'about.feature3Title': 'ビットコインで収益化',
+        'about.feature3Desc': 'ライトニングネットワークとZapsを通じて視聴者から直接サポートを受け取れます。',
+        'about.feature4Title': 'オープンソース',
+        'about.feature4Desc': '分散化の理念に沿った、透明でコミュニティ主導の開発です。',
+        'about.missionTitle': '私たちのミッション',
+        'about.missionDesc': '検閲、プラットフォームロックイン、恣意的なルール変更のないビデオプラットフォームを作ること。あなたのコンテンツはあなたのものです。',
+        'about.techTitle': 'テクノロジー',
+        'about.techDesc': 'Nostrで認証とソーシャル機能、ライトニングで即時マイクロペイメント、分散型ストレージソリューションで構築されています。',
+
+        // Contact Page
+        'contact.title': 'お問い合わせ',
+        'contact.subtitle': '連絡先',
+        'contact.description': 'ご質問、フィードバック、提案がありましたらお聞かせください。',
+        'contact.nostrTitle': 'Nostrでフォロー',
+        'contact.nostrDesc': 'Nostrでフォローして最新情報やコミュニティの議論に参加しましょう。',
+        'contact.githubTitle': 'GitHub',
+        'contact.githubDesc': 'ソースコードの閲覧、問題の報告、プロジェクトへの貢献ができます。',
+        'contact.emailTitle': 'メール',
+        'contact.emailDesc': 'ビジネスに関するお問い合わせやサポートはチームまでご連絡ください。',
+
+        // Terms Page
+        'terms.title': '利用規約',
+        'terms.lastUpdated': '最終更新日',
+        'terms.section1Title': '1. 規約への同意',
+        'terms.section1Content': 'Plebs.placeを使用することで、これらの規約に拘束されることに同意したものとみなされます。同意されない場合は、プラットフォームを使用しないでください。',
+        'terms.section2Title': '2. サービスの説明',
+        'terms.section2Content': 'Plebs.placeはNostrプロトコルを活用した分散型ビデオ共有プラットフォームです。動画のホスティング、共有、ライトニングネットワークによる収益化ツールを提供しています。',
+        'terms.section3Title': '3. ユーザーの責任',
+        'terms.section3Content': 'プラットフォームを通じて投稿するすべてのコンテンツについて、あなたが責任を負います。違法、有害、または他者の権利を侵害するコンテンツをアップロードしないことに同意するものとします。',
+        'terms.section4Title': '4. コンテンツの所有権',
+        'terms.section4Content': 'あなたのコンテンツの完全な所有権はあなたにあります。アップロードすることで、Plebs.placeにあなたの動画をホストし提供するための限定的なライセンスを付与します。',
+        'terms.section5Title': '5. 禁止事項',
+        'terms.section5Content': '違法行為、ハラスメント、スパム、有害コンテンツの配布にプラットフォームを使用することはできません。',
+        'terms.section6Title': '6. アカウント管理',
+        'terms.section6Content': 'Nostrキーを適切に管理してアカウントを保護する責任はあなたにあります。私たちはあなたの秘密鍵を保存しておらず、失われたアカウントを復旧することはできません。',
+        'terms.section7Title': '7. 支払い条件',
+        'terms.section7Content': 'すべての支払いはライトニングネットワークを通じて処理されます。取引は最終的で不可逆です。支払い前にすべての詳細を確認してください。',
+        'terms.section8Title': '8. 責任の制限',
+        'terms.section8Content': 'Plebs.placeは保証なしで「現状のまま」提供されます。いかなる損失、損害、またはサービスの中断についても責任を負いません。',
+        'terms.section9Title': '9. 規約の変更',
+        'terms.section9Content': 'これらの規約は随時更新される場合があります。継続して使用することは、更新された規約への同意を意味します。',
+
+        // Privacy Page
+        'privacy.title': 'プライバシーポリシー',
+        'privacy.lastUpdated': '最終更新日',
+        'privacy.section1Title': '1. はじめに',
+        'privacy.section1Content': 'このプライバシーポリシーは、Plebs.placeの分散型ビデオプラットフォームの使用に関連する情報の取り扱いについて説明します。',
+        'privacy.section2Title': '2. 収集する情報',
+        'privacy.section2Content': '分散型プラットフォームとして、最小限のデータのみを収集します。Nostr公開鍵は認証に使用され、動画メタデータはNostrリレーに保存されます。',
+        'privacy.section3Title': '3. データの保存',
+        'privacy.section3Content': 'コンテンツは分散型ストレージソリューションに保存されます。中央サーバーに個人データは保存しません。秘密鍵は私たちと共有されることはありません。',
+        'privacy.section4Title': '4. データの使用',
+        'privacy.section4Content': '収集したデータはプラットフォームサービスの提供と改善にのみ使用します。データを第三者に販売することは一切ありません。',
+        'privacy.section5Title': '5. Cookieとトラッキング',
+        'privacy.section5Content': '基本機能のために最小限のCookieを使用します。広告トラッキングやマーケティング目的のデータ収集は行いません。',
+        'privacy.section6Title': '6. サードパーティサービス',
+        'privacy.section6Content': 'Nostrリレーやライトニングネットワークノードと連携しています。これらのサービスには独自のプライバシーポリシーがあります。',
+        'privacy.section7Title': '7. データセキュリティ',
+        'privacy.section7Content': '分散型アーキテクチャを通じてあなたの情報を保護します。ただし、秘密鍵を保護する責任はあなたにあります。',
+        'privacy.section8Title': '8. あなたの権利',
+        'privacy.section8Content': 'あなたのデータを完全にコントロールできます。いつでもコンテンツを削除したり、プラットフォームの使用を停止したりできます。',
+        'privacy.section9Title': '9. 子どものプライバシー',
+        'privacy.section9Content': 'Plebs.placeは13歳未満のお子様向けではありません。未成年者の情報を意図的に収集することはありません。',
+        'privacy.section10Title': '10. ポリシーの変更',
+        'privacy.section10Content': 'このプライバシーポリシーを更新する場合があります。変更はこのページに更新日とともに掲載されます。',
+
+        // FAQ Page
+        'faq.title': 'よくある質問',
+        'faq.subtitle': 'よくある質問と回答',
+        'faq.general': '一般',
+        'faq.technical': '技術',
+        'faq.monetization': '収益化',
+        'faq.content': 'コンテンツ',
+        'faq.q1': 'Plebs.placeとは何ですか？',
+        'faq.a1': 'Plebs.placeはNostrプロトコル上に構築された分散型ビデオ共有プラットフォームで、コンテンツと視聴者を完全に所有できます。',
+        'faq.q2': 'Plebs.placeはどのように機能しますか？',
+        'faq.a2': 'プラットフォームはNostrで認証とソーシャル機能、分散型ストレージで動画ホスティング、ライトニングネットワークで即時支払いを行います。',
+        'faq.q3': 'Plebs.placeは無料で使えますか？',
+        'faq.a3': 'はい、アカウント作成、アップロード、視聴は無料です。始めるにはNostrキーが必要です。',
+        'faq.q4': 'Nostrとは何ですか？',
+        'faq.a4': 'Nostrは分散型通信プロトコルで、中央集権的なプラットフォームに依存せずにアイデンティティとデータをコントロールできます。',
+        'faq.q5': 'アカウントを作成するにはどうすればいいですか？',
+        'faq.a5': 'AlbyやNos2xなどのNostrブラウザ拡張機能でサインインするか、新しいNostrキーを生成できます。',
+        'faq.q6': 'どの動画形式がサポートされていますか？',
+        'faq.a6': 'MP4、WebM、MOVなど、ほとんどの一般的な形式をサポートしています。動画はアップロード後にトランスコードされます。',
+        'faq.q7': '動画はどこに保存されますか？',
+        'faq.a7': '動画は分散型ストレージソリューションに保存され、コンテンツが単一のサーバーに支配されないようになっています。',
+        'faq.q8': 'ライトニングネットワークとは何ですか？',
+        'faq.a8': 'ライトニングネットワークはビットコインのレイヤー2決済プロトコルで、即時かつ低手数料の取引を可能にします。',
+        'faq.q9': 'Zapsとは何ですか？',
+        'faq.a9': 'Zapsはライトニングネットワークを通じて送られるビットコインのマイクロペイメントで、クリエイターをサポートするために使用されます。',
+        'faq.q10': 'コンテンツをどのように収益化できますか？',
+        'faq.a10': 'クリエイターは視聴者のZaps、有料コンテンツ、ライトニング経由の直接寄付で収入を得ることができます。',
+        'faq.q11': '収益を引き出すにはどうすればいいですか？',
+        'faq.a11': '収益はライトニングウォレットに直接届きます。最低引き出し額や待機期間はありません。',
+        'faq.q12': 'どのようなコンテンツが許可されていますか？',
+        'faq.a12': '合法的なコンテンツは歓迎です。利用規約を遵守し、有害または違法なコンテンツは避けてください。',
+        'faq.q13': '動画を削除できますか？',
+        'faq.a13': 'はい、いつでも動画を削除できます。分散型の性質上、すでに配布されたコピーは他のノードに残る場合があります。',
+        'faq.q14': 'コンテンツモデレーションはありますか？',
+        'faq.a14': '分散型プラットフォームとして、モデレーションはコミュニティ主導のアプローチとユーザーコントロールを通じて行われます。',
+        'faq.q15': '問題のあるコンテンツを報告するにはどうすればいいですか？',
+        'faq.a15': '動画の報告機能を使用するか、連絡先情報を通じてお知らせください。コミュニティからのフィードバックがプラットフォームの品質維持に役立ちます。',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'セルフモデレーション',
+        'faq.q16': '分散型プラットフォームではモデレーションはどのように機能しますか？',
+        'faq.a16': '中央管理者を持つ従来のプラットフォームとは異なり、Plebsはあなたが見るものをコントロールします。コンテンツフィルターパック、ユーザーミュート、コミュニティ警告、レシオ動画インジケーターなど、強力なセルフモデレーションツールを提供しています。何が適切なコンテンツかを決めるのはあなた自身です - 中央権限がその決定を下すことはありません。',
+        'faq.q17': 'コンテンツフィルターパックとは何ですか？',
+        'faq.a17Intro': 'コンテンツフィルターパックは、特定の種類のコンテンツを非表示にするために有効にできる事前定義されたキーワードフィルターです。利用可能なパックには以下が含まれます：',
+        'faq.a17Pack1': '人種差別とヘイトスピーチ：',
+        'faq.a17Pack1Desc': '人種的中傷や差別的なコンテンツをフィルタリング',
+        'faq.a17Pack2': '性的に露骨な内容：',
+        'faq.a17Pack2Desc': 'ポルノや成人向けコンテンツをフィルタリング',
+        'faq.a17Pack3': '暴力とゴア：',
+        'faq.a17Pack3Desc': 'グラフィック暴力や自傷行為のコンテンツをフィルタリング',
+        'faq.a17Pack4': '薬物と物質：',
+        'faq.a17Pack4Desc': '薬物関連のコンテンツをフィルタリング',
+        'faq.a17Pack5': 'スパムと詐欺：',
+        'faq.a17Pack5Desc': '一般的なスパムや詐欺のパターンをフィルタリング',
+        'faq.a17Pack6': '暗号通貨：',
+        'faq.a17Pack6Desc': '暗号通貨のプロモーションやトークン勧誘をフィルタリング',
+        'faq.a17Pack7': '政治的コンテンツ：',
+        'faq.a17Pack7Desc': '党派的な政治コンテンツをフィルタリング',
+        'faq.a17Pack8': '強い冒涜：',
+        'faq.a17Pack8Desc': '下品な言葉をフィルタリング',
+        'faq.a17Note': '設定 > コンテンツフィルターで有効にできます。カスタムキーワードも追加できます。フィルタリングされたコンテンツには、一時的に表示したい場合は「とにかく表示」ボタン付きのプレースホルダーが表示されます。',
+        'faq.q18': 'ユーザーをミュートするにはどうすればいいですか？',
+        'faq.a18': 'ユーザーをミュートするには、そのユーザーのプロフィールを訪問してミュートボタンをクリックします。ミュートされると、そのユーザーのすべての動画がフィードから非表示になり、コメントは「ミュートされたユーザーからのメッセージ」として表示され、ライブチャットメッセージも非表示になります。ミュートリストはNostrに保存されるため、デバイス間で同期されます。プロフィール設定の「ミュートされたユーザー」でミュートされたユーザーを管理できます。',
+        'faq.q19': '「レシオ」とはどういう意味ですか？',
+        'faq.a19': '動画は、いいねよりも著しく多くの低評価を受けると「レシオ」としてマークされ、ネガティブなコミュニティの反応を示します。具体的には、動画に少なくとも10のリアクションがあり、低評価がいいねの少なくとも2倍あり、低評価が全リアクションの70%以上を占める場合にレシオとなります。レシオされた動画には警告バッジが表示され、視聴前に確認を求められます。',
+        'faq.q20': 'コミュニティ警告はどのように機能しますか？',
+        'faq.a20': 'ユーザーはさまざまな理由（スパム、違法コンテンツ、虐待、誤解を招く内容など）でコンテンツを報告できます。動画やユーザーがフォローしている人から5件以上の報告を受けると、警告インジケーターが表示されます。これはあなたのソーシャルグラフを活用しています - 警告は匿名の見知らぬ人ではなく、信頼できるネットワークから来ます。設定で「フォローしているアカウントからの警告を表示」を切り替えることができます。',
+        'faq.q21': 'コンテンツを報告するにはどうすればいいですか？',
+        'faq.a21': '任意の動画、コメント、ユーザープロフィールのフラグアイコンをクリックして報告します。理由（スパム、違法、虐待、誤解を招く、なりすまし、著作権、その他）を選択し、オプションで詳細を追加します。報告はイベントとしてNostrに公開され、透明で分散化されています。あなたの報告は、ネットワーク内の他の人が問題のあるコンテンツを特定するのに役立ちます。',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'プライバシーとセキュリティ',
+        'faq.q22': '私の活動はプライベートですか？',
+        'faq.a22': 'Nostrでは、ほとんどの活動は設計上公開されています。いいね、コメント、フォロー、Zapは公開ネットワーク上で表示されます。ただし、Plebsは視聴履歴をブラウザにローカルに保存します - サーバーに送信されることはありません。いつでもローカルデータをクリアできます。',
+        'faq.q23': 'アカウントを安全に保つにはどうすればいいですか？',
+        'faq.a23': '秘密鍵（nsec）を誰とも共有しないでください。Alby、nos2x、またはハードウェア署名者などのNostrブラウザ拡張機能の使用を強くお勧めします。これらは秘密鍵を安全に保ち、承認したときにのみイベントに署名します。ウェブサイトに直接nsecを保存することは避けてください。',
+        'faq.q24': 'コンテンツを削除できますか？',
+        'faq.a24': 'Nostrで削除イベントを公開することで削除をリクエストできます。ほとんどの適切に動作するリレーとクライアントはこれを尊重します。ただし、ネットワークの分散型の性質上、コンテンツは一部のリレーやBlossomサーバーに残る可能性があります。ネットワーク全体で完全な削除を強制できる中央権限はありません。',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'トラブルシューティング',
+        'faq.q25': '動画が読み込まれません - どうすればいいですか？',
+        'faq.a25Intro': '動画が読み込まれない場合は、以下の手順を試してください：',
+        'faq.a25Item1': 'ページを更新',
+        'faq.a25Item2': 'インターネット接続を確認',
+        'faq.a25Item3': '動画をホストしているBlossomサーバーがダウンしている可能性があります - これはPlebsとは独立しています',
+        'faq.a25Item4': 'コンテンツをブロックする可能性のあるブラウザ拡張機能を無効にしてみる',
+        'faq.a25Item5': 'ブラウザのキャッシュをクリアして再試行',
+        'faq.q26': '秘密鍵を紛失しました - 復旧を手伝ってもらえますか？',
+        'faq.a26': '残念ながらできません。Nostr鍵は暗号化されています - パスワードリセットやアカウント復旧はありません。中央権限が存在しないためです。だからこそ、鍵をバックアップし、安全な鍵管理ソリューションを使用することを強くお勧めします。nsecを紛失した場合は、新しいアイデンティティを作成する必要があります。',
+        'faq.q27': 'バグを報告したり、機能をリクエストしたりするにはどうすればいいですか？',
+        'faq.a27': '<a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a>ページでバグを報告したり、機能をリクエストしたりできます。Nostrで連絡することもできます - 詳細は<a href="#/contact">お問い合わせ</a>ページをご覧ください。',
+
+        // Page Titles
+        'pageTitle.following': 'フォロー中',
+        'pageTitle.myVideos': 'マイ動画',
+        'pageTitle.likedVideos': 'いいねした動画',
+        'pageTitle.watchHistory': '視聴履歴',
+        'pageTitle.liveStreams': 'ライブ配信',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- Plebsでライブ配信中',
+        // Home Page Sections
+        'section.trending': 'トレンド',
+        'section.recommended': 'おすすめ',
+        'section.shorts': 'ショート',
+        'section.live': 'ライブ',
+        'section.liveNow': 'ライブ配信中',
+        'section.latestVideos': '最新の動画',
+        'section.videos': '動画',
+        'section.usersYouFollow': 'フォロー中のユーザー',
+        // Trending Period
+        'trending.thisWeek': '今週',
+        'trending.today': '今日',
+        // Buttons
+        'button.viewMore': 'もっと見る',
+        'button.clearAll': 'すべてクリア',
+        'button.showAnyway': 'とにかく表示',
+        // Confirmation Modals
+        'confirm.logout': 'ログアウト',
+        'confirm.logoutMessage': '本当にログアウトしますか？',
+        'confirm.resetSettings': '設定をリセット',
+        'confirm.resetSettingsMessage': 'すべての設定をデフォルトに戻しますか？',
+        'confirm.reset': 'リセット',
+        'confirm.clearHistory': '履歴をクリア',
+        'confirm.clearHistoryMessage': '視聴履歴をすべて削除しますか？この操作は元に戻せません。',
+        'confirm.deleteDraft': '下書きを削除',
+        'confirm.deleteDraftMessage': 'この下書きを削除しますか？',
+        'confirm.delete': '削除',
+        'confirm.deleteVideo': '動画を削除',
+        'confirm.deleteVideoMessage': 'この動画を削除しますか？この操作は元に戻せません。',
+        'confirm.endStream': 'ライブ配信を終了',
+        'confirm.endStreamMessage': 'ライブ配信を終了しますか？この操作は元に戻せません。',
+        'confirm.endStreamButton': '配信を終了',
+        // Content Filters
+        'filter.hiddenByPack': '{pack}により非表示',
+        'filter.showAnyway': 'とにかく表示',
+        'filter.contentHidden': 'コンテンツフィルターにより非表示',
+        // Following Page
+        'following.noFollowingYet': 'まだ誰もフォローしていません。フォローするクリエイターを見つけましょう！',
     },
     ko: {
         // Navigation & Header
@@ -1437,7 +4209,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': '로그인 성공!', 'toast.loggedOut': '로그아웃됨', 'toast.settingsSaved': '설정 저장됨!', 'toast.settingsReset': '설정 초기화됨', 'toast.videoUploaded': '동영상 업로드됨!', 'toast.videoDeleted': '동영상 삭제됨', 'toast.profileUpdated': '프로필 업데이트됨!', 'toast.linkCopied': '링크 복사됨!', 'toast.embedCopied': '임베드 코드 복사됨!', 'toast.zapSent': 'Zap 전송됨!', 'toast.followed': '팔로우함!', 'toast.unfollowed': '언팔로우함', 'toast.reported': '신고 제출됨', 'toast.saved': '저장됨!', 'toast.error': '오류 발생', 'toast.networkError': '네트워크 오류. 다시 시도하세요.', 'toast.uploadError': '업로드 실패. 다시 시도하세요.', 'toast.languageChanged': '언어가 변경됨', 'toast.commentPosted': '댓글 게시됨', 'toast.keyCopied': '키 복사됨!',
         // Time
-        'time.now': '방금 전', 'time.minutesAgo': '{count}분 전', 'time.hoursAgo': '{count}시간 전', 'time.daysAgo': '{count}일 전', 'time.weeksAgo': '{count}주 전', 'time.monthsAgo': '{count}개월 전', 'time.yearsAgo': '{count}년 전',
+        'time.justNow': '방금 전', 'time.secondAgo': '1초 전', 'time.secondsAgo': '{n}초 전', 'time.minuteAgo': '1분 전', 'time.minutesAgo': '{n}분 전', 'time.hourAgo': '1시간 전', 'time.hoursAgo': '{n}시간 전', 'time.dayAgo': '1일 전', 'time.daysAgo': '{n}일 전', 'time.weekAgo': '1주 전', 'time.weeksAgo': '{n}주 전', 'time.monthAgo': '1개월 전', 'time.monthsAgo': '{n}개월 전', 'time.yearAgo': '1년 전', 'time.yearsAgo': '{n}년 전',
         // Empty States
         'empty.noVideos': '동영상을 찾을 수 없습니다', 'empty.noVideosDesc': '다른 검색어를 시도하세요', 'empty.noFollowing': '아직 팔로우하는 사람이 없습니다', 'empty.noFollowingDesc': '크리에이터를 팔로우하여 동영상을 보세요', 'empty.noHistory': '시청 기록이 없습니다', 'empty.noHistoryDesc': '시청한 동영상이 여기에 표시됩니다', 'empty.noLiked': '좋아요한 동영상이 없습니다', 'empty.noLikedDesc': '좋아요한 동영상이 여기에 표시됩니다', 'empty.noResults': '결과를 찾을 수 없습니다', 'empty.noResultsDesc': '다른 키워드를 시도하세요',
         // Misc
@@ -1481,6 +4253,255 @@ const translations = {
         'warning.webmFormat': '참고: 브라우저는 WebM 형식을 출력합니다(iOS에서 재생되지 않을 수 있음). iOS 호환 MP4의 경우 Windows/Mac의 Chrome을 사용하세요.',
         // New Footer
         'footer.lastUpdated': '최종 업데이트: 2024년 12월',
+
+        // Analytics
+        'analytics.title': '채널 분석',
+        'analytics.description': '채널 성과 지표와 인사이트를 확인하세요.',
+        'analytics.loading': '분석 데이터 로딩 중...',
+        'analytics.error': '분석 데이터 로드 실패',
+        'analytics.overview': '개요',
+        'analytics.videos': '동영상',
+        'analytics.engagement': '참여도',
+        'analytics.totalViews': '총 조회수',
+        'analytics.totalVideos': '총 동영상 수',
+        'analytics.totalLikes': '총 좋아요 수',
+        'analytics.totalZaps': '총 Zaps',
+        'analytics.avgViews': '평균 조회수',
+        'analytics.avgLikes': '평균 좋아요',
+        'analytics.avgZaps': '평균 Zaps',
+        'analytics.viewsOverTime': '시간별 조회수',
+        'analytics.topVideos': '인기 동영상',
+        'analytics.recentActivity': '최근 활동',
+        'analytics.viewsLabel': '조회수',
+        'analytics.likesLabel': '좋아요',
+        'analytics.zapsLabel': 'Zaps',
+        'analytics.dateLabel': '날짜',
+        'analytics.videoTitle': '동영상 제목',
+        'analytics.performance': '성과',
+        'analytics.noData': '분석 데이터 없음',
+        'analytics.noDataDesc': '분석을 보려면 동영상을 업로드하세요.',
+        'analytics.last7Days': '최근 7일',
+        'analytics.last30Days': '최근 30일',
+        'analytics.last90Days': '최근 90일',
+        'analytics.allTime': '전체 기간',
+        'analytics.views': '조회',
+        'analytics.likes': '좋아요',
+        'analytics.zaps': 'Zaps',
+        'analytics.rank': '순위',
+        'analytics.noVideos': '동영상 없음',
+        'analytics.noVideosDesc': '첫 번째 동영상을 업로드하여 성과 추적을 시작하세요.',
+
+        // About Page
+        'about.title': 'Plebs.place 소개',
+        'about.subtitle': '탈중앙화 비디오 플랫폼',
+        'about.welcome': 'Plebs.place에 오신 것을 환영합니다',
+        'about.description': 'Plebs.place는 Nostr 프로토콜 기반의 탈중앙화 비디오 공유 플랫폼으로, 크리에이터가 콘텐츠와 시청자를 완전히 제어할 수 있습니다.',
+        'about.feature1Title': '탈중앙화',
+        'about.feature1Desc': 'Nostr 기반으로 검열 저항성과 진정한 콘텐츠 소유권을 보장합니다.',
+        'about.feature2Title': '크리에이터 우선',
+        'about.feature2Desc': '콘텐츠, 데이터, 시청자와의 관계를 완전히 제어합니다.',
+        'about.feature3Title': '비트코인 수익화',
+        'about.feature3Desc': '라이트닝 네트워크와 Zaps를 통해 시청자로부터 직접 지원을 받으세요.',
+        'about.feature4Title': '오픈 소스',
+        'about.feature4Desc': '탈중앙화 이념에 맞는 투명하고 커뮤니티 주도의 개발입니다.',
+        'about.missionTitle': '우리의 미션',
+        'about.missionDesc': '검열, 플랫폼 종속, 임의적인 규칙 변경 없는 비디오 플랫폼을 만드는 것입니다. 당신의 콘텐츠는 당신의 것입니다.',
+        'about.techTitle': '기술',
+        'about.techDesc': 'Nostr로 인증 및 소셜 기능, 라이트닝으로 즉시 소액 결제, 탈중앙화 스토리지 솔루션으로 구축되었습니다.',
+
+        // Contact Page
+        'contact.title': '연락처',
+        'contact.subtitle': '연락 방법',
+        'contact.description': '질문, 피드백, 제안이 있으시면 알려주세요.',
+        'contact.nostrTitle': 'Nostr에서 팔로우',
+        'contact.nostrDesc': 'Nostr에서 팔로우하여 업데이트와 커뮤니티 토론에 참여하세요.',
+        'contact.githubTitle': 'GitHub',
+        'contact.githubDesc': '소스 코드를 보고, 문제를 보고하고, 프로젝트에 기여하세요.',
+        'contact.emailTitle': '이메일',
+        'contact.emailDesc': '비즈니스 문의나 지원 관련 사항은 팀에 연락하세요.',
+
+        // Terms Page
+        'terms.title': '이용약관',
+        'terms.lastUpdated': '최종 업데이트',
+        'terms.section1Title': '1. 약관 동의',
+        'terms.section1Content': 'Plebs.place를 사용함으로써 이 약관에 구속됨에 동의합니다. 동의하지 않으면 플랫폼을 사용하지 마세요.',
+        'terms.section2Title': '2. 서비스 설명',
+        'terms.section2Content': 'Plebs.place는 Nostr 프로토콜을 활용한 탈중앙화 비디오 공유 플랫폼입니다. 비디오 호스팅, 공유, 라이트닝 네트워크 수익화 도구를 제공합니다.',
+        'terms.section3Title': '3. 사용자 책임',
+        'terms.section3Content': '플랫폼을 통해 게시하는 모든 콘텐츠에 대한 책임은 사용자에게 있습니다. 불법적이거나 유해하거나 타인의 권리를 침해하는 콘텐츠를 업로드하지 않을 것에 동의합니다.',
+        'terms.section4Title': '4. 콘텐츠 소유권',
+        'terms.section4Content': '콘텐츠의 완전한 소유권은 사용자에게 있습니다. 업로드함으로써 Plebs.place에 비디오를 호스팅하고 제공할 수 있는 제한적 라이선스를 부여합니다.',
+        'terms.section5Title': '5. 금지된 사용',
+        'terms.section5Content': '불법 활동, 괴롭힘, 스팸, 유해 콘텐츠 배포에 플랫폼을 사용할 수 없습니다.',
+        'terms.section6Title': '6. 계정 관리',
+        'terms.section6Content': 'Nostr 키를 올바르게 관리하여 계정을 보호하는 것은 사용자의 책임입니다. 개인 키를 저장하지 않으며 분실된 계정은 복구할 수 없습니다.',
+        'terms.section7Title': '7. 결제 조건',
+        'terms.section7Content': '모든 결제는 라이트닝 네트워크를 통해 처리됩니다. 거래는 최종적이며 되돌릴 수 없습니다. 결제 전 모든 세부 사항을 확인하세요.',
+        'terms.section8Title': '8. 책임 제한',
+        'terms.section8Content': 'Plebs.place는 보증 없이 "있는 그대로" 제공됩니다. 손실, 손해 또는 서비스 중단에 대해 책임지지 않습니다.',
+        'terms.section9Title': '9. 약관 변경',
+        'terms.section9Content': '이 약관은 수시로 업데이트될 수 있습니다. 계속 사용하면 업데이트된 약관에 동의한 것으로 간주됩니다.',
+
+        // Privacy Page
+        'privacy.title': '개인정보 처리방침',
+        'privacy.lastUpdated': '최종 업데이트',
+        'privacy.section1Title': '1. 소개',
+        'privacy.section1Content': '이 개인정보 처리방침은 Plebs.place의 탈중앙화 비디오 플랫폼 사용과 관련된 정보 처리 방법을 설명합니다.',
+        'privacy.section2Title': '2. 수집하는 정보',
+        'privacy.section2Content': '탈중앙화 플랫폼으로서 최소한의 데이터만 수집합니다. Nostr 공개 키는 인증에 사용되고, 비디오 메타데이터는 Nostr 릴레이에 저장됩니다.',
+        'privacy.section3Title': '3. 데이터 저장',
+        'privacy.section3Content': '콘텐츠는 탈중앙화 스토리지 솔루션에 저장됩니다. 중앙 서버에 개인 데이터를 저장하지 않습니다. 개인 키는 절대 공유되지 않습니다.',
+        'privacy.section4Title': '4. 데이터 사용',
+        'privacy.section4Content': '수집된 데이터는 플랫폼 서비스 제공 및 개선에만 사용됩니다. 데이터를 제3자에게 판매하지 않습니다.',
+        'privacy.section5Title': '5. 쿠키 및 추적',
+        'privacy.section5Content': '기본 기능을 위해 최소한의 쿠키를 사용합니다. 광고 추적이나 마케팅 목적의 데이터 수집은 하지 않습니다.',
+        'privacy.section6Title': '6. 제3자 서비스',
+        'privacy.section6Content': 'Nostr 릴레이 및 라이트닝 네트워크 노드와 통합됩니다. 이러한 서비스에는 자체 개인정보 처리방침이 있습니다.',
+        'privacy.section7Title': '7. 데이터 보안',
+        'privacy.section7Content': '탈중앙화 아키텍처를 통해 정보를 보호합니다. 그러나 개인 키를 보호하는 것은 사용자의 책임입니다.',
+        'privacy.section8Title': '8. 사용자의 권리',
+        'privacy.section8Content': '데이터를 완전히 제어합니다. 언제든지 콘텐츠를 삭제하거나 플랫폼 사용을 중단할 수 있습니다.',
+        'privacy.section9Title': '9. 아동 개인정보',
+        'privacy.section9Content': 'Plebs.place는 13세 미만 아동을 대상으로 하지 않습니다. 미성년자의 정보를 의도적으로 수집하지 않습니다.',
+        'privacy.section10Title': '10. 정책 변경',
+        'privacy.section10Content': '이 개인정보 처리방침을 업데이트할 수 있습니다. 변경 사항은 업데이트 날짜와 함께 이 페이지에 게시됩니다.',
+
+        // FAQ Page
+        'faq.title': '자주 묻는 질문',
+        'faq.subtitle': '자주 묻는 질문과 답변',
+        'faq.general': '일반',
+        'faq.technical': '기술',
+        'faq.monetization': '수익화',
+        'faq.content': '콘텐츠',
+        'faq.q1': 'Plebs.place란 무엇인가요?',
+        'faq.a1': 'Plebs.place는 Nostr 프로토콜 기반의 탈중앙화 비디오 공유 플랫폼으로, 콘텐츠와 시청자를 완전히 소유할 수 있습니다.',
+        'faq.q2': 'Plebs.place는 어떻게 작동하나요?',
+        'faq.a2': '플랫폼은 Nostr로 인증 및 소셜, 탈중앙화 스토리지로 비디오 호스팅, 라이트닝 네트워크로 즉시 결제를 처리합니다.',
+        'faq.q3': 'Plebs.place는 무료인가요?',
+        'faq.a3': '네, 계정 생성, 업로드, 시청은 무료입니다. 시작하려면 Nostr 키만 있으면 됩니다.',
+        'faq.q4': 'Nostr란 무엇인가요?',
+        'faq.a4': 'Nostr는 중앙 플랫폼에 의존하지 않고 신원과 데이터를 제어할 수 있는 탈중앙화 통신 프로토콜입니다.',
+        'faq.q5': '계정은 어떻게 만드나요?',
+        'faq.a5': 'Alby나 nos2x 같은 Nostr 브라우저 확장 프로그램으로 로그인하거나 새 Nostr 키를 생성할 수 있습니다.',
+        'faq.q6': '어떤 비디오 형식이 지원되나요?',
+        'faq.a6': 'MP4, WebM, MOV 등 대부분의 일반적인 형식을 지원합니다. 비디오는 업로드 후 트랜스코딩됩니다.',
+        'faq.q7': '비디오는 어디에 저장되나요?',
+        'faq.a7': '비디오는 탈중앙화 스토리지 솔루션에 저장되어 콘텐츠가 단일 서버에 종속되지 않습니다.',
+        'faq.q8': '라이트닝 네트워크란 무엇인가요?',
+        'faq.a8': '라이트닝 네트워크는 비트코인의 레이어 2 결제 프로토콜로, 즉각적이고 저렴한 거래를 가능하게 합니다.',
+        'faq.q9': 'Zaps란 무엇인가요?',
+        'faq.a9': 'Zaps는 라이트닝 네트워크를 통해 전송되는 비트코인 소액 결제로, 크리에이터를 지원하는 데 사용됩니다.',
+        'faq.q10': '콘텐츠로 어떻게 수익을 창출하나요?',
+        'faq.a10': '크리에이터는 시청자 Zaps, 유료 콘텐츠, 라이트닝을 통한 직접 기부로 수익을 얻을 수 있습니다.',
+        'faq.q11': '수익은 어떻게 인출하나요?',
+        'faq.a11': '수익은 라이트닝 지갑으로 직접 도착합니다. 최소 인출 금액이나 대기 기간이 없습니다.',
+        'faq.q12': '어떤 콘텐츠가 허용되나요?',
+        'faq.a12': '합법적인 콘텐츠는 환영합니다. 이용약관을 따르고 유해하거나 불법적인 자료는 피해 주세요.',
+        'faq.q13': '비디오를 삭제할 수 있나요?',
+        'faq.a13': '네, 언제든지 비디오를 삭제할 수 있습니다. 탈중앙화 특성상 이미 배포된 사본은 다른 노드에 남아 있을 수 있습니다.',
+        'faq.q14': '콘텐츠 중재가 있나요?',
+        'faq.a14': '탈중앙화 플랫폼으로서 중재는 커뮤니티 주도 접근 방식과 사용자 제어를 통해 이루어집니다.',
+        'faq.q15': '문제 있는 콘텐츠는 어떻게 신고하나요?',
+        'faq.a15': '비디오의 신고 기능을 사용하거나 연락처 정보를 통해 알려주세요. 커뮤니티 피드백이 플랫폼 품질 유지에 도움이 됩니다.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': '자체 조정',
+        'faq.q16': '탈중앙화 플랫폼에서 조정은 어떻게 작동하나요?',
+        'faq.a16': '중앙 집중식 조정자가 있는 기존 플랫폼과 달리, Plebs는 여러분이 보는 것을 제어합니다. 콘텐츠 필터 팩, 사용자 음소거, 커뮤니티 경고, 비율 동영상 표시기 등 강력한 자체 조정 도구를 제공합니다. 어떤 콘텐츠가 적절한지 결정하는 것은 여러분입니다 - 중앙 권한이 그 결정을 내리지 않습니다.',
+        'faq.q17': '콘텐츠 필터 팩이란 무엇인가요?',
+        'faq.a17Intro': '콘텐츠 필터 팩은 특정 유형의 콘텐츠를 숨기기 위해 활성화할 수 있는 사전 정의된 키워드 필터입니다. 사용 가능한 팩은 다음과 같습니다:',
+        'faq.a17Pack1': '인종차별 및 혐오 발언:',
+        'faq.a17Pack1Desc': '인종 비방 및 차별적 콘텐츠 필터링',
+        'faq.a17Pack2': '성적으로 노골적인 콘텐츠:',
+        'faq.a17Pack2Desc': '포르노 및 성인 콘텐츠 필터링',
+        'faq.a17Pack3': '폭력 및 고어:',
+        'faq.a17Pack3Desc': '그래픽 폭력 및 자해 콘텐츠 필터링',
+        'faq.a17Pack4': '약물 및 물질:',
+        'faq.a17Pack4Desc': '약물 관련 콘텐츠 필터링',
+        'faq.a17Pack5': '스팸 및 사기:',
+        'faq.a17Pack5Desc': '일반적인 스팸 및 사기 패턴 필터링',
+        'faq.a17Pack6': '암호화폐:',
+        'faq.a17Pack6Desc': '암호화폐 홍보 및 토큰 권유 필터링',
+        'faq.a17Pack7': '정치 콘텐츠:',
+        'faq.a17Pack7Desc': '당파적 정치 콘텐츠 필터링',
+        'faq.a17Pack8': '심한 욕설:',
+        'faq.a17Pack8Desc': '저속한 언어 필터링',
+        'faq.a17Note': '설정 > 콘텐츠 필터에서 활성화할 수 있습니다. 사용자 정의 키워드도 추가할 수 있습니다. 필터링된 콘텐츠는 임시로 보고 싶은 경우 "어쨌든 보기" 버튼이 있는 자리 표시자를 표시합니다.',
+        'faq.q18': '사용자를 음소거하려면 어떻게 하나요?',
+        'faq.a18': '사용자를 음소거하려면 해당 사용자의 프로필을 방문하여 음소거 버튼을 클릭하세요. 음소거되면 해당 사용자의 모든 동영상이 피드에서 숨겨지고, 댓글은 "음소거된 사용자의 메시지"로 표시되며, 라이브 채팅 메시지도 숨겨집니다. 음소거 목록은 Nostr에 저장되므로 기기 간에 동기화됩니다. 프로필 설정의 "음소거된 사용자"에서 음소거된 사용자를 관리할 수 있습니다.',
+        'faq.q19': '"비율"이란 무엇을 의미하나요?',
+        'faq.a19': '동영상은 좋아요보다 싫어요가 훨씬 많으면 "비율"로 표시되어 부정적인 커뮤니티 반응을 나타냅니다. 구체적으로, 동영상에 최소 10개의 반응이 있고, 싫어요가 좋아요의 최소 두 배이고, 싫어요가 전체 반응의 70% 이상을 차지하면 비율이 됩니다. 비율 동영상에는 경고 배지가 표시되며 시청하기 전에 확인을 요청받습니다.',
+        'faq.q20': '커뮤니티 경고는 어떻게 작동하나요?',
+        'faq.a20': '사용자는 다양한 이유(스팸, 불법 콘텐츠, 학대, 오해의 소지 등)로 콘텐츠를 신고할 수 있습니다. 동영상이나 사용자가 팔로우하는 사람들로부터 5건 이상의 신고를 받으면 경고 표시가 나타납니다. 이것은 여러분의 소셜 그래프를 활용합니다 - 경고는 익명의 낯선 사람이 아닌 신뢰할 수 있는 네트워크에서 옵니다. 설정에서 "팔로우하는 계정의 경고 표시"를 전환할 수 있습니다.',
+        'faq.q21': '콘텐츠를 신고하려면 어떻게 하나요?',
+        'faq.a21': '동영상, 댓글 또는 사용자 프로필의 깃발 아이콘을 클릭하여 신고하세요. 이유(스팸, 불법, 학대, 오해의 소지, 사칭, 저작권, 기타)를 선택하고 선택적으로 세부 정보를 추가하세요. 신고는 이벤트로 Nostr에 게시되어 투명하고 분산화됩니다. 여러분의 신고는 네트워크의 다른 사람들이 문제가 있는 콘텐츠를 식별하는 데 도움이 됩니다.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': '개인정보 보호 및 보안',
+        'faq.q22': '내 활동은 비공개인가요?',
+        'faq.a22': 'Nostr에서는 대부분의 활동이 설계상 공개입니다. 좋아요, 댓글, 팔로우, Zap은 공개 네트워크에서 볼 수 있습니다. 그러나 Plebs는 시청 기록을 브라우저에 로컬로 저장합니다 - 서버로 전송되지 않습니다. 언제든지 로컬 데이터를 지울 수 있습니다.',
+        'faq.q23': '계정을 안전하게 유지하려면 어떻게 하나요?',
+        'faq.a23': '개인 키(nsec)를 누구와도 공유하지 마세요. Alby, nos2x 또는 하드웨어 서명자와 같은 Nostr 브라우저 확장 프로그램을 사용하는 것을 강력히 권장합니다. 이들은 개인 키를 안전하게 보관하고 승인할 때만 이벤트에 서명합니다. 웹사이트에 직접 nsec를 저장하지 마세요.',
+        'faq.q24': '콘텐츠를 삭제할 수 있나요?',
+        'faq.a24': 'Nostr에 삭제 이벤트를 게시하여 삭제를 요청할 수 있습니다. 대부분의 잘 작동하는 릴레이 및 클라이언트는 이를 존중합니다. 그러나 네트워크의 분산 특성상 콘텐츠가 일부 릴레이나 Blossom 서버에 지속될 수 있습니다. 전체 네트워크에서 완전한 삭제를 강제할 수 있는 중앙 권한은 없습니다.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': '문제 해결',
+        'faq.q25': '동영상이 로드되지 않습니다 - 어떻게 해야 하나요?',
+        'faq.a25Intro': '동영상이 로드되지 않으면 다음 단계를 시도하세요:',
+        'faq.a25Item1': '페이지 새로 고침',
+        'faq.a25Item2': '인터넷 연결 확인',
+        'faq.a25Item3': '동영상을 호스팅하는 Blossom 서버가 다운되었을 수 있습니다 - 이것은 Plebs와 독립적입니다',
+        'faq.a25Item4': '콘텐츠를 차단할 수 있는 브라우저 확장 프로그램을 비활성화해 보세요',
+        'faq.a25Item5': '브라우저 캐시를 지우고 다시 시도',
+        'faq.q26': '개인 키를 잃어버렸습니다 - 복구를 도와주실 수 있나요?',
+        'faq.a26': '안타깝게도 아닙니다. Nostr 키는 암호화되어 있습니다 - 비밀번호 재설정이나 계정 복구는 없습니다. 중앙 권한이 없기 때문입니다. 그래서 키를 백업하고 안전한 키 관리 솔루션을 사용할 것을 강력히 권장합니다. nsec를 잃어버리면 새 신원을 만들어야 합니다.',
+        'faq.q27': '버그를 신고하거나 기능을 요청하려면 어떻게 하나요?',
+        'faq.a27': '<a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a> 페이지에서 버그를 신고하거나 기능을 요청할 수 있습니다. Nostr에서도 연락할 수 있습니다 - 자세한 내용은 <a href="#/contact">문의</a> 페이지를 참조하세요.',
+
+        // Page Titles
+        'pageTitle.following': '팔로잉',
+        'pageTitle.myVideos': '내 동영상',
+        'pageTitle.likedVideos': '좋아요한 동영상',
+        'pageTitle.watchHistory': '시청 기록',
+        'pageTitle.liveStreams': '라이브 스트림',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- Plebs 라이브',
+        // Home Page Sections
+        'section.trending': '인기 급상승',
+        'section.recommended': '추천',
+        'section.shorts': '쇼츠',
+        'section.live': '라이브',
+        'section.liveNow': '현재 라이브',
+        'section.latestVideos': '최신 동영상',
+        'section.videos': '동영상',
+        'section.usersYouFollow': '팔로우한 사용자',
+        // Trending Period
+        'trending.thisWeek': '이번 주',
+        'trending.today': '오늘',
+        // Buttons
+        'button.viewMore': '더보기',
+        'button.clearAll': '모두 지우기',
+        'button.showAnyway': '그래도 표시',
+        // Confirmation Modals
+        'confirm.logout': '로그아웃',
+        'confirm.logoutMessage': '로그아웃하시겠습니까?',
+        'confirm.resetSettings': '설정 초기화',
+        'confirm.resetSettingsMessage': '모든 설정을 기본값으로 초기화하시겠습니까?',
+        'confirm.reset': '초기화',
+        'confirm.clearHistory': '기록 삭제',
+        'confirm.clearHistoryMessage': '시청 기록을 모두 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+        'confirm.deleteDraft': '초안 삭제',
+        'confirm.deleteDraftMessage': '이 초안을 삭제하시겠습니까?',
+        'confirm.delete': '삭제',
+        'confirm.deleteVideo': '동영상 삭제',
+        'confirm.deleteVideoMessage': '이 동영상을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+        'confirm.endStream': '라이브 스트림 종료',
+        'confirm.endStreamMessage': '이 라이브 스트림을 종료하시겠습니까? 이 작업은 되돌릴 수 없습니다.',
+        'confirm.endStreamButton': '스트림 종료',
+        // Content Filters
+        'filter.hiddenByPack': '{pack}에 의해 숨김',
+        'filter.showAnyway': '그래도 표시',
+        'filter.contentHidden': '콘텐츠 필터로 인해 숨겨짐',
+        // Following Page
+        'following.noFollowingYet': '아직 팔로우한 사람이 없습니다. 팔로우할 크리에이터를 찾아보세요!',
     },
     ar: {
         // Navigation & Header
@@ -1525,7 +4546,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': 'تم تسجيل الدخول!', 'toast.loggedOut': 'تم تسجيل الخروج', 'toast.settingsSaved': 'تم حفظ الإعدادات!', 'toast.settingsReset': 'تم إعادة تعيين الإعدادات', 'toast.videoUploaded': 'تم رفع الفيديو!', 'toast.videoDeleted': 'تم حذف الفيديو', 'toast.profileUpdated': 'تم تحديث الملف الشخصي!', 'toast.linkCopied': 'تم نسخ الرابط!', 'toast.embedCopied': 'تم نسخ كود التضمين!', 'toast.zapSent': 'تم إرسال الزاب!', 'toast.followed': 'تمت المتابعة!', 'toast.unfollowed': 'تم إلغاء المتابعة', 'toast.reported': 'تم إرسال البلاغ', 'toast.saved': 'تم الحفظ!', 'toast.error': 'حدث خطأ', 'toast.networkError': 'خطأ في الشبكة. حاول مرة أخرى.', 'toast.uploadError': 'فشل الرفع. حاول مرة أخرى.', 'toast.languageChanged': 'تم تغيير اللغة', 'toast.commentPosted': 'تم نشر التعليق', 'toast.keyCopied': 'تم نسخ المفتاح!',
         // Time
-        'time.now': 'الآن', 'time.minutesAgo': 'منذ {count} دقيقة', 'time.hoursAgo': 'منذ {count} ساعة', 'time.daysAgo': 'منذ {count} يوم', 'time.weeksAgo': 'منذ {count} أسبوع', 'time.monthsAgo': 'منذ {count} شهر', 'time.yearsAgo': 'منذ {count} سنة',
+        'time.justNow': 'الآن', 'time.secondAgo': 'منذ ثانية', 'time.secondsAgo': 'منذ {n} ثانية', 'time.minuteAgo': 'منذ دقيقة', 'time.minutesAgo': 'منذ {n} دقيقة', 'time.hourAgo': 'منذ ساعة', 'time.hoursAgo': 'منذ {n} ساعة', 'time.dayAgo': 'منذ يوم', 'time.daysAgo': 'منذ {n} يوم', 'time.weekAgo': 'منذ أسبوع', 'time.weeksAgo': 'منذ {n} أسبوع', 'time.monthAgo': 'منذ شهر', 'time.monthsAgo': 'منذ {n} شهر', 'time.yearAgo': 'منذ سنة', 'time.yearsAgo': 'منذ {n} سنة',
         // Empty States
         'empty.noVideos': 'لم يتم العثور على فيديوهات', 'empty.noVideosDesc': 'جرب بحثاً آخر', 'empty.noFollowing': 'لم تتابع أي شخص بعد', 'empty.noFollowingDesc': 'تابع المبدعين لمشاهدة فيديوهاتهم', 'empty.noHistory': 'لا يوجد سجل مشاهدة', 'empty.noHistoryDesc': 'الفيديوهات التي تشاهدها ستظهر هنا', 'empty.noLiked': 'لا توجد فيديوهات أعجبتك', 'empty.noLikedDesc': 'الفيديوهات التي تعجبك ستظهر هنا', 'empty.noResults': 'لم يتم العثور على نتائج', 'empty.noResultsDesc': 'جرب كلمات مفتاحية أخرى',
         // Misc
@@ -1569,6 +4590,352 @@ const translations = {
         'warning.webmFormat': 'ملاحظة: سيخرج متصفحك بتنسيق WebM (قد لا يعمل على iOS). للحصول على MP4 متوافق مع iOS، استخدم Chrome على Windows/Mac.',
         // New Footer
         'footer.lastUpdated': 'آخر تحديث: ديسمبر 2024',
+        // DMCA Page
+        'dmca.title': 'DMCA وسياسة المحتوى',
+        'dmca.lastUpdated': 'آخر تحديث: ديسمبر 2024',
+        'dmca.architectureTitle': 'فهم بنية Plebs',
+        'dmca.architectureDesc': 'Plebs هي واجهة منصة فيديو لامركزية تعمل بشكل مختلف عن خدمات استضافة الفيديو التقليدية.',
+        'dmca.architectureItem1': 'Plebs لا تستضيف أي محتوى فيديو أو صور.',
+        'dmca.architectureItem1Desc': 'نحن عميل/واجهة تعرض المحتوى المخزن في مكان آخر.',
+        'dmca.architectureItem2': 'جميع ملفات الوسائط مخزنة على خوادم Blossom مستقلة.',
+        'dmca.architectureItem3': 'بيانات الفيديو الوصفية تُنشر على مرحلات Nostr.',
+        'dmca.architectureItem4': 'Plebs تجمع وتعرض هذا المحتوى الموزع فقط.',
+        'dmca.filingTitle': 'تقديم مطالبة DMCA',
+        'dmca.filingDesc': 'لأن Plebs لا تستضيف المحتوى، لا يمكننا إزالة المواد المخالفة مباشرة.',
+        'dmca.forVideoTitle': '1. لمحتوى الفيديو/الصور',
+        'dmca.forVideoDesc': 'ملفات الوسائط مخزنة على خوادم Blossom.',
+        'dmca.forVideoItem1': 'تحديد أي خادم Blossom يستضيف المحتوى',
+        'dmca.forVideoItem2': 'الاتصال مباشرة بمشغل خادم Blossom',
+        'dmca.forVideoItem3': 'كل خادم Blossom يعمل بشكل مستقل',
+        'dmca.forMetadataTitle': '2. للبيانات الوصفية/الأوصاف',
+        'dmca.forMetadataDesc': 'إذا كان المحتوى المخالف في العنوان أو الوصف:',
+        'dmca.forMetadataItem1': 'هذه المعلومات مخزنة على مرحلات Nostr',
+        'dmca.forMetadataItem2': 'اتصل بمشغلي مرحلات Nostr المحددين',
+        'dmca.forMetadataItem3': 'قد تخزن عدة مرحلات نفس البيانات',
+        'dmca.whatWeCanDoTitle': 'ما يمكن لـ Plebs فعله',
+        'dmca.whatWeCanDoDesc': 'على الرغم من أننا لا نستضيف المحتوى، يمكننا:',
+        'dmca.whatWeCanDoItem1': 'مساعدتك في تحديد الخوادم التي تستضيف محتوى محدد',
+        'dmca.whatWeCanDoItem2': 'إضافة المحتوى إلى قائمة حظر محلية',
+        'dmca.whatWeCanDoItem3': 'تقديم إرشادات حول كيفية الاتصال بالمشغلين المناسبين',
+        'dmca.toRequestAssistance': 'لطلب المساعدة، يرجى الاتصال بنا مع:',
+        'dmca.assistanceItem1': 'رابط أو معرف المحتوى المخالف',
+        'dmca.assistanceItem2': 'إثبات ملكية حقوق النشر الخاصة بك',
+        'dmca.assistanceItem3': 'وصف للعمل المحمي',
+        'dmca.blossomOperatorsTitle': 'مشغلو خوادم Blossom',
+        'dmca.blossomOperatorsDesc': 'إذا كنت تدير خادم Blossom، فأنت مسؤول عن التعامل مع طلبات DMCA.',
+        'dmca.blossomOperatorsLink': 'للحصول على قائمة بخوادم Blossom المعروفة، راجع الوثائق.',
+        'dmca.considerationsTitle': 'اعتبارات مهمة',
+        'dmca.considerationsItem1': 'اللامركزية:',
+        'dmca.considerationsItem1Desc': 'قد لا يكون من الممكن إزالة المحتوى بالكامل من جميع المصادر.',
+        'dmca.considerationsItem2': 'نسخ متعددة:',
+        'dmca.considerationsItem2Desc': 'قد يتم نسخ المحتوى على خوادم متعددة.',
+        'dmca.considerationsItem3': 'استمرار البيانات الوصفية:',
+        'dmca.considerationsItem3Desc': 'قد تستمر البيانات الوصفية حتى بعد إزالة ملفات الوسائط.',
+        'dmca.considerationsItem4': 'لا سيطرة مركزية:',
+        'dmca.considerationsItem4Desc': 'لا يوجد كيان واحد يمكنه إزالة المحتوى من الشبكة بأكملها.',
+        'dmca.counterNotificationTitle': 'إخطار مضاد',
+        'dmca.counterNotificationDesc': 'إذا كنت تعتقد أن محتواك أُزيل بالخطأ، اتصل بمشغل الخادم.',
+        'dmca.contactTitle': 'اتصل بنا',
+        'dmca.contactDesc': 'للأسئلة، يرجى الاتصال بنا.',
+        // Admin Dashboard
+        'admin.title': 'لوحة تحكم المسؤول',
+        'admin.loading': 'جاري تحميل تحليلات المنصة...',
+        'admin.platformOverview': 'نظرة عامة على المنصة',
+        'admin.totalVideos': 'إجمالي الفيديوهات',
+        'admin.videos7Days': 'فيديوهات (7 أيام)',
+        'admin.videos30Days': 'فيديوهات (30 يومًا)',
+        'admin.uniqueCreators': 'منشئون فريدون',
+        'admin.likes30Days': 'إعجابات (30 يومًا)',
+        'admin.dislikes30Days': 'عدم إعجاب (30 يومًا)',
+        'admin.monthlyActiveUsers': 'المستخدمون النشطون شهريًا',
+        'admin.mauDesc': 'المستخدمون الفريدون الذين رفعوا أو تفاعلوا أو علقوا (آخر 6 أشهر)',
+        'admin.boostRevenue': 'إيرادات Boost (آخر 30 يومًا)',
+        'admin.totalBoostRevenue': 'إجمالي إيرادات Boost',
+        'admin.totalBoosts': 'إجمالي Boosts',
+        'admin.blocklistManagement': 'إدارة قائمة الحظر',
+        'admin.blocklistDesc': 'حظر فيديوهات أو مستخدمين محددين.',
+        'admin.blockedVideos': 'الفيديوهات المحظورة',
+        'admin.blockedUsers': 'المستخدمون المحظورون',
+        'admin.blockByEventId': 'حظر فيديو حسب المعرف',
+        'admin.blockByPubkey': 'حظر مستخدم حسب المفتاح العام',
+        'admin.blockVideo': 'حظر الفيديو',
+        'admin.blockUser': 'حظر المستخدم',
+        'admin.noBlockedVideos': 'لا توجد فيديوهات محظورة',
+        'admin.noBlockedUsers': 'لا يوجد مستخدمون محظورون',
+        'admin.unblock': 'إلغاء الحظر',
+        'admin.accessDenied': 'تم رفض الوصول. للمسؤول فقط.',
+        // Search/Trending/Channel/Buttons/Common
+        'search.noVideosFound': 'لا توجد فيديوهات مطابقة لـ "{query}".',
+        'search.noFullLengthVideos': 'لا توجد فيديوهات طويلة مطابقة لـ "{query}".',
+        'trending.noVideosToday': 'لا توجد فيديوهات رائجة اليوم.',
+        'trending.noVideosThisWeek': 'لا توجد فيديوهات رائجة هذا الأسبوع.',
+        'channel.video': 'فيديو',
+        'channel.videos': 'فيديوهات',
+        'channel.follower': 'متابع',
+        'channel.followers': 'متابعين',
+        'button.follow': 'متابعة',
+        'button.following': 'متابَع',
+        'button.unfollow': 'إلغاء المتابعة',
+        'button.mute': 'كتم',
+        'button.unmute': 'إلغاء الكتم',
+        'button.report': 'إبلاغ',
+        'button.muteUser': 'كتم المستخدم',
+        'button.unmuteUser': 'إلغاء كتم المستخدم',
+        'button.reportComment': 'الإبلاغ عن التعليق',
+        'button.reportUser': 'الإبلاغ عن هذا المستخدم',
+        'live.goalReached': 'تم تحقيق الهدف!',
+        'live.goalProgress': '{percent}% من الهدف',
+        'common.loading': 'جاري التحميل...',
+        'common.sats': 'sats',
+        // Analytics
+        'analytics.title': 'تحليلات القناة',
+        'analytics.description': 'عرض مقاييس أداء قناتك والرؤى.',
+        'analytics.loading': 'جاري تحميل التحليلات...',
+        'analytics.error': 'فشل تحميل التحليلات',
+        'analytics.overview': 'نظرة عامة',
+        'analytics.videos': 'الفيديوهات',
+        'analytics.engagement': 'التفاعل',
+        'analytics.totalViews': 'إجمالي المشاهدات',
+        'analytics.totalVideos': 'إجمالي الفيديوهات',
+        'analytics.totalLikes': 'إجمالي الإعجابات',
+        'analytics.totalZaps': 'إجمالي الـ Zaps',
+        'analytics.avgViews': 'متوسط المشاهدات',
+        'analytics.avgLikes': 'متوسط الإعجابات',
+        'analytics.avgZaps': 'متوسط الـ Zaps',
+        'analytics.viewsOverTime': 'المشاهدات عبر الزمن',
+        'analytics.topVideos': 'أفضل الفيديوهات',
+        'analytics.recentActivity': 'النشاط الأخير',
+        'analytics.viewsLabel': 'المشاهدات',
+        'analytics.likesLabel': 'الإعجابات',
+        'analytics.zapsLabel': 'Zaps',
+        'analytics.dateLabel': 'التاريخ',
+        'analytics.videoTitle': 'عنوان الفيديو',
+        'analytics.performance': 'الأداء',
+        'analytics.noData': 'لا توجد بيانات تحليلية',
+        'analytics.noDataDesc': 'ابدأ بتحميل الفيديوهات لرؤية تحليلاتك.',
+        'analytics.last7Days': 'آخر 7 أيام',
+        'analytics.last30Days': 'آخر 30 يوماً',
+        'analytics.last90Days': 'آخر 90 يوماً',
+        'analytics.allTime': 'كل الأوقات',
+        'analytics.views': 'مشاهدات',
+        'analytics.likes': 'إعجابات',
+        'analytics.zaps': 'Zaps',
+        'analytics.rank': 'الترتيب',
+        'analytics.noVideos': 'لا توجد فيديوهات',
+        'analytics.noVideosDesc': 'حمّل أول فيديو لك لبدء تتبع الأداء.',
+
+        // About Page
+        'about.title': 'حول Plebs.place',
+        'about.subtitle': 'منصة فيديو لامركزية',
+        'about.welcome': 'مرحباً بك في Plebs.place',
+        'about.description': 'Plebs.place هي منصة مشاركة فيديو لامركزية مبنية على بروتوكول Nostr، تمنح المبدعين السيطرة الكاملة على محتواهم وجمهورهم.',
+        'about.feature1Title': 'لامركزية',
+        'about.feature1Desc': 'مبنية على Nostr، تضمن مقاومة الرقابة والملكية الحقيقية للمحتوى.',
+        'about.feature2Title': 'الأولوية للمبدعين',
+        'about.feature2Desc': 'احتفظ بالسيطرة الكاملة على محتواك وبياناتك وعلاقتك بجمهورك.',
+        'about.feature3Title': 'تحقيق الدخل بالبيتكوين',
+        'about.feature3Desc': 'احصل على الدعم مباشرة من المشاهدين عبر شبكة Lightning والـ Zaps.',
+        'about.feature4Title': 'مفتوح المصدر',
+        'about.feature4Desc': 'تطوير شفاف يقوده المجتمع ويتوافق مع روح اللامركزية.',
+        'about.missionTitle': 'مهمتنا',
+        'about.missionDesc': 'إنشاء منصة فيديو خالية من الرقابة، والحبس في المنصات، والتغييرات التعسفية للقواعد. محتواك ملكك.',
+        'about.techTitle': 'التقنية',
+        'about.techDesc': 'مبنية باستخدام Nostr للهوية والميزات الاجتماعية، وLightning للمدفوعات الصغيرة الفورية، وحلول التخزين اللامركزية.',
+
+        // Contact Page
+        'contact.title': 'اتصل بنا',
+        'contact.subtitle': 'تواصل معنا',
+        'contact.description': 'لديك أسئلة أو ملاحظات أو اقتراحات؟ نحب أن نسمع منك.',
+        'contact.nostrTitle': 'تابعنا على Nostr',
+        'contact.nostrDesc': 'تابعنا على Nostr للحصول على التحديثات والمشاركة في نقاشات المجتمع.',
+        'contact.githubTitle': 'GitHub',
+        'contact.githubDesc': 'اطلع على الكود المصدري، أبلغ عن المشكلات، أو ساهم في المشروع.',
+        'contact.emailTitle': 'البريد الإلكتروني',
+        'contact.emailDesc': 'للاستفسارات التجارية أو أسئلة الدعم، تواصل مع فريقنا.',
+
+        // Terms Page
+        'terms.title': 'شروط الخدمة',
+        'terms.lastUpdated': 'آخر تحديث',
+        'terms.section1Title': '1. قبول الشروط',
+        'terms.section1Content': 'باستخدام Plebs.place، فإنك توافق على الالتزام بهذه الشروط. إذا كنت لا توافق، يرجى عدم استخدام المنصة.',
+        'terms.section2Title': '2. وصف الخدمة',
+        'terms.section2Content': 'Plebs.place هي منصة مشاركة فيديو لامركزية تستخدم بروتوكول Nostr. نوفر أدوات لاستضافة الفيديو ومشاركته وتحقيق الدخل عبر Lightning.',
+        'terms.section3Title': '3. مسؤوليات المستخدم',
+        'terms.section3Content': 'أنت مسؤول عن كل المحتوى الذي تنشره عبر المنصة. توافق على عدم تحميل أي محتوى غير قانوني أو ضار أو ينتهك حقوق الآخرين.',
+        'terms.section4Title': '4. ملكية المحتوى',
+        'terms.section4Content': 'تحتفظ بالملكية الكاملة لمحتواك. بالتحميل، تمنح Plebs.place ترخيصاً محدوداً لاستضافة وتقديم فيديوهاتك.',
+        'terms.section5Title': '5. الاستخدام المحظور',
+        'terms.section5Content': 'لا يجوز استخدام المنصة لأي أنشطة غير قانونية أو مضايقات أو رسائل مزعجة أو توزيع محتوى ضار.',
+        'terms.section6Title': '6. إدارة الحساب',
+        'terms.section6Content': 'أنت مسؤول عن تأمين حسابك من خلال إدارة مفاتيح Nostr بشكل صحيح. نحن لا نخزن مفتاحك الخاص ولا يمكننا استعادة الحسابات المفقودة.',
+        'terms.section7Title': '7. شروط الدفع',
+        'terms.section7Content': 'تتم جميع المدفوعات عبر شبكة Lightning. المعاملات نهائية ولا يمكن التراجع عنها. تأكد من التحقق من جميع تفاصيل الدفع قبل المعاملات.',
+        'terms.section8Title': '8. حدود المسؤولية',
+        'terms.section8Content': 'يتم توفير Plebs.place "كما هي" بدون ضمانات. لسنا مسؤولين عن أي خسائر أو أضرار أو انقطاعات في الخدمة.',
+        'terms.section9Title': '9. تغييرات الشروط',
+        'terms.section9Content': 'قد يتم تحديث هذه الشروط من وقت لآخر. الاستمرار في الاستخدام يعني قبول الشروط المحدثة.',
+
+        // Privacy Page
+        'privacy.title': 'سياسة الخصوصية',
+        'privacy.lastUpdated': 'آخر تحديث',
+        'privacy.section1Title': '1. مقدمة',
+        'privacy.section1Content': 'توضح سياسة الخصوصية هذه كيفية تعامل Plebs.place مع المعلومات المتعلقة باستخدامك لمنصة الفيديو اللامركزية.',
+        'privacy.section2Title': '2. المعلومات التي نجمعها',
+        'privacy.section2Content': 'كمنصة لامركزية، نجمع الحد الأدنى من البيانات. يُستخدم مفتاحك العام على Nostr للمصادقة، وتُخزَّن بيانات الفيديو الوصفية على مرحلات Nostr.',
+        'privacy.section3Title': '3. تخزين البيانات',
+        'privacy.section3Content': 'يُخزَّن محتواك على حلول تخزين لامركزية. لا نخزن بيانات شخصية على خوادم مركزية. مفتاحك الخاص لا يُشارَك معنا أبداً.',
+        'privacy.section4Title': '4. استخدام البيانات',
+        'privacy.section4Content': 'تُستخدم أي بيانات نجمعها فقط لتوفير خدمات المنصة وتحسينها. لا نبيع بياناتك لأطراف ثالثة أبداً.',
+        'privacy.section5Title': '5. ملفات تعريف الارتباط والتتبع',
+        'privacy.section5Content': 'نستخدم الحد الأدنى من ملفات تعريف الارتباط للوظائف الأساسية. لا نقوم بتتبع الإعلانات أو جمع البيانات لأغراض التسويق.',
+        'privacy.section6Title': '6. خدمات الطرف الثالث',
+        'privacy.section6Content': 'نتكامل مع مرحلات Nostr وعقد شبكة Lightning. هذه الخدمات لها سياسات خصوصية خاصة بها.',
+        'privacy.section7Title': '7. أمان البيانات',
+        'privacy.section7Content': 'نحمي معلوماتك من خلال بنيتنا اللامركزية. ومع ذلك، أنت مسؤول عن حماية مفتاحك الخاص.',
+        'privacy.section8Title': '8. حقوقك',
+        'privacy.section8Content': 'لديك السيطرة الكاملة على بياناتك. يمكنك حذف محتواك أو التوقف عن استخدام المنصة في أي وقت.',
+        'privacy.section9Title': '9. خصوصية الأطفال',
+        'privacy.section9Content': 'Plebs.place ليست مخصصة للأطفال دون سن 13 عاماً. نحن لا نجمع معلومات من القاصرين عن قصد.',
+        'privacy.section10Title': '10. تغييرات السياسة',
+        'privacy.section10Content': 'قد نقوم بتحديث سياسة الخصوصية هذه. ستُنشر التغييرات على هذه الصفحة مع تاريخ التحديث.',
+
+        // FAQ Page
+        'faq.title': 'الأسئلة الشائعة',
+        'faq.subtitle': 'الأسئلة المتكررة والإجابات',
+        'faq.general': 'عام',
+        'faq.technical': 'تقني',
+        'faq.monetization': 'تحقيق الدخل',
+        'faq.content': 'المحتوى',
+        'faq.q1': 'ما هو Plebs.place؟',
+        'faq.a1': 'Plebs.place هي منصة مشاركة فيديو لامركزية مبنية على بروتوكول Nostr، تمنحك الملكية الكاملة لمحتواك وجمهورك.',
+        'faq.q2': 'كيف يعمل Plebs.place؟',
+        'faq.a2': 'تستخدم المنصة Nostr للمصادقة والميزات الاجتماعية، والتخزين اللامركزي لاستضافة الفيديو، وشبكة Lightning للمدفوعات الفورية.',
+        'faq.q3': 'هل Plebs.place مجاني؟',
+        'faq.a3': 'نعم، إنشاء الحساب والتحميل والمشاهدة مجاني. تحتاج فقط إلى مفتاح Nostr للبدء.',
+        'faq.q4': 'ما هو Nostr؟',
+        'faq.a4': 'Nostr هو بروتوكول اتصالات لامركزي يتيح لك التحكم في هويتك وبياناتك دون الاعتماد على منصات مركزية.',
+        'faq.q5': 'كيف أنشئ حساباً؟',
+        'faq.a5': 'يمكنك تسجيل الدخول باستخدام إضافة متصفح Nostr مثل Alby أو nos2x، أو إنشاء مفتاح Nostr جديد.',
+        'faq.q6': 'ما هي صيغ الفيديو المدعومة؟',
+        'faq.a6': 'ندعم معظم الصيغ الشائعة بما في ذلك MP4 وWebM وMOV. يتم تحويل الفيديوهات بعد التحميل للحصول على أفضل تشغيل.',
+        'faq.q7': 'أين تُخزَّن فيديوهاتي؟',
+        'faq.a7': 'تُخزَّن الفيديوهات على حلول تخزين لامركزية، مما يضمن عدم سيطرة خادم واحد على محتواك.',
+        'faq.q8': 'ما هي شبكة Lightning؟',
+        'faq.a8': 'شبكة Lightning هي بروتوكول دفع من الطبقة الثانية للبيتكوين يتيح معاملات فورية ومنخفضة الرسوم.',
+        'faq.q9': 'ما هي الـ Zaps؟',
+        'faq.a9': 'الـ Zaps هي مدفوعات صغيرة بالبيتكوين تُرسَل عبر شبكة Lightning لدعم المبدعين.',
+        'faq.q10': 'كيف أحقق الدخل من محتواي؟',
+        'faq.a10': 'يمكن للمبدعين كسب الدخل من خلال Zaps المشاهدين، والمحتوى المدفوع، والتبرعات المباشرة عبر Lightning.',
+        'faq.q11': 'كيف أسحب أرباحي؟',
+        'faq.a11': 'تصل الأرباح مباشرة إلى محفظة Lightning الخاصة بك. لا يوجد حد أدنى للسحب أو فترات انتظار.',
+        'faq.q12': 'ما المحتوى المسموح به؟',
+        'faq.a12': 'المحتوى القانوني مرحب به. يرجى اتباع شروط الخدمة وتجنب المواد الضارة أو غير القانونية.',
+        'faq.q13': 'هل يمكنني حذف فيديوهاتي؟',
+        'faq.a13': 'نعم، يمكنك حذف الفيديوهات في أي وقت. بسبب الطبيعة اللامركزية، قد تبقى النسخ الموزعة على عقد أخرى.',
+        'faq.q14': 'هل هناك إشراف على المحتوى؟',
+        'faq.a14': 'كمنصة لامركزية، يتم الإشراف من خلال نهج يقوده المجتمع وتحكم المستخدمين.',
+        'faq.q15': 'كيف أبلغ عن محتوى مسيء؟',
+        'faq.a15': 'استخدم ميزة الإبلاغ على الفيديو أو أخبرنا من خلال معلومات الاتصال. تساعد ملاحظات المجتمع في الحفاظ على جودة المنصة.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'الإشراف الذاتي',
+        'faq.q16': 'كيف يعمل الإشراف على منصة لامركزية؟',
+        'faq.a16': 'على عكس المنصات التقليدية ذات المشرفين المركزيين، يمنحك Plebs التحكم فيما تراه. نوفر أدوات إشراف ذاتي قوية بما في ذلك حزم فلاتر المحتوى، وكتم المستخدمين، وتحذيرات المجتمع، ومؤشرات الفيديوهات المنتقدة. أنت من يقرر ما هو المحتوى المناسب لك - لا توجد سلطة مركزية تتخذ هذه القرارات.',
+        'faq.q17': 'ما هي حزم فلاتر المحتوى؟',
+        'faq.a17Intro': 'حزم فلاتر المحتوى هي فلاتر كلمات رئيسية محددة مسبقاً يمكنك تفعيلها لإخفاء أنواع معينة من المحتوى. تشمل الحزم المتاحة:',
+        'faq.a17Pack1': 'العنصرية وخطاب الكراهية:',
+        'faq.a17Pack1Desc': 'تصفية الإهانات العنصرية والمحتوى التمييزي',
+        'faq.a17Pack2': 'محتوى جنسي صريح:',
+        'faq.a17Pack2Desc': 'تصفية المحتوى الإباحي والمحتوى للبالغين',
+        'faq.a17Pack3': 'العنف والدموية:',
+        'faq.a17Pack3Desc': 'تصفية العنف الصريح ومحتوى إيذاء النفس',
+        'faq.a17Pack4': 'المخدرات والمواد:',
+        'faq.a17Pack4Desc': 'تصفية المحتوى المتعلق بالمخدرات',
+        'faq.a17Pack5': 'البريد المزعج والاحتيال:',
+        'faq.a17Pack5Desc': 'تصفية أنماط البريد المزعج والاحتيال الشائعة',
+        'faq.a17Pack6': 'العملات المشفرة:',
+        'faq.a17Pack6Desc': 'تصفية الترويج للعملات المشفرة والرموز',
+        'faq.a17Pack7': 'المحتوى السياسي:',
+        'faq.a17Pack7Desc': 'تصفية المحتوى السياسي الحزبي',
+        'faq.a17Pack8': 'لغة بذيئة قوية:',
+        'faq.a17Pack8Desc': 'تصفية اللغة البذيئة',
+        'faq.a17Note': 'قم بتفعيلها في الإعدادات > فلاتر المحتوى. يمكنك أيضاً إضافة كلمات رئيسية مخصصة. يعرض المحتوى المصفى عنصراً نائباً مع زر "عرض على أي حال" إذا أردت مشاهدته مؤقتاً.',
+        'faq.q18': 'كيف أكتم مستخدماً؟',
+        'faq.a18': 'لكتم مستخدم، قم بزيارة ملفه الشخصي وانقر على زر الكتم. بمجرد الكتم، سيتم إخفاء جميع مقاطع الفيديو الخاصة به من موجزك، وستظهر تعليقاته كـ "رسالة من مستخدم مكتوم"، وسيتم إخفاء رسائل الدردشة المباشرة الخاصة به. يتم تخزين قائمة الكتم الخاصة بك على Nostr، لذا تتزامن عبر الأجهزة. يمكنك إدارة المستخدمين المكتومين في إعدادات الملف الشخصي ضمن "المستخدمون المكتومون".',
+        'faq.q19': 'ماذا يعني "منتقد"؟',
+        'faq.a19': 'يتم تحديد الفيديو على أنه "منتقد" عندما يحصل على عدد كبير من عدم الإعجاب مقارنة بالإعجابات، مما يشير إلى استقبال سلبي من المجتمع. على وجه التحديد، يكون الفيديو منتقداً عندما يحتوي على 10 ردود فعل على الأقل، وعدم الإعجاب ضعف الإعجاب على الأقل، وعدم الإعجاب يشكل 70% أو أكثر من إجمالي ردود الفعل. تعرض مقاطع الفيديو المنتقدة شارة تحذير، وسيُطلب منك التأكيد قبل المشاهدة.',
+        'faq.q20': 'كيف تعمل تحذيرات المجتمع؟',
+        'faq.a20': 'يمكن للمستخدمين الإبلاغ عن المحتوى لأسباب مختلفة (بريد مزعج، محتوى غير قانوني، إساءة، مضلل، إلخ). عندما يتلقى فيديو أو مستخدم 5 بلاغات أو أكثر من أشخاص تتابعهم، يظهر مؤشر تحذير. يستفيد هذا من رسم التواصل الاجتماعي الخاص بك - تأتي التحذيرات من شبكتك الموثوقة، وليس من غرباء مجهولين. يمكنك تبديل "إظهار التحذيرات من الحسابات التي أتابعها" في الإعدادات.',
+        'faq.q21': 'كيف أبلغ عن محتوى؟',
+        'faq.a21': 'انقر على أيقونة العلم على أي فيديو أو تعليق أو ملف تعريف مستخدم للإبلاغ عنه. حدد سبباً (بريد مزعج، غير قانوني، إساءة، مضلل، انتحال شخصية، حقوق نشر، أو آخر) وأضف تفاصيل اختيارياً. يتم نشر البلاغات على Nostr كأحداث، مما يجعلها شفافة ولامركزية. تساعد بلاغاتك الآخرين في شبكتك على تحديد المحتوى الإشكالي.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'الخصوصية والأمان',
+        'faq.q22': 'هل نشاطي خاص؟',
+        'faq.a22': 'على Nostr، معظم الأنشطة عامة بالتصميم. إعجاباتك وتعليقاتك ومتابعاتك وزاباتك مرئية على الشبكة العامة. ومع ذلك، يخزن Plebs سجل المشاهدة محلياً في متصفحك - لا يتم إرساله إلى أي خادم أبداً. يمكنك مسح بياناتك المحلية في أي وقت.',
+        'faq.q23': 'كيف أحافظ على أمان حسابي؟',
+        'faq.a23': 'لا تشارك مفتاحك الخاص (nsec) مع أي شخص أبداً. نوصي بشدة باستخدام إضافة متصفح Nostr مثل Alby أو nos2x أو موقِّع أجهزة. هذه تحافظ على مفتاحك الخاص آمناً وتوقع الأحداث فقط عند الموافقة عليها. تجنب تخزين nsec الخاص بك مباشرة في المواقع.',
+        'faq.q24': 'هل يمكنني حذف المحتوى الخاص بي؟',
+        'faq.a24': 'يمكنك طلب الحذف من خلال نشر حدث حذف على Nostr. ستحترم معظم المرحلات والعملاء الذين يعملون بشكل جيد هذا. ومع ذلك، بسبب الطبيعة اللامركزية للشبكة، قد يستمر المحتوى على بعض المرحلات أو خوادم Blossom. لا توجد سلطة مركزية يمكنها فرض الحذف الكامل عبر الشبكة بأكملها.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'استكشاف الأخطاء وإصلاحها',
+        'faq.q25': 'لا يتم تحميل مقاطع الفيديو - ماذا أفعل؟',
+        'faq.a25Intro': 'إذا لم يتم تحميل مقاطع الفيديو، جرب هذه الخطوات:',
+        'faq.a25Item1': 'أعد تحميل الصفحة',
+        'faq.a25Item2': 'تحقق من اتصالك بالإنترنت',
+        'faq.a25Item3': 'قد يكون خادم Blossom الذي يستضيف الفيديو معطلاً - هذا مستقل عن Plebs',
+        'faq.a25Item4': 'حاول تعطيل إضافات المتصفح التي قد تحظر المحتوى',
+        'faq.a25Item5': 'امسح ذاكرة التخزين المؤقت لمتصفحك وحاول مرة أخرى',
+        'faq.q26': 'فقدت مفتاحي الخاص - هل يمكنك مساعدتي في استرداده؟',
+        'faq.a26': 'للأسف، لا. مفاتيح Nostr مشفرة - لا يوجد إعادة تعيين كلمة المرور أو استرداد للحساب لأنه لا توجد سلطة مركزية. لهذا السبب نوصي بشدة بعمل نسخة احتياطية من مفاتيحك واستخدام حل إدارة مفاتيح آمن. إذا فقدت nsec الخاص بك، ستحتاج إلى إنشاء هوية جديدة.',
+        'faq.q27': 'كيف أبلغ عن خطأ أو أطلب ميزة؟',
+        'faq.a27': 'يمكنك الإبلاغ عن الأخطاء أو طلب الميزات على صفحة <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a> الخاصة بنا. يمكنك أيضاً التواصل معنا على Nostr - تفضل بزيارة صفحة <a href="#/contact">اتصل بنا</a> للحصول على التفاصيل.',
+
+        // Page Titles
+        'pageTitle.following': 'المتابعون',
+        'pageTitle.myVideos': 'مقاطعي',
+        'pageTitle.likedVideos': 'المقاطع المعجب بها',
+        'pageTitle.watchHistory': 'سجل المشاهدة',
+        'pageTitle.liveStreams': 'البث المباشر',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- مباشر على Plebs',
+        // Home Page Sections
+        'section.trending': 'الرائج',
+        'section.recommended': 'موصى به لك',
+        'section.shorts': 'المقاطع القصيرة',
+        'section.live': 'مباشر',
+        'section.liveNow': 'مباشر الآن',
+        'section.latestVideos': 'أحدث المقاطع',
+        'section.videos': 'المقاطع',
+        'section.usersYouFollow': 'المستخدمون المتابَعون',
+        // Trending Period
+        'trending.thisWeek': 'هذا الأسبوع',
+        'trending.today': 'اليوم',
+        // Buttons
+        'button.viewMore': 'عرض المزيد',
+        'button.clearAll': 'مسح الكل',
+        'button.showAnyway': 'إظهار على أي حال',
+        // Confirmation Modals
+        'confirm.logout': 'تسجيل الخروج',
+        'confirm.logoutMessage': 'هل أنت متأكد من تسجيل الخروج؟',
+        'confirm.resetSettings': 'إعادة تعيين الإعدادات',
+        'confirm.resetSettingsMessage': 'هل أنت متأكد من إعادة تعيين جميع الإعدادات إلى القيم الافتراضية؟',
+        'confirm.reset': 'إعادة تعيين',
+        'confirm.clearHistory': 'مسح السجل',
+        'confirm.clearHistoryMessage': 'هل أنت متأكد من مسح سجل المشاهدة بالكامل؟ لا يمكن التراجع عن هذا الإجراء.',
+        'confirm.deleteDraft': 'حذف المسودة',
+        'confirm.deleteDraftMessage': 'هل أنت متأكد من حذف هذه المسودة؟',
+        'confirm.delete': 'حذف',
+        'confirm.deleteVideo': 'حذف المقطع',
+        'confirm.deleteVideoMessage': 'هل أنت متأكد من حذف هذا المقطع؟ لا يمكن التراجع عن هذا الإجراء.',
+        'confirm.endStream': 'إنهاء البث المباشر',
+        'confirm.endStreamMessage': 'هل أنت متأكد من إنهاء هذا البث المباشر؟ لا يمكن التراجع عن هذا الإجراء.',
+        'confirm.endStreamButton': 'إنهاء البث',
+        // Content Filters
+        'filter.hiddenByPack': 'مخفي بواسطة {pack}',
+        'filter.showAnyway': 'إظهار على أي حال',
+        'filter.contentHidden': 'المحتوى مخفي بواسطة مرشح المحتوى',
+        // Following Page
+        'following.noFollowingYet': 'لا تتابع أحداً بعد. ابحث عن منشئي محتوى لمتابعتهم!',
+
     },
     hi: {
         // Navigation & Header
@@ -1613,7 +4980,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': 'लॉग इन सफल!', 'toast.loggedOut': 'लॉग आउट हो गए', 'toast.settingsSaved': 'सेटिंग्स सहेजी गईं!', 'toast.settingsReset': 'सेटिंग्स रीसेट हो गईं', 'toast.videoUploaded': 'वीडियो अपलोड हो गया!', 'toast.videoDeleted': 'वीडियो हटाया गया', 'toast.profileUpdated': 'प्रोफ़ाइल अपडेट हो गई!', 'toast.linkCopied': 'लिंक कॉपी हो गया!', 'toast.embedCopied': 'एम्बेड कोड कॉपी हो गया!', 'toast.zapSent': 'ज़ैप भेजा गया!', 'toast.followed': 'फॉलो किया!', 'toast.unfollowed': 'अनफॉलो किया', 'toast.reported': 'रिपोर्ट सबमिट हो गई', 'toast.saved': 'सहेजा गया!', 'toast.error': 'त्रुटि हुई', 'toast.networkError': 'नेटवर्क त्रुटि। पुनः प्रयास करें।', 'toast.uploadError': 'अपलोड विफल। पुनः प्रयास करें।', 'toast.languageChanged': 'भाषा बदली गई', 'toast.commentPosted': 'टिप्पणी पोस्ट हो गई', 'toast.keyCopied': 'की कॉपी हो गई!',
         // Time
-        'time.now': 'अभी', 'time.minutesAgo': '{count} मिनट पहले', 'time.hoursAgo': '{count} घंटे पहले', 'time.daysAgo': '{count} दिन पहले', 'time.weeksAgo': '{count} सप्ताह पहले', 'time.monthsAgo': '{count} महीने पहले', 'time.yearsAgo': '{count} साल पहले',
+        'time.justNow': 'अभी', 'time.secondAgo': '1 सेकंड पहले', 'time.secondsAgo': '{n} सेकंड पहले', 'time.minuteAgo': '1 मिनट पहले', 'time.minutesAgo': '{n} मिनट पहले', 'time.hourAgo': '1 घंटा पहले', 'time.hoursAgo': '{n} घंटे पहले', 'time.dayAgo': '1 दिन पहले', 'time.daysAgo': '{n} दिन पहले', 'time.weekAgo': '1 सप्ताह पहले', 'time.weeksAgo': '{n} सप्ताह पहले', 'time.monthAgo': '1 महीना पहले', 'time.monthsAgo': '{n} महीने पहले', 'time.yearAgo': '1 साल पहले', 'time.yearsAgo': '{n} साल पहले',
         // Empty States
         'empty.noVideos': 'कोई वीडियो नहीं मिला', 'empty.noVideosDesc': 'अलग खोज करके देखें', 'empty.noFollowing': 'आप किसी को फॉलो नहीं कर रहे', 'empty.noFollowingDesc': 'क्रिएटर्स को फॉलो करें उनके वीडियो देखने के लिए', 'empty.noHistory': 'कोई देखने का इतिहास नहीं', 'empty.noHistoryDesc': 'जो वीडियो आप देखते हैं वे यहाँ दिखाई देंगे', 'empty.noLiked': 'कोई पसंद किए गए वीडियो नहीं', 'empty.noLikedDesc': 'जो वीडियो आप पसंद करते हैं वे यहाँ दिखाई देंगे', 'empty.noResults': 'कोई परिणाम नहीं मिला', 'empty.noResultsDesc': 'अलग कीवर्ड आज़माएं',
         // Misc
@@ -1657,6 +5024,352 @@ const translations = {
         'warning.webmFormat': 'नोट: आपका ब्राउज़र WebM फॉर्मेट आउटपुट करेगा (iOS पर काम नहीं कर सकता)। iOS-संगत MP4 के लिए Windows/Mac पर Chrome का उपयोग करें।',
         // New Footer
         'footer.lastUpdated': 'अंतिम अपडेट: दिसंबर 2024',
+        // DMCA Page
+        'dmca.title': 'DMCA और सामग्री नीति',
+        'dmca.lastUpdated': 'अंतिम अपडेट: दिसंबर 2024',
+        'dmca.architectureTitle': 'Plebs आर्किटेक्चर को समझना',
+        'dmca.architectureDesc': 'Plebs एक विकेंद्रीकृत वीडियो प्लेटफॉर्म फ्रंटएंड है जो पारंपरिक वीडियो होस्टिंग सेवाओं से अलग तरीके से काम करता है।',
+        'dmca.architectureItem1': 'Plebs कोई वीडियो या छवि सामग्री होस्ट नहीं करता।',
+        'dmca.architectureItem1Desc': 'हम एक क्लाइंट/फ्रंटएंड हैं जो कहीं और संग्रहीत सामग्री प्रदर्शित करता है।',
+        'dmca.architectureItem2': 'सभी मीडिया फाइलें स्वतंत्र Blossom सर्वरों पर संग्रहीत हैं।',
+        'dmca.architectureItem3': 'वीडियो मेटाडेटा Nostr रिले पर प्रकाशित है।',
+        'dmca.architectureItem4': 'Plebs केवल इस वितरित सामग्री को एकत्र और प्रदर्शित करता है।',
+        'dmca.filingTitle': 'DMCA दावा दायर करना',
+        'dmca.filingDesc': 'क्योंकि Plebs सामग्री होस्ट नहीं करता, हम सीधे उल्लंघनकारी सामग्री को हटा नहीं सकते।',
+        'dmca.forVideoTitle': '1. वीडियो/छवि सामग्री के लिए',
+        'dmca.forVideoDesc': 'मीडिया फाइलें Blossom सर्वरों पर संग्रहीत हैं।',
+        'dmca.forVideoItem1': 'पहचानें कि कौन सा Blossom सर्वर सामग्री होस्ट कर रहा है',
+        'dmca.forVideoItem2': 'Blossom सर्वर ऑपरेटर से सीधे संपर्क करें',
+        'dmca.forVideoItem3': 'प्रत्येक Blossom सर्वर स्वतंत्र रूप से संचालित होता है',
+        'dmca.forMetadataTitle': '2. मेटाडेटा/विवरण के लिए',
+        'dmca.forMetadataDesc': 'यदि उल्लंघनकारी सामग्री शीर्षक या विवरण में है:',
+        'dmca.forMetadataItem1': 'यह जानकारी Nostr रिले पर संग्रहीत है',
+        'dmca.forMetadataItem2': 'विशिष्ट Nostr रिले ऑपरेटरों से संपर्क करें',
+        'dmca.forMetadataItem3': 'कई रिले समान डेटा संग्रहीत कर सकते हैं',
+        'dmca.whatWeCanDoTitle': 'Plebs क्या कर सकता है',
+        'dmca.whatWeCanDoDesc': 'हालांकि हम सामग्री होस्ट नहीं करते, हम कर सकते हैं:',
+        'dmca.whatWeCanDoItem1': 'विशिष्ट सामग्री होस्ट करने वाले सर्वरों की पहचान में सहायता करें',
+        'dmca.whatWeCanDoItem2': 'स्थानीय ब्लॉकलिस्ट में सामग्री जोड़ें',
+        'dmca.whatWeCanDoItem3': 'उपयुक्त ऑपरेटरों से संपर्क करने के बारे में मार्गदर्शन प्रदान करें',
+        'dmca.toRequestAssistance': 'सहायता का अनुरोध करने के लिए, कृपया हमसे संपर्क करें:',
+        'dmca.assistanceItem1': 'उल्लंघनकारी सामग्री का लिंक या पहचानकर्ता',
+        'dmca.assistanceItem2': 'आपके कॉपीराइट स्वामित्व का प्रमाण',
+        'dmca.assistanceItem3': 'संरक्षित कार्य का विवरण',
+        'dmca.blossomOperatorsTitle': 'Blossom सर्वर ऑपरेटरों के लिए',
+        'dmca.blossomOperatorsDesc': 'यदि आप Blossom सर्वर संचालित करते हैं, तो आप DMCA अनुरोधों को संभालने के लिए जिम्मेदार हैं।',
+        'dmca.blossomOperatorsLink': 'ज्ञात Blossom सर्वरों की सूची के लिए, दस्तावेज़ देखें।',
+        'dmca.considerationsTitle': 'महत्वपूर्ण विचार',
+        'dmca.considerationsItem1': 'विकेंद्रीकरण:',
+        'dmca.considerationsItem1Desc': 'सभी स्रोतों से सामग्री को पूरी तरह से हटाना संभव नहीं हो सकता।',
+        'dmca.considerationsItem2': 'एकाधिक प्रतियां:',
+        'dmca.considerationsItem2Desc': 'सामग्री कई सर्वरों पर दोहराई जा सकती है।',
+        'dmca.considerationsItem3': 'मेटाडेटा दृढ़ता:',
+        'dmca.considerationsItem3Desc': 'मीडिया फाइलें हटाने के बाद भी मेटाडेटा बना रह सकता है।',
+        'dmca.considerationsItem4': 'कोई केंद्रीय नियंत्रण नहीं:',
+        'dmca.considerationsItem4Desc': 'कोई एकल इकाई पूरे नेटवर्क से सामग्री नहीं हटा सकती।',
+        'dmca.counterNotificationTitle': 'काउंटर नोटिफिकेशन',
+        'dmca.counterNotificationDesc': 'यदि आपको लगता है कि आपकी सामग्री गलती से हटा दी गई, तो सर्वर ऑपरेटर से संपर्क करें।',
+        'dmca.contactTitle': 'हमसे संपर्क करें',
+        'dmca.contactDesc': 'प्रश्नों के लिए, कृपया हमसे संपर्क करें।',
+        // Admin Dashboard
+        'admin.title': 'एडमिन डैशबोर्ड',
+        'admin.loading': 'प्लेटफॉर्म एनालिटिक्स लोड हो रहा है...',
+        'admin.platformOverview': 'प्लेटफॉर्म अवलोकन',
+        'admin.totalVideos': 'कुल वीडियो',
+        'admin.videos7Days': 'वीडियो (7 दिन)',
+        'admin.videos30Days': 'वीडियो (30 दिन)',
+        'admin.uniqueCreators': 'अद्वितीय क्रिएटर्स',
+        'admin.likes30Days': 'लाइक्स (30 दिन)',
+        'admin.dislikes30Days': 'डिसलाइक्स (30 दिन)',
+        'admin.monthlyActiveUsers': 'मासिक सक्रिय उपयोगकर्ता',
+        'admin.mauDesc': 'अद्वितीय उपयोगकर्ता जिन्होंने अपलोड किया, प्रतिक्रिया दी या टिप्पणी की (पिछले 6 महीने)',
+        'admin.boostRevenue': 'Boost राजस्व (पिछले 30 दिन)',
+        'admin.totalBoostRevenue': 'कुल Boost राजस्व',
+        'admin.totalBoosts': 'कुल Boosts',
+        'admin.blocklistManagement': 'ब्लॉकलिस्ट प्रबंधन',
+        'admin.blocklistDesc': 'विशिष्ट वीडियो या उपयोगकर्ताओं को ब्लॉक करें।',
+        'admin.blockedVideos': 'ब्लॉक वीडियो',
+        'admin.blockedUsers': 'ब्लॉक उपयोगकर्ता',
+        'admin.blockByEventId': 'इवेंट ID द्वारा वीडियो ब्लॉक करें',
+        'admin.blockByPubkey': 'Pubkey द्वारा उपयोगकर्ता ब्लॉक करें',
+        'admin.blockVideo': 'वीडियो ब्लॉक करें',
+        'admin.blockUser': 'उपयोगकर्ता ब्लॉक करें',
+        'admin.noBlockedVideos': 'कोई ब्लॉक वीडियो नहीं',
+        'admin.noBlockedUsers': 'कोई ब्लॉक उपयोगकर्ता नहीं',
+        'admin.unblock': 'अनब्लॉक करें',
+        'admin.accessDenied': 'एक्सेस अस्वीकृत। केवल एडमिन के लिए।',
+        // Search/Trending/Channel/Buttons/Common
+        'search.noVideosFound': '"{query}" के लिए कोई वीडियो नहीं मिला।',
+        'search.noFullLengthVideos': '"{query}" के लिए कोई पूर्ण-लंबाई वीडियो नहीं मिला।',
+        'trending.noVideosToday': 'आज कोई ट्रेंडिंग वीडियो नहीं।',
+        'trending.noVideosThisWeek': 'इस सप्ताह कोई ट्रेंडिंग वीडियो नहीं।',
+        'channel.video': 'वीडियो',
+        'channel.videos': 'वीडियो',
+        'channel.follower': 'फॉलोअर',
+        'channel.followers': 'फॉलोअर्स',
+        'button.follow': 'फॉलो करें',
+        'button.following': 'फॉलो किया',
+        'button.unfollow': 'अनफॉलो करें',
+        'button.mute': 'म्यूट करें',
+        'button.unmute': 'अनम्यूट करें',
+        'button.report': 'रिपोर्ट करें',
+        'button.muteUser': 'उपयोगकर्ता को म्यूट करें',
+        'button.unmuteUser': 'उपयोगकर्ता को अनम्यूट करें',
+        'button.reportComment': 'टिप्पणी की रिपोर्ट करें',
+        'button.reportUser': 'इस उपयोगकर्ता की रिपोर्ट करें',
+        'live.goalReached': 'लक्ष्य प्राप्त!',
+        'live.goalProgress': 'लक्ष्य का {percent}%',
+        'common.loading': 'लोड हो रहा है...',
+        'common.sats': 'sats',
+
+        // Analytics
+        'analytics.title': 'चैनल एनालिटिक्स',
+        'analytics.description': 'अपने चैनल के प्रदर्शन मेट्रिक्स और इनसाइट्स देखें।',
+        'analytics.loading': 'एनालिटिक्स लोड हो रहा है...',
+        'analytics.error': 'एनालिटिक्स लोड करने में विफल',
+        'analytics.overview': 'अवलोकन',
+        'analytics.videos': 'वीडियो',
+        'analytics.engagement': 'एंगेजमेंट',
+        'analytics.totalViews': 'कुल व्यूज',
+        'analytics.totalVideos': 'कुल वीडियो',
+        'analytics.totalLikes': 'कुल लाइक्स',
+        'analytics.totalZaps': 'कुल Zaps',
+        'analytics.avgViews': 'औसत व्यूज',
+        'analytics.avgLikes': 'औसत लाइक्स',
+        'analytics.avgZaps': 'औसत Zaps',
+        'analytics.viewsOverTime': 'समय के साथ व्यूज',
+        'analytics.topVideos': 'टॉप वीडियो',
+        'analytics.recentActivity': 'हाल की गतिविधि',
+        'analytics.viewsLabel': 'व्यूज',
+        'analytics.likesLabel': 'लाइक्स',
+        'analytics.zapsLabel': 'Zaps',
+        'analytics.dateLabel': 'तारीख',
+        'analytics.videoTitle': 'वीडियो शीर्षक',
+        'analytics.performance': 'प्रदर्शन',
+        'analytics.noData': 'कोई एनालिटिक्स डेटा नहीं',
+        'analytics.noDataDesc': 'अपनी एनालिटिक्स देखने के लिए वीडियो अपलोड करना शुरू करें।',
+        'analytics.last7Days': 'पिछले 7 दिन',
+        'analytics.last30Days': 'पिछले 30 दिन',
+        'analytics.last90Days': 'पिछले 90 दिन',
+        'analytics.allTime': 'सभी समय',
+        'analytics.views': 'व्यूज',
+        'analytics.likes': 'लाइक्स',
+        'analytics.zaps': 'Zaps',
+        'analytics.rank': 'रैंक',
+        'analytics.noVideos': 'कोई वीडियो नहीं',
+        'analytics.noVideosDesc': 'प्रदर्शन ट्रैकिंग शुरू करने के लिए अपना पहला वीडियो अपलोड करें।',
+
+        // About Page
+        'about.title': 'Plebs.place के बारे में',
+        'about.subtitle': 'विकेंद्रीकृत वीडियो प्लेटफॉर्म',
+        'about.welcome': 'Plebs.place में आपका स्वागत है',
+        'about.description': 'Plebs.place एक विकेंद्रीकृत वीडियो शेयरिंग प्लेटफॉर्म है जो Nostr प्रोटोकॉल पर बना है, जो क्रिएटर्स को उनकी सामग्री और दर्शकों पर पूर्ण नियंत्रण देता है।',
+        'about.feature1Title': 'विकेंद्रीकृत',
+        'about.feature1Desc': 'Nostr पर निर्मित, सेंसरशिप प्रतिरोध और सामग्री का सच्चा स्वामित्व सुनिश्चित करता है।',
+        'about.feature2Title': 'क्रिएटर-प्रथम',
+        'about.feature2Desc': 'अपनी सामग्री, डेटा और दर्शकों के साथ संबंध पर पूर्ण नियंत्रण रखें।',
+        'about.feature3Title': 'बिटकॉइन मोनेटाइजेशन',
+        'about.feature3Desc': 'Lightning Network और Zaps के माध्यम से सीधे दर्शकों से समर्थन प्राप्त करें।',
+        'about.feature4Title': 'ओपन सोर्स',
+        'about.feature4Desc': 'विकेंद्रीकरण की भावना के अनुरूप पारदर्शी, समुदाय-संचालित विकास।',
+        'about.missionTitle': 'हमारा मिशन',
+        'about.missionDesc': 'सेंसरशिप, प्लेटफॉर्म लॉक-इन और मनमाने नियम परिवर्तनों से मुक्त वीडियो प्लेटफॉर्म बनाना। आपकी सामग्री आपकी है।',
+        'about.techTitle': 'तकनीक',
+        'about.techDesc': 'Nostr से पहचान और सामाजिक सुविधाएं, Lightning से तत्काल माइक्रोपेमेंट और विकेंद्रीकृत स्टोरेज समाधानों से निर्मित।',
+
+        // Contact Page
+        'contact.title': 'संपर्क करें',
+        'contact.subtitle': 'संपर्क में रहें',
+        'contact.description': 'प्रश्न, प्रतिक्रिया या सुझाव हैं? हम आपसे सुनना पसंद करेंगे।',
+        'contact.nostrTitle': 'Nostr पर फॉलो करें',
+        'contact.nostrDesc': 'अपडेट और समुदाय चर्चाओं के लिए हमें Nostr पर फॉलो करें।',
+        'contact.githubTitle': 'GitHub',
+        'contact.githubDesc': 'सोर्स कोड देखें, समस्याएं रिपोर्ट करें, या प्रोजेक्ट में योगदान दें।',
+        'contact.emailTitle': 'ईमेल',
+        'contact.emailDesc': 'व्यावसायिक पूछताछ या सहायता प्रश्नों के लिए हमारी टीम से संपर्क करें।',
+
+        // Terms Page
+        'terms.title': 'सेवा की शर्तें',
+        'terms.lastUpdated': 'अंतिम अपडेट',
+        'terms.section1Title': '1. शर्तों की स्वीकृति',
+        'terms.section1Content': 'Plebs.place का उपयोग करके, आप इन शर्तों से बंधे होने के लिए सहमत हैं। यदि आप सहमत नहीं हैं, तो कृपया प्लेटफॉर्म का उपयोग न करें।',
+        'terms.section2Title': '2. सेवा विवरण',
+        'terms.section2Content': 'Plebs.place एक विकेंद्रीकृत वीडियो शेयरिंग प्लेटफॉर्म है जो Nostr प्रोटोकॉल का उपयोग करता है। हम वीडियो होस्टिंग, शेयरिंग और Lightning मोनेटाइजेशन के लिए टूल प्रदान करते हैं।',
+        'terms.section3Title': '3. उपयोगकर्ता जिम्मेदारियां',
+        'terms.section3Content': 'आप प्लेटफॉर्म के माध्यम से पोस्ट की गई सभी सामग्री के लिए जिम्मेदार हैं। आप अवैध, हानिकारक, या दूसरों के अधिकारों का उल्लंघन करने वाली सामग्री अपलोड न करने के लिए सहमत हैं।',
+        'terms.section4Title': '4. सामग्री स्वामित्व',
+        'terms.section4Content': 'आप अपनी सामग्री का पूर्ण स्वामित्व रखते हैं। अपलोड करके, आप Plebs.place को अपने वीडियो होस्ट करने और प्रदान करने के लिए सीमित लाइसेंस देते हैं।',
+        'terms.section5Title': '5. निषिद्ध उपयोग',
+        'terms.section5Content': 'आप किसी भी अवैध गतिविधियों, उत्पीड़न, स्पैम, या हानिकारक सामग्री के वितरण के लिए प्लेटफॉर्म का उपयोग नहीं कर सकते।',
+        'terms.section6Title': '6. खाता प्रबंधन',
+        'terms.section6Content': 'आप अपनी Nostr कुंजियों को ठीक से प्रबंधित करके अपने खाते को सुरक्षित करने के लिए जिम्मेदार हैं। हम आपकी निजी कुंजी संग्रहीत नहीं करते और खोए हुए खाते पुनर्प्राप्त नहीं कर सकते।',
+        'terms.section7Title': '7. भुगतान शर्तें',
+        'terms.section7Content': 'सभी भुगतान Lightning Network के माध्यम से संसाधित होते हैं। लेनदेन अंतिम और अपरिवर्तनीय हैं। कृपया लेनदेन से पहले सभी भुगतान विवरण सत्यापित करें।',
+        'terms.section8Title': '8. दायित्व की सीमा',
+        'terms.section8Content': 'Plebs.place बिना किसी वारंटी के "जैसा है" प्रदान किया जाता है। हम किसी भी हानि, क्षति, या सेवा रुकावट के लिए जिम्मेदार नहीं हैं।',
+        'terms.section9Title': '9. शर्तों में परिवर्तन',
+        'terms.section9Content': 'ये शर्तें समय-समय पर अपडेट हो सकती हैं। निरंतर उपयोग अपडेटेड शर्तों की स्वीकृति का संकेत देता है।',
+
+        // Privacy Page
+        'privacy.title': 'गोपनीयता नीति',
+        'privacy.lastUpdated': 'अंतिम अपडेट',
+        'privacy.section1Title': '1. परिचय',
+        'privacy.section1Content': 'यह गोपनीयता नीति बताती है कि Plebs.place हमारे विकेंद्रीकृत वीडियो प्लेटफॉर्म के आपके उपयोग से संबंधित जानकारी को कैसे संभालता है।',
+        'privacy.section2Title': '2. हम कौन सी जानकारी एकत्र करते हैं',
+        'privacy.section2Content': 'विकेंद्रीकृत प्लेटफॉर्म के रूप में, हम न्यूनतम डेटा एकत्र करते हैं। आपकी Nostr सार्वजनिक कुंजी प्रमाणीकरण के लिए उपयोग की जाती है, और वीडियो मेटाडेटा Nostr रिले पर संग्रहीत होता है।',
+        'privacy.section3Title': '3. डेटा भंडारण',
+        'privacy.section3Content': 'आपकी सामग्री विकेंद्रीकृत स्टोरेज समाधानों पर संग्रहीत है। हम केंद्रीकृत सर्वरों पर व्यक्तिगत डेटा संग्रहीत नहीं करते। आपकी निजी कुंजी कभी भी हमारे साथ साझा नहीं की जाती।',
+        'privacy.section4Title': '4. डेटा उपयोग',
+        'privacy.section4Content': 'हम जो भी डेटा एकत्र करते हैं वह केवल प्लेटफॉर्म सेवाएं प्रदान करने और सुधारने के लिए उपयोग किया जाता है। हम कभी भी आपका डेटा तीसरे पक्षों को नहीं बेचते।',
+        'privacy.section5Title': '5. कुकीज़ और ट्रैकिंग',
+        'privacy.section5Content': 'हम बुनियादी कार्यक्षमता के लिए न्यूनतम कुकीज़ का उपयोग करते हैं। हम विज्ञापन ट्रैकिंग नहीं करते या मार्केटिंग उद्देश्यों के लिए डेटा एकत्र नहीं करते।',
+        'privacy.section6Title': '6. तृतीय-पक्ष सेवाएं',
+        'privacy.section6Content': 'हम Nostr रिले और Lightning Network नोड्स के साथ एकीकृत करते हैं। इन सेवाओं की अपनी गोपनीयता नीतियां हैं।',
+        'privacy.section7Title': '7. डेटा सुरक्षा',
+        'privacy.section7Content': 'हम अपनी विकेंद्रीकृत वास्तुकला के माध्यम से आपकी जानकारी की रक्षा करते हैं। हालांकि, आप अपनी निजी कुंजी की सुरक्षा के लिए जिम्मेदार हैं।',
+        'privacy.section8Title': '8. आपके अधिकार',
+        'privacy.section8Content': 'आपके पास अपने डेटा पर पूर्ण नियंत्रण है। आप किसी भी समय अपनी सामग्री हटा सकते हैं या प्लेटफॉर्म का उपयोग बंद कर सकते हैं।',
+        'privacy.section9Title': '9. बच्चों की गोपनीयता',
+        'privacy.section9Content': 'Plebs.place 13 वर्ष से कम उम्र के बच्चों के लिए नहीं है। हम जानबूझकर नाबालिगों से जानकारी एकत्र नहीं करते।',
+        'privacy.section10Title': '10. नीति परिवर्तन',
+        'privacy.section10Content': 'हम इस गोपनीयता नीति को अपडेट कर सकते हैं। परिवर्तन इस पेज पर अपडेट तिथि के साथ पोस्ट किए जाएंगे।',
+
+        // FAQ Page
+        'faq.title': 'अक्सर पूछे जाने वाले प्रश्न',
+        'faq.subtitle': 'सामान्य प्रश्न और उत्तर',
+        'faq.general': 'सामान्य',
+        'faq.technical': 'तकनीकी',
+        'faq.monetization': 'मोनेटाइजेशन',
+        'faq.content': 'सामग्री',
+        'faq.q1': 'Plebs.place क्या है?',
+        'faq.a1': 'Plebs.place एक विकेंद्रीकृत वीडियो शेयरिंग प्लेटफॉर्म है जो Nostr प्रोटोकॉल पर बना है, जो आपको अपनी सामग्री और दर्शकों का पूर्ण स्वामित्व देता है।',
+        'faq.q2': 'Plebs.place कैसे काम करता है?',
+        'faq.a2': 'प्लेटफॉर्म Nostr का उपयोग प्रमाणीकरण और सामाजिक के लिए, विकेंद्रीकृत स्टोरेज का वीडियो होस्टिंग के लिए, और Lightning Network का तत्काल भुगतान के लिए करता है।',
+        'faq.q3': 'क्या Plebs.place मुफ्त है?',
+        'faq.a3': 'हां, खाता बनाना, अपलोड करना और देखना मुफ्त है। शुरू करने के लिए आपको बस एक Nostr कुंजी चाहिए।',
+        'faq.q4': 'Nostr क्या है?',
+        'faq.a4': 'Nostr एक विकेंद्रीकृत संचार प्रोटोकॉल है जो आपको केंद्रीकृत प्लेटफॉर्म पर निर्भर किए बिना अपनी पहचान और डेटा को नियंत्रित करने देता है।',
+        'faq.q5': 'मैं खाता कैसे बनाऊं?',
+        'faq.a5': 'आप Alby या nos2x जैसे Nostr ब्राउज़र एक्सटेंशन से साइन इन कर सकते हैं, या एक नई Nostr कुंजी बना सकते हैं।',
+        'faq.q6': 'कौन से वीडियो फॉर्मेट समर्थित हैं?',
+        'faq.a6': 'हम MP4, WebM और MOV सहित अधिकांश सामान्य फॉर्मेट का समर्थन करते हैं। वीडियो अपलोड के बाद ट्रांसकोड किए जाते हैं।',
+        'faq.q7': 'मेरे वीडियो कहां संग्रहीत हैं?',
+        'faq.a7': 'वीडियो विकेंद्रीकृत स्टोरेज समाधानों पर संग्रहीत हैं, जो सुनिश्चित करते हैं कि आपकी सामग्री किसी एक सर्वर के नियंत्रण में नहीं है।',
+        'faq.q8': 'Lightning Network क्या है?',
+        'faq.a8': 'Lightning Network बिटकॉइन के लिए एक लेयर 2 भुगतान प्रोटोकॉल है जो तत्काल, कम शुल्क वाले लेनदेन को सक्षम करता है।',
+        'faq.q9': 'Zaps क्या हैं?',
+        'faq.a9': 'Zaps Lightning Network के माध्यम से भेजे गए बिटकॉइन माइक्रोपेमेंट हैं जो क्रिएटर्स का समर्थन करने के लिए उपयोग किए जाते हैं।',
+        'faq.q10': 'मैं अपनी सामग्री का मोनेटाइजेशन कैसे करूं?',
+        'faq.a10': 'क्रिएटर्स दर्शक Zaps, सशुल्क सामग्री और Lightning के माध्यम से सीधे दान से आय अर्जित कर सकते हैं।',
+        'faq.q11': 'मैं अपनी कमाई कैसे निकालूं?',
+        'faq.a11': 'कमाई सीधे आपके Lightning वॉलेट में आती है। कोई न्यूनतम निकासी या प्रतीक्षा अवधि नहीं है।',
+        'faq.q12': 'कौन सी सामग्री अनुमत है?',
+        'faq.a12': 'वैध सामग्री का स्वागत है। कृपया हमारी सेवा शर्तों का पालन करें और हानिकारक या अवैध सामग्री से बचें।',
+        'faq.q13': 'क्या मैं अपने वीडियो हटा सकता हूं?',
+        'faq.a13': 'हां, आप किसी भी समय वीडियो हटा सकते हैं। विकेंद्रीकृत प्रकृति के कारण, वितरित प्रतियां अन्य नोड्स पर रह सकती हैं।',
+        'faq.q14': 'क्या सामग्री मॉडरेशन है?',
+        'faq.a14': 'विकेंद्रीकृत प्लेटफॉर्म के रूप में, मॉडरेशन समुदाय-संचालित दृष्टिकोण और उपयोगकर्ता नियंत्रण के माध्यम से होता है।',
+        'faq.q15': 'मैं समस्याग्रस्त सामग्री की रिपोर्ट कैसे करूं?',
+        'faq.a15': 'वीडियो पर रिपोर्ट सुविधा का उपयोग करें या हमारी संपर्क जानकारी के माध्यम से हमें बताएं। समुदाय प्रतिक्रिया प्लेटफॉर्म गुणवत्ता बनाए रखने में मदद करती है।',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'स्व-मॉडरेशन',
+        'faq.q16': 'विकेंद्रीकृत प्लेटफ़ॉर्म पर मॉडरेशन कैसे काम करता है?',
+        'faq.a16': 'केंद्रीकृत मॉडरेटर वाले पारंपरिक प्लेटफार्मों के विपरीत, Plebs आपको इस बात पर नियंत्रण देता है कि आप क्या देखते हैं। हम शक्तिशाली स्व-मॉडरेशन टूल प्रदान करते हैं जिसमें सामग्री फ़िल्टर पैक, उपयोगकर्ता म्यूटिंग, सामुदायिक चेतावनियां और रेश्यो किए गए वीडियो संकेतक शामिल हैं। आप तय करते हैं कि कौन सी सामग्री आपके लिए उपयुक्त है - कोई केंद्रीय प्राधिकरण उन निर्णयों को नहीं ले रहा है।',
+        'faq.q17': 'सामग्री फ़िल्टर पैक क्या हैं?',
+        'faq.a17Intro': 'सामग्री फ़िल्टर पैक पूर्वनिर्धारित कीवर्ड फ़िल्टर हैं जिन्हें आप विशिष्ट प्रकार की सामग्री छिपाने के लिए सक्षम कर सकते हैं। उपलब्ध पैक में शामिल हैं:',
+        'faq.a17Pack1': 'नस्लवाद और घृणास्पद भाषण:',
+        'faq.a17Pack1Desc': 'नस्लीय अपमान और भेदभावपूर्ण सामग्री को फ़िल्टर करता है',
+        'faq.a17Pack2': 'यौन स्पष्ट सामग्री:',
+        'faq.a17Pack2Desc': 'अश्लील और वयस्क सामग्री को फ़िल्टर करता है',
+        'faq.a17Pack3': 'हिंसा और रक्तपात:',
+        'faq.a17Pack3Desc': 'ग्राफिक हिंसा और आत्म-हानि सामग्री को फ़िल्टर करता है',
+        'faq.a17Pack4': 'ड्रग्स और पदार्थ:',
+        'faq.a17Pack4Desc': 'ड्रग-संबंधित सामग्री को फ़िल्टर करता है',
+        'faq.a17Pack5': 'स्पैम और घोटाले:',
+        'faq.a17Pack5Desc': 'सामान्य स्पैम और घोटाले के पैटर्न को फ़िल्टर करता है',
+        'faq.a17Pack6': 'क्रिप्टोकरेंसी:',
+        'faq.a17Pack6Desc': 'क्रिप्टो प्रचार और टोकन शिलिंग को फ़िल्टर करता है',
+        'faq.a17Pack7': 'राजनीतिक सामग्री:',
+        'faq.a17Pack7Desc': 'पक्षपातपूर्ण राजनीतिक सामग्री को फ़िल्टर करता है',
+        'faq.a17Pack8': 'मजबूत अपशब्द:',
+        'faq.a17Pack8Desc': 'अश्लील भाषा को फ़िल्टर करता है',
+        'faq.a17Note': 'सेटिंग्स > सामग्री फ़िल्टर में इन्हें सक्षम करें। आप कस्टम कीवर्ड भी जोड़ सकते हैं। फ़िल्टर की गई सामग्री एक प्लेसहोल्डर दिखाती है जिसमें "वैसे भी दिखाएं" बटन होता है यदि आप इसे अस्थायी रूप से देखना चाहते हैं।',
+        'faq.q18': 'मैं किसी उपयोगकर्ता को म्यूट कैसे करूं?',
+
+        // Page Titles
+        'pageTitle.following': 'फॉलोइंग',
+        'pageTitle.myVideos': 'मेरे वीडियो',
+        'pageTitle.likedVideos': 'पसंद किए गए वीडियो',
+        'pageTitle.watchHistory': 'देखने का इतिहास',
+        'pageTitle.liveStreams': 'लाइव स्ट्रीम',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- Plebs पर लाइव',
+        // Home Page Sections
+        'section.trending': 'ट्रेंडिंग',
+        'section.recommended': 'आपके लिए सुझाव',
+        'section.shorts': 'शॉर्ट्स',
+        'section.live': 'लाइव',
+        'section.liveNow': 'अभी लाइव',
+        'section.latestVideos': 'नवीनतम वीडियो',
+        'section.videos': 'वीडियो',
+        'section.usersYouFollow': 'आपके द्वारा फॉलो किए गए उपयोगकर्ता',
+        // Trending Period
+        'trending.thisWeek': 'इस सप्ताह',
+        'trending.today': 'आज',
+        // Buttons
+        'button.viewMore': 'और देखें',
+        'button.clearAll': 'सभी साफ़ करें',
+        'button.showAnyway': 'वैसे भी दिखाएं',
+        // Confirmation Modals
+        'confirm.logout': 'लॉग आउट',
+        'confirm.logoutMessage': 'क्या आप वाकई लॉग आउट करना चाहते हैं?',
+        'confirm.resetSettings': 'सेटिंग्स रीसेट करें',
+        'confirm.resetSettingsMessage': 'क्या आप वाकई सभी सेटिंग्स को डिफ़ॉल्ट पर रीसेट करना चाहते हैं?',
+        'confirm.reset': 'रीसेट',
+        'confirm.clearHistory': 'इतिहास साफ़ करें',
+        'confirm.clearHistoryMessage': 'क्या आप वाकई अपना पूरा देखने का इतिहास साफ़ करना चाहते हैं? इसे पूर्ववत नहीं किया जा सकता।',
+        'confirm.deleteDraft': 'ड्राफ्ट हटाएं',
+        'confirm.deleteDraftMessage': 'क्या आप वाकई इस ड्राफ्ट को हटाना चाहते हैं?',
+        'confirm.delete': 'हटाएं',
+        'confirm.deleteVideo': 'वीडियो हटाएं',
+        'confirm.deleteVideoMessage': 'क्या आप वाकई इस वीडियो को हटाना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।',
+        'confirm.endStream': 'लाइव स्ट्रीम समाप्त करें',
+        'confirm.endStreamMessage': 'क्या आप वाकई इस लाइव स्ट्रीम को समाप्त करना चाहते हैं? यह कार्रवाई पूर्ववत नहीं की जा सकती।',
+        'confirm.endStreamButton': 'स्ट्रीम समाप्त करें',
+        // Content Filters
+        'filter.hiddenByPack': '{pack} द्वारा छिपाया गया',
+        'filter.showAnyway': 'वैसे भी दिखाएं',
+        'filter.contentHidden': 'सामग्री फ़िल्टर द्वारा सामग्री छिपाई गई',
+        // Following Page
+        'following.noFollowingYet': 'आप अभी तक किसी को फॉलो नहीं कर रहे हैं। क्रिएटर्स खोजें और फॉलो करें!',
+        'faq.a18': 'किसी उपयोगकर्ता को म्यूट करने के लिए, उनकी प्रोफ़ाइल पर जाएं और म्यूट बटन पर क्लिक करें। एक बार म्यूट करने के बाद, उनके सभी वीडियो आपके फ़ीड से छिपा दिए जाएंगे, उनकी टिप्पणियां "म्यूट किए गए उपयोगकर्ता से संदेश" के रूप में दिखाई देंगी, और उनके लाइव चैट संदेश छिपाए जाएंगे। आपकी म्यूट सूची Nostr पर संग्रहीत है, इसलिए यह उपकरणों में सिंक होती है। आप "म्यूट किए गए उपयोगकर्ता" के तहत अपनी प्रोफ़ाइल सेटिंग्स में म्यूट किए गए उपयोगकर्ताओं को प्रबंधित कर सकते हैं।',
+        'faq.q19': '"रेश्यो" का क्या मतलब है?',
+        'faq.a19': 'जब किसी वीडियो में लाइक्स की तुलना में काफी अधिक डिसलाइक होते हैं, तो उसे "रेश्यो" के रूप में चिह्नित किया जाता है, जो नकारात्मक सामुदायिक प्रतिक्रिया को दर्शाता है। विशेष रूप से, एक वीडियो को रेश्यो माना जाता है जब इसमें कम से कम 10 प्रतिक्रियाएं हों, डिसलाइक लाइक्स से कम से कम दोगुने हों, और डिसलाइक कुल प्रतिक्रियाओं का 70% या उससे अधिक हों। रेश्यो किए गए वीडियो एक चेतावनी बैज प्रदर्शित करते हैं, और देखने से पहले आपसे पुष्टि करने के लिए कहा जाएगा।',
+        'faq.q20': 'सामुदायिक चेतावनियां कैसे काम करती हैं?',
+        'faq.a20': 'उपयोगकर्ता विभिन्न कारणों से सामग्री की रिपोर्ट कर सकते हैं (स्पैम, अवैध सामग्री, दुरुपयोग, भ्रामक, आदि)। जब किसी वीडियो या उपयोगकर्ता को आपके द्वारा फॉलो किए जाने वाले लोगों से 5 या अधिक रिपोर्ट मिलती हैं, तो एक चेतावनी संकेतक दिखाई देता है। यह आपके सामाजिक ग्राफ़ का लाभ उठाता है - चेतावनियां आपके विश्वसनीय नेटवर्क से आती हैं, अनाम अजनबियों से नहीं। आप सेटिंग्स में "मेरे द्वारा फॉलो किए गए खातों से चेतावनियां दिखाएं" टॉगल कर सकते हैं।',
+        'faq.q21': 'मैं सामग्री की रिपोर्ट कैसे करूं?',
+        'faq.a21': 'किसी भी वीडियो, टिप्पणी या उपयोगकर्ता प्रोफ़ाइल पर फ़्लैग आइकन पर क्लिक करके उसकी रिपोर्ट करें। एक कारण चुनें (स्पैम, अवैध, दुरुपयोग, भ्रामक, प्रतिरूपण, कॉपीराइट, या अन्य) और वैकल्पिक रूप से विवरण जोड़ें। रिपोर्ट को Nostr पर इवेंट के रूप में प्रकाशित किया जाता है, जिससे वे पारदर्शी और विकेंद्रीकृत होते हैं। आपकी रिपोर्ट आपके नेटवर्क में दूसरों को समस्याग्रस्त सामग्री की पहचान करने में मदद करती है।',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'गोपनीयता और सुरक्षा',
+        'faq.q22': 'क्या मेरी गतिविधि निजी है?',
+        'faq.a22': 'Nostr पर, अधिकांश गतिविधि डिज़ाइन द्वारा सार्वजनिक होती है। आपके लाइक्स, टिप्पणियां, फॉलो और zaps सार्वजनिक नेटवर्क पर दिखाई देते हैं। हालाँकि, Plebs आपके ब्राउज़र में आपके वॉच हिस्ट्री को स्थानीय रूप से संग्रहीत करता है - इसे कभी भी किसी सर्वर पर नहीं भेजा जाता है। आप किसी भी समय अपना स्थानीय डेटा साफ़ कर सकते हैं।',
+        'faq.q23': 'मैं अपने खाते को सुरक्षित कैसे रखूं?',
+        'faq.a23': 'अपनी निजी कुंजी (nsec) को कभी भी किसी के साथ साझा न करें। हम दृढ़ता से Alby, nos2x, या हार्डवेयर साइनर जैसे Nostr ब्राउज़र एक्सटेंशन का उपयोग करने की सिफारिश करते हैं। ये आपकी निजी कुंजी को सुरक्षित रखते हैं और केवल तब इवेंट पर हस्ताक्षर करते हैं जब आप उन्हें मंजूरी देते हैं। वेबसाइटों में अपने nsec को सीधे संग्रहीत करने से बचें।',
+        'faq.q24': 'क्या मैं अपनी सामग्री हटा सकता हूं?',
+        'faq.a24': 'आप Nostr पर डिलीट इवेंट प्रकाशित करके हटाने का अनुरोध कर सकते हैं। अधिकांश अच्छे व्यवहार वाले रिले और क्लाइंट इसका सम्मान करेंगे। हालाँकि, नेटवर्क की विकेंद्रीकृत प्रकृति के कारण, सामग्री कुछ रिले या Blossom सर्वरों पर बनी रह सकती है। कोई केंद्रीय प्राधिकरण नहीं है जो पूरे नेटवर्क में पूर्ण विलोपन को मजबूर कर सके।',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'समस्या निवारण',
+        'faq.q25': 'वीडियो लोड नहीं हो रहे हैं - मुझे क्या करना चाहिए?',
+        'faq.a25Intro': 'यदि वीडियो लोड नहीं हो रहे हैं, तो इन चरणों को आज़माएं:',
+        'faq.a25Item1': 'पेज को रिफ्रेश करें',
+        'faq.a25Item2': 'अपना इंटरनेट कनेक्शन जांचें',
+        'faq.a25Item3': 'वीडियो को होस्ट करने वाला Blossom सर्वर डाउन हो सकता है - यह Plebs से स्वतंत्र है',
+        'faq.a25Item4': 'ब्राउज़र एक्सटेंशन को अक्षम करने का प्रयास करें जो सामग्री को ब्लॉक कर सकते हैं',
+        'faq.a25Item5': 'अपना ब्राउज़र कैश साफ़ करें और फिर से प्रयास करें',
+        'faq.q26': 'मैंने अपनी निजी कुंजी खो दी है - क्या आप इसे पुनर्प्राप्त करने में मेरी सहायता कर सकते हैं?',
+        'faq.a26': 'दुर्भाग्य से, नहीं। Nostr कुंजियां क्रिप्टोग्राफिक हैं - कोई पासवर्ड रीसेट या खाता पुनर्प्राप्ति नहीं है क्योंकि कोई केंद्रीय प्राधिकरण नहीं है। यही कारण है कि हम दृढ़ता से अपनी कुंजियों का बैकअप लेने और एक सुरक्षित कुंजी प्रबंधन समाधान का उपयोग करने की सिफारिश करते हैं। यदि आप अपना nsec खो देते हैं, तो आपको एक नई पहचान बनानी होगी।',
+        'faq.q27': 'मैं बग की रिपोर्ट कैसे करूं या सुविधा का अनुरोध कैसे करूं?',
+        'faq.a27': 'आप हमारे <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a> पेज पर बग की रिपोर्ट कर सकते हैं या सुविधाओं का अनुरोध कर सकते हैं। आप Nostr पर भी हमसे संपर्क कर सकते हैं - विवरण के लिए हमारे <a href="#/contact">संपर्क</a> पेज पर जाएं।',
     },
     it: {
         // Navigation & Header
@@ -1701,7 +5414,7 @@ const translations = {
         // Toast Messages
         'toast.loggedIn': 'Accesso effettuato!', 'toast.loggedOut': 'Disconnesso', 'toast.settingsSaved': 'Impostazioni salvate!', 'toast.settingsReset': 'Impostazioni ripristinate', 'toast.videoUploaded': 'Video caricato!', 'toast.videoDeleted': 'Video eliminato', 'toast.profileUpdated': 'Profilo aggiornato!', 'toast.linkCopied': 'Link copiato!', 'toast.embedCopied': 'Codice embed copiato!', 'toast.zapSent': 'Zap inviato!', 'toast.followed': 'Seguito!', 'toast.unfollowed': 'Non più seguito', 'toast.reported': 'Segnalazione inviata', 'toast.saved': 'Salvato!', 'toast.error': 'Si è verificato un errore', 'toast.networkError': 'Errore di rete. Riprova.', 'toast.uploadError': 'Caricamento fallito. Riprova.', 'toast.languageChanged': 'Lingua cambiata', 'toast.commentPosted': 'Commento pubblicato', 'toast.keyCopied': 'Chiave copiata!',
         // Time
-        'time.now': 'adesso', 'time.minutesAgo': '{count} minuti fa', 'time.hoursAgo': '{count} ore fa', 'time.daysAgo': '{count} giorni fa', 'time.weeksAgo': '{count} settimane fa', 'time.monthsAgo': '{count} mesi fa', 'time.yearsAgo': '{count} anni fa',
+        'time.justNow': 'adesso', 'time.secondAgo': '1 secondo fa', 'time.secondsAgo': '{n} secondi fa', 'time.minuteAgo': '1 minuto fa', 'time.minutesAgo': '{n} minuti fa', 'time.hourAgo': '1 ora fa', 'time.hoursAgo': '{n} ore fa', 'time.dayAgo': '1 giorno fa', 'time.daysAgo': '{n} giorni fa', 'time.weekAgo': '1 settimana fa', 'time.weeksAgo': '{n} settimane fa', 'time.monthAgo': '1 mese fa', 'time.monthsAgo': '{n} mesi fa', 'time.yearAgo': '1 anno fa', 'time.yearsAgo': '{n} anni fa',
         // Empty States
         'empty.noVideos': 'Nessun video trovato', 'empty.noVideosDesc': 'Prova una ricerca diversa', 'empty.noFollowing': 'Non segui ancora nessuno', 'empty.noFollowingDesc': 'Segui i creator per vedere i loro video', 'empty.noHistory': 'Nessuna cronologia', 'empty.noHistoryDesc': 'I video che guardi appariranno qui', 'empty.noLiked': 'Nessun video piaciuto', 'empty.noLikedDesc': 'I video che ti piacciono appariranno qui', 'empty.noResults': 'Nessun risultato trovato', 'empty.noResultsDesc': 'Prova parole chiave diverse',
         // Misc
@@ -1745,6 +5458,352 @@ const translations = {
         'warning.webmFormat': 'Nota: Il tuo browser produrrà formato WebM (potrebbe non funzionare su iOS). Per MP4 compatibile con iOS, usa Chrome su Windows/Mac.',
         // New Footer
         'footer.lastUpdated': 'Ultimo aggiornamento: Dicembre 2024',
+        // DMCA Page
+        'dmca.title': 'DMCA e Politica sui Contenuti',
+        'dmca.lastUpdated': 'Ultimo aggiornamento: Dicembre 2024',
+        'dmca.architectureTitle': 'Comprendere l\'Architettura di Plebs',
+        'dmca.architectureDesc': 'Plebs è un\'interfaccia di piattaforma video decentralizzata che opera in modo diverso dai servizi tradizionali.',
+        'dmca.architectureItem1': 'Plebs non ospita alcun contenuto video o immagine.',
+        'dmca.architectureItem1Desc': 'Siamo un client/interfaccia che visualizza contenuti archiviati altrove.',
+        'dmca.architectureItem2': 'Tutti i file multimediali sono archiviati su server Blossom indipendenti.',
+        'dmca.architectureItem3': 'I metadati video sono pubblicati sui relay Nostr.',
+        'dmca.architectureItem4': 'Plebs aggrega e visualizza semplicemente questo contenuto distribuito.',
+        'dmca.filingTitle': 'Presentare un Reclamo DMCA',
+        'dmca.filingDesc': 'Poiché Plebs non ospita contenuti, non possiamo rimuovere direttamente materiale violativo.',
+        'dmca.forVideoTitle': '1. Per Contenuti Video/Immagine',
+        'dmca.forVideoDesc': 'I file multimediali sono archiviati sui server Blossom.',
+        'dmca.forVideoItem1': 'Identificare quale server Blossom ospita il contenuto',
+        'dmca.forVideoItem2': 'Contattare direttamente l\'operatore del server Blossom',
+        'dmca.forVideoItem3': 'Ogni server Blossom opera in modo indipendente',
+        'dmca.forMetadataTitle': '2. Per Metadati/Descrizioni',
+        'dmca.forMetadataDesc': 'Se il contenuto violativo è nel titolo o nella descrizione:',
+        'dmca.forMetadataItem1': 'Queste informazioni sono archiviate sui relay Nostr',
+        'dmca.forMetadataItem2': 'Contattare gli operatori specifici dei relay Nostr',
+        'dmca.forMetadataItem3': 'Più relay possono archiviare gli stessi dati',
+        'dmca.whatWeCanDoTitle': 'Cosa Può Fare Plebs',
+        'dmca.whatWeCanDoDesc': 'Sebbene non ospitiamo contenuti, possiamo:',
+        'dmca.whatWeCanDoItem1': 'Aiutarti a identificare quali server ospitano contenuti specifici',
+        'dmca.whatWeCanDoItem2': 'Aggiungere contenuti a una lista di blocco locale',
+        'dmca.whatWeCanDoItem3': 'Fornire indicazioni su come contattare gli operatori appropriati',
+        'dmca.toRequestAssistance': 'Per richiedere assistenza, contattaci con:',
+        'dmca.assistanceItem1': 'L\'URL o l\'identificatore del contenuto violativo',
+        'dmca.assistanceItem2': 'Prova della tua proprietà del copyright',
+        'dmca.assistanceItem3': 'Una descrizione dell\'opera protetta',
+        'dmca.blossomOperatorsTitle': 'Operatori di Server Blossom',
+        'dmca.blossomOperatorsDesc': 'Se gestisci un server Blossom, sei responsabile della gestione delle richieste DMCA.',
+        'dmca.blossomOperatorsLink': 'Per un elenco di server Blossom noti, consulta la documentazione.',
+        'dmca.considerationsTitle': 'Considerazioni Importanti',
+        'dmca.considerationsItem1': 'Decentralizzazione:',
+        'dmca.considerationsItem1Desc': 'La rimozione completa del contenuto potrebbe non essere possibile.',
+        'dmca.considerationsItem2': 'Copie Multiple:',
+        'dmca.considerationsItem2Desc': 'Il contenuto può essere replicato su più server.',
+        'dmca.considerationsItem3': 'Persistenza dei Metadati:',
+        'dmca.considerationsItem3Desc': 'I metadati possono persistere anche dopo la rimozione.',
+        'dmca.considerationsItem4': 'Nessun Controllo Centrale:',
+        'dmca.considerationsItem4Desc': 'Nessuna entità singola può rimuovere contenuti dall\'intera rete.',
+        'dmca.counterNotificationTitle': 'Contro-Notifica',
+        'dmca.counterNotificationDesc': 'Se ritieni che il tuo contenuto sia stato rimosso per errore, contatta l\'operatore del server.',
+        'dmca.contactTitle': 'Contatto',
+        'dmca.contactDesc': 'Per domande, contattaci.',
+        // Admin Dashboard
+        'admin.title': 'Dashboard Amministratore',
+        'admin.loading': 'Caricamento analisi della piattaforma...',
+        'admin.platformOverview': 'Panoramica della Piattaforma',
+        'admin.totalVideos': 'Video Totali',
+        'admin.videos7Days': 'Video (7 giorni)',
+        'admin.videos30Days': 'Video (30 giorni)',
+        'admin.uniqueCreators': 'Creatori Unici',
+        'admin.likes30Days': 'Mi Piace (30 giorni)',
+        'admin.dislikes30Days': 'Non Mi Piace (30 giorni)',
+        'admin.monthlyActiveUsers': 'Utenti Attivi Mensili',
+        'admin.mauDesc': 'Utenti unici che hanno caricato video, reagito o commentato (ultimi 6 mesi)',
+        'admin.boostRevenue': 'Entrate da Boost (Ultimi 30 Giorni)',
+        'admin.totalBoostRevenue': 'Entrate Totali da Boost',
+        'admin.totalBoosts': 'Boost Totali',
+        'admin.blocklistManagement': 'Gestione Lista di Blocco',
+        'admin.blocklistDesc': 'Blocca video o utenti specifici.',
+        'admin.blockedVideos': 'Video Bloccati',
+        'admin.blockedUsers': 'Utenti Bloccati',
+        'admin.blockByEventId': 'Blocca Video per ID',
+        'admin.blockByPubkey': 'Blocca Utente per Pubkey',
+        'admin.blockVideo': 'Blocca Video',
+        'admin.blockUser': 'Blocca Utente',
+        'admin.noBlockedVideos': 'Nessun video bloccato',
+        'admin.noBlockedUsers': 'Nessun utente bloccato',
+        'admin.unblock': 'Sblocca',
+        'admin.accessDenied': 'Accesso negato. Solo amministratore.',
+        // Search/Trending/Channel/Buttons/Common
+        'search.noVideosFound': 'Nessun video trovato per "{query}".',
+        'search.noFullLengthVideos': 'Nessun video completo trovato per "{query}".',
+        'trending.noVideosToday': 'Nessun video di tendenza oggi.',
+        'trending.noVideosThisWeek': 'Nessun video di tendenza questa settimana.',
+        'channel.video': 'video',
+        'channel.videos': 'video',
+        'channel.follower': 'follower',
+        'channel.followers': 'follower',
+        'button.follow': 'Segui',
+        'button.following': 'Seguito',
+        'button.unfollow': 'Smetti di seguire',
+        'button.mute': 'Silenzia',
+        'button.unmute': 'Riattiva audio',
+        'button.report': 'Segnala',
+        'button.muteUser': 'Silenzia utente',
+        'button.unmuteUser': 'Riattiva audio utente',
+        'button.reportComment': 'Segnala commento',
+        'button.reportUser': 'Segnala questo utente',
+        'live.goalReached': 'Obiettivo Raggiunto!',
+        'live.goalProgress': '{percent}% dell\'obiettivo',
+        'common.loading': 'Caricamento...',
+        'common.sats': 'sats',
+
+        // Analytics
+        'analytics.title': 'Analisi del Canale',
+        'analytics.description': 'Visualizza le metriche di performance e gli insight del tuo canale.',
+        'analytics.loading': 'Caricamento analisi...',
+        'analytics.error': 'Impossibile caricare le analisi',
+        'analytics.overview': 'Panoramica',
+        'analytics.videos': 'Video',
+        'analytics.engagement': 'Coinvolgimento',
+        'analytics.totalViews': 'Visualizzazioni totali',
+        'analytics.totalVideos': 'Video totali',
+        'analytics.totalLikes': 'Mi piace totali',
+        'analytics.totalZaps': 'Zaps totali',
+        'analytics.avgViews': 'Media visualizzazioni',
+        'analytics.avgLikes': 'Media mi piace',
+        'analytics.avgZaps': 'Media Zaps',
+        'analytics.viewsOverTime': 'Visualizzazioni nel tempo',
+        'analytics.topVideos': 'Video più popolari',
+        'analytics.recentActivity': 'Attività recente',
+        'analytics.viewsLabel': 'Visualizzazioni',
+        'analytics.likesLabel': 'Mi piace',
+        'analytics.zapsLabel': 'Zaps',
+        'analytics.dateLabel': 'Data',
+        'analytics.videoTitle': 'Titolo video',
+        'analytics.performance': 'Performance',
+        'analytics.noData': 'Nessun dato analitico',
+        'analytics.noDataDesc': 'Inizia a caricare video per vedere le tue analisi.',
+        'analytics.last7Days': 'Ultimi 7 giorni',
+        'analytics.last30Days': 'Ultimi 30 giorni',
+        'analytics.last90Days': 'Ultimi 90 giorni',
+        'analytics.allTime': 'Tutto il tempo',
+        'analytics.views': 'Visualizzazioni',
+        'analytics.likes': 'Mi piace',
+        'analytics.zaps': 'Zaps',
+        'analytics.rank': 'Posizione',
+        'analytics.noVideos': 'Nessun video',
+        'analytics.noVideosDesc': 'Carica il tuo primo video per iniziare a monitorare le performance.',
+
+        // About Page
+        'about.title': 'Informazioni su Plebs.place',
+        'about.subtitle': 'Piattaforma video decentralizzata',
+        'about.welcome': 'Benvenuto su Plebs.place',
+        'about.description': 'Plebs.place è una piattaforma di condivisione video decentralizzata costruita sul protocollo Nostr, che offre ai creatori il pieno controllo sui propri contenuti e sul proprio pubblico.',
+        'about.feature1Title': 'Decentralizzato',
+        'about.feature1Desc': 'Costruito su Nostr, garantisce resistenza alla censura e vera proprietà dei contenuti.',
+        'about.feature2Title': 'Prima i creatori',
+        'about.feature2Desc': 'Mantieni il pieno controllo sui tuoi contenuti, dati e relazione con il pubblico.',
+        'about.feature3Title': 'Monetizzazione Bitcoin',
+        'about.feature3Desc': 'Ricevi supporto direttamente dagli spettatori tramite Lightning Network e Zaps.',
+        'about.feature4Title': 'Open Source',
+        'about.feature4Desc': 'Sviluppo trasparente e guidato dalla comunità, in linea con lo spirito della decentralizzazione.',
+        'about.missionTitle': 'La nostra missione',
+        'about.missionDesc': 'Creare una piattaforma video libera da censura, lock-in e cambiamenti arbitrari delle regole. I tuoi contenuti sono tuoi.',
+        'about.techTitle': 'Tecnologia',
+        'about.techDesc': 'Costruito con Nostr per identità e funzionalità social, Lightning per micropagamenti istantanei e soluzioni di storage decentralizzate.',
+
+        // Contact Page
+        'contact.title': 'Contattaci',
+        'contact.subtitle': 'Resta in contatto',
+        'contact.description': 'Hai domande, feedback o suggerimenti? Saremo felici di sentirti.',
+        'contact.nostrTitle': 'Seguici su Nostr',
+        'contact.nostrDesc': 'Seguici su Nostr per aggiornamenti e discussioni della comunità.',
+        'contact.githubTitle': 'GitHub',
+        'contact.githubDesc': 'Visualizza il codice sorgente, segnala problemi o contribuisci al progetto.',
+        'contact.emailTitle': 'Email',
+        'contact.emailDesc': 'Per richieste commerciali o domande di supporto, contatta il nostro team.',
+
+        // Terms Page
+        'terms.title': 'Termini di Servizio',
+        'terms.lastUpdated': 'Ultimo aggiornamento',
+        'terms.section1Title': '1. Accettazione dei termini',
+        'terms.section1Content': 'Utilizzando Plebs.place, accetti di essere vincolato da questi termini. Se non sei d\'accordo, ti preghiamo di non utilizzare la piattaforma.',
+        'terms.section2Title': '2. Descrizione del servizio',
+        'terms.section2Content': 'Plebs.place è una piattaforma di condivisione video decentralizzata che utilizza il protocollo Nostr. Forniamo strumenti per hosting video, condivisione e monetizzazione tramite Lightning.',
+        'terms.section3Title': '3. Responsabilità dell\'utente',
+        'terms.section3Content': 'Sei responsabile di tutti i contenuti che pubblichi attraverso la piattaforma. Accetti di non caricare contenuti illegali, dannosi o che violano i diritti altrui.',
+        'terms.section4Title': '4. Proprietà dei contenuti',
+        'terms.section4Content': 'Mantieni la piena proprietà dei tuoi contenuti. Caricando, concedi a Plebs.place una licenza limitata per ospitare e fornire i tuoi video.',
+        'terms.section5Title': '5. Uso vietato',
+        'terms.section5Content': 'Non puoi utilizzare la piattaforma per attività illegali, molestie, spam o distribuzione di contenuti dannosi.',
+        'terms.section6Title': '6. Gestione dell\'account',
+        'terms.section6Content': 'Sei responsabile della sicurezza del tuo account gestendo correttamente le tue chiavi Nostr. Non conserviamo la tua chiave privata e non possiamo recuperare account persi.',
+        'terms.section7Title': '7. Termini di pagamento',
+        'terms.section7Content': 'Tutti i pagamenti sono elaborati tramite Lightning Network. Le transazioni sono definitive e irreversibili. Verifica tutti i dettagli di pagamento prima delle transazioni.',
+        'terms.section8Title': '8. Limitazione di responsabilità',
+        'terms.section8Content': 'Plebs.place è fornito "così com\'è" senza garanzie. Non siamo responsabili per perdite, danni o interruzioni del servizio.',
+        'terms.section9Title': '9. Modifiche ai termini',
+        'terms.section9Content': 'Questi termini possono essere aggiornati periodicamente. L\'uso continuato indica l\'accettazione dei termini aggiornati.',
+
+        // Privacy Page
+        'privacy.title': 'Informativa sulla Privacy',
+        'privacy.lastUpdated': 'Ultimo aggiornamento',
+        'privacy.section1Title': '1. Introduzione',
+        'privacy.section1Content': 'Questa informativa sulla privacy spiega come Plebs.place gestisce le informazioni relative al tuo utilizzo della nostra piattaforma video decentralizzata.',
+        'privacy.section2Title': '2. Informazioni che raccogliamo',
+        'privacy.section2Content': 'Come piattaforma decentralizzata, raccogliamo dati minimi. La tua chiave pubblica Nostr è usata per l\'autenticazione e i metadati video sono memorizzati sui relay Nostr.',
+        'privacy.section3Title': '3. Archiviazione dei dati',
+        'privacy.section3Content': 'I tuoi contenuti sono memorizzati su soluzioni di storage decentralizzate. Non memorizziamo dati personali su server centralizzati. La tua chiave privata non viene mai condivisa con noi.',
+        'privacy.section4Title': '4. Utilizzo dei dati',
+        'privacy.section4Content': 'Tutti i dati che raccogliamo sono utilizzati esclusivamente per fornire e migliorare i servizi della piattaforma. Non vendiamo mai i tuoi dati a terzi.',
+        'privacy.section5Title': '5. Cookie e tracciamento',
+        'privacy.section5Content': 'Utilizziamo cookie minimi per le funzionalità di base. Non effettuiamo tracciamento pubblicitario né raccogliamo dati per scopi di marketing.',
+        'privacy.section6Title': '6. Servizi di terze parti',
+        'privacy.section6Content': 'Ci integriamo con relay Nostr e nodi Lightning Network. Questi servizi hanno le proprie informative sulla privacy.',
+        'privacy.section7Title': '7. Sicurezza dei dati',
+        'privacy.section7Content': 'Proteggiamo le tue informazioni attraverso la nostra architettura decentralizzata. Tuttavia, sei responsabile della protezione della tua chiave privata.',
+        'privacy.section8Title': '8. I tuoi diritti',
+        'privacy.section8Content': 'Hai il pieno controllo sui tuoi dati. Puoi eliminare i tuoi contenuti o smettere di usare la piattaforma in qualsiasi momento.',
+        'privacy.section9Title': '9. Privacy dei minori',
+        'privacy.section9Content': 'Plebs.place non è destinato ai minori di 13 anni. Non raccogliamo intenzionalmente informazioni da minori.',
+        'privacy.section10Title': '10. Modifiche all\'informativa',
+        'privacy.section10Content': 'Potremmo aggiornare questa informativa sulla privacy. Le modifiche saranno pubblicate su questa pagina con la data di aggiornamento.',
+
+        // FAQ Page
+        'faq.title': 'Domande Frequenti',
+        'faq.subtitle': 'Domande e risposte comuni',
+        'faq.general': 'Generale',
+        'faq.technical': 'Tecnico',
+        'faq.monetization': 'Monetizzazione',
+        'faq.content': 'Contenuti',
+        'faq.q1': 'Cos\'è Plebs.place?',
+        'faq.a1': 'Plebs.place è una piattaforma di condivisione video decentralizzata costruita sul protocollo Nostr, che ti offre la piena proprietà dei tuoi contenuti e del tuo pubblico.',
+        'faq.q2': 'Come funziona Plebs.place?',
+        'faq.a2': 'La piattaforma utilizza Nostr per autenticazione e social, storage decentralizzato per hosting video e Lightning Network per pagamenti istantanei.',
+        'faq.q3': 'Plebs.place è gratuito?',
+        'faq.a3': 'Sì, creare un account, caricare e guardare video è gratuito. Hai solo bisogno di una chiave Nostr per iniziare.',
+        'faq.q4': 'Cos\'è Nostr?',
+        'faq.a4': 'Nostr è un protocollo di comunicazione decentralizzato che ti permette di controllare la tua identità e i tuoi dati senza dipendere da piattaforme centralizzate.',
+        'faq.q5': 'Come creo un account?',
+        'faq.a5': 'Puoi accedere con un\'estensione browser Nostr come Alby o nos2x, oppure generare una nuova chiave Nostr.',
+        'faq.q6': 'Quali formati video sono supportati?',
+        'faq.a6': 'Supportiamo la maggior parte dei formati comuni tra cui MP4, WebM e MOV. I video vengono transcodificati dopo il caricamento.',
+        'faq.q7': 'Dove sono memorizzati i miei video?',
+        'faq.a7': 'I video sono memorizzati su soluzioni di storage decentralizzate, garantendo che i tuoi contenuti non siano controllati da un singolo server.',
+        'faq.q8': 'Cos\'è Lightning Network?',
+        'faq.a8': 'Lightning Network è un protocollo di pagamento di secondo livello per Bitcoin che permette transazioni istantanee e a basso costo.',
+        'faq.q9': 'Cosa sono gli Zaps?',
+        'faq.a9': 'Gli Zaps sono micropagamenti in Bitcoin inviati tramite Lightning Network per supportare i creatori.',
+        'faq.q10': 'Come posso monetizzare i miei contenuti?',
+        'faq.a10': 'I creatori possono guadagnare attraverso Zaps degli spettatori, contenuti a pagamento e donazioni dirette tramite Lightning.',
+        'faq.q11': 'Come prelevo i miei guadagni?',
+        'faq.a11': 'I guadagni arrivano direttamente nel tuo wallet Lightning. Non ci sono minimi di prelievo o periodi di attesa.',
+        'faq.q12': 'Quali contenuti sono consentiti?',
+        'faq.a12': 'I contenuti legali sono benvenuti. Si prega di seguire i nostri termini di servizio ed evitare materiale dannoso o illegale.',
+        'faq.q13': 'Posso eliminare i miei video?',
+        'faq.a13': 'Sì, puoi eliminare i video in qualsiasi momento. A causa della natura decentralizzata, le copie già distribuite potrebbero rimanere su altri nodi.',
+        'faq.q14': 'C\'è moderazione dei contenuti?',
+        'faq.a14': 'Come piattaforma decentralizzata, la moderazione avviene attraverso approcci guidati dalla comunità e controlli degli utenti.',
+        'faq.q15': 'Come segnalo contenuti problematici?',
+        'faq.a15': 'Usa la funzione di segnalazione sui video o contattaci attraverso le nostre informazioni di contatto. Il feedback della comunità aiuta a mantenere la qualità della piattaforma.',
+        // FAQ Self-Moderation Section
+        'faq.selfModeration': 'Auto-moderazione',
+        'faq.q16': 'Come funziona la moderazione su una piattaforma decentralizzata?',
+        'faq.a16': 'A differenza delle piattaforme tradizionali con moderatori centralizzati, Plebs ti mette in controllo di ciò che vedi. Forniamo potenti strumenti di auto-moderazione tra cui pacchetti di filtri per contenuti, silenziamento utenti, avvisi della comunità e indicatori di video "ratioed". Tu decidi quale contenuto è appropriato per te - non c\'è un\'autorità centrale che prende queste decisioni.',
+        'faq.q17': 'Cosa sono i Pacchetti di Filtri per Contenuti?',
+
+        // Page Titles
+        'pageTitle.following': 'Seguiti',
+        'pageTitle.myVideos': 'I Miei Video',
+        'pageTitle.likedVideos': 'Video Piaciuti',
+        'pageTitle.watchHistory': 'Cronologia Visualizzazioni',
+        'pageTitle.liveStreams': 'Live Stream',
+        'pageTitle.suffix': '- Plebs',
+        'pageTitle.liveSuffix': '- Live su Plebs',
+        // Home Page Sections
+        'section.trending': 'Di Tendenza',
+        'section.recommended': 'Consigliati per Te',
+        'section.shorts': 'Shorts',
+        'section.live': 'Live',
+        'section.liveNow': 'In Diretta Ora',
+        'section.latestVideos': 'Video Recenti',
+        'section.videos': 'Video',
+        'section.usersYouFollow': 'Utenti che Segui',
+        // Trending Period
+        'trending.thisWeek': 'Questa Settimana',
+        'trending.today': 'Oggi',
+        // Buttons
+        'button.viewMore': 'Mostra Altro',
+        'button.clearAll': 'Cancella Tutto',
+        'button.showAnyway': 'Mostra comunque',
+        // Confirmation Modals
+        'confirm.logout': 'Esci',
+        'confirm.logoutMessage': 'Sei sicuro di voler uscire?',
+        'confirm.resetSettings': 'Ripristina Impostazioni',
+        'confirm.resetSettingsMessage': 'Sei sicuro di voler ripristinare tutte le impostazioni ai valori predefiniti?',
+        'confirm.reset': 'Ripristina',
+        'confirm.clearHistory': 'Cancella Cronologia',
+        'confirm.clearHistoryMessage': 'Sei sicuro di voler cancellare l\'intera cronologia visualizzazioni? Questa azione non può essere annullata.',
+        'confirm.deleteDraft': 'Elimina Bozza',
+        'confirm.deleteDraftMessage': 'Sei sicuro di voler eliminare questa bozza?',
+        'confirm.delete': 'Elimina',
+        'confirm.deleteVideo': 'Elimina Video',
+        'confirm.deleteVideoMessage': 'Sei sicuro di voler eliminare questo video? Questa azione non può essere annullata.',
+        'confirm.endStream': 'Termina Live Stream',
+        'confirm.endStreamMessage': 'Sei sicuro di voler terminare questo live stream? Questa azione non può essere annullata.',
+        'confirm.endStreamButton': 'Termina Stream',
+        // Content Filters
+        'filter.hiddenByPack': 'Nascosto da {pack}',
+        'filter.showAnyway': 'Mostra comunque',
+        'filter.contentHidden': 'Contenuto nascosto dal filtro contenuti',
+        // Following Page
+        'following.noFollowingYet': 'Non segui ancora nessuno. Trova i creatori da seguire!',
+        'faq.a17Intro': 'I Pacchetti di Filtri per Contenuti sono filtri di parole chiave predefiniti che puoi abilitare per nascondere specifici tipi di contenuto. I pacchetti disponibili includono:',
+        'faq.a17Pack1': 'Razzismo e Incitamento all\'Odio:',
+        'faq.a17Pack1Desc': 'Filtra insulti razziali e contenuti discriminatori',
+        'faq.a17Pack2': 'Contenuti Sessualmente Espliciti:',
+        'faq.a17Pack2Desc': 'Filtra contenuti pornografici e per adulti',
+        'faq.a17Pack3': 'Violenza e Gore:',
+        'faq.a17Pack3Desc': 'Filtra violenza grafica e contenuti di autolesionismo',
+        'faq.a17Pack4': 'Droghe e Sostanze:',
+        'faq.a17Pack4Desc': 'Filtra contenuti relativi alle droghe',
+        'faq.a17Pack5': 'Spam e Truffe:',
+        'faq.a17Pack5Desc': 'Filtra pattern comuni di spam e truffe',
+        'faq.a17Pack6': 'Criptovalute:',
+        'faq.a17Pack6Desc': 'Filtra promozione crypto e shilling di token',
+        'faq.a17Pack7': 'Contenuti Politici:',
+        'faq.a17Pack7Desc': 'Filtra contenuti politici di parte',
+        'faq.a17Pack8': 'Linguaggio Volgare:',
+        'faq.a17Pack8Desc': 'Filtra linguaggio volgare',
+        'faq.a17Note': 'Abilita questi in Impostazioni > Filtri Contenuti. Puoi anche aggiungere parole chiave personalizzate. I contenuti filtrati mostrano un segnaposto con un pulsante "Mostra comunque" se vuoi visualizzarlo temporaneamente.',
+        'faq.q18': 'Come silenziare un utente?',
+        'faq.a18': 'Per silenziare un utente, visita il suo profilo e clicca il pulsante silenzia. Una volta silenziato, tutti i suoi video saranno nascosti dal tuo feed, i loro commenti appariranno come "Messaggio da utente silenziato" e i loro messaggi nella chat live saranno nascosti. La tua lista silenziati è archiviata su Nostr, quindi si sincronizza tra i dispositivi. Puoi gestire gli utenti silenziati nelle Impostazioni Profilo sotto "Utenti Silenziati".',
+        'faq.q19': 'Cosa significa "Ratioed"?',
+        'faq.a19': 'Un video è contrassegnato come "ratioed" quando ha significativamente più dislike che like, indicando una ricezione negativa dalla comunità. Specificamente, un video è ratioed quando ha almeno 10 reazioni, i dislike sono almeno il doppio dei like e i dislike costituiscono il 70% o più delle reazioni totali. I video ratioed mostrano un badge di avviso e ti verrà chiesto di confermare prima di visualizzare.',
+        'faq.q20': 'Come funzionano gli avvisi della comunità?',
+        'faq.a20': 'Gli utenti possono segnalare contenuti per varie ragioni (spam, contenuti illegali, abusi, fuorvianti, ecc.). Quando un video o un utente riceve 5 o più segnalazioni da persone che segui, appare un indicatore di avviso. Questo sfrutta il tuo grafo sociale - gli avvisi provengono dalla tua rete fidata, non da sconosciuti anonimi. Puoi attivare "Mostra avvisi da account che seguo" nelle Impostazioni.',
+        'faq.q21': 'Come segnalare contenuti?',
+        'faq.a21': 'Clicca l\'icona della bandiera su qualsiasi video, commento o profilo utente per segnalarlo. Seleziona una ragione (Spam, Illegale, Abuso, Fuorviante, Impersonificazione, Copyright, o Altro) e opzionalmente aggiungi dettagli. Le segnalazioni sono pubblicate su Nostr come eventi, rendendole trasparenti e decentralizzate. Le tue segnalazioni aiutano altri nella tua rete a identificare contenuti problematici.',
+        // FAQ Privacy & Security Section
+        'faq.privacySecurity': 'Privacy e Sicurezza',
+        'faq.q22': 'La mia attività è privata?',
+        'faq.a22': 'Su Nostr, la maggior parte dell\'attività è pubblica per design. I tuoi like, commenti, follow e zap sono visibili sulla rete pubblica. Tuttavia, Plebs memorizza la tua cronologia di visualizzazione localmente nel tuo browser - non viene mai inviata a nessun server. Puoi cancellare i tuoi dati locali in qualsiasi momento.',
+        'faq.q23': 'Come mantenere sicuro il mio account?',
+        'faq.a23': 'Non condividere mai la tua chiave privata (nsec) con nessuno. Raccomandiamo fortemente di usare un\'estensione browser Nostr come Alby, nos2x, o un hardware signer. Questi mantengono la tua chiave privata sicura e firmano solo gli eventi quando li approvi. Evita di memorizzare il tuo nsec direttamente nei siti web.',
+        'faq.q24': 'Posso eliminare i miei contenuti?',
+        'faq.a24': 'Puoi richiedere l\'eliminazione pubblicando un evento di cancellazione su Nostr. La maggior parte dei relay e client ben comportati lo rispetteranno. Tuttavia, a causa della natura decentralizzata della rete, i contenuti potrebbero persistere su alcuni relay o server Blossom. Non c\'è un\'autorità centrale che possa forzare l\'eliminazione completa su tutta la rete.',
+        // FAQ Troubleshooting Section
+        'faq.troubleshooting': 'Risoluzione Problemi',
+        'faq.q25': 'I video non si caricano - cosa devo fare?',
+        'faq.a25Intro': 'Se i video non si caricano, prova questi passaggi:',
+        'faq.a25Item1': 'Aggiorna la pagina',
+        'faq.a25Item2': 'Controlla la tua connessione internet',
+        'faq.a25Item3': 'Il server Blossom che ospita il video potrebbe essere offline - questo è indipendente da Plebs',
+        'faq.a25Item4': 'Prova a disabilitare le estensioni del browser che potrebbero bloccare i contenuti',
+        'faq.a25Item5': 'Cancella la cache del browser e riprova',
+        'faq.q26': 'Ho perso la mia chiave privata - puoi aiutarmi a recuperarla?',
+        'faq.a26': 'Sfortunatamente no. Le chiavi Nostr sono crittografiche - non c\'è reset della password o recupero dell\'account perché non c\'è un\'autorità centrale. Questo è il motivo per cui raccomandiamo fortemente di fare il backup delle tue chiavi e usare una soluzione di gestione chiavi sicura. Se perdi il tuo nsec, dovrai creare una nuova identità.',
+        'faq.q27': 'Come segnalare un bug o richiedere una funzionalità?',
+        'faq.a27': 'Puoi segnalare bug o richiedere funzionalità sulla nostra pagina <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a>. Puoi anche contattarci su Nostr - visita la nostra pagina <a href="#/contact">Contatti</a> per i dettagli.',
     }
 };
 
@@ -1829,6 +5888,7 @@ function generateLanguageSelector() {
 
 // Global state
 let currentUser = null;
+let loginCheckPromise = null; // Promise that resolves when initial login check is complete
 let relayConnections = {};
 let currentView = 'home';
 let uploadedVideoHash = null;
@@ -6457,13 +10517,14 @@ async function initializeApp() {
 
     // Check for stored login (fast, local storage based)
     // Don't await - let it run in parallel with route handling
-    const loginPromise = checkStoredLogin();
+    // Store globally so protected routes (like admin) can await it
+    loginCheckPromise = checkStoredLogin();
 
     // Handle route immediately - content will render progressively as relays connect
     handleRoute();
 
     // Ensure login completes (for UI state updates)
-    await loginPromise;
+    await loginCheckPromise;
 }
 
 // Check for stored login
@@ -12441,50 +16502,50 @@ function loadAboutPage() {
     const mainContent = document.getElementById('mainContent');
     mainContent.innerHTML = `
         <div class="static-page">
-            <h1>About Plebs</h1>
+            <h1>${t('about.title')}</h1>
 
             <section class="static-section">
-                <h2>What is Plebs?</h2>
-                <p>Plebs is a censorship-resistant, decentralized video platform built on the <a href="https://nostr.com" target="_blank" rel="noopener">Nostr protocol</a>. Unlike traditional video platforms controlled by corporations, Plebs gives you true ownership of your content and identity.</p>
+                <h2>${t('about.whatIs')}</h2>
+                <p>${t('about.whatIsDesc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>Why Nostr?</h2>
-                <p>Nostr (Notes and Other Stuff Transmitted by Relays) is a simple, open protocol that enables a truly decentralized social network. Key benefits include:</p>
+                <h2>${t('about.whyNostr')}</h2>
+                <p>${t('about.whyNostrDesc')}</p>
                 <ul>
-                    <li><strong>Censorship Resistance:</strong> No single entity can ban you or remove your content</li>
-                    <li><strong>Portability:</strong> Your identity and followers work across all Nostr apps</li>
-                    <li><strong>No Central Authority:</strong> No company owns or controls the network</li>
-                    <li><strong>Cryptographic Identity:</strong> Your keys prove you are who you say you are</li>
+                    <li><strong>${t('about.benefit1')}</strong> ${t('about.benefit1Desc')}</li>
+                    <li><strong>${t('about.benefit2')}</strong> ${t('about.benefit2Desc')}</li>
+                    <li><strong>${t('about.benefit3')}</strong> ${t('about.benefit3Desc')}</li>
+                    <li><strong>${t('about.benefit4')}</strong> ${t('about.benefit4Desc')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>How It Works</h2>
-                <p>Videos on Plebs are stored using <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom</a>, a distributed file storage system, while video metadata and social interactions are broadcast to Nostr relays. This means your content isn't stored on our servers - it's distributed across the network.</p>
+                <h2>${t('about.howItWorks')}</h2>
+                <p>${t('about.howItWorksDesc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>Features</h2>
+                <h2>${t('about.features')}</h2>
                 <ul>
-                    <li>Upload and share videos with the Nostr community</li>
-                    <li>Like, comment, and share videos using Nostr reactions</li>
-                    <li>Zap creators with Bitcoin via the Lightning Network</li>
-                    <li>Follow your favorite creators across any Nostr app</li>
-                    <li>Browse topics and discover new content</li>
-                    <li>Works with any Nostr identity (use existing keys)</li>
+                    <li>${t('about.feature1')}</li>
+                    <li>${t('about.feature2')}</li>
+                    <li>${t('about.feature3')}</li>
+                    <li>${t('about.feature4')}</li>
+                    <li>${t('about.feature5')}</li>
+                    <li>${t('about.feature6')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>Open Source</h2>
-                <p>Plebs is open source software. You can view the code, contribute, or run your own instance:</p>
-                <p><a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener" class="accent-link">GitHub Repository</a></p>
+                <h2>${t('about.openSource')}</h2>
+                <p>${t('about.openSourceDesc')}</p>
+                <p><a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener" class="accent-link">${t('about.githubRepo')}</a></p>
             </section>
 
             <section class="static-section">
-                <h2>Built By</h2>
-                <p>Plebs is developed by <a href="https://nostrservices.com" target="_blank" rel="noopener" class="accent-link">21 Million LLC</a>, a company dedicated to building tools for the Bitcoin and Nostr ecosystem.</p>
+                <h2>${t('about.builtBy')}</h2>
+                <p>${t('about.builtByDesc')}</p>
             </section>
         </div>
     `;
@@ -12495,28 +16556,28 @@ function loadContactPage() {
     const mainContent = document.getElementById('mainContent');
     mainContent.innerHTML = `
         <div class="static-page">
-            <h1>Contact Us</h1>
+            <h1>${t('contact.title')}</h1>
 
             <section class="static-section">
-                <h2>Get In Touch</h2>
-                <p>Have questions, feedback, or need support? We'd love to hear from you!</p>
+                <h2>${t('contact.getInTouch')}</h2>
+                <p>${t('contact.getInTouchDesc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>Email</h2>
-                <p>The best way to reach us is through Email:</p>
+                <h2>${t('contact.email')}</h2>
+                <p>${t('contact.emailDesc')}</p>
                 <p><a href="mailto:support@plebs.app" class="accent-link">support@plebs.app</a></p>
             </section>
 
             <section class="static-section">
-                <h2>GitHub</h2>
-                <p>For bug reports, feature requests, or technical issues, please open an issue on our GitHub repository:</p>
-                <p><a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener" class="accent-link">GitHub Issues</a></p>
+                <h2>${t('contact.github')}</h2>
+                <p>${t('contact.githubDesc')}</p>
+                <p><a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener" class="accent-link">${t('contact.githubIssues')}</a></p>
             </section>
 
             <section class="static-section">
-                <h2>Company</h2>
-                <p>Plebs is developed by 21 Million LLC</p>
+                <h2>${t('contact.company')}</h2>
+                <p>${t('contact.companyDesc')}</p>
                 <p><a href="https://nostrservices.com" target="_blank" rel="noopener" class="accent-link">nostrservices.com</a></p>
             </section>
         </div>
@@ -12528,71 +16589,71 @@ function loadTermsPage() {
     const mainContent = document.getElementById('mainContent');
     mainContent.innerHTML = `
         <div class="static-page">
-            <h1>Terms of Service</h1>
-            <p class="last-updated">Last updated: December 2024</p>
+            <h1>${t('terms.title')}</h1>
+            <p class="last-updated">${t('terms.lastUpdated')}</p>
 
             <section class="static-section">
-                <h2>1. Acceptance of Terms</h2>
-                <p>By accessing and using Plebs ("the Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the Service.</p>
+                <h2>${t('terms.section1Title')}</h2>
+                <p>${t('terms.section1Desc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>2. Description of Service</h2>
-                <p>Plebs is a decentralized video platform built on the Nostr protocol. The Service provides an interface to browse, upload, and interact with video content stored across distributed networks. Plebs does not host or store video content on centralized servers.</p>
+                <h2>${t('terms.section2Title')}</h2>
+                <p>${t('terms.section2Desc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>3. User Responsibilities</h2>
-                <p>You are responsible for:</p>
+                <h2>${t('terms.section3Title')}</h2>
+                <p>${t('terms.section3Desc')}</p>
                 <ul>
-                    <li>Maintaining the security of your Nostr private keys</li>
-                    <li>All content you upload or share through the Service</li>
-                    <li>Ensuring your use complies with applicable laws</li>
-                    <li>Not uploading illegal, infringing, or harmful content</li>
+                    <li>${t('terms.section3Item1')}</li>
+                    <li>${t('terms.section3Item2')}</li>
+                    <li>${t('terms.section3Item3')}</li>
+                    <li>${t('terms.section3Item4')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>4. Content Guidelines</h2>
-                <p>You agree not to upload, share, or distribute:</p>
+                <h2>${t('terms.section4Title')}</h2>
+                <p>${t('terms.section4Desc')}</p>
                 <ul>
-                    <li>Content that infringes on intellectual property rights</li>
-                    <li>Illegal content including but not limited to child exploitation material</li>
-                    <li>Content that promotes violence or harm to others</li>
-                    <li>Spam, malware, or deceptive content</li>
+                    <li>${t('terms.section4Item1')}</li>
+                    <li>${t('terms.section4Item2')}</li>
+                    <li>${t('terms.section4Item3')}</li>
+                    <li>${t('terms.section4Item4')}</li>
                 </ul>
-                <p>Adult content (NSFW) must be properly labeled using the NSFW tag when uploading.</p>
+                <p>${t('terms.section4Note')}</p>
             </section>
 
             <section class="static-section">
-                <h2>5. Decentralized Nature</h2>
-                <p>Due to the decentralized nature of Nostr and Blossom storage:</p>
+                <h2>${t('terms.section5Title')}</h2>
+                <p>${t('terms.section5Desc')}</p>
                 <ul>
-                    <li>Content may persist on the network even after deletion requests</li>
-                    <li>We cannot guarantee removal of content from all relays or storage servers</li>
-                    <li>Your content and interactions are public by default</li>
-                    <li>You are solely responsible for your private key security</li>
+                    <li>${t('terms.section5Item1')}</li>
+                    <li>${t('terms.section5Item2')}</li>
+                    <li>${t('terms.section5Item3')}</li>
+                    <li>${t('terms.section5Item4')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>6. No Warranty</h2>
-                <p>The Service is provided "as is" without warranties of any kind. We do not guarantee continuous, uninterrupted access to the Service.</p>
+                <h2>${t('terms.section6Title')}</h2>
+                <p>${t('terms.section6Desc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>7. Limitation of Liability</h2>
-                <p>To the maximum extent permitted by law, Plebs and its operators shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Service.</p>
+                <h2>${t('terms.section7Title')}</h2>
+                <p>${t('terms.section7Desc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>8. Changes to Terms</h2>
-                <p>We reserve the right to modify these terms at any time. Continued use of the Service after changes constitutes acceptance of the new terms.</p>
+                <h2>${t('terms.section8Title')}</h2>
+                <p>${t('terms.section8Desc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>9. Contact</h2>
-                <p>For questions about these Terms, please <a href="#/contact" class="accent-link">contact us</a>.</p>
+                <h2>${t('terms.section9Title')}</h2>
+                <p>${t('terms.section9Desc')}</p>
             </section>
         </div>
     `;
@@ -12603,98 +16664,98 @@ function loadPrivacyPage() {
     const mainContent = document.getElementById('mainContent');
     mainContent.innerHTML = `
         <div class="static-page">
-            <h1>Privacy Policy</h1>
-            <p class="last-updated">Last updated: December 2024</p>
+            <h1>${t('privacy.title')}</h1>
+            <p class="last-updated">${t('privacy.lastUpdated')}</p>
 
             <section class="static-section">
-                <h2>1. Overview</h2>
-                <p>Plebs is committed to protecting your privacy. This policy explains how we handle information when you use our decentralized video platform.</p>
+                <h2>${t('privacy.section1Title')}</h2>
+                <p>${t('privacy.section1Desc')}</p>
             </section>
 
             <section class="static-section">
-                <h2>2. Decentralized Architecture</h2>
-                <p>Plebs is built on Nostr, a decentralized protocol. This means:</p>
+                <h2>${t('privacy.section2Title')}</h2>
+                <p>${t('privacy.section2Desc')}</p>
                 <ul>
-                    <li>Your content is broadcast to public relays, not stored on our servers</li>
-                    <li>Your Nostr public key serves as your identity</li>
-                    <li>Videos are stored on distributed Blossom servers</li>
-                    <li>We do not have access to your private keys</li>
+                    <li>${t('privacy.section2Item1')}</li>
+                    <li>${t('privacy.section2Item2')}</li>
+                    <li>${t('privacy.section2Item3')}</li>
+                    <li>${t('privacy.section2Item4')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>3. Information We Collect</h2>
-                <p><strong>Information stored locally in your browser:</strong></p>
+                <h2>${t('privacy.section3Title')}</h2>
+                <p><strong>${t('privacy.section3LocalTitle')}</strong></p>
                 <ul>
-                    <li>Your Nostr public key (when logged in)</li>
-                    <li>Watch history and preferences</li>
-                    <li>Theme and settings preferences</li>
-                    <li>Private key (only if you choose local key storage - not recommended)</li>
+                    <li>${t('privacy.section3LocalItem1')}</li>
+                    <li>${t('privacy.section3LocalItem2')}</li>
+                    <li>${t('privacy.section3LocalItem3')}</li>
+                    <li>${t('privacy.section3LocalItem4')}</li>
                 </ul>
-                <p><strong>Information we may collect:</strong></p>
+                <p><strong>${t('privacy.section3CollectTitle')}</strong></p>
                 <ul>
-                    <li>Basic analytics (page views, feature usage) to improve the service</li>
-                    <li>Error logs for debugging purposes</li>
-                </ul>
-            </section>
-
-            <section class="static-section">
-                <h2>4. Public Information</h2>
-                <p>When using Nostr, the following is public by design:</p>
-                <ul>
-                    <li>Your Nostr public key and profile information</li>
-                    <li>Videos you upload</li>
-                    <li>Comments, likes, and other reactions</li>
-                    <li>Who you follow</li>
-                    <li>Zaps (Lightning payments) you send or receive</li>
+                    <li>${t('privacy.section3CollectItem1')}</li>
+                    <li>${t('privacy.section3CollectItem2')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>5. Data Storage</h2>
-                <p>Local data is stored in your browser's localStorage. You can clear this data at any time through your browser settings. Content published to Nostr is distributed across relays and cannot be controlled or deleted by Plebs.</p>
-            </section>
-
-            <section class="static-section">
-                <h2>6. Third-Party Services</h2>
-                <p>Plebs interacts with:</p>
+                <h2>${t('privacy.section4Title')}</h2>
+                <p>${t('privacy.section4Desc')}</p>
                 <ul>
-                    <li>Nostr relays (for social data)</li>
-                    <li>Blossom servers (for video storage)</li>
-                    <li>Lightning Network (for zaps/payments)</li>
-                </ul>
-                <p>Each of these services has their own privacy practices.</p>
-            </section>
-
-            <section class="static-section">
-                <h2>7. Your Rights</h2>
-                <p>You can:</p>
-                <ul>
-                    <li>Clear your local browser data at any time</li>
-                    <li>Browse videos without creating an account</li>
-                    <li>Use a Nostr browser extension for enhanced privacy</li>
-                    <li>Choose which relays and Blossom servers to use</li>
+                    <li>${t('privacy.section4Item1')}</li>
+                    <li>${t('privacy.section4Item2')}</li>
+                    <li>${t('privacy.section4Item3')}</li>
+                    <li>${t('privacy.section4Item4')}</li>
+                    <li>${t('privacy.section4Item5')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>8. Security</h2>
-                <p>We recommend:</p>
+                <h2>${t('privacy.section5Title')}</h2>
+                <p>${t('privacy.section5Desc')}</p>
+            </section>
+
+            <section class="static-section">
+                <h2>${t('privacy.section6Title')}</h2>
+                <p>${t('privacy.section6Desc')}</p>
                 <ul>
-                    <li>Using a Nostr browser extension or hardware signer</li>
-                    <li>Never sharing your private key (nsec)</li>
-                    <li>Using a dedicated browser profile for enhanced privacy</li>
+                    <li>${t('privacy.section6Item1')}</li>
+                    <li>${t('privacy.section6Item2')}</li>
+                    <li>${t('privacy.section6Item3')}</li>
+                </ul>
+                <p>${t('privacy.section6Note')}</p>
+            </section>
+
+            <section class="static-section">
+                <h2>${t('privacy.section7Title')}</h2>
+                <p>${t('privacy.section7Desc')}</p>
+                <ul>
+                    <li>${t('privacy.section7Item1')}</li>
+                    <li>${t('privacy.section7Item2')}</li>
+                    <li>${t('privacy.section7Item3')}</li>
+                    <li>${t('privacy.section7Item4')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>9. Changes to This Policy</h2>
-                <p>We may update this policy from time to time. Changes will be posted on this page with an updated revision date.</p>
+                <h2>${t('privacy.section8Title')}</h2>
+                <p>${t('privacy.section8Desc')}</p>
+                <ul>
+                    <li>${t('privacy.section8Item1')}</li>
+                    <li>${t('privacy.section8Item2')}</li>
+                    <li>${t('privacy.section8Item3')}</li>
+                </ul>
             </section>
 
             <section class="static-section">
-                <h2>10. Contact</h2>
-                <p>For privacy-related questions, please <a href="#/contact" class="accent-link">contact us</a>.</p>
+                <h2>${t('privacy.section9Title')}</h2>
+                <p>${t('privacy.section9Desc')}</p>
+            </section>
+
+            <section class="static-section">
+                <h2>${t('privacy.section10Title')}</h2>
+                <p>${t('privacy.section10Desc')}</p>
             </section>
         </div>
     `;
@@ -12705,41 +16766,41 @@ function loadFaqPage() {
     const mainContent = document.getElementById('mainContent');
     mainContent.innerHTML = `
         <div class="static-page">
-            <h1>Frequently Asked Questions</h1>
+            <h1>${t('faq.title')}</h1>
 
             <div class="faq-category">
-                <h2>About Plebs</h2>
+                <h2>${t('faq.aboutPlebs')}</h2>
                 <div class="faq-accordion">
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            What is Plebs?
+                            ${t('faq.q1')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Plebs is a censorship-resistant, decentralized video platform built on the Nostr protocol. Unlike traditional video platforms controlled by corporations, Plebs gives you true ownership of your content and identity. There are no central servers that can ban you or remove your content.
+                                ${t('faq.a1')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Is Plebs free to use?
+                            ${t('faq.q2')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Yes, Plebs is completely free to use for watching videos. You can browse and watch content without creating an account. To upload videos, comment, like, or interact with other users, you'll need a Nostr identity (which is also free).
+                                ${t('faq.a2')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Who develops Plebs?
+                            ${t('faq.q3')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Plebs is developed by <a href="https://nostrservices.com" target="_blank" rel="noopener">21 Million LLC</a>, a company dedicated to building tools for the Bitcoin and Nostr ecosystem. Plebs is open source, and you can view the code or contribute on <a href="https://github.com/Spl0itable/plebs-app" target="_blank" rel="noopener">GitHub</a>.
+                                ${t('faq.a3')}
                             </div>
                         </div>
                     </div>
@@ -12747,116 +16808,66 @@ function loadFaqPage() {
             </div>
 
             <div class="faq-category">
-                <h2>Nostr Protocol</h2>
+                <h2>${t('faq.nostrProtocol')}</h2>
                 <div class="faq-accordion">
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            What is Nostr?
+                            ${t('faq.q4')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Nostr stands for "Notes and Other Stuff Transmitted by Relays." It's a simple, open protocol that enables a truly decentralized social network. Unlike traditional platforms, Nostr doesn't rely on any central server. Instead, it uses a network of relays to transmit messages between users, and cryptographic keys for identity.
+                                ${t('faq.a4')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Why does Plebs use Nostr?
+                            ${t('faq.q5')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Nostr provides several key benefits:
+                                ${t('faq.a5Title')}
                                 <ul>
-                                    <li><strong>Censorship Resistance:</strong> No single entity can ban you or remove your content</li>
-                                    <li><strong>Portability:</strong> Your identity and followers work across all Nostr apps</li>
-                                    <li><strong>No Central Authority:</strong> No company owns or controls the network</li>
-                                    <li><strong>Cryptographic Identity:</strong> Your keys prove you are who you say you are</li>
+                                    <li><strong>${t('faq.a5Item1')}</strong> ${t('faq.a5Item1Desc')}</li>
+                                    <li><strong>${t('faq.a5Item2')}</strong> ${t('faq.a5Item2Desc')}</li>
+                                    <li><strong>${t('faq.a5Item3')}</strong> ${t('faq.a5Item3Desc')}</li>
+                                    <li><strong>${t('faq.a5Item4')}</strong> ${t('faq.a5Item4Desc')}</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            What are Nostr keys (npub/nsec)?
+                            ${t('faq.q6')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Your Nostr identity consists of two keys: a public key (npub) and a private key (nsec). Your npub is like your username - you can share it with anyone. Your nsec is like your password - never share it! Anyone with your nsec can post as you and access your account. We recommend using a browser extension like Alby or nos2x to manage your keys securely.
+                                ${t('faq.a6')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Can I use my existing Nostr account?
+                            ${t('faq.q7')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Absolutely! If you already have a Nostr identity from apps like Damus, Primal, Amethyst, or any other Nostr client, you can use the same keys to log into Plebs. Your followers, profile, and reputation carry over automatically.
+                                ${t('faq.a7')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            What are Nostr relays?
+                            ${t('faq.q8')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Relays are servers that store and transmit Nostr messages. When you post something, it gets sent to multiple relays. Other users connect to relays to read messages. Because there are many independent relays, no single one can censor you - if one relay blocks you, your content still exists on others.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="faq-category">
-                <h2>Video Storage & Blossom</h2>
-                <div class="faq-accordion">
-                    <div class="faq-item">
-                        <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Where are videos stored?
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                Videos are stored on Blossom servers, not on Plebs itself. Blossom is a distributed file storage system designed to work with Nostr. When you upload a video, it goes to one or more Blossom servers of your choice. The video metadata (title, description, etc.) is published to Nostr relays.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" onclick="toggleFaqItem(this)">
-                            What is Blossom?
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                Blossom is an open protocol for storing and serving media files in a decentralized way. Files are identified by their SHA-256 hash, which means the same file will have the same address regardless of which server hosts it. This enables redundancy - your files can exist on multiple servers. Learn more at <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom GitHub</a>.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Does Plebs host my videos?
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                No. Plebs is a client/interface that helps you browse and upload content, but it doesn't store any video or image files. All media is stored on independent Blossom servers. Plebs simply displays content from these distributed storage providers.
-                            </div>
-                        </div>
-                    </div>
-                    <div class="faq-item">
-                        <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Can I choose which Blossom server to use?
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                        </button>
-                        <div class="faq-answer">
-                            <div class="faq-answer-content">
-                                Yes! You can configure which Blossom servers you want to use for uploading in your settings. You can even run your own Blossom server if you want complete control over your media storage.
+                                ${t('faq.a8')}
                             </div>
                         </div>
                     </div>
@@ -12864,44 +16875,102 @@ function loadFaqPage() {
             </div>
 
             <div class="faq-category">
-                <h2>Features & Usage</h2>
+                <h2>${t('faq.videoStorage')}</h2>
                 <div class="faq-accordion">
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            How do I create an account?
+                            ${t('faq.q9')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Click the "Login" button and choose your preferred method:
+                                ${t('faq.a9')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaqItem(this)">
+                            ${t('faq.q10')}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                ${t('faq.a10')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaqItem(this)">
+                            ${t('faq.q11')}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                ${t('faq.a11')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaqItem(this)">
+                            ${t('faq.q12')}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                ${t('faq.a12')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="faq-category">
+                <h2>${t('faq.featuresUsage')}</h2>
+                <div class="faq-accordion">
+                    <div class="faq-item">
+                        <button class="faq-question" onclick="toggleFaqItem(this)">
+                            ${t('faq.q13')}
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </button>
+                        <div class="faq-answer">
+                            <div class="faq-answer-content">
+                                ${t('faq.a13Title')}
                                 <ul>
-                                    <li><strong>Browser Extension:</strong> If you have a Nostr extension like Alby or nos2x installed, you can use it to sign in securely</li>
-                                    <li><strong>Generate New Keys:</strong> Create a brand new Nostr identity</li>
-                                    <li><strong>Import Keys:</strong> Use your existing Nostr private key (nsec)</li>
+                                    <li><strong>${t('faq.a13Item1')}</strong> ${t('faq.a13Item1Desc')}</li>
+                                    <li><strong>${t('faq.a13Item2')}</strong> ${t('faq.a13Item2Desc')}</li>
+                                    <li><strong>${t('faq.a13Item3')}</strong> ${t('faq.a13Item3Desc')}</li>
                                 </ul>
-                                We recommend using a browser extension for the best security.
+                                ${t('faq.a13Note')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            What are Zaps?
+                            ${t('faq.q14')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Zaps are Bitcoin payments sent over the Lightning Network. They allow you to send real money (satoshis, or "sats") to content creators as tips or appreciation. Unlike traditional platform tips that take large fees, zaps go directly to the creator. To send zaps, you need a Lightning wallet with a Nostr connection (like Alby or Zeus).
+                                ${t('faq.a14')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            How do I upload a video?
+                            ${t('faq.q15')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                First, make sure you're logged in. Then click the upload button in the header. Select your video file, add a title, description, and tags. The video will be uploaded to your configured Blossom server, and the metadata will be published to Nostr relays.
+                                ${t('faq.a15Title')}
+                                <ul>
+                                    <li>${t('faq.a15Item1')}</li>
+                                    <li>${t('faq.a15Item2')}</li>
+                                    <li>${t('faq.a15Item3')}</li>
+                                    <li>${t('faq.a15Item4')}</li>
+                                    <li>${t('faq.a15Item5')}</li>
+                                </ul>
+                                ${t('faq.a15Note')}
                             </div>
                         </div>
                     </div>
@@ -12942,82 +17011,82 @@ function loadFaqPage() {
             </div>
 
             <div class="faq-category">
-                <h2>Self-Moderation</h2>
+                <h2>${t('faq.selfModeration')}</h2>
                 <div class="faq-accordion">
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            How does moderation work on a decentralized platform?
+                            ${t('faq.q16')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Unlike traditional platforms with centralized moderators, Plebs puts you in control of what you see. We provide powerful self-moderation tools including content filter packs, user muting, community warnings, and ratioed video indicators. You decide what content is appropriate for you - there's no central authority making those decisions.
+                                ${t('faq.a16')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            What are Content Filter Packs?
+                            ${t('faq.q17')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Content Filter Packs are predefined keyword filters you can enable to hide specific types of content. Available packs include:
+                                ${t('faq.a17Intro')}
                                 <ul>
-                                    <li><strong>Racism & Hate Speech:</strong> Filters racial slurs and discriminatory content</li>
-                                    <li><strong>Sexually Explicit:</strong> Filters pornographic and adult content</li>
-                                    <li><strong>Violence & Gore:</strong> Filters graphic violence and self-harm content</li>
-                                    <li><strong>Drugs & Substances:</strong> Filters drug-related content</li>
-                                    <li><strong>Spam & Scams:</strong> Filters common spam and scam patterns</li>
-                                    <li><strong>Cryptocurrency:</strong> Filters crypto promotion and token shilling</li>
-                                    <li><strong>Political Content:</strong> Filters partisan political content</li>
-                                    <li><strong>Strong Profanity:</strong> Filters vulgar language</li>
+                                    <li><strong>${t('faq.a17Pack1')}</strong> ${t('faq.a17Pack1Desc')}</li>
+                                    <li><strong>${t('faq.a17Pack2')}</strong> ${t('faq.a17Pack2Desc')}</li>
+                                    <li><strong>${t('faq.a17Pack3')}</strong> ${t('faq.a17Pack3Desc')}</li>
+                                    <li><strong>${t('faq.a17Pack4')}</strong> ${t('faq.a17Pack4Desc')}</li>
+                                    <li><strong>${t('faq.a17Pack5')}</strong> ${t('faq.a17Pack5Desc')}</li>
+                                    <li><strong>${t('faq.a17Pack6')}</strong> ${t('faq.a17Pack6Desc')}</li>
+                                    <li><strong>${t('faq.a17Pack7')}</strong> ${t('faq.a17Pack7Desc')}</li>
+                                    <li><strong>${t('faq.a17Pack8')}</strong> ${t('faq.a17Pack8Desc')}</li>
                                 </ul>
-                                Enable these in Settings > Content Filters. You can also add custom keywords. Filtered content shows a placeholder with a "Show anyway" button if you want to view it temporarily.
+                                ${t('faq.a17Note')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            How do I mute a user?
+                            ${t('faq.q18')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                To mute a user, visit their profile and click the mute button. Once muted, all their videos will be hidden from your feed, their comments will show as "Message from muted user," and their live chat messages will be hidden. Your mute list is stored on Nostr, so it syncs across devices. You can manage muted users in your Profile Settings under "Muted Users."
+                                ${t('faq.a18')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            What does "Ratioed" mean?
+                            ${t('faq.q19')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                A video is marked as "ratioed" when it has significantly more dislikes than likes, indicating negative community reception. Specifically, a video is ratioed when it has at least 10 reactions, dislikes are at least double the likes, and dislikes make up 70% or more of total reactions. Ratioed videos display a warning badge, and you'll be asked to confirm before viewing.
+                                ${t('faq.a19')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            How do community warnings work?
+                            ${t('faq.q20')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Users can report content for various reasons (spam, illegal content, abuse, misleading, etc.). When a video or user receives 5 or more reports from people you follow, a warning indicator appears. This leverages your social graph - warnings come from your trusted network, not anonymous strangers. You can toggle "Show warnings from accounts I follow" in Settings.
+                                ${t('faq.a20')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            How do I report content?
+                            ${t('faq.q21')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Click the flag icon on any video, comment, or user profile to report it. Select a reason (Spam, Illegal, Abuse, Misleading, Impersonation, Copyright, or Other) and optionally add details. Reports are published to Nostr as events, making them transparent and decentralized. Your reports help others in your network identify problematic content.
+                                ${t('faq.a21')}
                             </div>
                         </div>
                     </div>
@@ -13025,38 +17094,38 @@ function loadFaqPage() {
             </div>
 
             <div class="faq-category">
-                <h2>Privacy & Security</h2>
+                <h2>${t('faq.privacySecurity')}</h2>
                 <div class="faq-accordion">
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Is my activity private?
+                            ${t('faq.q22')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                On Nostr, most activity is public by design. Your likes, comments, follows, and zaps are visible on the public network. However, Plebs stores your watch history locally in your browser - it's never sent to any server. You can clear your local data at any time.
+                                ${t('faq.a22')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            How do I keep my account secure?
+                            ${t('faq.q23')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Never share your private key (nsec) with anyone. We strongly recommend using a Nostr browser extension like Alby, nos2x, or a hardware signer. These keep your private key secure and only sign events when you approve them. Avoid storing your nsec directly in websites.
+                                ${t('faq.a23')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Can I delete my content?
+                            ${t('faq.q24')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                You can request deletion by publishing a delete event on Nostr. Most well-behaved relays and clients will respect this. However, due to the decentralized nature of the network, content may persist on some relays or Blossom servers. There's no central authority that can force complete deletion across the entire network.
+                                ${t('faq.a24')}
                             </div>
                         </div>
                     </div>
@@ -13064,45 +17133,45 @@ function loadFaqPage() {
             </div>
 
             <div class="faq-category">
-                <h2>Troubleshooting</h2>
+                <h2>${t('faq.troubleshooting')}</h2>
                 <div class="faq-accordion">
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            Videos aren't loading - what should I do?
+                            ${t('faq.q25')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                If videos aren't loading, try these steps:
+                                ${t('faq.a25Intro')}
                                 <ul>
-                                    <li>Refresh the page</li>
-                                    <li>Check your internet connection</li>
-                                    <li>The Blossom server hosting the video might be down - this is independent of Plebs</li>
-                                    <li>Try disabling browser extensions that might block content</li>
-                                    <li>Clear your browser cache and try again</li>
+                                    <li>${t('faq.a25Item1')}</li>
+                                    <li>${t('faq.a25Item2')}</li>
+                                    <li>${t('faq.a25Item3')}</li>
+                                    <li>${t('faq.a25Item4')}</li>
+                                    <li>${t('faq.a25Item5')}</li>
                                 </ul>
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            I lost my private key - can you help me recover it?
+                            ${t('faq.q26')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                Unfortunately, no. Nostr keys are cryptographic - there's no password reset or account recovery because there's no central authority. This is why we strongly recommend backing up your keys and using a secure key management solution. If you lose your nsec, you'll need to create a new identity.
+                                ${t('faq.a26')}
                             </div>
                         </div>
                     </div>
                     <div class="faq-item">
                         <button class="faq-question" onclick="toggleFaqItem(this)">
-                            How do I report a bug or request a feature?
+                            ${t('faq.q27')}
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                         </button>
                         <div class="faq-answer">
                             <div class="faq-answer-content">
-                                You can report bugs or request features on our <a href="https://github.com/Spl0itable/plebs-app/issues" target="_blank" rel="noopener">GitHub Issues</a> page. You can also reach out to us on Nostr - visit our <a href="#/contact">Contact</a> page for details.
+                                ${t('faq.a27')}
                             </div>
                         </div>
                     </div>
@@ -13133,81 +17202,81 @@ function loadDmcaPage() {
     const mainContent = document.getElementById('mainContent');
     mainContent.innerHTML = `
         <div class="static-page">
-            <h1>DMCA & Content Policy</h1>
-            <p class="last-updated">Last updated: December 2024</p>
+            <h1>${t('dmca.title')}</h1>
+            <p class="last-updated">${t('dmca.lastUpdated')}</p>
 
             <section class="static-section">
-                <h2>Understanding Plebs' Architecture</h2>
-                <p>Plebs is a decentralized video platform interface that operates differently from traditional video hosting services. It's important to understand how content is distributed on our platform:</p>
+                <h2>${t('dmca.architectureTitle')}</h2>
+                <p>${t('dmca.architectureDesc')}</p>
                 <ul>
-                    <li><strong>Plebs does not host any video or image content.</strong> We are a client/interface that displays content stored elsewhere.</li>
-                    <li>All media files (videos, images, thumbnails) are stored on independent <strong>Blossom servers</strong> operated by third parties.</li>
-                    <li>Video metadata (titles, descriptions, etc.) is published to <strong>Nostr relays</strong>, which are also independently operated.</li>
-                    <li>Plebs simply aggregates and displays this distributed content through a user-friendly interface.</li>
+                    <li><strong>${t('dmca.architectureItem1')}</strong> ${t('dmca.architectureItem1Desc')}</li>
+                    <li>${t('dmca.architectureItem2')}</li>
+                    <li>${t('dmca.architectureItem3')}</li>
+                    <li>${t('dmca.architectureItem4')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>Filing a DMCA Claim</h2>
-                <p>Because Plebs does not host content, we cannot directly remove infringing material. To address copyright infringement, you must contact the appropriate parties:</p>
+                <h2>${t('dmca.filingTitle')}</h2>
+                <p>${t('dmca.filingDesc')}</p>
 
-                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-primary);">1. For Video/Image Content</h3>
-                <p>Media files are stored on Blossom servers. You need to:</p>
+                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-primary);">${t('dmca.forVideoTitle')}</h3>
+                <p>${t('dmca.forVideoDesc')}</p>
                 <ul>
-                    <li>Identify which Blossom server is hosting the content (the URL will indicate this)</li>
-                    <li>Contact the Blossom server operator directly with your DMCA takedown request</li>
-                    <li>Each Blossom server operates independently and has its own policies</li>
+                    <li>${t('dmca.forVideoItem1')}</li>
+                    <li>${t('dmca.forVideoItem2')}</li>
+                    <li>${t('dmca.forVideoItem3')}</li>
                 </ul>
 
-                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-primary);">2. For Metadata/Descriptions</h3>
-                <p>If infringing content is in the video title, description, or other metadata:</p>
+                <h3 style="margin-top: 1rem; margin-bottom: 0.5rem; color: var(--text-primary);">${t('dmca.forMetadataTitle')}</h3>
+                <p>${t('dmca.forMetadataDesc')}</p>
                 <ul>
-                    <li>This information is stored on Nostr relays</li>
-                    <li>Contact the specific Nostr relay operators where the content appears</li>
-                    <li>Multiple relays may store the same data due to the distributed nature of Nostr</li>
-                </ul>
-            </section>
-
-            <section class="static-section">
-                <h2>What Plebs Can Do</h2>
-                <p>While we don't host content, we can:</p>
-                <ul>
-                    <li>Help you identify which Blossom servers or relays are hosting specific content</li>
-                    <li>Add content to a local blocklist so it doesn't appear on our interface (note: this only affects plebs.app, not other Nostr clients)</li>
-                    <li>Provide guidance on how to contact the appropriate service operators</li>
-                </ul>
-                <p>To request assistance, please <a href="#/contact" class="accent-link">contact us</a> with:</p>
-                <ul>
-                    <li>The URL or identifier of the infringing content</li>
-                    <li>Proof of your copyright ownership</li>
-                    <li>A description of the copyrighted work</li>
+                    <li>${t('dmca.forMetadataItem1')}</li>
+                    <li>${t('dmca.forMetadataItem2')}</li>
+                    <li>${t('dmca.forMetadataItem3')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>Blossom Server Operators</h2>
-                <p>If you operate a Blossom server and receive a DMCA takedown request, you are responsible for handling it according to your jurisdiction's laws. Common Blossom servers include independent operators who each have their own terms of service and takedown procedures.</p>
-                <p>For a list of known Blossom servers, refer to the <a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener">Blossom project documentation</a>.</p>
-            </section>
-
-            <section class="static-section">
-                <h2>Important Considerations</h2>
+                <h2>${t('dmca.whatWeCanDoTitle')}</h2>
+                <p>${t('dmca.whatWeCanDoDesc')}</p>
                 <ul>
-                    <li><strong>Decentralization:</strong> Due to the decentralized nature of Nostr and Blossom, complete removal of content from all sources may not be possible.</li>
-                    <li><strong>Multiple Copies:</strong> Content may be mirrored across multiple Blossom servers, requiring separate takedown requests to each.</li>
-                    <li><strong>Metadata Persistence:</strong> Even if media files are removed, metadata on Nostr relays may persist.</li>
-                    <li><strong>No Central Control:</strong> There is no single entity that can remove content from the entire network.</li>
+                    <li>${t('dmca.whatWeCanDoItem1')}</li>
+                    <li>${t('dmca.whatWeCanDoItem2')}</li>
+                    <li>${t('dmca.whatWeCanDoItem3')}</li>
+                </ul>
+                <p>${t('dmca.toRequestAssistance')}</p>
+                <ul>
+                    <li>${t('dmca.assistanceItem1')}</li>
+                    <li>${t('dmca.assistanceItem2')}</li>
+                    <li>${t('dmca.assistanceItem3')}</li>
                 </ul>
             </section>
 
             <section class="static-section">
-                <h2>Counter-Notification</h2>
-                <p>If you believe your content was wrongly removed from a Blossom server, you should contact that server's operator directly to file a counter-notification. Plebs is not involved in the hosting or moderation of content on Blossom servers.</p>
+                <h2>${t('dmca.blossomOperatorsTitle')}</h2>
+                <p>${t('dmca.blossomOperatorsDesc')}</p>
+                <p>${t('dmca.blossomOperatorsLink')}</p>
             </section>
 
             <section class="static-section">
-                <h2>Contact</h2>
-                <p>For questions about this policy or assistance identifying content hosts, please <a href="#/contact" class="accent-link">contact us</a>.</p>
+                <h2>${t('dmca.considerationsTitle')}</h2>
+                <ul>
+                    <li><strong>${t('dmca.considerationsItem1')}</strong> ${t('dmca.considerationsItem1Desc')}</li>
+                    <li><strong>${t('dmca.considerationsItem2')}</strong> ${t('dmca.considerationsItem2Desc')}</li>
+                    <li><strong>${t('dmca.considerationsItem3')}</strong> ${t('dmca.considerationsItem3Desc')}</li>
+                    <li><strong>${t('dmca.considerationsItem4')}</strong> ${t('dmca.considerationsItem4Desc')}</li>
+                </ul>
+            </section>
+
+            <section class="static-section">
+                <h2>${t('dmca.counterNotificationTitle')}</h2>
+                <p>${t('dmca.counterNotificationDesc')}</p>
+            </section>
+
+            <section class="static-section">
+                <h2>${t('dmca.contactTitle')}</h2>
+                <p>${t('dmca.contactDesc')}</p>
             </section>
         </div>
     `;
@@ -13215,8 +17284,14 @@ function loadDmcaPage() {
 
 // Admin page - only accessible by admin pubkey
 async function loadAdminPage() {
+    // Wait for login check to complete before verifying admin access
+    // This fixes the issue where direct navigation to /admin fails on page load
+    if (loginCheckPromise) {
+        await loginCheckPromise;
+    }
+
     if (!isAdmin()) {
-        showToast('Access denied. Admin only.', 'error');
+        showToast(t('admin.accessDenied'), 'error');
         navigateTo('/');
         return;
     }
@@ -17836,20 +21911,20 @@ async function loadHomeFeed() {
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.48,12.35c-1.57-4.08-7.16-4.3-5.81-10.23c0.1-0.44-0.37-0.78-0.75-0.55C9.29,3.71,6.68,8,8.87,13.62 c0.18,0.46-0.36,0.89-0.75,0.59c-1.81-1.37-2-3.34-1.84-4.75c0.06-0.52-0.62-0.77-0.91-0.34C4.69,10.16,4,11.84,4,14.37 c0.38,5.6,5.11,7.32,6.81,7.54c2.43,0.31,5.06-0.14,6.95-1.87C19.84,18.11,20.6,15.03,19.48,12.35z"/>
                     </svg>
-                    Trending
+                    ${t('section.trending')}
                 </h2>
                 <div class="trending-tabs">
                     <button class="trending-tab ${currentTrendingPeriod === 'week' ? 'active' : ''}"
-                            onclick="switchTrendingPeriod('week')">This Week</button>
+                            onclick="switchTrendingPeriod('week')">${t('trending.thisWeek')}</button>
                     <button class="trending-tab ${currentTrendingPeriod === 'today' ? 'active' : ''}"
-                            onclick="switchTrendingPeriod('today')">Today</button>
+                            onclick="switchTrendingPeriod('today')">${t('trending.today')}</button>
                 </div>
             </div>
             <div class="video-grid" id="trendingGrid">
                 ${oneRowSkeletons}
             </div>
             <div class="view-more-container" id="trendingViewMore" style="display: none;">
-                <button class="action-btn view-more-btn" onclick="expandSection('trending')">View More</button>
+                <button class="action-btn view-more-btn" onclick="expandSection('trending')">${t('button.viewMore')}</button>
             </div>
         </div>
 
@@ -17860,14 +21935,14 @@ async function loadHomeFeed() {
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                     </svg>
-                    Recommended For You
+                    ${t('section.recommended')}
                 </h2>
             </div>
             <div class="video-grid" id="recommendedGrid">
                 <div class="spinner"></div>
             </div>
             <div class="view-more-container" id="recommendedViewMore" style="display: none;">
-                <button class="action-btn view-more-btn" onclick="expandSection('recommended')">View More</button>
+                <button class="action-btn view-more-btn" onclick="expandSection('recommended')">${t('button.viewMore')}</button>
             </div>
         </div>
 
@@ -17879,14 +21954,14 @@ async function loadHomeFeed() {
                         <rect x="6" y="2" width="12" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
                         <path d="M10 8l6 4-6 4V8z"/>
                     </svg>
-                    Shorts
+                    ${t('section.shorts')}
                 </h2>
             </div>
             <div class="shorts-grid" id="shortsGrid">
                 ${shortSkeletons}
             </div>
             <div class="view-more-container" id="shortsViewMore" style="display: none;">
-                <button class="action-btn view-more-btn" onclick="expandSection('shorts')">View More</button>
+                <button class="action-btn view-more-btn" onclick="expandSection('shorts')">${t('button.viewMore')}</button>
             </div>
         </div>
 
@@ -17898,14 +21973,14 @@ async function loadHomeFeed() {
                         <circle cx="12" cy="12" r="4" fill="#f44336"/>
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                     </svg>
-                    Live
+                    ${t('section.live')}
                 </h2>
             </div>
             <div class="video-grid" id="liveNowGrid">
                 <div class="spinner"></div>
             </div>
             <div class="view-more-container" id="liveNowViewMore" style="display: none;">
-                <button class="action-btn view-more-btn" onclick="expandSection('liveNow')">View More</button>
+                <button class="action-btn view-more-btn" onclick="expandSection('liveNow')">${t('button.viewMore')}</button>
             </div>
         </div>
 
@@ -17921,7 +21996,7 @@ async function loadHomeFeed() {
                 ${threeRowSkeletons}
             </div>
             <div class="view-more-container" id="featuredTopic1ViewMoreContainer" style="display: none;">
-                <button class="action-btn view-more-btn" id="featuredTopic1ViewMore">View More</button>
+                <button class="action-btn view-more-btn" id="featuredTopic1ViewMore">${t('button.viewMore')}</button>
             </div>
         </div>
 
@@ -17937,7 +22012,7 @@ async function loadHomeFeed() {
                 ${threeRowSkeletons}
             </div>
             <div class="view-more-container" id="featuredTopic2ViewMoreContainer" style="display: none;">
-                <button class="action-btn view-more-btn" id="featuredTopic2ViewMore">View More</button>
+                <button class="action-btn view-more-btn" id="featuredTopic2ViewMore">${t('button.viewMore')}</button>
             </div>
         </div>
 
@@ -17953,7 +22028,7 @@ async function loadHomeFeed() {
                 ${threeRowSkeletons}
             </div>
             <div class="view-more-container" id="featuredTopic3ViewMoreContainer" style="display: none;">
-                <button class="action-btn view-more-btn" id="featuredTopic3ViewMore">View More</button>
+                <button class="action-btn view-more-btn" id="featuredTopic3ViewMore">${t('button.viewMore')}</button>
             </div>
         </div>
 
@@ -17964,14 +22039,14 @@ async function loadHomeFeed() {
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 8l7 4-7 4V8z"/>
                     </svg>
-                    Latest Videos
+                    ${t('section.latestVideos')}
                 </h2>
             </div>
             <div class="video-grid" id="videoGrid">
                 ${fiveRowSkeletons}
             </div>
             <div class="view-more-container" id="latestViewMore">
-                <button class="action-btn view-more-btn" onclick="expandSection('latest')">View More</button>
+                <button class="action-btn view-more-btn" onclick="expandSection('latest')">${t('button.viewMore')}</button>
             </div>
         </div>
     `;
@@ -20335,11 +24410,11 @@ async function loadAnalytics(periodDays = 30) {
                         <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                     </svg>
                 </button>
-                <h1>Channel Analytics</h1>
+                <h1>${t('analytics.title')}</h1>
             </div>
             <div class="analytics-loading">
                 <div class="spinner"></div>
-                <p>Loading your analytics...</p>
+                <p>${t('analytics.loading')}</p>
             </div>
         </div>
     `;
@@ -20375,9 +24450,9 @@ async function loadAnalytics(periodDays = 30) {
                             <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                         </svg>
                     </button>
-                    <h1>Channel Analytics</h1>
+                    <h1>${t('analytics.title')}</h1>
                 </div>
-                <p style="text-align: center; color: var(--text-secondary); margin-top: 2rem;">Failed to load analytics. Please try again.</p>
+                <p style="text-align: center; color: var(--text-secondary); margin-top: 2rem;">${t('analytics.loadFailed')}</p>
             </div>
         `;
     }
@@ -21396,11 +25471,11 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
 
     // Time period options
     const periodOptions = [
-        { value: 7, label: 'Last 7 days' },
-        { value: 30, label: 'Last 30 days' },
-        { value: 90, label: 'Last 90 days' },
-        { value: 365, label: 'Last year' },
-        { value: 0, label: 'All time' }
+        { value: 7, label: t('analytics.last7days') },
+        { value: 30, label: t('analytics.last30days') },
+        { value: 90, label: t('analytics.last90days') },
+        { value: 365, label: t('analytics.lastYear') },
+        { value: 0, label: t('analytics.allTime') }
     ];
 
     mainContent.innerHTML = `
@@ -21411,7 +25486,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                     </svg>
                 </button>
-                <h1>Channel Analytics</h1>
+                <h1>${t('analytics.title')}</h1>
                 <div class="analytics-period-selector">
                     <select id="analyticsPeriodSelect" onchange="changeAnalyticsPeriod(this.value)">
                         ${periodOptions.map(opt => `<option value="${opt.value}" ${opt.value === periodDays ? 'selected' : ''}>${opt.label}</option>`).join('')}
@@ -21422,8 +25497,8 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
             <!-- Overview Stats -->
             <section class="analytics-section">
                 <div class="section-header-row">
-                    <h2>Overview</h2>
-                    <span class="period-label">${periodDays === 0 ? 'All time' : `Last ${periodDays} days`}</span>
+                    <h2>${t('analytics.overview')}</h2>
+                    <span class="period-label">${periodDays === 0 ? t('analytics.allTime') : t('analytics.lastNDays', { n: periodDays })}</span>
                 </div>
                 <div class="analytics-stats-grid">
                     <div class="analytics-stat-card">
@@ -21434,7 +25509,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${formatNumber(totals.views)}</div>
-                            <div class="stat-label">Total Views</div>
+                            <div class="stat-label">${t('analytics.totalViews')}</div>
                         </div>
                     </div>
                     <div class="analytics-stat-card">
@@ -21445,7 +25520,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${formatNumber(totals.likes)}</div>
-                            <div class="stat-label">Likes (${likeRatio}% ratio)</div>
+                            <div class="stat-label">${t('analytics.likesRatio', { ratio: likeRatio })}</div>
                         </div>
                     </div>
                     <div class="analytics-stat-card">
@@ -21456,7 +25531,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${formatNumber(totals.dislikes)}</div>
-                            <div class="stat-label">Dislikes</div>
+                            <div class="stat-label">${t('analytics.dislikes')}</div>
                         </div>
                     </div>
                     <div class="analytics-stat-card">
@@ -21467,7 +25542,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${formatSats(totals.zapAmount)} sats</div>
-                            <div class="stat-label">${totals.zapCount} Zaps Received</div>
+                            <div class="stat-label">${t('analytics.zapsReceived', { count: totals.zapCount })}</div>
                         </div>
                     </div>
                     <div class="analytics-stat-card">
@@ -21478,7 +25553,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${formatNumber(totals.boostCount)}</div>
-                            <div class="stat-label">Boosts Received</div>
+                            <div class="stat-label">${t('analytics.boostsReceived')}</div>
                         </div>
                     </div>
                     <div class="analytics-stat-card">
@@ -21489,7 +25564,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${formatNumber(totals.shares)}</div>
-                            <div class="stat-label">Shares</div>
+                            <div class="stat-label">${t('analytics.shares')}</div>
                         </div>
                     </div>
                     <div class="analytics-stat-card">
@@ -21500,7 +25575,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${formatNumber(totals.comments)}</div>
-                            <div class="stat-label">Comments</div>
+                            <div class="stat-label">${t('analytics.comments')}</div>
                         </div>
                     </div>
                     <div class="analytics-stat-card">
@@ -21511,7 +25586,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         </div>
                         <div class="stat-content">
                             <div class="stat-value">${videos.length + shorts.length + liveStreams.length}</div>
-                            <div class="stat-label">${videos.length} Videos, ${shorts.length} Shorts, ${liveStreams.length} Streams</div>
+                            <div class="stat-label">${t('analytics.contentCount', { videos: videos.length, shorts: shorts.length, streams: liveStreams.length })}</div>
                         </div>
                     </div>
                 </div>
@@ -21520,8 +25595,8 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
             <!-- Views Chart -->
             <section class="analytics-section">
                 <div class="section-header-row">
-                    <h2>Views</h2>
-                    <span class="period-label">${periodDays === 0 ? 'All time' : `Last ${periodDays} days`}</span>
+                    <h2>${t('analytics.views')}</h2>
+                    <span class="period-label">${periodDays === 0 ? t('analytics.allTime') : t('analytics.lastNDays', { n: periodDays })}</span>
                 </div>
                 <div class="views-chart-container">
                     ${viewsChartHTML}
@@ -21533,21 +25608,21 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
             <!-- Followers Chart -->
             <section class="analytics-section">
                 <div class="section-header-row">
-                    <h2>Followers</h2>
-                    <span class="period-label">${periodDays === 0 ? 'All time' : `Last ${periodDays} days`}</span>
+                    <h2>${t('analytics.followers')}</h2>
+                    <span class="period-label">${periodDays === 0 ? t('analytics.allTime') : t('analytics.lastNDays', { n: periodDays })}</span>
                 </div>
                 <div class="subscribers-summary">
                     <div class="subscriber-stat ${followerData.netGrowth >= 0 ? 'positive' : 'negative'}">
                         <span class="subscriber-value">${followerData.netGrowth >= 0 ? '+' : ''}${formatNumber(followerData.netGrowth)}</span>
-                        <span class="subscriber-label">Net Growth</span>
+                        <span class="subscriber-label">${t('analytics.netGrowth')}</span>
                     </div>
                     <div class="subscriber-stat positive">
                         <span class="subscriber-value">+${formatNumber(followerData.totalNewFollowers)}</span>
-                        <span class="subscriber-label">New Followers</span>
+                        <span class="subscriber-label">${t('analytics.newFollowers')}</span>
                     </div>
                     <div class="subscriber-stat negative">
                         <span class="subscriber-value">-${formatNumber(followerData.totalUnfollows)}</span>
-                        <span class="subscriber-label">Unfollowed</span>
+                        <span class="subscriber-label">${t('analytics.unfollowed')}</span>
                     </div>
                 </div>
                 <div class="views-chart-container">
@@ -21560,7 +25635,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
             <!-- Top Performing Content -->
             ${sortedByViews.length > 0 ? `
             <section class="analytics-section">
-                <h2>Top Videos by Views</h2>
+                <h2>${t('analytics.topByViews')}</h2>
                 <div class="analytics-video-list">
                     ${sortedByViews.map((event, index) => createAnalyticsVideoRow(event, perVideo.get(event.id), index + 1)).join('')}
                 </div>
@@ -21569,7 +25644,7 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
 
             ${sortedByEngagement.length > 0 ? `
             <section class="analytics-section">
-                <h2>Top Videos by Engagement</h2>
+                <h2>${t('analytics.topByEngagement')}</h2>
                 <div class="analytics-video-list">
                     ${sortedByEngagement.map((event, index) => createAnalyticsVideoRow(event, perVideo.get(event.id), index + 1)).join('')}
                 </div>
@@ -21578,16 +25653,16 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
 
             <!-- All Content Performance -->
             <section class="analytics-section">
-                <h2>All Content Performance</h2>
+                <h2>${t('analytics.allContent')}</h2>
                 <div class="analytics-tabs">
                     <button class="analytics-tab active" data-tab="videos" onclick="switchAnalyticsTab('videos')">
-                        Videos (${videos.length})
+                        ${t('analytics.videosTab', { count: videos.length })}
                     </button>
                     <button class="analytics-tab" data-tab="shorts" onclick="switchAnalyticsTab('shorts')">
-                        Shorts (${shorts.length})
+                        ${t('analytics.shortsTab', { count: shorts.length })}
                     </button>
                     <button class="analytics-tab" data-tab="streams" onclick="switchAnalyticsTab('streams')">
-                        Live Streams (${liveStreams.length})
+                        ${t('analytics.streamsTab', { count: liveStreams.length })}
                     </button>
                 </div>
                 <div class="analytics-tab-content" id="analyticsVideosTab">
@@ -21595,21 +25670,21 @@ function renderAnalyticsPage(videos, shorts, liveStreams, analyticsData, followe
                         <div class="analytics-video-list">
                             ${videos.map((event, index) => createAnalyticsVideoRow(event, perVideo.get(event.id), index + 1)).join('')}
                         </div>
-                    ` : '<p class="empty-message">No videos yet</p>'}
+                    ` : `<p class="empty-message">${t('analytics.noVideosYet')}</p>`}
                 </div>
                 <div class="analytics-tab-content" id="analyticsShortsTab" style="display: none;">
                     ${shorts.length > 0 ? `
                         <div class="analytics-video-list">
                             ${shorts.map((event, index) => createAnalyticsVideoRow(event, perVideo.get(event.id), index + 1)).join('')}
                         </div>
-                    ` : '<p class="empty-message">No shorts yet</p>'}
+                    ` : `<p class="empty-message">${t('analytics.noShortsYet')}</p>`}
                 </div>
                 <div class="analytics-tab-content" id="analyticsStreamsTab" style="display: none;">
                     ${liveStreams.length > 0 ? `
                         <div class="analytics-video-list">
                             ${liveStreams.map((event, index) => createAnalyticsLiveStreamRow(event, perVideo.get(event.id), index + 1)).join('')}
                         </div>
-                    ` : '<p class="empty-message">No live streams yet</p>'}
+                    ` : `<p class="empty-message">${t('analytics.noStreamsYet')}</p>`}
                 </div>
             </section>
         </div>
@@ -21632,7 +25707,7 @@ function setupChartTooltips() {
                 const date = point.getAttribute('data-date');
                 viewsTooltip.innerHTML = `
                     <div class="chart-tooltip-date">${date}</div>
-                    <div class="chart-tooltip-value">${formatNumber(parseInt(value))} views</div>
+                    <div class="chart-tooltip-value">${t('analytics.viewsTooltip', { count: formatNumber(parseInt(value)) })}</div>
                 `;
                 viewsTooltip.classList.add('visible');
 
@@ -21661,7 +25736,7 @@ function setupChartTooltips() {
                 const date = bar.getAttribute('data-date');
                 subscribersTooltip.innerHTML = `
                     <div class="chart-tooltip-date">${date}</div>
-                    <div class="chart-tooltip-value">${value >= 0 ? '+' : ''}${formatNumber(value)} subscribers</div>
+                    <div class="chart-tooltip-value">${value >= 0 ? '+' : ''}${t('analytics.subscribersTooltip', { count: formatNumber(value) })}</div>
                 `;
                 subscribersTooltip.classList.add('visible');
 
@@ -28905,15 +32980,18 @@ function formatTimestamp(timestamp) {
     const minutes = Math.floor(seconds / 60);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
+    const weeks = Math.floor(days / 7);
     const months = Math.floor(days / 30);
     const years = Math.floor(days / 365);
 
-    if (years > 0) return `${years} year${years > 1 ? 's' : ''} ago`;
-    if (months > 0) return `${months} month${months > 1 ? 's' : ''} ago`;
-    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`;
-    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
+    if (years > 0) return years === 1 ? t('time.yearAgo') : t('time.yearsAgo', { n: years });
+    if (months > 0) return months === 1 ? t('time.monthAgo') : t('time.monthsAgo', { n: months });
+    if (weeks > 0) return weeks === 1 ? t('time.weekAgo') : t('time.weeksAgo', { n: weeks });
+    if (days > 0) return days === 1 ? t('time.dayAgo') : t('time.daysAgo', { n: days });
+    if (hours > 0) return hours === 1 ? t('time.hourAgo') : t('time.hoursAgo', { n: hours });
+    if (minutes > 0) return minutes === 1 ? t('time.minuteAgo') : t('time.minutesAgo', { n: minutes });
+    if (seconds > 5) return seconds === 1 ? t('time.secondAgo') : t('time.secondsAgo', { n: seconds });
+    return t('time.justNow');
 }
 
 // ===== Create Modal Functions =====

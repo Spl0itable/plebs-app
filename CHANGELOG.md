@@ -1,3 +1,7 @@
+## v2.7.14 - 2025-12-19
+
+Hotfix: further translated sections
+
 ## v2.7.13 - 2025-12-18
 
 Hotfix: preview generation not working on ios/safari on upload
