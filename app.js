@@ -22294,9 +22294,10 @@ function renderTrendingVideosIncremental(trendingVideos, renderedVideoIds) {
         spinner.remove();
     }
 
-    // Limit cards on homepage - 3 on mobile, 4 on desktop
+    // Limit cards on homepage - 3 on mobile/tablet, 4 on desktop
     const isMobile = window.innerWidth <= 480;
-    const maxInitialCards = isMobile ? 3 : 4;
+    const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
+    const maxInitialCards = (isMobile || isTablet) ? 3 : 4;
     const videosToRender = trendingVideos.slice(0, maxInitialCards);
 
     // Find videos that need profiles loaded
@@ -22373,9 +22374,10 @@ function renderTrendingVideosOptimized(trendingVideos, renderedVideoIds) {
     const spinner = trendingGrid.querySelector('.spinner');
     if (spinner) spinner.remove();
 
-    // Limit cards on homepage - 3 on mobile, 4 on desktop
+    // Limit cards on homepage - 3 on mobile/tablet, 4 on desktop
     const isMobile = window.innerWidth <= 480;
-    const maxInitialCards = isMobile ? 3 : 4;
+    const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
+    const maxInitialCards = (isMobile || isTablet) ? 3 : 4;
     const videosToRender = trendingVideos.slice(0, maxInitialCards);
 
     // Handle empty state
@@ -23013,6 +23015,9 @@ async function loadLiveNowSection() {
     if (!liveNowSection || !liveNowGrid) return;
 
     const cardsPerRow = getCardsPerRow();
+    const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
+    // Show 3 cards on tablet, 4 on desktop
+    const maxInitialCards = isTablet ? 3 : 4;
 
     const filter = {
         kinds: [NIP53_LIVE_EVENT_KIND],
@@ -23044,8 +23049,8 @@ async function loadLiveNowSection() {
         // Cache for View More
         cachedLiveStreams = liveStreams;
 
-        // Show up to one row of live streams initially
-        const streamsToShow = liveStreams.slice(0, cardsPerRow);
+        // Show up to maxInitialCards live streams initially
+        const streamsToShow = liveStreams.slice(0, maxInitialCards);
         const liveEventIds = [];
 
         for (const { event, liveData } of streamsToShow) {
@@ -23067,7 +23072,7 @@ async function loadLiveNowSection() {
         }
 
         // Show View More button if there are more streams
-        if (liveStreams.length > cardsPerRow && viewMoreBtn) {
+        if (liveStreams.length > maxInitialCards && viewMoreBtn) {
             viewMoreBtn.style.display = 'block';
         }
     });
@@ -23265,6 +23270,7 @@ async function loadShortsSection() {
     const viewMoreBtn = document.getElementById('shortsViewMore');
     const cardsPerRow = getShortsCardsPerRow();
     const isMobile = window.innerWidth <= 480;
+    const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
 
     if (!shortsSection || !shortsGrid) return;
 
@@ -23276,8 +23282,8 @@ async function loadShortsSection() {
 
     const videos = [];
     let renderedCount = 0;
-    // Show 4 shorts on mobile, otherwise one row worth
-    const maxInitialDisplay = isMobile ? 4 : cardsPerRow;
+    // Show 4 shorts on mobile/tablet, 6 on desktop
+    const maxInitialDisplay = (isMobile || isTablet) ? 4 : 6;
 
     // Queue for batch loading reactions and boosts
     const reactionQueue = new Set();
@@ -23504,7 +23510,9 @@ function createShortCard(event, profile, reactions, showOwnerActions = false) {
 // Uses progressive rendering - loads all topics in parallel and displays as videos arrive
 async function loadFeaturedTopics() {
     const cardsPerRow = getCardsPerRow();
-    const videosPerTopic = cardsPerRow * 3; // 3 rows
+    const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
+    // Show 12 cards per topic on desktop, 9 on tablet, dynamic on mobile
+    const videosPerTopic = isTablet ? 9 : (window.innerWidth <= 480 ? cardsPerRow * 3 : 12);
 
     // Load a single featured topic with progressive rendering
     const loadFeaturedTopic = (topic, index) => {
@@ -23692,8 +23700,10 @@ async function loadLatestVideosSection() {
     const videoGrid = document.getElementById('videoGrid');
     const viewMoreBtn = document.getElementById('latestViewMore');
     const cardsPerRow = getCardsPerRow();
+    const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
     const initialRows = 5;
-    const videosToDisplay = cardsPerRow * initialRows;
+    // Show 9 cards on tablet, 20 on desktop
+    const videosToDisplay = isTablet ? 9 : 20;
 
     // Include both videos AND live streams
     const filter = {
