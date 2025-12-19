@@ -4424,6 +4424,67 @@ body {
     border-color: var(--accent);
 }
 
+/* Nostr Address Input Group */
+.nostr-address-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.nostr-address-input-group .nostr-address-input {
+    flex: 1;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+}
+
+.nostr-address-input-group .nostr-address-domain {
+    padding: 0.75rem 1rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-left: none;
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.nostr-address-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.nostr-address-status.available .status-icon::before {
+    content: '✓';
+    color: var(--success-color);
+}
+
+.nostr-address-status.unavailable .status-icon::before {
+    content: '✗';
+    color: var(--error-color);
+}
+
+.nostr-address-status.checking .status-icon::before {
+    content: '⋯';
+    color: var(--text-secondary);
+}
+
+.nostr-address-status .status-text {
+    color: var(--text-secondary);
+}
+
+.nostr-address-status.available .status-text {
+    color: var(--success-color);
+}
+
+.nostr-address-status.unavailable .status-text {
+    color: var(--error-color);
+}
+
 /* Connect Modal */
 .connect-steps {
     margin-top: 1rem;
@@ -5517,6 +5578,16 @@ a.logo:focus {
     max-width: 500px;
     max-height: 90vh;
     overflow-y: auto;
+}
+
+.signup-form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.signup-form-section .form-group {
+    margin-bottom: 0;
 }
 
 .nostr-explainer {

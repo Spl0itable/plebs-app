@@ -466,7 +466,7 @@
             <!-- Signup Form Section -->
             <div class="signup-form-section" id="signupFormSection" style="display: none;">
                 <div class="form-group">
-                    <label data-i18n="signup.username">Username *</label>
+                    <label><span data-i18n="signup.username">Username</span> <span class="required-indicator">*</span></label>
                     <input type="text" id="signupUsername" class="form-control" data-i18n-placeholder="signup.usernamePlaceholder" placeholder="Choose a display name">
                 </div>
 
@@ -503,6 +503,19 @@
                             <div class="progress-fill" id="avatarProgressFill" style="width: 0%"></div>
                         </div>
                         <span id="avatarUploadStatus" data-i18n="signup.uploading">Uploading...</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><span data-i18n="signup.nostrAddress">Nostr Address</span> <span class="required-indicator">*</span></label>
+                    <div class="nostr-address-input-group">
+                        <input type="text" id="signupNostrAddress" class="form-control nostr-address-input" data-i18n-placeholder="signup.nostrAddressPlaceholder" placeholder="username" oninput="this.value = this.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''); handleNostrAddressInput(event)">
+                        <span class="nostr-address-domain">@nostrcheck.me</span>
+                    </div>
+                    <p class="form-hint" data-i18n="signup.nostrAddressHint">Your Nostr address makes your profile easier to find. Lowercase letters, numbers, _ and - only.</p>
+                    <div class="nostr-address-status" id="nostrAddressStatus" style="display: none;">
+                        <span class="status-icon"></span>
+                        <span class="status-text"></span>
                     </div>
                 </div>
 

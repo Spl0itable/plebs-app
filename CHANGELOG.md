@@ -1,3 +1,9 @@
+## v2.7.16 - 2025-12-19
+
+Hotfix: trending carousel loading improvement
+Hotfix: further translated sections
+Hotfix: added nostr address at signup
+
 ## v2.7.15 - 2025-12-19
 
 Hotfix: video card previews load faster

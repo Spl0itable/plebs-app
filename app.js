@@ -114,16 +114,37 @@ const translations = {
         'signup.lightningAddress': 'Lightning Address (optional)',
         'signup.lightningPlaceholder': 'you@walletofsatoshi.com',
         'signup.lightningHint': 'Add a Lightning address to receive zaps (Bitcoin tips) on your videos and profile.',
+        'signup.nostrAddress': 'Nostr Address',
+        'signup.nostrAddressPlaceholder': 'username',
+        'signup.nostrAddressHint': 'Your Nostr address makes your profile easier to find. Lowercase letters, numbers, _ and - only.',
+        'signup.nostrAddressRequired': 'Please enter a Nostr address',
+        'signup.profilePictureRequired': 'Please upload a profile picture',
+        'signup.nostrAddressAvailable': 'Available!',
+        'signup.nostrAddressUnavailable': 'Already taken',
+        'signup.nostrAddressChecking': 'Checking availability...',
+        'signup.nostrAddressInvalid': 'Invalid username format',
+        'signup.nostrAddressRegistering': 'Registering your Nostr address...',
+        'signup.nostrAddressSuccess': 'Nostr address registered!',
+        'signup.nostrAddressFailed': 'Could not register Nostr address',
         'signup.yourUsername': 'Your Username',
         'signup.yourBio': 'Your bio will appear here',
         'signup.createAccountBtn': 'Create Account',
         'signup.termsAgree': 'By creating an account, you agree to our',
+        'signup.and': 'and',
         'signup.success': 'Account Created Successfully!',
         'signup.yourPrivateKey': 'Your Private Key (nsec)',
         'signup.keyWarning': 'This is the ONLY way to access your account. Save it somewhere safe!',
         'signup.copyPrivateKey': 'Copy Private Key',
         'signup.howToUseKey': 'How to use your private key',
         'signup.continueToPlebs': 'Continue to Plebs',
+        'signup.step1': 'Save it securely:',
+        'signup.step1Desc': 'Store your nsec in a password manager, write it down, or save it in an encrypted file. Never share it publicly!',
+        'signup.step2': 'To log in again:',
+        'signup.step2Desc': 'Click "Private Key" on the login screen and paste your nsec. It works like a password.',
+        'signup.step3': 'Use on other apps:',
+        'signup.step3Desc': 'Your nsec works on all Nostr apps - Damus, Primal, Amethyst, and hundreds more!',
+        'signup.step4': 'Consider a signer app:',
+        'signup.step4Desc': 'For better security, use apps like Amber (Android) or a browser extension like Alby to manage your keys.',
         // Notifications
         'notifications.title': 'Notifications',
         'notifications.settings': 'Notification Settings',
@@ -1154,7 +1175,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'Iniciar con Clave Privada', 'privateKey.warning': 'Advertencia de Seguridad', 'privateKey.warningText': 'Tu clave privada se almacenará localmente en tu navegador. Para mayor seguridad, considera usar una extensión de navegador o Nostr Connect.', 'privateKey.label': 'Clave Privada (nsec o hex)', 'privateKey.showKey': 'Mostrar clave', 'privateKey.login': 'Iniciar Sesión', 'privateKey.placeholder': 'nsec1...',
         // Signup Modal
-        'signup.title': 'Crear Cuenta Nostr', 'signup.whatIsNostr': '¿Qué es Nostr?', 'signup.nostrExplanation': 'Nostr es un protocolo social descentralizado que te da propiedad de tu identidad y contenido. A diferencia de las plataformas tradicionales, ninguna empresa puede banearte, censurar tu contenido o cerrar tu cuenta.', 'signup.whyPlebs': '¿Por qué Plebs usa Nostr?', 'signup.plebsExplanation': 'Plebs está construido sobre Nostr para proporcionar compartición de videos resistente a la censura. Tus videos, comentarios e interacciones se almacenan en una red de relays, no en nuestros servidores. ¡Tu identidad Nostr funciona en cientos de otras apps también!', 'signup.howItWorks': 'Cómo funciona', 'signup.keysIdentity': 'Tus claves = Tu identidad.', 'signup.keysIdentityDesc': 'Obtendrás una clave privada (nsec) que prueba que eres dueño de tu cuenta.', 'signup.keepSecret': '¡Mantén tu clave privada en secreto!', 'signup.keepSecretDesc': 'Es como una contraseña que nunca se puede restablecer.', 'signup.oneIdentity': 'Una identidad, muchas apps.', 'signup.oneIdentityDesc': 'Usa la misma cuenta en Damus, Primal, Amethyst y más.', 'signup.gotIt': 'Entendido, vamos a crear mi cuenta', 'signup.username': 'Nombre de Usuario', 'signup.usernamePlaceholder': 'Elige un nombre para mostrar', 'signup.about': 'Acerca de (opcional)', 'signup.aboutPlaceholder': 'Cuéntale a otros sobre ti', 'signup.profilePicture': 'Foto de Perfil (opcional)', 'signup.uploadPhoto': 'Subir Foto', 'signup.remove': 'Eliminar', 'signup.avatarHint': 'Las imágenes cuadradas funcionan mejor. Máx 5MB.', 'signup.uploading': 'Subiendo...', 'signup.lightningAddress': 'Dirección Lightning (opcional)', 'signup.lightningPlaceholder': 'tu@walletofsatoshi.com', 'signup.lightningHint': 'Agrega una dirección Lightning para recibir zaps (propinas de Bitcoin) en tus videos y perfil.', 'signup.yourUsername': 'Tu Nombre de Usuario', 'signup.yourBio': 'Tu biografía aparecerá aquí', 'signup.createAccountBtn': 'Crear Cuenta', 'signup.termsAgree': 'Al crear una cuenta, aceptas nuestros', 'signup.success': '¡Cuenta Creada Exitosamente!', 'signup.yourPrivateKey': 'Tu Clave Privada (nsec)', 'signup.keyWarning': 'Esta es la ÚNICA forma de acceder a tu cuenta. ¡Guárdala en un lugar seguro!', 'signup.copyPrivateKey': 'Copiar Clave Privada', 'signup.howToUseKey': 'Cómo usar tu clave privada', 'signup.continueToPlebs': 'Continuar a Plebs', 'signup.step1': 'Guárdala de forma segura:', 'signup.step1Desc': 'Almacena tu nsec en un administrador de contraseñas, escríbela o guárdala en un archivo encriptado. ¡Nunca la compartas públicamente!', 'signup.step2': 'Para iniciar sesión de nuevo:', 'signup.step2Desc': 'Haz clic en "Clave Privada" en la pantalla de inicio de sesión y pega tu nsec. Funciona como una contraseña.', 'signup.step3': 'Usar en otras apps:', 'signup.step3Desc': '¡Tu nsec funciona en todas las apps Nostr - Damus, Primal, Amethyst y cientos más!', 'signup.step4': 'Considera una app de firmante:', 'signup.step4Desc': 'Para mayor seguridad, usa apps como Amber (Android) o una extensión de navegador como Alby para administrar tus claves.',
+        'signup.title': 'Crear Cuenta Nostr', 'signup.whatIsNostr': '¿Qué es Nostr?', 'signup.nostrExplanation': 'Nostr es un protocolo social descentralizado que te da propiedad de tu identidad y contenido. A diferencia de las plataformas tradicionales, ninguna empresa puede banearte, censurar tu contenido o cerrar tu cuenta.', 'signup.whyPlebs': '¿Por qué Plebs usa Nostr?', 'signup.plebsExplanation': 'Plebs está construido sobre Nostr para proporcionar compartición de videos resistente a la censura. Tus videos, comentarios e interacciones se almacenan en una red de relays, no en nuestros servidores. ¡Tu identidad Nostr funciona en cientos de otras apps también!', 'signup.howItWorks': 'Cómo funciona', 'signup.keysIdentity': 'Tus claves = Tu identidad.', 'signup.keysIdentityDesc': 'Obtendrás una clave privada (nsec) que prueba que eres dueño de tu cuenta.', 'signup.keepSecret': '¡Mantén tu clave privada en secreto!', 'signup.keepSecretDesc': 'Es como una contraseña que nunca se puede restablecer.', 'signup.oneIdentity': 'Una identidad, muchas apps.', 'signup.oneIdentityDesc': 'Usa la misma cuenta en Damus, Primal, Amethyst y más.', 'signup.gotIt': 'Entendido, vamos a crear mi cuenta', 'signup.username': 'Nombre de Usuario', 'signup.usernamePlaceholder': 'Elige un nombre para mostrar', 'signup.about': 'Acerca de (opcional)', 'signup.aboutPlaceholder': 'Cuéntale a otros sobre ti', 'signup.profilePicture': 'Foto de Perfil (opcional)', 'signup.uploadPhoto': 'Subir Foto', 'signup.remove': 'Eliminar', 'signup.avatarHint': 'Las imágenes cuadradas funcionan mejor. Máx 5MB.', 'signup.uploading': 'Subiendo...', 'signup.lightningAddress': 'Dirección Lightning (opcional)', 'signup.lightningPlaceholder': 'tu@walletofsatoshi.com', 'signup.lightningHint': 'Agrega una dirección Lightning para recibir zaps (propinas de Bitcoin) en tus videos y perfil.', 'signup.nostrAddress': 'Dirección Nostr', 'signup.nostrAddressPlaceholder': 'usuario', 'signup.nostrAddressHint': 'Tu dirección Nostr facilita encontrar tu perfil. Solo letras minúsculas, números, _ y -.', 'signup.nostrAddressRequired': 'Por favor ingresa una dirección Nostr', 'signup.nostrAddressAvailable': '¡Disponible!', 'signup.nostrAddressUnavailable': 'Ya está en uso', 'signup.nostrAddressChecking': 'Verificando...', 'signup.nostrAddressInvalid': 'Formato de usuario inválido', 'signup.nostrAddressRegistering': 'Registrando tu dirección Nostr...', 'signup.nostrAddressSuccess': '¡Dirección Nostr registrada!', 'signup.nostrAddressFailed': 'No se pudo registrar la dirección Nostr', 'signup.yourUsername': 'Tu Nombre de Usuario', 'signup.yourBio': 'Tu biografía aparecerá aquí', 'signup.createAccountBtn': 'Crear Cuenta', 'signup.termsAgree': 'Al crear una cuenta, aceptas nuestros', 'signup.and': 'y', 'signup.success': '¡Cuenta Creada Exitosamente!', 'signup.yourPrivateKey': 'Tu Clave Privada (nsec)', 'signup.keyWarning': 'Esta es la ÚNICA forma de acceder a tu cuenta. ¡Guárdala en un lugar seguro!', 'signup.copyPrivateKey': 'Copiar Clave Privada', 'signup.howToUseKey': 'Cómo usar tu clave privada', 'signup.continueToPlebs': 'Continuar a Plebs', 'signup.step1': 'Guárdala de forma segura:', 'signup.step1Desc': 'Almacena tu nsec en un administrador de contraseñas, escríbela o guárdala en un archivo encriptado. ¡Nunca la compartas públicamente!', 'signup.step2': 'Para iniciar sesión de nuevo:', 'signup.step2Desc': 'Haz clic en "Clave Privada" en la pantalla de inicio de sesión y pega tu nsec. Funciona como una contraseña.', 'signup.step3': 'Usar en otras apps:', 'signup.step3Desc': '¡Tu nsec funciona en todas las apps Nostr - Damus, Primal, Amethyst y cientos más!', 'signup.step4': 'Considera una app de firmante:', 'signup.step4Desc': 'Para mayor seguridad, usa apps como Amber (Android) o una extensión de navegador como Alby para administrar tus claves.',
         // Notifications
         'notifications.title': 'Notificaciones', 'notifications.settings': 'Configuración de Notificaciones', 'notifications.reactions': 'Reacciones (me gusta/no me gusta)', 'notifications.replies': 'Comentarios y Respuestas', 'notifications.zaps': 'Zaps', 'notifications.chatMentions': 'Menciones en Chat en Vivo', 'notifications.newFollowers': 'Nuevos Seguidores', 'notifications.syncNote': 'La configuración se sincroniza entre dispositivos vía Nostr', 'notifications.settingsTitle': 'Configuración de Notificaciones',
         // Settings Modal
@@ -1184,7 +1205,7 @@ const translations = {
         // Video Page
         'video.views': 'vistas', 'video.view': 'vista', 'video.followers': 'seguidores', 'video.follower': 'seguidor', 'video.follow': 'Seguir', 'video.unfollow': 'Dejar de Seguir', 'video.share': 'Compartir', 'video.comments': 'Comentarios', 'video.writeComment': 'Escribe un comentario...', 'video.noComments': 'Sin comentarios aún. ¡Sé el primero!', 'video.reply': 'Responder', 'video.report': 'Reportar', 'video.mute': 'Silenciar Usuario',
         // Toast Messages
-        'toast.loggedIn': '¡Sesión iniciada!', 'toast.settingsSaved': '¡Configuración guardada!', 'toast.languageChanged': 'Idioma cambiado', 'toast.copied': '¡Copiado!', 'toast.reported': 'Reporte enviado', 'toast.followed': 'Siguiendo', 'toast.unfollowed': 'Dejaste de seguir',
+        'toast.loggedIn': '¡Sesión iniciada!', 'toast.settingsSaved': '¡Configuración guardada!', 'toast.settingsLocal': 'Configuración guardada localmente. No se pudo guardar en Nostr.', 'toast.settingsLocalOnly': '¡Configuración guardada localmente!', 'toast.settingsReset': '¡Configuración restablecida!', 'toast.avatarUploaded': '¡Avatar subido exitosamente!', 'toast.profileUpdated': '¡Perfil actualizado exitosamente!', 'toast.copied': '¡Copiado al portapapeles!', 'toast.copyFailed': 'Error al copiar. Por favor copia manualmente.', 'toast.installExtension': 'Por favor instala una extensión de navegador Nostr como Alby o nos2x', 'toast.loginFailed': 'Error al iniciar sesión con la extensión. Intenta de nuevo.', 'toast.invalidKey': 'Clave privada inválida. Por favor verifica e intenta de nuevo.', 'toast.enterKey': 'Por favor ingresa tu clave privada', 'toast.enterUsername': 'Por favor ingresa un nombre de usuario', 'toast.accountCreated': '¡Bienvenido a Plebs! Has iniciado sesión.', 'toast.keyCopied': '¡Clave privada copiada al portapapeles!', 'toast.unmuted': 'Usuario desilenciado', 'toast.unmuteFailed': 'Error al desilenciar usuario', 'toast.selectImage': 'Por favor selecciona un archivo de imagen', 'toast.imageTooLarge': 'La imagen debe ser menor a 5MB', 'toast.avatarFailed': 'Error al subir avatar. Por favor intenta de nuevo.', 'toast.mustBeLoggedIn': 'Debes iniciar sesión para editar tu perfil', 'toast.enterDisplayName': 'Por favor ingresa un nombre para mostrar', 'toast.profileFailed': 'Error al guardar perfil. Por favor intenta de nuevo.', 'toast.invalidBunker': 'Por favor ingresa una URL bunker válida', 'toast.connectFailed': 'Error al conectar', 'toast.showingFiltered': 'Mostrando contenido filtrado', 'toast.reportSubmitted': 'Reporte enviado exitosamente', 'toast.draftSaved': '¡Borrador guardado! Puedes continuar después desde Mis Videos.', 'toast.draftLoaded': 'Borrador cargado. Completa tu subida y publica.', 'toast.draftDeleted': 'Borrador eliminado', 'toast.languageChanged': 'Idioma cambiado', 'toast.videoBlocked': 'Video bloqueado y publicado en Nostr', 'toast.waitForUpload': 'Por favor espera a que se complete la subida del video', 'toast.enterTitle': 'Por favor ingresa un título', 'toast.publishing': 'Publicando video en Nostr...',
         // Time
         'time.justNow': 'ahora mismo', 'time.secondAgo': 'hace 1 segundo', 'time.secondsAgo': 'hace {n} segundos', 'time.minuteAgo': 'hace 1 minuto', 'time.minutesAgo': 'hace {n} minutos', 'time.hourAgo': 'hace 1 hora', 'time.hoursAgo': 'hace {n} horas', 'time.dayAgo': 'hace 1 día', 'time.daysAgo': 'hace {n} días', 'time.weekAgo': 'hace 1 semana', 'time.weeksAgo': 'hace {n} semanas', 'time.monthAgo': 'hace 1 mes', 'time.monthsAgo': 'hace {n} meses', 'time.yearAgo': 'hace 1 año', 'time.yearsAgo': 'hace {n} años',
         // Empty States
@@ -1624,7 +1645,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'Connexion avec Clé Privée', 'privateKey.warning': 'Avertissement de Sécurité', 'privateKey.warningText': 'Votre clé privée sera stockée localement dans votre navigateur. Pour plus de sécurité, envisagez d\'utiliser une extension de navigateur ou Nostr Connect.', 'privateKey.label': 'Clé Privée (nsec ou hex)', 'privateKey.showKey': 'Afficher la clé', 'privateKey.login': 'Connexion', 'privateKey.placeholder': 'nsec1...',
         // Signup Modal
-        'signup.title': 'Créer un Compte Nostr', 'signup.whatIsNostr': 'Qu\'est-ce que Nostr?', 'signup.nostrExplanation': 'Nostr est un protocole social décentralisé qui vous donne la propriété de votre identité et de votre contenu. Contrairement aux plateformes traditionnelles, aucune entreprise ne peut vous bannir, censurer votre contenu ou fermer votre compte.', 'signup.whyPlebs': 'Pourquoi Plebs utilise Nostr?', 'signup.plebsExplanation': 'Plebs est construit sur Nostr pour fournir un partage de vidéos résistant à la censure. Vos vidéos, commentaires et interactions sont stockés sur un réseau de relais, pas sur nos serveurs. Votre identité Nostr fonctionne sur des centaines d\'autres apps aussi!', 'signup.howItWorks': 'Comment ça marche', 'signup.keysIdentity': 'Vos clés = Votre identité.', 'signup.keysIdentityDesc': 'Vous obtiendrez une clé privée (nsec) qui prouve que vous êtes propriétaire de votre compte.', 'signup.keepSecret': 'Gardez votre clé privée secrète!', 'signup.keepSecretDesc': 'C\'est comme un mot de passe qui ne peut jamais être réinitialisé.', 'signup.oneIdentity': 'Une identité, plusieurs apps.', 'signup.oneIdentityDesc': 'Utilisez le même compte sur Damus, Primal, Amethyst et plus.', 'signup.gotIt': 'Compris, créons mon compte', 'signup.username': 'Nom d\'utilisateur', 'signup.usernamePlaceholder': 'Choisissez un nom d\'affichage', 'signup.about': 'À propos (optionnel)', 'signup.aboutPlaceholder': 'Parlez de vous aux autres', 'signup.profilePicture': 'Photo de Profil (optionnel)', 'signup.uploadPhoto': 'Télécharger une Photo', 'signup.remove': 'Supprimer', 'signup.avatarHint': 'Les images carrées fonctionnent mieux. Max 5Mo.', 'signup.uploading': 'Téléchargement...', 'signup.lightningAddress': 'Adresse Lightning (optionnel)', 'signup.lightningPlaceholder': 'vous@walletofsatoshi.com', 'signup.lightningHint': 'Ajoutez une adresse Lightning pour recevoir des zaps (pourboires Bitcoin) sur vos vidéos et profil.', 'signup.yourUsername': 'Votre Nom d\'utilisateur', 'signup.yourBio': 'Votre bio apparaîtra ici', 'signup.createAccountBtn': 'Créer le Compte', 'signup.termsAgree': 'En créant un compte, vous acceptez nos', 'signup.success': 'Compte Créé avec Succès!', 'signup.yourPrivateKey': 'Votre Clé Privée (nsec)', 'signup.keyWarning': 'C\'est la SEULE façon d\'accéder à votre compte. Gardez-la en sécurité!', 'signup.copyPrivateKey': 'Copier la Clé Privée', 'signup.howToUseKey': 'Comment utiliser votre clé privée', 'signup.continueToPlebs': 'Continuer vers Plebs',
+        'signup.title': 'Créer un Compte Nostr', 'signup.whatIsNostr': 'Qu\'est-ce que Nostr?', 'signup.nostrExplanation': 'Nostr est un protocole social décentralisé qui vous donne la propriété de votre identité et de votre contenu. Contrairement aux plateformes traditionnelles, aucune entreprise ne peut vous bannir, censurer votre contenu ou fermer votre compte.', 'signup.whyPlebs': 'Pourquoi Plebs utilise Nostr?', 'signup.plebsExplanation': 'Plebs est construit sur Nostr pour fournir un partage de vidéos résistant à la censure. Vos vidéos, commentaires et interactions sont stockés sur un réseau de relais, pas sur nos serveurs. Votre identité Nostr fonctionne sur des centaines d\'autres apps aussi!', 'signup.howItWorks': 'Comment ça marche', 'signup.keysIdentity': 'Vos clés = Votre identité.', 'signup.keysIdentityDesc': 'Vous obtiendrez une clé privée (nsec) qui prouve que vous êtes propriétaire de votre compte.', 'signup.keepSecret': 'Gardez votre clé privée secrète!', 'signup.keepSecretDesc': 'C\'est comme un mot de passe qui ne peut jamais être réinitialisé.', 'signup.oneIdentity': 'Une identité, plusieurs apps.', 'signup.oneIdentityDesc': 'Utilisez le même compte sur Damus, Primal, Amethyst et plus.', 'signup.gotIt': 'Compris, créons mon compte', 'signup.username': 'Nom d\'utilisateur', 'signup.usernamePlaceholder': 'Choisissez un nom d\'affichage', 'signup.about': 'À propos (optionnel)', 'signup.aboutPlaceholder': 'Parlez de vous aux autres', 'signup.profilePicture': 'Photo de Profil (optionnel)', 'signup.uploadPhoto': 'Télécharger une Photo', 'signup.remove': 'Supprimer', 'signup.avatarHint': 'Les images carrées fonctionnent mieux. Max 5Mo.', 'signup.uploading': 'Téléchargement...', 'signup.lightningAddress': 'Adresse Lightning (optionnel)', 'signup.lightningPlaceholder': 'vous@walletofsatoshi.com', 'signup.lightningHint': 'Ajoutez une adresse Lightning pour recevoir des zaps (pourboires Bitcoin) sur vos vidéos et profil.', 'signup.nostrAddress': 'Adresse Nostr', 'signup.nostrAddressPlaceholder': 'utilisateur', 'signup.nostrAddressHint': 'Votre adresse Nostr facilite la recherche de votre profil. Lettres minuscules, chiffres, _ et - uniquement.', 'signup.nostrAddressRequired': 'Veuillez entrer une adresse Nostr', 'signup.nostrAddressAvailable': 'Disponible!', 'signup.nostrAddressUnavailable': 'Déjà pris', 'signup.nostrAddressChecking': 'Vérification...', 'signup.nostrAddressInvalid': 'Format de nom d\'utilisateur invalide', 'signup.nostrAddressRegistering': 'Enregistrement de votre adresse Nostr...', 'signup.nostrAddressSuccess': 'Adresse Nostr enregistrée!', 'signup.nostrAddressFailed': 'Impossible d\'enregistrer l\'adresse Nostr', 'signup.yourUsername': 'Votre Nom d\'utilisateur', 'signup.yourBio': 'Votre bio apparaîtra ici', 'signup.createAccountBtn': 'Créer le Compte', 'signup.termsAgree': 'En créant un compte, vous acceptez nos', 'signup.and': 'et', 'signup.success': 'Compte Créé avec Succès!', 'signup.yourPrivateKey': 'Votre Clé Privée (nsec)', 'signup.keyWarning': 'C\'est la SEULE façon d\'accéder à votre compte. Gardez-la en sécurité!', 'signup.copyPrivateKey': 'Copier la Clé Privée', 'signup.howToUseKey': 'Comment utiliser votre clé privée', 'signup.continueToPlebs': 'Continuer vers Plebs',
         // Notifications
         'notifications.title': 'Notifications', 'notifications.settings': 'Paramètres de Notifications', 'notifications.reactions': 'Réactions (j\'aime/je n\'aime pas)', 'notifications.replies': 'Commentaires & Réponses', 'notifications.zaps': 'Zaps', 'notifications.chatMentions': 'Mentions en Chat en Direct', 'notifications.newFollowers': 'Nouveaux Abonnés', 'notifications.syncNote': 'Les paramètres sont synchronisés entre appareils via Nostr',
         // Settings Modal
@@ -1640,7 +1661,7 @@ const translations = {
         // NSFW Warning Modal
         'nsfw.title': 'Vérification d\'Âge Requise', 'nsfw.description': 'Ce contenu est marqué comme NSFW et peut contenir du matériel pour adultes. Vous devez avoir 18 ans ou plus pour voir ce contenu.', 'nsfw.confirm': 'J\'ai 18 ans ou plus', 'nsfw.remember': 'Ne plus demander (Mémoriser mon choix)',
         // Community Warning Modal
-        'communityWarning.title': 'Avertissement de la Communauté', 'communityWarning.description': 'Cette vidéo a été signalée et/ou fortement désapprouvée par la communauté.', 'communityWarning.goBack': 'Retour', 'communityWarning.viewAnyway': 'Voir Quand Même',
+        'communityWarning.title': 'Avertissement de la Communauté', 'communityWarning.description': 'Cette vidéo a été signalée et/ou fortement désapprouvée par la communauté. Cela peut être dû à:', 'communityWarning.reason1': 'Contenu inapproprié non correctement marqué comme NSFW', 'communityWarning.reason2': 'Détails d\'utilisateur nouveau ou suspect', 'communityWarning.reason3': 'Informations trompeuses ou fausses', 'communityWarning.reason4': 'Spam ou contenu de faible qualité', 'communityWarning.reason5': 'Contenu potentiellement nuisible ou illégal', 'communityWarning.proceed': 'Procédez avec prudence.', 'communityWarning.goBack': 'Retour', 'communityWarning.viewAnyway': 'Voir Quand Même',
         // Report Modal
         'report.title': 'Signaler la Vidéo', 'report.description': 'Sélectionnez une raison pour signaler ce contenu:', 'report.nudity': 'Nudité ou Contenu Sexuel', 'report.nudityDesc': 'Contient des images sexuelles ou explicites non marquées comme NSFW', 'report.hate': 'Discours de Haine ou Harcèlement', 'report.hateDesc': 'Promeut la violence, la haine ou le harcèlement', 'report.illegal': 'Contenu Illégal', 'report.illegalDesc': 'Contenu pouvant violer les lois', 'report.spam': 'Spam ou Trompeur', 'report.spamDesc': 'Contenu trompeur, arnaques ou spam répétitif', 'report.impersonation': 'Usurpation d\'Identité', 'report.impersonationDesc': 'Se faire passer pour quelqu\'un d\'autre', 'report.other': 'Autre', 'report.otherDesc': 'Autre violation non listée', 'report.cancel': 'Annuler', 'report.submit': 'Soumettre le Signalement',
         // Share Modal
@@ -1654,7 +1675,7 @@ const translations = {
         // Video Page
         'video.views': 'vues', 'video.view': 'vue', 'video.followers': 'abonnés', 'video.follower': 'abonné', 'video.follow': 'S\'abonner', 'video.unfollow': 'Se désabonner', 'video.share': 'Partager', 'video.comments': 'Commentaires', 'video.writeComment': 'Écrire un commentaire...', 'video.noComments': 'Pas encore de commentaires. Soyez le premier!',
         // Toast Messages
-        'toast.loggedIn': 'Connexion réussie!', 'toast.settingsSaved': 'Paramètres enregistrés!', 'toast.languageChanged': 'Langue modifiée', 'toast.copied': 'Copié!',
+        'toast.loggedIn': 'Connexion réussie!', 'toast.settingsSaved': 'Paramètres enregistrés!', 'toast.settingsLocal': 'Paramètres enregistrés localement. Impossible de sauvegarder sur Nostr.', 'toast.settingsLocalOnly': 'Paramètres enregistrés localement!', 'toast.settingsReset': 'Paramètres réinitialisés!', 'toast.avatarUploaded': 'Avatar téléchargé avec succès!', 'toast.profileUpdated': 'Profil mis à jour avec succès!', 'toast.copied': 'Copié dans le presse-papiers!', 'toast.copyFailed': 'Échec de la copie. Veuillez copier manuellement.', 'toast.installExtension': 'Veuillez installer une extension Nostr comme Alby ou nos2x', 'toast.loginFailed': 'Échec de connexion avec l\'extension. Veuillez réessayer.', 'toast.invalidKey': 'Clé privée invalide. Veuillez vérifier et réessayer.', 'toast.enterKey': 'Veuillez entrer votre clé privée', 'toast.enterUsername': 'Veuillez entrer un nom d\'utilisateur', 'toast.accountCreated': 'Bienvenue sur Plebs! Vous êtes connecté.', 'toast.keyCopied': 'Clé privée copiée dans le presse-papiers!', 'toast.unmuted': 'Utilisateur réactivé', 'toast.unmuteFailed': 'Échec de la réactivation de l\'utilisateur', 'toast.selectImage': 'Veuillez sélectionner un fichier image', 'toast.imageTooLarge': 'L\'image doit faire moins de 5 Mo', 'toast.avatarFailed': 'Échec du téléchargement de l\'avatar. Veuillez réessayer.', 'toast.mustBeLoggedIn': 'Vous devez être connecté pour modifier votre profil', 'toast.enterDisplayName': 'Veuillez entrer un nom d\'affichage', 'toast.profileFailed': 'Échec de la sauvegarde du profil. Veuillez réessayer.', 'toast.invalidBunker': 'Veuillez entrer une URL bunker valide', 'toast.connectFailed': 'Échec de la connexion', 'toast.showingFiltered': 'Affichage du contenu filtré', 'toast.reportSubmitted': 'Signalement envoyé avec succès', 'toast.draftSaved': 'Brouillon enregistré! Vous pouvez continuer plus tard depuis Mes Vidéos.', 'toast.draftLoaded': 'Brouillon chargé. Complétez votre téléchargement et publiez.', 'toast.draftDeleted': 'Brouillon supprimé', 'toast.languageChanged': 'Langue modifiée', 'toast.videoBlocked': 'Vidéo bloquée et publiée sur Nostr', 'toast.waitForUpload': 'Veuillez attendre la fin du téléchargement de la vidéo', 'toast.enterTitle': 'Veuillez entrer un titre', 'toast.publishing': 'Publication de la vidéo sur Nostr...',
         // Time
         'time.justNow': 'à l\'instant', 'time.secondAgo': 'il y a 1 seconde', 'time.secondsAgo': 'il y a {n} secondes', 'time.minuteAgo': 'il y a 1 minute', 'time.minutesAgo': 'il y a {n} minutes', 'time.hourAgo': 'il y a 1 heure', 'time.hoursAgo': 'il y a {n} heures', 'time.dayAgo': 'il y a 1 jour', 'time.daysAgo': 'il y a {n} jours', 'time.weekAgo': 'il y a 1 semaine', 'time.weeksAgo': 'il y a {n} semaines', 'time.monthAgo': 'il y a 1 mois', 'time.monthsAgo': 'il y a {n} mois', 'time.yearAgo': 'il y a 1 an', 'time.yearsAgo': 'il y a {n} ans',
         // Empty States
@@ -2094,7 +2115,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'Mit privatem Schlüssel anmelden', 'privateKey.warning': 'Sicherheitswarnung', 'privateKey.warningText': 'Ihr privater Schlüssel wird lokal in Ihrem Browser gespeichert. Für mehr Sicherheit verwenden Sie eine Browsererweiterung oder Nostr Connect.', 'privateKey.label': 'Privater Schlüssel (nsec oder hex)', 'privateKey.showKey': 'Schlüssel anzeigen', 'privateKey.login': 'Anmelden', 'privateKey.placeholder': 'nsec1...',
         // Signup Modal
-        'signup.title': 'Nostr-Konto erstellen', 'signup.whatIsNostr': 'Was ist Nostr?', 'signup.nostrExplanation': 'Nostr ist ein dezentrales soziales Protokoll, das Ihnen die Kontrolle über Ihre Identität und Inhalte gibt. Anders als bei herkömmlichen Plattformen kann Sie kein Unternehmen sperren, zensieren oder Ihr Konto schließen.', 'signup.whyPlebs': 'Warum verwendet Plebs Nostr?', 'signup.plebsExplanation': 'Plebs basiert auf Nostr, um zensurresistentes Video-Sharing zu ermöglichen. Ihre Videos, Kommentare und Interaktionen werden in einem Netzwerk von Relays gespeichert, nicht auf unseren Servern.', 'signup.howItWorks': 'So funktioniert es', 'signup.keysIdentity': 'Ihre Schlüssel = Ihre Identität.', 'signup.keysIdentityDesc': 'Sie erhalten einen privaten Schlüssel (nsec), der beweist, dass Sie der Besitzer Ihres Kontos sind.', 'signup.keepSecret': 'Halten Sie Ihren privaten Schlüssel geheim!', 'signup.keepSecretDesc': 'Er ist wie ein Passwort, das niemals zurückgesetzt werden kann.', 'signup.oneIdentity': 'Eine Identität, viele Apps.', 'signup.oneIdentityDesc': 'Verwenden Sie dasselbe Konto auf Damus, Primal, Amethyst und mehr.', 'signup.gotIt': 'Verstanden, Konto erstellen', 'signup.username': 'Benutzername', 'signup.usernamePlaceholder': 'Wählen Sie einen Anzeigenamen', 'signup.about': 'Über mich (optional)', 'signup.aboutPlaceholder': 'Erzählen Sie anderen von sich', 'signup.profilePicture': 'Profilbild (optional)', 'signup.uploadPhoto': 'Foto hochladen', 'signup.remove': 'Entfernen', 'signup.avatarHint': 'Quadratische Bilder funktionieren am besten. Max 5MB.', 'signup.uploading': 'Wird hochgeladen...', 'signup.lightningAddress': 'Lightning-Adresse (optional)', 'signup.lightningPlaceholder': 'du@walletofsatoshi.com', 'signup.lightningHint': 'Fügen Sie eine Lightning-Adresse hinzu, um Zaps (Bitcoin-Trinkgelder) zu erhalten.', 'signup.yourUsername': 'Ihr Benutzername', 'signup.yourBio': 'Ihre Bio erscheint hier', 'signup.createAccountBtn': 'Konto erstellen', 'signup.termsAgree': 'Mit der Erstellung eines Kontos akzeptieren Sie unsere', 'signup.success': 'Konto erfolgreich erstellt!', 'signup.yourPrivateKey': 'Ihr privater Schlüssel (nsec)', 'signup.keyWarning': 'Dies ist die EINZIGE Möglichkeit, auf Ihr Konto zuzugreifen. Bewahren Sie ihn sicher auf!', 'signup.copyPrivateKey': 'Privaten Schlüssel kopieren', 'signup.howToUseKey': 'So verwenden Sie Ihren privaten Schlüssel', 'signup.continueToPlebs': 'Weiter zu Plebs',
+        'signup.title': 'Nostr-Konto erstellen', 'signup.whatIsNostr': 'Was ist Nostr?', 'signup.nostrExplanation': 'Nostr ist ein dezentrales soziales Protokoll, das Ihnen die Kontrolle über Ihre Identität und Inhalte gibt. Anders als bei herkömmlichen Plattformen kann Sie kein Unternehmen sperren, zensieren oder Ihr Konto schließen.', 'signup.whyPlebs': 'Warum verwendet Plebs Nostr?', 'signup.plebsExplanation': 'Plebs basiert auf Nostr, um zensurresistentes Video-Sharing zu ermöglichen. Ihre Videos, Kommentare und Interaktionen werden in einem Netzwerk von Relays gespeichert, nicht auf unseren Servern.', 'signup.howItWorks': 'So funktioniert es', 'signup.keysIdentity': 'Ihre Schlüssel = Ihre Identität.', 'signup.keysIdentityDesc': 'Sie erhalten einen privaten Schlüssel (nsec), der beweist, dass Sie der Besitzer Ihres Kontos sind.', 'signup.keepSecret': 'Halten Sie Ihren privaten Schlüssel geheim!', 'signup.keepSecretDesc': 'Er ist wie ein Passwort, das niemals zurückgesetzt werden kann.', 'signup.oneIdentity': 'Eine Identität, viele Apps.', 'signup.oneIdentityDesc': 'Verwenden Sie dasselbe Konto auf Damus, Primal, Amethyst und mehr.', 'signup.gotIt': 'Verstanden, Konto erstellen', 'signup.username': 'Benutzername', 'signup.usernamePlaceholder': 'Wählen Sie einen Anzeigenamen', 'signup.about': 'Über mich (optional)', 'signup.aboutPlaceholder': 'Erzählen Sie anderen von sich', 'signup.profilePicture': 'Profilbild (optional)', 'signup.uploadPhoto': 'Foto hochladen', 'signup.remove': 'Entfernen', 'signup.avatarHint': 'Quadratische Bilder funktionieren am besten. Max 5MB.', 'signup.uploading': 'Wird hochgeladen...', 'signup.lightningAddress': 'Lightning-Adresse (optional)', 'signup.lightningPlaceholder': 'du@walletofsatoshi.com', 'signup.lightningHint': 'Fügen Sie eine Lightning-Adresse hinzu, um Zaps (Bitcoin-Trinkgelder) zu erhalten.', 'signup.nostrAddress': 'Nostr-Adresse', 'signup.nostrAddressPlaceholder': 'benutzername', 'signup.nostrAddressHint': 'Ihre Nostr-Adresse erleichtert das Finden Ihres Profils. Nur Kleinbuchstaben, Zahlen, _ und -.', 'signup.nostrAddressRequired': 'Bitte geben Sie eine Nostr-Adresse ein', 'signup.nostrAddressAvailable': 'Verfügbar!', 'signup.nostrAddressUnavailable': 'Bereits vergeben', 'signup.nostrAddressChecking': 'Wird überprüft...', 'signup.nostrAddressInvalid': 'Ungültiges Benutzernamenformat', 'signup.nostrAddressRegistering': 'Nostr-Adresse wird registriert...', 'signup.nostrAddressSuccess': 'Nostr-Adresse registriert!', 'signup.nostrAddressFailed': 'Nostr-Adresse konnte nicht registriert werden', 'signup.yourUsername': 'Ihr Benutzername', 'signup.yourBio': 'Ihre Bio erscheint hier', 'signup.createAccountBtn': 'Konto erstellen', 'signup.termsAgree': 'Mit der Erstellung eines Kontos akzeptieren Sie unsere', 'signup.and': 'und', 'signup.success': 'Konto erfolgreich erstellt!', 'signup.yourPrivateKey': 'Ihr privater Schlüssel (nsec)', 'signup.keyWarning': 'Dies ist die EINZIGE Möglichkeit, auf Ihr Konto zuzugreifen. Bewahren Sie ihn sicher auf!', 'signup.copyPrivateKey': 'Privaten Schlüssel kopieren', 'signup.howToUseKey': 'So verwenden Sie Ihren privaten Schlüssel', 'signup.continueToPlebs': 'Weiter zu Plebs',
         // Notifications
         'notifications.title': 'Benachrichtigungen', 'notifications.settings': 'Benachrichtigungseinstellungen', 'notifications.reactions': 'Reaktionen (Gefällt mir/Gefällt mir nicht)', 'notifications.replies': 'Kommentare & Antworten', 'notifications.zaps': 'Zaps', 'notifications.chatMentions': 'Live-Chat-Erwähnungen', 'notifications.newFollowers': 'Neue Abonnenten', 'notifications.syncNote': 'Einstellungen werden über Nostr zwischen Geräten synchronisiert',
         // Settings Modal
@@ -2110,7 +2131,7 @@ const translations = {
         // NSFW Warning Modal
         'nsfw.title': 'Altersverifikation erforderlich', 'nsfw.description': 'Dieser Inhalt ist als NSFW gekennzeichnet und kann Material für Erwachsene enthalten. Sie müssen 18 Jahre oder älter sein.', 'nsfw.confirm': 'Ich bin 18 Jahre oder älter', 'nsfw.remember': 'Nicht mehr fragen (Meine Wahl merken)',
         // Community Warning Modal
-        'communityWarning.title': 'Community-Warnung', 'communityWarning.description': 'Dieses Video wurde von der Community markiert und/oder stark negativ bewertet.', 'communityWarning.goBack': 'Zurück', 'communityWarning.viewAnyway': 'Trotzdem ansehen',
+        'communityWarning.title': 'Community-Warnung', 'communityWarning.description': 'Dieses Video wurde von der Community markiert und/oder stark negativ bewertet. Dies kann folgende Gründe haben:', 'communityWarning.reason1': 'Unangemessener Inhalt nicht korrekt als NSFW markiert', 'communityWarning.reason2': 'Neue oder verdächtige Benutzerdetails', 'communityWarning.reason3': 'Irreführende oder falsche Informationen', 'communityWarning.reason4': 'Spam oder Inhalte niedriger Qualität', 'communityWarning.reason5': 'Potenziell schädlicher oder illegaler Inhalt', 'communityWarning.proceed': 'Mit Vorsicht fortfahren.', 'communityWarning.goBack': 'Zurück', 'communityWarning.viewAnyway': 'Trotzdem ansehen',
         // Report Modal
         'report.title': 'Video melden', 'report.description': 'Wählen Sie einen Grund für die Meldung dieses Inhalts:', 'report.nudity': 'Nacktheit oder sexuelle Inhalte', 'report.nudityDesc': 'Enthält sexuelle oder explizite Bilder, die nicht als NSFW gekennzeichnet sind', 'report.hate': 'Hassrede oder Belästigung', 'report.hateDesc': 'Fördert Gewalt, Hass oder Belästigung', 'report.illegal': 'Illegaler Inhalt', 'report.illegalDesc': 'Inhalt, der möglicherweise gegen Gesetze verstößt', 'report.spam': 'Spam oder irreführend', 'report.spamDesc': 'Irreführender Inhalt, Betrug oder wiederholter Spam', 'report.impersonation': 'Identitätsdiebstahl', 'report.impersonationDesc': 'Gibt sich als jemand anderes aus', 'report.other': 'Sonstiges', 'report.otherDesc': 'Andere nicht aufgeführte Verstöße', 'report.cancel': 'Abbrechen', 'report.submit': 'Meldung absenden',
         // Share Modal
@@ -2124,7 +2145,7 @@ const translations = {
         // Video Page
         'video.views': 'Aufrufe', 'video.view': 'Aufruf', 'video.followers': 'Abonnenten', 'video.follower': 'Abonnent', 'video.follow': 'Abonnieren', 'video.unfollow': 'Deabonnieren', 'video.share': 'Teilen', 'video.comments': 'Kommentare', 'video.writeComment': 'Kommentar schreiben...', 'video.noComments': 'Noch keine Kommentare. Seien Sie der Erste!',
         // Toast Messages
-        'toast.loggedIn': 'Erfolgreich angemeldet!', 'toast.settingsSaved': 'Einstellungen gespeichert!', 'toast.languageChanged': 'Sprache geändert', 'toast.copied': 'Kopiert!',
+        'toast.loggedIn': 'Erfolgreich angemeldet!', 'toast.settingsSaved': 'Einstellungen gespeichert!', 'toast.settingsLocal': 'Einstellungen lokal gespeichert. Konnte nicht auf Nostr speichern.', 'toast.settingsLocalOnly': 'Einstellungen lokal gespeichert!', 'toast.settingsReset': 'Einstellungen zurückgesetzt!', 'toast.avatarUploaded': 'Avatar erfolgreich hochgeladen!', 'toast.profileUpdated': 'Profil erfolgreich aktualisiert!', 'toast.copied': 'In Zwischenablage kopiert!', 'toast.copyFailed': 'Kopieren fehlgeschlagen. Bitte manuell kopieren.', 'toast.installExtension': 'Bitte installieren Sie eine Nostr-Browsererweiterung wie Alby oder nos2x', 'toast.loginFailed': 'Anmeldung mit Erweiterung fehlgeschlagen. Bitte erneut versuchen.', 'toast.invalidKey': 'Ungültiger privater Schlüssel. Bitte überprüfen und erneut versuchen.', 'toast.enterKey': 'Bitte geben Sie Ihren privaten Schlüssel ein', 'toast.enterUsername': 'Bitte geben Sie einen Benutzernamen ein', 'toast.accountCreated': 'Willkommen bei Plebs! Sie sind jetzt angemeldet.', 'toast.keyCopied': 'Privater Schlüssel in Zwischenablage kopiert!', 'toast.unmuted': 'Benutzer entstummt', 'toast.unmuteFailed': 'Entstummen des Benutzers fehlgeschlagen', 'toast.selectImage': 'Bitte wählen Sie eine Bilddatei', 'toast.imageTooLarge': 'Bild muss kleiner als 5 MB sein', 'toast.avatarFailed': 'Avatar-Upload fehlgeschlagen. Bitte erneut versuchen.', 'toast.mustBeLoggedIn': 'Sie müssen angemeldet sein, um Ihr Profil zu bearbeiten', 'toast.enterDisplayName': 'Bitte geben Sie einen Anzeigenamen ein', 'toast.profileFailed': 'Profil speichern fehlgeschlagen. Bitte erneut versuchen.', 'toast.invalidBunker': 'Bitte geben Sie eine gültige Bunker-URL ein', 'toast.connectFailed': 'Verbindung fehlgeschlagen', 'toast.showingFiltered': 'Zeige gefilterten Inhalt', 'toast.reportSubmitted': 'Meldung erfolgreich gesendet', 'toast.draftSaved': 'Entwurf gespeichert! Sie können später von Meine Videos fortfahren.', 'toast.draftLoaded': 'Entwurf geladen. Schließen Sie Ihren Upload ab und veröffentlichen Sie.', 'toast.draftDeleted': 'Entwurf gelöscht', 'toast.languageChanged': 'Sprache geändert', 'toast.videoBlocked': 'Video blockiert und auf Nostr veröffentlicht', 'toast.waitForUpload': 'Bitte warten Sie, bis der Video-Upload abgeschlossen ist', 'toast.enterTitle': 'Bitte geben Sie einen Titel ein', 'toast.publishing': 'Video wird auf Nostr veröffentlicht...',
         // Time
         'time.justNow': 'gerade eben', 'time.secondAgo': 'vor 1 Sekunde', 'time.secondsAgo': 'vor {n} Sekunden', 'time.minuteAgo': 'vor 1 Minute', 'time.minutesAgo': 'vor {n} Minuten', 'time.hourAgo': 'vor 1 Stunde', 'time.hoursAgo': 'vor {n} Stunden', 'time.dayAgo': 'vor 1 Tag', 'time.daysAgo': 'vor {n} Tagen', 'time.weekAgo': 'vor 1 Woche', 'time.weeksAgo': 'vor {n} Wochen', 'time.monthAgo': 'vor 1 Monat', 'time.monthsAgo': 'vor {n} Monaten', 'time.yearAgo': 'vor 1 Jahr', 'time.yearsAgo': 'vor {n} Jahren',
         // Empty States
@@ -2564,7 +2585,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'Entrar com Chave Privada', 'privateKey.warning': 'Aviso de Segurança', 'privateKey.warningText': 'Sua chave privada será armazenada localmente no seu navegador. Para maior segurança, considere usar uma extensão de navegador ou Nostr Connect.', 'privateKey.label': 'Chave Privada (nsec ou hex)', 'privateKey.showKey': 'Mostrar chave', 'privateKey.login': 'Entrar', 'privateKey.placeholder': 'nsec1...',
         // Signup Modal
-        'signup.title': 'Criar Conta Nostr', 'signup.whatIsNostr': 'O que é Nostr?', 'signup.nostrExplanation': 'Nostr é um protocolo social descentralizado que dá a você a propriedade de sua identidade e conteúdo. Diferente das plataformas tradicionais, nenhuma empresa pode bani-lo, censurar seu conteúdo ou fechar sua conta.', 'signup.whyPlebs': 'Por que o Plebs usa Nostr?', 'signup.plebsExplanation': 'Plebs é construído no Nostr para fornecer compartilhamento de vídeos resistente à censura. Seus vídeos, comentários e interações são armazenados em uma rede de relays, não em nossos servidores.', 'signup.howItWorks': 'Como funciona', 'signup.keysIdentity': 'Suas chaves = Sua identidade.', 'signup.keysIdentityDesc': 'Você receberá uma chave privada (nsec) que prova que você é dono da sua conta.', 'signup.keepSecret': 'Mantenha sua chave privada em segredo!', 'signup.keepSecretDesc': 'É como uma senha que nunca pode ser redefinida.', 'signup.oneIdentity': 'Uma identidade, vários apps.', 'signup.oneIdentityDesc': 'Use a mesma conta no Damus, Primal, Amethyst e mais.', 'signup.gotIt': 'Entendi, vamos criar minha conta', 'signup.username': 'Nome de Usuário', 'signup.usernamePlaceholder': 'Escolha um nome de exibição', 'signup.about': 'Sobre (opcional)', 'signup.aboutPlaceholder': 'Conte aos outros sobre você', 'signup.profilePicture': 'Foto de Perfil (opcional)', 'signup.uploadPhoto': 'Enviar Foto', 'signup.remove': 'Remover', 'signup.avatarHint': 'Imagens quadradas funcionam melhor. Máx 5MB.', 'signup.uploading': 'Enviando...', 'signup.lightningAddress': 'Endereço Lightning (opcional)', 'signup.lightningPlaceholder': 'voce@walletofsatoshi.com', 'signup.lightningHint': 'Adicione um endereço Lightning para receber zaps (gorjetas em Bitcoin) em seus vídeos e perfil.', 'signup.yourUsername': 'Seu Nome de Usuário', 'signup.yourBio': 'Sua bio aparecerá aqui', 'signup.createAccountBtn': 'Criar Conta', 'signup.termsAgree': 'Ao criar uma conta, você concorda com nossos', 'signup.success': 'Conta Criada com Sucesso!', 'signup.yourPrivateKey': 'Sua Chave Privada (nsec)', 'signup.keyWarning': 'Esta é a ÚNICA forma de acessar sua conta. Guarde-a em segurança!', 'signup.copyPrivateKey': 'Copiar Chave Privada', 'signup.howToUseKey': 'Como usar sua chave privada', 'signup.continueToPlebs': 'Continuar para o Plebs',
+        'signup.title': 'Criar Conta Nostr', 'signup.whatIsNostr': 'O que é Nostr?', 'signup.nostrExplanation': 'Nostr é um protocolo social descentralizado que dá a você a propriedade de sua identidade e conteúdo. Diferente das plataformas tradicionais, nenhuma empresa pode bani-lo, censurar seu conteúdo ou fechar sua conta.', 'signup.whyPlebs': 'Por que o Plebs usa Nostr?', 'signup.plebsExplanation': 'Plebs é construído no Nostr para fornecer compartilhamento de vídeos resistente à censura. Seus vídeos, comentários e interações são armazenados em uma rede de relays, não em nossos servidores.', 'signup.howItWorks': 'Como funciona', 'signup.keysIdentity': 'Suas chaves = Sua identidade.', 'signup.keysIdentityDesc': 'Você receberá uma chave privada (nsec) que prova que você é dono da sua conta.', 'signup.keepSecret': 'Mantenha sua chave privada em segredo!', 'signup.keepSecretDesc': 'É como uma senha que nunca pode ser redefinida.', 'signup.oneIdentity': 'Uma identidade, vários apps.', 'signup.oneIdentityDesc': 'Use a mesma conta no Damus, Primal, Amethyst e mais.', 'signup.gotIt': 'Entendi, vamos criar minha conta', 'signup.username': 'Nome de Usuário', 'signup.usernamePlaceholder': 'Escolha um nome de exibição', 'signup.about': 'Sobre (opcional)', 'signup.aboutPlaceholder': 'Conte aos outros sobre você', 'signup.profilePicture': 'Foto de Perfil (opcional)', 'signup.uploadPhoto': 'Enviar Foto', 'signup.remove': 'Remover', 'signup.avatarHint': 'Imagens quadradas funcionam melhor. Máx 5MB.', 'signup.uploading': 'Enviando...', 'signup.lightningAddress': 'Endereço Lightning (opcional)', 'signup.lightningPlaceholder': 'voce@walletofsatoshi.com', 'signup.lightningHint': 'Adicione um endereço Lightning para receber zaps (gorjetas em Bitcoin) em seus vídeos e perfil.', 'signup.nostrAddress': 'Endereço Nostr', 'signup.nostrAddressPlaceholder': 'usuario', 'signup.nostrAddressHint': 'Seu endereço Nostr facilita encontrar seu perfil. Apenas letras minúsculas, números, _ e -.', 'signup.nostrAddressRequired': 'Por favor, insira um endereço Nostr', 'signup.nostrAddressAvailable': 'Disponível!', 'signup.nostrAddressUnavailable': 'Já está em uso', 'signup.nostrAddressChecking': 'Verificando...', 'signup.nostrAddressInvalid': 'Formato de nome de usuário inválido', 'signup.nostrAddressRegistering': 'Registrando seu endereço Nostr...', 'signup.nostrAddressSuccess': 'Endereço Nostr registrado!', 'signup.nostrAddressFailed': 'Não foi possível registrar o endereço Nostr', 'signup.yourUsername': 'Seu Nome de Usuário', 'signup.yourBio': 'Sua bio aparecerá aqui', 'signup.createAccountBtn': 'Criar Conta', 'signup.termsAgree': 'Ao criar uma conta, você concorda com nossos', 'signup.and': 'e', 'signup.success': 'Conta Criada com Sucesso!', 'signup.yourPrivateKey': 'Sua Chave Privada (nsec)', 'signup.keyWarning': 'Esta é a ÚNICA forma de acessar sua conta. Guarde-a em segurança!', 'signup.copyPrivateKey': 'Copiar Chave Privada', 'signup.howToUseKey': 'Como usar sua chave privada', 'signup.continueToPlebs': 'Continuar para o Plebs',
         // Notifications
         'notifications.title': 'Notificações', 'notifications.settings': 'Configurações de Notificações', 'notifications.reactions': 'Reações (curtir/não curtir)', 'notifications.replies': 'Comentários & Respostas', 'notifications.zaps': 'Zaps', 'notifications.chatMentions': 'Menções no Chat ao Vivo', 'notifications.newFollowers': 'Novos Seguidores', 'notifications.syncNote': 'Configurações são sincronizadas entre dispositivos via Nostr',
         // Settings Modal
@@ -2580,7 +2601,7 @@ const translations = {
         // NSFW Warning Modal
         'nsfw.title': 'Verificação de Idade Necessária', 'nsfw.description': 'Este conteúdo está marcado como NSFW e pode conter material adulto. Você deve ter 18 anos ou mais para ver este conteúdo.', 'nsfw.confirm': 'Eu tenho 18 anos ou mais', 'nsfw.remember': 'Não perguntar novamente (Lembrar minha escolha)',
         // Community Warning Modal
-        'communityWarning.title': 'Aviso da Comunidade', 'communityWarning.description': 'Este vídeo foi sinalizado e/ou teve muitos votos negativos da comunidade.', 'communityWarning.goBack': 'Voltar', 'communityWarning.viewAnyway': 'Ver Mesmo Assim',
+        'communityWarning.title': 'Aviso da Comunidade', 'communityWarning.description': 'Este vídeo foi sinalizado e/ou teve muitos votos negativos da comunidade. Isso pode ser devido a:', 'communityWarning.reason1': 'Conteúdo inadequado não marcado corretamente como NSFW', 'communityWarning.reason2': 'Detalhes de usuário novo ou suspeito', 'communityWarning.reason3': 'Informações enganosas ou falsas', 'communityWarning.reason4': 'Spam ou conteúdo de baixa qualidade', 'communityWarning.reason5': 'Conteúdo potencialmente prejudicial ou ilegal', 'communityWarning.proceed': 'Prossiga com cautela.', 'communityWarning.goBack': 'Voltar', 'communityWarning.viewAnyway': 'Ver Mesmo Assim',
         // Report Modal
         'report.title': 'Denunciar Vídeo', 'report.description': 'Selecione um motivo para denunciar este conteúdo:', 'report.nudity': 'Nudez ou Conteúdo Sexual', 'report.nudityDesc': 'Contém imagens sexuais ou explícitas não marcadas como NSFW', 'report.hate': 'Discurso de Ódio ou Assédio', 'report.hateDesc': 'Promove violência, ódio ou assédio', 'report.illegal': 'Conteúdo Ilegal', 'report.illegalDesc': 'Conteúdo que pode violar leis', 'report.spam': 'Spam ou Enganoso', 'report.spamDesc': 'Conteúdo enganoso, golpes ou spam repetitivo', 'report.impersonation': 'Falsificação de Identidade', 'report.impersonationDesc': 'Fingir ser outra pessoa', 'report.other': 'Outro', 'report.otherDesc': 'Outra violação não listada', 'report.cancel': 'Cancelar', 'report.submit': 'Enviar Denúncia',
         // Share Modal
@@ -2594,7 +2615,7 @@ const translations = {
         // Video Page
         'video.views': 'visualizações', 'video.view': 'visualização', 'video.followers': 'seguidores', 'video.follower': 'seguidor', 'video.follow': 'Seguir', 'video.unfollow': 'Deixar de Seguir', 'video.share': 'Compartilhar', 'video.comments': 'Comentários', 'video.writeComment': 'Escrever um comentário...', 'video.noComments': 'Ainda não há comentários. Seja o primeiro!',
         // Toast Messages
-        'toast.loggedIn': 'Login realizado!', 'toast.settingsSaved': 'Configurações salvas!', 'toast.languageChanged': 'Idioma alterado', 'toast.copied': 'Copiado!',
+        'toast.loggedIn': 'Login realizado!', 'toast.settingsSaved': 'Configurações salvas!', 'toast.settingsLocal': 'Configurações salvas localmente. Não foi possível salvar no Nostr.', 'toast.settingsLocalOnly': 'Configurações salvas localmente!', 'toast.settingsReset': 'Configurações redefinidas!', 'toast.avatarUploaded': 'Avatar enviado com sucesso!', 'toast.profileUpdated': 'Perfil atualizado com sucesso!', 'toast.copied': 'Copiado para a área de transferência!', 'toast.copyFailed': 'Falha ao copiar. Por favor, copie manualmente.', 'toast.installExtension': 'Por favor, instale uma extensão Nostr como Alby ou nos2x', 'toast.loginFailed': 'Falha no login com a extensão. Por favor, tente novamente.', 'toast.invalidKey': 'Chave privada inválida. Por favor, verifique e tente novamente.', 'toast.enterKey': 'Por favor, insira sua chave privada', 'toast.enterUsername': 'Por favor, insira um nome de usuário', 'toast.accountCreated': 'Bem-vindo ao Plebs! Você está conectado.', 'toast.keyCopied': 'Chave privada copiada para a área de transferência!', 'toast.unmuted': 'Usuário reativado', 'toast.unmuteFailed': 'Falha ao reativar usuário', 'toast.selectImage': 'Por favor, selecione um arquivo de imagem', 'toast.imageTooLarge': 'A imagem deve ter menos de 5MB', 'toast.avatarFailed': 'Falha ao enviar avatar. Por favor, tente novamente.', 'toast.mustBeLoggedIn': 'Você precisa estar logado para editar seu perfil', 'toast.enterDisplayName': 'Por favor, insira um nome de exibição', 'toast.profileFailed': 'Falha ao salvar perfil. Por favor, tente novamente.', 'toast.invalidBunker': 'Por favor, insira uma URL bunker válida', 'toast.connectFailed': 'Falha na conexão', 'toast.showingFiltered': 'Mostrando conteúdo filtrado', 'toast.reportSubmitted': 'Denúncia enviada com sucesso', 'toast.draftSaved': 'Rascunho salvo! Você pode continuar depois em Meus Vídeos.', 'toast.draftLoaded': 'Rascunho carregado. Complete seu upload e publique.', 'toast.draftDeleted': 'Rascunho excluído', 'toast.languageChanged': 'Idioma alterado', 'toast.videoBlocked': 'Vídeo bloqueado e publicado no Nostr', 'toast.waitForUpload': 'Por favor, aguarde o upload do vídeo terminar', 'toast.enterTitle': 'Por favor, insira um título', 'toast.publishing': 'Publicando vídeo no Nostr...',
         // Time
         'time.justNow': 'agora mesmo', 'time.secondAgo': 'há 1 segundo', 'time.secondsAgo': 'há {n} segundos', 'time.minuteAgo': 'há 1 minuto', 'time.minutesAgo': 'há {n} minutos', 'time.hourAgo': 'há 1 hora', 'time.hoursAgo': 'há {n} horas', 'time.dayAgo': 'há 1 dia', 'time.daysAgo': 'há {n} dias', 'time.weekAgo': 'há 1 semana', 'time.weeksAgo': 'há {n} semanas', 'time.monthAgo': 'há 1 mês', 'time.monthsAgo': 'há {n} meses', 'time.yearAgo': 'há 1 ano', 'time.yearsAgo': 'há {n} anos',
         // Empty States
@@ -3066,7 +3087,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'Ваш приватный ключ', 'privateKey.warning': 'ВАЖНО: Сохраните это в безопасном месте. Если вы потеряете этот ключ, вы потеряете доступ к аккаунту. Никогда никому его не показывайте!', 'privateKey.show': 'Показать приватный ключ', 'privateKey.hide': 'Скрыть приватный ключ', 'privateKey.copy': 'Копировать', 'privateKey.saved': 'Я сохранил(а) свой ключ', 'privateKey.yourPublicKey': 'Ваш публичный ключ (npub):', 'privateKey.yourPrivateKey': 'Ваш приватный ключ (nsec):',
         // Signup Modal
-        'signup.title': 'Создать аккаунт Nostr', 'signup.whatIsNostr': 'Что такое Nostr?', 'signup.nostrDescription': 'Nostr — это децентрализованный протокол, который даёт вам контроль над вашей идентичностью и данными. Нет центрального сервера — ваш аккаунт — это криптографическая пара ключей.', 'signup.whyNostr': 'Почему Nostr?', 'signup.benefit1': 'Владейте своей идентичностью', 'signup.benefit2': 'Нет цензуры', 'signup.benefit3': 'Портативность между платформами', 'signup.createNew': 'Создать новый аккаунт', 'signup.haveAccount': 'Уже есть аккаунт?', 'signup.login': 'Войти', 'signup.createButton': 'Создать аккаунт', 'signup.generating': 'Генерация ключей...', 'signup.displayName': 'Имя', 'signup.displayNamePlaceholder': 'Введите имя', 'signup.username': 'Имя пользователя', 'signup.usernamePlaceholder': 'Введите имя пользователя',
+        'signup.title': 'Создать аккаунт Nostr', 'signup.whatIsNostr': 'Что такое Nostr?', 'signup.nostrDescription': 'Nostr — это децентрализованный протокол, который даёт вам контроль над вашей идентичностью и данными. Нет центрального сервера — ваш аккаунт — это криптографическая пара ключей.', 'signup.whyNostr': 'Почему Nostr?', 'signup.benefit1': 'Владейте своей идентичностью', 'signup.benefit2': 'Нет цензуры', 'signup.benefit3': 'Портативность между платформами', 'signup.createNew': 'Создать новый аккаунт', 'signup.haveAccount': 'Уже есть аккаунт?', 'signup.login': 'Войти', 'signup.createButton': 'Создать аккаунт', 'signup.generating': 'Генерация ключей...', 'signup.displayName': 'Имя', 'signup.displayNamePlaceholder': 'Введите имя', 'signup.username': 'Имя пользователя', 'signup.usernamePlaceholder': 'Введите имя пользователя', 'signup.about': 'О себе (необязательно)', 'signup.profilePicture': 'Фото профиля (необязательно)', 'signup.lightningAddress': 'Lightning адрес (необязательно)', 'signup.nostrAddress': 'Nostr адрес', 'signup.nostrAddressPlaceholder': 'имяпользователя', 'signup.nostrAddressHint': 'Ваш Nostr адрес упрощает поиск вашего профиля. Только строчные буквы, цифры, _ и -.', 'signup.nostrAddressRequired': 'Пожалуйста, введите Nostr адрес', 'signup.nostrAddressAvailable': 'Доступно!', 'signup.nostrAddressUnavailable': 'Уже занято', 'signup.nostrAddressChecking': 'Проверка...', 'signup.nostrAddressInvalid': 'Неверный формат имени пользователя', 'signup.nostrAddressRegistering': 'Регистрация вашего Nostr адреса...', 'signup.nostrAddressSuccess': 'Nostr адрес зарегистрирован!', 'signup.nostrAddressFailed': 'Не удалось зарегистрировать Nostr адрес', 'signup.createAccountBtn': 'Создать аккаунт', 'signup.termsAgree': 'Создавая аккаунт, вы соглашаетесь с нашими', 'signup.and': 'и', 'signup.success': 'Аккаунт успешно создан!', 'signup.yourPrivateKey': 'Ваш приватный ключ (nsec)', 'signup.keyWarning': 'Это ЕДИНСТВЕННЫЙ способ получить доступ к вашему аккаунту. Сохраните его в безопасном месте!', 'signup.copyPrivateKey': 'Копировать приватный ключ', 'signup.howToUseKey': 'Как использовать ваш приватный ключ', 'signup.continueToPlebs': 'Продолжить на Plebs', 'signup.step1': 'Сохраните надёжно:', 'signup.step1Desc': 'Храните nsec в менеджере паролей, запишите или сохраните в зашифрованном файле. Никогда не делитесь публично!', 'signup.step2': 'Для повторного входа:', 'signup.step2Desc': 'Нажмите "Приватный ключ" на экране входа и вставьте nsec. Работает как пароль.', 'signup.step3': 'Использование в других приложениях:', 'signup.step3Desc': 'Ваш nsec работает во всех Nostr приложениях - Damus, Primal, Amethyst и сотнях других!', 'signup.step4': 'Рассмотрите приложение для подписи:', 'signup.step4Desc': 'Для большей безопасности используйте приложения как Amber (Android) или расширение браузера Alby.',
         // Notifications
         'notifications.title': 'Уведомления', 'notifications.empty': 'Пока нет уведомлений', 'notifications.viewAll': 'Смотреть все уведомления', 'notifications.markAllRead': 'Отметить все как прочитанные', 'notifications.settings': 'Настройки уведомлений', 'notifications.loading': 'Загрузка уведомлений...', 'notifications.zap': 'отправил(а) вам зап', 'notifications.like': 'понравился ваш контент', 'notifications.comment': 'оставил(а) комментарий', 'notifications.follow': 'подписался(ась) на вас', 'notifications.repost': 'сделал(а) репост', 'notifications.mention': 'упомянул(а) вас',
         // Settings Modal
@@ -3083,6 +3104,7 @@ const translations = {
         'nsfw.title': 'Внимание: контент для взрослых', 'nsfw.warning': 'Этот контент отмечен как NSFW (Not Safe For Work) и может содержать материалы для взрослых.', 'nsfw.confirm': 'Подтвердите свой возраст', 'nsfw.confirmAge': 'Мне 18 лет или больше', 'nsfw.cancel': 'Назад', 'nsfw.continue': 'Продолжить', 'nsfw.dontShowAgain': 'Не показывать это предупреждение',
         // Community Warning Modal
         'community.title': 'Правила сообщества', 'community.warning': 'Перед продолжением ознакомьтесь с правилами нашего сообщества.', 'community.guidelines': 'Будьте уважительны и соблюдайте стандарты сообщества.', 'community.accept': 'Принимаю', 'community.decline': 'Отклоняю',
+        'communityWarning.title': 'Предупреждение сообщества', 'communityWarning.description': 'Это видео было отмечено и/или имеет много негативных оценок от сообщества. Это может быть связано с:', 'communityWarning.reason1': 'Неприемлемый контент не отмечен как NSFW', 'communityWarning.reason2': 'Новый или подозрительный профиль пользователя', 'communityWarning.reason3': 'Вводящая в заблуждение или ложная информация', 'communityWarning.reason4': 'Спам или низкокачественный контент', 'communityWarning.reason5': 'Потенциально опасный или незаконный контент', 'communityWarning.proceed': 'Продолжайте с осторожностью.', 'communityWarning.goBack': 'Назад', 'communityWarning.viewAnyway': 'Всё равно посмотреть',
         // Report Modal
         'report.title': 'Пожаловаться на контент', 'report.reason': 'Причина жалобы', 'report.selectReason': 'Выберите причину', 'report.spam': 'Спам или вводящий в заблуждение', 'report.inappropriate': 'Неприемлемый контент', 'report.violence': 'Насилие или опасный контент', 'report.copyright': 'Нарушение авторских прав', 'report.other': 'Другое', 'report.details': 'Дополнительно', 'report.detailsPlaceholder': 'Опишите проблему подробнее...', 'report.submit': 'Отправить жалобу', 'report.cancel': 'Отмена',
         // Share Modal
@@ -3096,7 +3118,7 @@ const translations = {
         // Video Page
         'video.views': 'просмотров', 'video.like': 'Нравится', 'video.dislike': 'Не нравится', 'video.share': 'Поделиться', 'video.save': 'Сохранить', 'video.report': 'Пожаловаться', 'video.follow': 'Подписаться', 'video.unfollow': 'Отписаться', 'video.subscribe': 'Подписаться', 'video.subscribed': 'Подписан(а)', 'video.comments': 'Комментарии', 'video.addComment': 'Добавить комментарий...', 'video.reply': 'Ответить', 'video.replies': 'ответов', 'video.loadMore': 'Загрузить ещё', 'video.noComments': 'Комментариев пока нет. Будьте первым!', 'video.zap': 'Зап', 'video.zapAmount': 'Сумма зап (сатоши)', 'video.sendZap': 'Отправить зап', 'video.boost': 'Буст', 'video.description': 'Описание', 'video.showMore': 'Показать больше', 'video.showLess': 'Показать меньше', 'video.publishedOn': 'Опубликовано',
         // Toast Messages
-        'toast.loggedIn': 'Вход выполнен!', 'toast.loggedOut': 'Выход выполнен', 'toast.settingsSaved': 'Настройки сохранены!', 'toast.settingsReset': 'Настройки сброшены', 'toast.videoUploaded': 'Видео загружено!', 'toast.videoDeleted': 'Видео удалено', 'toast.profileUpdated': 'Профиль обновлён!', 'toast.linkCopied': 'Ссылка скопирована!', 'toast.embedCopied': 'Код скопирован!', 'toast.zapSent': 'Зап отправлен!', 'toast.followed': 'Вы подписались!', 'toast.unfollowed': 'Вы отписались', 'toast.reported': 'Жалоба отправлена', 'toast.saved': 'Сохранено!', 'toast.error': 'Произошла ошибка', 'toast.networkError': 'Ошибка сети. Попробуйте снова.', 'toast.uploadError': 'Ошибка загрузки. Попробуйте снова.', 'toast.languageChanged': 'Язык изменён', 'toast.commentPosted': 'Комментарий опубликован', 'toast.keyCopied': 'Ключ скопирован!',
+        'toast.loggedIn': 'Вход выполнен!', 'toast.loggedOut': 'Выход выполнен', 'toast.settingsSaved': 'Настройки сохранены!', 'toast.settingsLocal': 'Настройки сохранены локально. Не удалось сохранить в Nostr.', 'toast.settingsLocalOnly': 'Настройки сохранены локально!', 'toast.settingsReset': 'Настройки сброшены', 'toast.avatarUploaded': 'Аватар загружен!', 'toast.videoUploaded': 'Видео загружено!', 'toast.videoDeleted': 'Видео удалено', 'toast.profileUpdated': 'Профиль обновлён!', 'toast.copied': 'Скопировано в буфер обмена!', 'toast.copyFailed': 'Ошибка копирования. Скопируйте вручную.', 'toast.linkCopied': 'Ссылка скопирована!', 'toast.embedCopied': 'Код скопирован!', 'toast.installExtension': 'Установите расширение Nostr, например Alby или nos2x', 'toast.loginFailed': 'Ошибка входа. Попробуйте снова.', 'toast.invalidKey': 'Неверный приватный ключ. Проверьте и попробуйте снова.', 'toast.enterKey': 'Введите приватный ключ', 'toast.enterUsername': 'Введите имя пользователя', 'toast.accountCreated': 'Добро пожаловать в Plebs! Вы вошли в систему.', 'toast.keyCopied': 'Ключ скопирован!', 'toast.unmuted': 'Пользователь разблокирован', 'toast.unmuteFailed': 'Не удалось разблокировать пользователя', 'toast.selectImage': 'Выберите файл изображения', 'toast.imageTooLarge': 'Изображение должно быть менее 5 МБ', 'toast.avatarFailed': 'Ошибка загрузки аватара. Попробуйте снова.', 'toast.mustBeLoggedIn': 'Войдите, чтобы редактировать профиль', 'toast.enterDisplayName': 'Введите отображаемое имя', 'toast.profileFailed': 'Ошибка сохранения профиля. Попробуйте снова.', 'toast.invalidBunker': 'Введите действительный URL bunker', 'toast.connectFailed': 'Ошибка подключения', 'toast.showingFiltered': 'Показан отфильтрованный контент', 'toast.reportSubmitted': 'Жалоба отправлена', 'toast.draftSaved': 'Черновик сохранён! Продолжите позже из Моих видео.', 'toast.draftLoaded': 'Черновик загружен. Завершите загрузку и опубликуйте.', 'toast.draftDeleted': 'Черновик удалён', 'toast.zapSent': 'Зап отправлен!', 'toast.followed': 'Вы подписались!', 'toast.unfollowed': 'Вы отписались', 'toast.reported': 'Жалоба отправлена', 'toast.saved': 'Сохранено!', 'toast.error': 'Произошла ошибка', 'toast.networkError': 'Ошибка сети. Попробуйте снова.', 'toast.uploadError': 'Ошибка загрузки. Попробуйте снова.', 'toast.languageChanged': 'Язык изменён', 'toast.videoBlocked': 'Видео заблокировано и опубликовано в Nostr', 'toast.waitForUpload': 'Дождитесь завершения загрузки видео', 'toast.enterTitle': 'Введите заголовок', 'toast.publishing': 'Публикация видео в Nostr...', 'toast.commentPosted': 'Комментарий опубликован',
         // Time
         'time.justNow': 'только что', 'time.secondAgo': '1 сек. назад', 'time.secondsAgo': '{n} сек. назад', 'time.minuteAgo': '1 мин. назад', 'time.minutesAgo': '{n} мин. назад', 'time.hourAgo': '1 ч. назад', 'time.hoursAgo': '{n} ч. назад', 'time.dayAgo': '1 дн. назад', 'time.daysAgo': '{n} дн. назад', 'time.weekAgo': '1 нед. назад', 'time.weeksAgo': '{n} нед. назад', 'time.monthAgo': '1 мес. назад', 'time.monthsAgo': '{n} мес. назад', 'time.yearAgo': '1 г. назад', 'time.yearsAgo': '{n} г. назад',
         // Empty States
@@ -3568,7 +3590,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': '您的私钥', 'privateKey.warning': '重要：请将此保存在安全的地方。如果您丢失此密钥，您将失去对账户的访问权限。切勿与任何人分享！', 'privateKey.show': '显示私钥', 'privateKey.hide': '隐藏私钥', 'privateKey.copy': '复制', 'privateKey.saved': '我已保存我的密钥', 'privateKey.yourPublicKey': '您的公钥 (npub)：', 'privateKey.yourPrivateKey': '您的私钥 (nsec)：',
         // Signup Modal
-        'signup.title': '创建 Nostr 账户', 'signup.whatIsNostr': '什么是 Nostr？', 'signup.nostrDescription': 'Nostr 是一个去中心化协议，让您掌控自己的身份和数据。没有中央服务器 - 您的账户就是一对加密密钥。', 'signup.whyNostr': '为什么选择 Nostr？', 'signup.benefit1': '掌控您的身份', 'signup.benefit2': '无审查', 'signup.benefit3': '跨平台可移植', 'signup.createNew': '创建新账户', 'signup.haveAccount': '已有账户？', 'signup.login': '登录', 'signup.createButton': '创建账户', 'signup.generating': '正在生成密钥...', 'signup.displayName': '显示名称', 'signup.displayNamePlaceholder': '输入显示名称', 'signup.username': '用户名', 'signup.usernamePlaceholder': '输入用户名',
+        'signup.title': '创建 Nostr 账户', 'signup.whatIsNostr': '什么是 Nostr？', 'signup.nostrDescription': 'Nostr 是一个去中心化协议，让您掌控自己的身份和数据。没有中央服务器 - 您的账户就是一对加密密钥。', 'signup.whyNostr': '为什么选择 Nostr？', 'signup.benefit1': '掌控您的身份', 'signup.benefit2': '无审查', 'signup.benefit3': '跨平台可移植', 'signup.createNew': '创建新账户', 'signup.haveAccount': '已有账户？', 'signup.login': '登录', 'signup.createButton': '创建账户', 'signup.generating': '正在生成密钥...', 'signup.displayName': '显示名称', 'signup.displayNamePlaceholder': '输入显示名称', 'signup.username': '用户名', 'signup.usernamePlaceholder': '输入用户名', 'signup.about': '简介（可选）', 'signup.profilePicture': '头像（可选）', 'signup.lightningAddress': '闪电地址（可选）', 'signup.nostrAddress': 'Nostr 地址', 'signup.nostrAddressPlaceholder': '用户名', 'signup.nostrAddressHint': '您的 Nostr 地址使您的个人资料更容易被找到。仅限小写字母、数字、_ 和 -。', 'signup.nostrAddressRequired': '请输入 Nostr 地址', 'signup.nostrAddressAvailable': '可用！', 'signup.nostrAddressUnavailable': '已被使用', 'signup.nostrAddressChecking': '检查中...', 'signup.nostrAddressInvalid': '用户名格式无效', 'signup.nostrAddressRegistering': '正在注册您的 Nostr 地址...', 'signup.nostrAddressSuccess': 'Nostr 地址已注册！', 'signup.nostrAddressFailed': '无法注册 Nostr 地址', 'signup.createAccountBtn': '创建账户', 'signup.termsAgree': '创建账户即表示您同意我们的', 'signup.and': '和', 'signup.success': '账户创建成功！', 'signup.yourPrivateKey': '您的私钥 (nsec)', 'signup.keyWarning': '这是访问您账户的唯一方式。请妥善保管！', 'signup.copyPrivateKey': '复制私钥', 'signup.howToUseKey': '如何使用您的私钥', 'signup.continueToPlebs': '继续前往 Plebs', 'signup.step1': '安全保存：', 'signup.step1Desc': '将 nsec 保存在密码管理器中，写下来或保存在加密文件中。切勿公开分享！', 'signup.step2': '再次登录：', 'signup.step2Desc': '点击登录屏幕上的"私钥"并粘贴您的 nsec。它就像密码一样工作。', 'signup.step3': '在其他应用中使用：', 'signup.step3Desc': '您的 nsec 适用于所有 Nostr 应用 - Damus、Primal、Amethyst 等数百个！', 'signup.step4': '考虑使用签名应用：', 'signup.step4Desc': '为了更安全，使用 Amber（Android）或 Alby 等浏览器扩展来管理您的密钥。',
         // Notifications
         'notifications.title': '通知', 'notifications.empty': '暂无通知', 'notifications.viewAll': '查看全部通知', 'notifications.markAllRead': '全部标记为已读', 'notifications.settings': '通知设置', 'notifications.loading': '加载通知中...', 'notifications.zap': '给您发送了打赏', 'notifications.like': '喜欢了您的内容', 'notifications.comment': '评论了', 'notifications.follow': '关注了您', 'notifications.repost': '转发了', 'notifications.mention': '提到了您',
         // Settings Modal
@@ -3581,10 +3603,13 @@ const translations = {
         'goLive.title': '开始直播', 'goLive.streamTitle': '直播标题', 'goLive.streamTitlePlaceholder': '输入直播标题', 'goLive.description': '描述', 'goLive.descriptionPlaceholder': '描述您的直播...', 'goLive.category': '分类', 'goLive.selectCategory': '选择分类', 'goLive.tags': '标签', 'goLive.tagsPlaceholder': '添加标签，用逗号分隔', 'goLive.startStream': '开始直播', 'goLive.streamKey': '直播密钥', 'goLive.streamUrl': '直播 URL', 'goLive.copy': '复制', 'goLive.hideKey': '隐藏密钥', 'goLive.showKey': '显示密钥', 'goLive.connecting': '连接中...', 'goLive.live': '直播中', 'goLive.offline': '离线', 'goLive.viewers': '观众', 'goLive.endStream': '结束直播', 'goLive.nsfw': 'NSFW 内容', 'goLive.nsfwDesc': '标记为成人内容', 'goLive.thumbnail': '直播缩略图', 'goLive.thumbnailDesc': '上传缩略图',
         // Edit Stream Modal
         'editStream.title': '编辑直播', 'editStream.save': '保存更改',
+        // Live Stream
+        'live.live': '直播', 'live.scheduled': '已预约', 'live.ended': '直播已结束', 'live.viewers': '观众', 'live.viewer': '观众', 'live.chat': '直播聊天', 'live.sendMessage': '发送消息...', 'live.send': '发送', 'live.goalReached': '目标达成！', 'live.goalProgress': '目标的 {percent}%',
         // NSFW Warning Modal
         'nsfw.title': '成人内容警告', 'nsfw.warning': '此内容已被标记为 NSFW（工作场所不宜），可能包含成人内容。', 'nsfw.confirm': '确认您的年龄', 'nsfw.confirmAge': '我已年满 18 岁', 'nsfw.cancel': '返回', 'nsfw.continue': '继续', 'nsfw.dontShowAgain': '不再显示此警告',
         // Community Warning Modal
         'community.title': '社区准则', 'community.warning': '继续前请查看我们的社区准则。', 'community.guidelines': '请尊重他人并遵循社区标准。', 'community.accept': '接受', 'community.decline': '拒绝',
+        'communityWarning.title': '社区警告', 'communityWarning.description': '此视频已被社区标记和/或大量差评。这可能是由于:', 'communityWarning.reason1': '不当内容未正确标记为 NSFW', 'communityWarning.reason2': '新用户或可疑的用户信息', 'communityWarning.reason3': '误导性或虚假信息', 'communityWarning.reason4': '垃圾信息或低质量内容', 'communityWarning.reason5': '可能有害或非法的内容', 'communityWarning.proceed': '请谨慎继续。', 'communityWarning.goBack': '返回', 'communityWarning.viewAnyway': '仍然查看',
         // Report Modal
         'report.title': '举报内容', 'report.reason': '举报原因', 'report.selectReason': '选择原因', 'report.spam': '垃圾信息或误导', 'report.inappropriate': '不当内容', 'report.violence': '暴力或危险内容', 'report.copyright': '版权侵犯', 'report.other': '其他', 'report.details': '详细信息', 'report.detailsPlaceholder': '提供更多详情...', 'report.submit': '提交举报', 'report.cancel': '取消',
         // Share Modal
@@ -3598,7 +3623,7 @@ const translations = {
         // Video Page
         'video.views': '次观看', 'video.like': '点赞', 'video.dislike': '踩', 'video.share': '分享', 'video.save': '保存', 'video.report': '举报', 'video.follow': '关注', 'video.unfollow': '取消关注', 'video.subscribe': '订阅', 'video.subscribed': '已订阅', 'video.comments': '评论', 'video.addComment': '添加评论...', 'video.reply': '回复', 'video.replies': '条回复', 'video.loadMore': '加载更多', 'video.noComments': '暂无评论。成为第一个评论的人！', 'video.zap': '打赏', 'video.zapAmount': '打赏金额 (聪)', 'video.sendZap': '发送打赏', 'video.boost': '推广', 'video.description': '描述', 'video.showMore': '展开', 'video.showLess': '收起', 'video.publishedOn': '发布于',
         // Toast Messages
-        'toast.loggedIn': '登录成功！', 'toast.loggedOut': '已登出', 'toast.settingsSaved': '设置已保存！', 'toast.settingsReset': '设置已重置', 'toast.videoUploaded': '视频已上传！', 'toast.videoDeleted': '视频已删除', 'toast.profileUpdated': '个人资料已更新！', 'toast.linkCopied': '链接已复制！', 'toast.embedCopied': '嵌入代码已复制！', 'toast.zapSent': '打赏已发送！', 'toast.followed': '已关注！', 'toast.unfollowed': '已取消关注', 'toast.reported': '举报已提交', 'toast.saved': '已保存！', 'toast.error': '发生错误', 'toast.networkError': '网络错误。请重试。', 'toast.uploadError': '上传失败。请重试。', 'toast.languageChanged': '语言已更改', 'toast.commentPosted': '评论已发布', 'toast.keyCopied': '密钥已复制！',
+        'toast.loggedIn': '登录成功！', 'toast.loggedOut': '已登出', 'toast.settingsSaved': '设置已保存！', 'toast.settingsLocal': '设置已保存到本地。无法保存到 Nostr。', 'toast.settingsLocalOnly': '设置已保存到本地！', 'toast.settingsReset': '设置已重置', 'toast.avatarUploaded': '头像上传成功！', 'toast.videoUploaded': '视频已上传！', 'toast.videoDeleted': '视频已删除', 'toast.profileUpdated': '个人资料已更新！', 'toast.copied': '已复制到剪贴板！', 'toast.copyFailed': '复制失败。请手动复制。', 'toast.linkCopied': '链接已复制！', 'toast.embedCopied': '嵌入代码已复制！', 'toast.installExtension': '请安装 Nostr 浏览器扩展，如 Alby 或 nos2x', 'toast.loginFailed': '登录失败。请重试。', 'toast.invalidKey': '私钥无效。请检查后重试。', 'toast.enterKey': '请输入您的私钥', 'toast.enterUsername': '请输入用户名', 'toast.accountCreated': '欢迎来到 Plebs！您已登录。', 'toast.keyCopied': '密钥已复制！', 'toast.unmuted': '用户已取消静音', 'toast.unmuteFailed': '取消静音失败', 'toast.selectImage': '请选择图片文件', 'toast.imageTooLarge': '图片必须小于 5MB', 'toast.avatarFailed': '头像上传失败。请重试。', 'toast.mustBeLoggedIn': '请先登录才能编辑个人资料', 'toast.enterDisplayName': '请输入显示名称', 'toast.profileFailed': '保存个人资料失败。请重试。', 'toast.invalidBunker': '请输入有效的 bunker URL', 'toast.connectFailed': '连接失败', 'toast.showingFiltered': '正在显示筛选内容', 'toast.reportSubmitted': '举报已提交', 'toast.draftSaved': '草稿已保存！您可以稍后从我的视频继续。', 'toast.draftLoaded': '草稿已加载。完成上传并发布。', 'toast.draftDeleted': '草稿已删除', 'toast.zapSent': '打赏已发送！', 'toast.followed': '已关注！', 'toast.unfollowed': '已取消关注', 'toast.reported': '举报已提交', 'toast.saved': '已保存！', 'toast.error': '发生错误', 'toast.networkError': '网络错误。请重试。', 'toast.uploadError': '上传失败。请重试。', 'toast.languageChanged': '语言已更改', 'toast.videoBlocked': '视频已屏蔽并发布到 Nostr', 'toast.waitForUpload': '请等待视频上传完成', 'toast.enterTitle': '请输入标题', 'toast.publishing': '正在发布视频到 Nostr...', 'toast.commentPosted': '评论已发布',
         // Time
         'time.justNow': '刚刚', 'time.secondAgo': '1 秒前', 'time.secondsAgo': '{n} 秒前', 'time.minuteAgo': '1 分钟前', 'time.minutesAgo': '{n} 分钟前', 'time.hourAgo': '1 小时前', 'time.hoursAgo': '{n} 小时前', 'time.dayAgo': '1 天前', 'time.daysAgo': '{n} 天前', 'time.weekAgo': '1 周前', 'time.weeksAgo': '{n} 周前', 'time.monthAgo': '1 个月前', 'time.monthsAgo': '{n} 个月前', 'time.yearAgo': '1 年前', 'time.yearsAgo': '{n} 年前',
         // Empty States
@@ -3644,6 +3669,54 @@ const translations = {
         'warning.webmFormat': '注意：您的浏览器将输出WebM格式（可能无法在iOS上播放）。如需iOS兼容的MP4，请在Windows/Mac上使用Chrome。',
         // New Footer
         'footer.lastUpdated': '最后更新: 2024年12月',
+        // DMCA Page
+        'dmca.title': 'DMCA 与内容政策',
+        'dmca.lastUpdated': '最后更新: 2024年12月',
+        'dmca.architectureTitle': '了解 Plebs 架构',
+        'dmca.architectureDesc': 'Plebs 是一个去中心化视频平台界面，其运作方式与传统视频托管服务不同。了解我们平台上的内容是如何分发的很重要：',
+        'dmca.architectureItem1': 'Plebs 不托管任何视频或图片内容。',
+        'dmca.architectureItem1Desc': '我们是一个客户端/界面，展示存储在其他地方的内容。',
+        'dmca.architectureItem2': '所有媒体文件（视频、图片、缩略图）存储在由第三方运营的独立 Blossom 服务器上。',
+        'dmca.architectureItem3': '视频元数据（标题、描述等）发布到独立运营的 Nostr 中继。',
+        'dmca.architectureItem4': 'Plebs 只是通过用户友好的界面聚合和显示这些分布式内容。',
+        'dmca.filingTitle': '提交 DMCA 申诉',
+        'dmca.filingDesc': '由于 Plebs 不托管内容，我们无法直接删除侵权材料。要处理版权侵权，您必须联系相应的方：',
+        'dmca.forVideoTitle': '1. 针对视频/图片内容',
+        'dmca.forVideoDesc': '媒体文件存储在 Blossom 服务器上。您需要：',
+        'dmca.forVideoItem1': '确定哪个 Blossom 服务器托管该内容（URL 会显示）',
+        'dmca.forVideoItem2': '直接联系 Blossom 服务器运营商提交 DMCA 删除请求',
+        'dmca.forVideoItem3': '每个 Blossom 服务器独立运营，有自己的政策',
+        'dmca.forMetadataTitle': '2. 针对元数据/描述',
+        'dmca.forMetadataDesc': '如果侵权内容在视频标题、描述或其他元数据中：',
+        'dmca.forMetadataItem1': '此信息存储在 Nostr 中继上',
+        'dmca.forMetadataItem2': '联系内容出现的特定 Nostr 中继运营商',
+        'dmca.forMetadataItem3': '由于 Nostr 的分布式特性，多个中继可能存储相同数据',
+        'dmca.whatWeCanDoTitle': 'Plebs 能做什么',
+        'dmca.whatWeCanDoDesc': '虽然我们不托管内容，但我们可以：',
+        'dmca.whatWeCanDoItem1': '帮助您确定哪些 Blossom 服务器或中继托管特定内容',
+        'dmca.whatWeCanDoItem2': '将内容添加到本地屏蔽列表，使其不在我们的界面中显示（注意：这仅影响 plebs.app，不影响其他 Nostr 客户端）',
+        'dmca.whatWeCanDoItem3': '提供如何联系相应服务运营商的指导',
+        'dmca.toRequestAssistance': '要请求协助，请联系我们并提供：',
+        'dmca.assistanceItem1': '侵权内容的 URL 或标识符',
+        'dmca.assistanceItem2': '您的版权所有权证明',
+        'dmca.assistanceItem3': '受版权保护作品的描述',
+        'dmca.blossomOperatorsTitle': 'Blossom 服务器运营商',
+        'dmca.blossomOperatorsDesc': '如果您运营 Blossom 服务器并收到 DMCA 删除请求，您有责任根据您所在司法管辖区的法律进行处理。',
+        'dmca.blossomOperatorsLink': '有关已知 Blossom 服务器列表，请参阅 Blossom 项目文档。',
+        'dmca.considerationsTitle': '重要考虑事项',
+        'dmca.considerationsItem1': '去中心化：',
+        'dmca.considerationsItem1Desc': '由于 Nostr 和 Blossom 的去中心化特性，可能无法从所有来源完全删除内容。',
+        'dmca.considerationsItem2': '多个副本：',
+        'dmca.considerationsItem2Desc': '内容可能存在于多个 Blossom 服务器和中继上。您可能需要联系多个运营商。',
+        'dmca.considerationsItem3': '基于哈希的存储：',
+        'dmca.considerationsItem3Desc': 'Blossom 使用内容寻址存储。相同的文件在任何服务器上都有相同的哈希值。',
+        'dmca.considerationsItem4': '无中央控制：',
+        'dmca.considerationsItem4Desc': 'Plebs 和任何单一实体都没有能力从整个网络中删除内容。',
+        'dmca.counterNotificationTitle': '反通知',
+        'dmca.counterNotificationDesc': '如果您认为您的内容被错误地从 Blossom 服务器删除，您应该直接联系该服务器运营商提交反通知。',
+        'dmca.contactTitle': '联系方式',
+        'dmca.contactDesc': '如有关于此政策的问题或需要帮助识别内容托管方，请',
+        'dmca.contactLink': '联系我们',
 
         // Analytics
         'analytics.title': '频道分析',
@@ -3906,7 +3979,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'あなたの秘密鍵', 'privateKey.warning': '重要：これを安全な場所に保存してください。この鍵を紛失すると、アカウントにアクセスできなくなります。絶対に誰にも共有しないでください！', 'privateKey.show': '秘密鍵を表示', 'privateKey.hide': '秘密鍵を隠す', 'privateKey.copy': 'コピー', 'privateKey.saved': '鍵を保存しました', 'privateKey.yourPublicKey': 'あなたの公開鍵 (npub):', 'privateKey.yourPrivateKey': 'あなたの秘密鍵 (nsec):',
         // Signup Modal
-        'signup.title': 'Nostrアカウント作成', 'signup.whatIsNostr': 'Nostrとは？', 'signup.nostrDescription': 'Nostrは分散型プロトコルで、あなた自身のアイデンティティとデータを管理できます。中央サーバーはなく、アカウントは暗号鍵ペアです。', 'signup.whyNostr': 'なぜNostr？', 'signup.benefit1': 'アイデンティティの所有', 'signup.benefit2': '検閲なし', 'signup.benefit3': 'プラットフォーム間で移植可能', 'signup.createNew': '新規アカウント作成', 'signup.haveAccount': 'アカウントをお持ちですか？', 'signup.login': 'ログイン', 'signup.createButton': 'アカウント作成', 'signup.generating': '鍵を生成中...', 'signup.displayName': '表示名', 'signup.displayNamePlaceholder': '表示名を入力', 'signup.username': 'ユーザー名', 'signup.usernamePlaceholder': 'ユーザー名を入力',
+        'signup.title': 'Nostrアカウント作成', 'signup.whatIsNostr': 'Nostrとは？', 'signup.nostrDescription': 'Nostrは分散型プロトコルで、あなた自身のアイデンティティとデータを管理できます。中央サーバーはなく、アカウントは暗号鍵ペアです。', 'signup.whyNostr': 'なぜNostr？', 'signup.benefit1': 'アイデンティティの所有', 'signup.benefit2': '検閲なし', 'signup.benefit3': 'プラットフォーム間で移植可能', 'signup.createNew': '新規アカウント作成', 'signup.haveAccount': 'アカウントをお持ちですか？', 'signup.login': 'ログイン', 'signup.createButton': 'アカウント作成', 'signup.generating': '鍵を生成中...', 'signup.displayName': '表示名', 'signup.displayNamePlaceholder': '表示名を入力', 'signup.username': 'ユーザー名', 'signup.usernamePlaceholder': 'ユーザー名を入力', 'signup.about': '自己紹介（任意）', 'signup.profilePicture': 'プロフィール画像（任意）', 'signup.lightningAddress': 'Lightningアドレス（任意）', 'signup.nostrAddress': 'Nostrアドレス', 'signup.nostrAddressPlaceholder': 'ユーザー名', 'signup.nostrAddressHint': 'Nostrアドレスでプロフィールが見つけやすくなります。小文字、数字、_、-のみ使用可能。', 'signup.nostrAddressRequired': 'Nostrアドレスを入力してください', 'signup.nostrAddressAvailable': '利用可能！', 'signup.nostrAddressUnavailable': '既に使用されています', 'signup.nostrAddressChecking': '確認中...', 'signup.nostrAddressInvalid': '無効なユーザー名形式', 'signup.nostrAddressRegistering': 'Nostrアドレスを登録中...', 'signup.nostrAddressSuccess': 'Nostrアドレスが登録されました！', 'signup.nostrAddressFailed': 'Nostrアドレスを登録できませんでした', 'signup.createAccountBtn': 'アカウント作成', 'signup.termsAgree': 'アカウントを作成することで、', 'signup.and': 'と', 'signup.success': 'アカウントが正常に作成されました！', 'signup.yourPrivateKey': 'あなたの秘密鍵 (nsec)', 'signup.keyWarning': 'これがアカウントにアクセスする唯一の方法です。安全に保管してください！', 'signup.copyPrivateKey': '秘密鍵をコピー', 'signup.howToUseKey': '秘密鍵の使い方', 'signup.continueToPlebs': 'Plebsへ続ける', 'signup.step1': '安全に保存：', 'signup.step1Desc': 'nsecをパスワードマネージャーに保存するか、書き留めるか、暗号化ファイルに保存してください。公開しないでください！', 'signup.step2': '再ログイン：', 'signup.step2Desc': 'ログイン画面で「秘密鍵」をクリックしてnsecを貼り付けます。パスワードのように機能します。', 'signup.step3': '他のアプリで使用：', 'signup.step3Desc': 'nsecはすべてのNostrアプリ（Damus、Primal、Amethystなど）で使用できます！', 'signup.step4': '署名アプリの検討：', 'signup.step4Desc': 'より安全に、Amber（Android）やAlbyなどのブラウザ拡張機能で鍵を管理しましょう。',
         // Notifications
         'notifications.title': '通知', 'notifications.empty': '通知はありません', 'notifications.viewAll': 'すべての通知を見る', 'notifications.markAllRead': 'すべて既読にする', 'notifications.settings': '通知設定', 'notifications.loading': '通知を読み込み中...', 'notifications.zap': 'Zapを送りました', 'notifications.like': 'いいねしました', 'notifications.comment': 'コメントしました', 'notifications.follow': 'フォローしました', 'notifications.repost': 'リポストしました', 'notifications.mention': 'メンションしました',
         // Settings Modal
@@ -3919,10 +3992,13 @@ const translations = {
         'goLive.title': 'ライブ配信', 'goLive.streamTitle': '配信タイトル', 'goLive.streamTitlePlaceholder': '配信タイトルを入力', 'goLive.description': '説明', 'goLive.descriptionPlaceholder': '配信の説明...', 'goLive.category': 'カテゴリ', 'goLive.selectCategory': 'カテゴリを選択', 'goLive.tags': 'タグ', 'goLive.tagsPlaceholder': 'カンマ区切りでタグを追加', 'goLive.startStream': '配信開始', 'goLive.streamKey': 'ストリームキー', 'goLive.streamUrl': 'ストリームURL', 'goLive.copy': 'コピー', 'goLive.hideKey': 'キーを隠す', 'goLive.showKey': 'キーを表示', 'goLive.connecting': '接続中...', 'goLive.live': 'ライブ中', 'goLive.offline': 'オフライン', 'goLive.viewers': '視聴者', 'goLive.endStream': '配信終了', 'goLive.nsfw': 'NSFWコンテンツ', 'goLive.nsfwDesc': 'アダルトコンテンツとしてマーク', 'goLive.thumbnail': '配信サムネイル', 'goLive.thumbnailDesc': 'サムネイルをアップロード',
         // Edit Stream Modal
         'editStream.title': '配信を編集', 'editStream.save': '変更を保存',
+        // Live Stream
+        'live.live': 'ライブ', 'live.scheduled': '予定', 'live.ended': '配信終了', 'live.viewers': '視聴者', 'live.viewer': '視聴者', 'live.chat': 'ライブチャット', 'live.sendMessage': 'メッセージを送信...', 'live.send': '送信', 'live.goalReached': '目標達成！', 'live.goalProgress': '目標の {percent}%',
         // NSFW Warning Modal
         'nsfw.title': 'アダルトコンテンツの警告', 'nsfw.warning': 'このコンテンツはNSFW（職場閲覧注意）としてマークされており、アダルトコンテンツを含む可能性があります。', 'nsfw.confirm': '年齢を確認', 'nsfw.confirmAge': '18歳以上です', 'nsfw.cancel': '戻る', 'nsfw.continue': '続行', 'nsfw.dontShowAgain': 'この警告を表示しない',
         // Community Warning Modal
         'community.title': 'コミュニティガイドライン', 'community.warning': '続行する前にコミュニティガイドラインをご確認ください。', 'community.guidelines': '他者を尊重し、コミュニティ基準に従ってください。', 'community.accept': '同意する', 'community.decline': '同意しない',
+        'communityWarning.title': 'コミュニティ警告', 'communityWarning.description': 'この動画はコミュニティによってフラグ付けされているか、多くの低評価を受けています。これは以下の理由が考えられます:', 'communityWarning.reason1': 'NSFWとして適切にマークされていない不適切なコンテンツ', 'communityWarning.reason2': '新規または不審なユーザー情報', 'communityWarning.reason3': '誤解を招くまたは虚偽の情報', 'communityWarning.reason4': 'スパムまたは低品質なコンテンツ', 'communityWarning.reason5': '潜在的に有害または違法なコンテンツ', 'communityWarning.proceed': '慎重に進んでください。', 'communityWarning.goBack': '戻る', 'communityWarning.viewAnyway': 'それでも見る',
         // Report Modal
         'report.title': 'コンテンツを報告', 'report.reason': '報告理由', 'report.selectReason': '理由を選択', 'report.spam': 'スパムまたは誤解を招く内容', 'report.inappropriate': '不適切なコンテンツ', 'report.violence': '暴力的または危険なコンテンツ', 'report.copyright': '著作権侵害', 'report.other': 'その他', 'report.details': '詳細', 'report.detailsPlaceholder': '詳細を入力...', 'report.submit': '報告を送信', 'report.cancel': 'キャンセル',
         // Share Modal
@@ -3936,7 +4012,7 @@ const translations = {
         // Video Page
         'video.views': '回視聴', 'video.like': 'いいね', 'video.dislike': '低評価', 'video.share': '共有', 'video.save': '保存', 'video.report': '報告', 'video.follow': 'フォロー', 'video.unfollow': 'フォロー解除', 'video.subscribe': '登録', 'video.subscribed': '登録済み', 'video.comments': 'コメント', 'video.addComment': 'コメントを追加...', 'video.reply': '返信', 'video.replies': '件の返信', 'video.loadMore': 'もっと見る', 'video.noComments': 'コメントはありません。最初のコメントを投稿しましょう！', 'video.zap': 'Zap', 'video.zapAmount': 'Zap金額 (sats)', 'video.sendZap': 'Zapを送る', 'video.boost': 'ブースト', 'video.description': '説明', 'video.showMore': 'もっと見る', 'video.showLess': '折りたたむ', 'video.publishedOn': '公開日',
         // Toast Messages
-        'toast.loggedIn': 'ログインしました！', 'toast.loggedOut': 'ログアウトしました', 'toast.settingsSaved': '設定を保存しました！', 'toast.settingsReset': '設定をリセットしました', 'toast.videoUploaded': '動画をアップロードしました！', 'toast.videoDeleted': '動画を削除しました', 'toast.profileUpdated': 'プロフィールを更新しました！', 'toast.linkCopied': 'リンクをコピーしました！', 'toast.embedCopied': '埋め込みコードをコピーしました！', 'toast.zapSent': 'Zapを送りました！', 'toast.followed': 'フォローしました！', 'toast.unfollowed': 'フォロー解除しました', 'toast.reported': '報告を送信しました', 'toast.saved': '保存しました！', 'toast.error': 'エラーが発生しました', 'toast.networkError': 'ネットワークエラー。再試行してください。', 'toast.uploadError': 'アップロードに失敗しました。再試行してください。', 'toast.languageChanged': '言語を変更しました', 'toast.commentPosted': 'コメントを投稿しました', 'toast.keyCopied': '鍵をコピーしました！',
+        'toast.loggedIn': 'ログインしました！', 'toast.settingsSaved': '設定を保存しました！', 'toast.settingsLocal': '設定をローカルに保存しました。Nostrへの保存に失敗しました。', 'toast.settingsLocalOnly': '設定をローカルに保存しました！', 'toast.settingsReset': '設定を初期値に戻しました！', 'toast.avatarUploaded': 'アバターをアップロードしました！', 'toast.profileUpdated': 'プロフィールを更新しました！', 'toast.copied': 'クリップボードにコピーしました！', 'toast.copyFailed': 'コピーに失敗しました。手動でコピーしてください。', 'toast.installExtension': 'AlbyやNos2xなどのNostrブラウザ拡張をインストールしてください', 'toast.loginFailed': '拡張機能でのログインに失敗しました。再試行してください。', 'toast.invalidKey': '無効な秘密鍵です。確認して再試行してください。', 'toast.enterKey': '秘密鍵を入力してください', 'toast.enterUsername': 'ユーザー名を入力してください', 'toast.accountCreated': 'Plebsへようこそ！ログインしました。', 'toast.keyCopied': '秘密鍵をコピーしました！', 'toast.unmuted': 'ユーザーのミュートを解除しました', 'toast.unmuteFailed': 'ミュート解除に失敗しました', 'toast.selectImage': '画像ファイルを選択してください', 'toast.imageTooLarge': '画像は5MB以下にしてください', 'toast.avatarFailed': 'アバターのアップロードに失敗しました。再試行してください。', 'toast.mustBeLoggedIn': 'プロフィールを編集するにはログインが必要です', 'toast.enterDisplayName': '表示名を入力してください', 'toast.profileFailed': 'プロフィールの保存に失敗しました。再試行してください。', 'toast.invalidBunker': '有効なバンカーURLを入力してください', 'toast.connectFailed': '接続に失敗しました', 'toast.showingFiltered': 'フィルタリングされたコンテンツを表示中', 'toast.reportSubmitted': '報告を送信しました', 'toast.draftSaved': '下書きを保存しました！マイ動画から続けられます。', 'toast.draftLoaded': '下書きを読み込みました。アップロードを完了して公開してください。', 'toast.draftDeleted': '下書きを削除しました', 'toast.languageChanged': '言語を変更しました', 'toast.videoBlocked': '動画をブロックしてNostrに公開しました', 'toast.waitForUpload': '動画のアップロード完了をお待ちください', 'toast.enterTitle': 'タイトルを入力してください', 'toast.publishing': '動画をNostrに公開中...',
         // Time
         'time.justNow': 'たった今', 'time.secondAgo': '1秒前', 'time.secondsAgo': '{n}秒前', 'time.minuteAgo': '1分前', 'time.minutesAgo': '{n}分前', 'time.hourAgo': '1時間前', 'time.hoursAgo': '{n}時間前', 'time.dayAgo': '1日前', 'time.daysAgo': '{n}日前', 'time.weekAgo': '1週間前', 'time.weeksAgo': '{n}週間前', 'time.monthAgo': '1ヶ月前', 'time.monthsAgo': '{n}ヶ月前', 'time.yearAgo': '1年前', 'time.yearsAgo': '{n}年前',
         // Empty States
@@ -3982,6 +4058,54 @@ const translations = {
         'warning.webmFormat': '注意: ブラウザはWebM形式で出力します（iOSでは再生できない場合があります）。iOS互換のMP4にはWindows/MacのChromeをお使いください。',
         // New Footer
         'footer.lastUpdated': '最終更新: 2024年12月',
+        // DMCA Page
+        'dmca.title': 'DMCA とコンテンツポリシー',
+        'dmca.lastUpdated': '最終更新: 2024年12月',
+        'dmca.architectureTitle': 'Plebs のアーキテクチャを理解する',
+        'dmca.architectureDesc': 'Plebs は従来の動画ホスティングサービスとは異なる方法で動作する分散型ビデオプラットフォームインターフェースです。当プラットフォームでのコンテンツの配信方法を理解することが重要です：',
+        'dmca.architectureItem1': 'Plebs は動画や画像コンテンツをホストしていません。',
+        'dmca.architectureItem1Desc': '私たちは他の場所に保存されたコンテンツを表示するクライアント/インターフェースです。',
+        'dmca.architectureItem2': 'すべてのメディアファイル（動画、画像、サムネイル）は第三者が運営する独立したBlossomサーバーに保存されています。',
+        'dmca.architectureItem3': '動画のメタデータ（タイトル、説明など）は独立して運営されるNostrリレーに公開されます。',
+        'dmca.architectureItem4': 'Plebs は単にこれらの分散コンテンツをユーザーフレンドリーなインターフェースを通じて集約・表示しています。',
+        'dmca.filingTitle': 'DMCA 申請の提出',
+        'dmca.filingDesc': 'Plebs はコンテンツをホストしていないため、侵害コンテンツを直接削除することはできません。著作権侵害に対処するには、適切な当事者に連絡する必要があります：',
+        'dmca.forVideoTitle': '1. 動画/画像コンテンツについて',
+        'dmca.forVideoDesc': 'メディアファイルはBlossomサーバーに保存されています。以下が必要です：',
+        'dmca.forVideoItem1': 'コンテンツをホストしているBlossomサーバーを特定する（URLに表示されます）',
+        'dmca.forVideoItem2': 'BlossomサーバーオペレーターにDMCA削除リクエストを直接連絡する',
+        'dmca.forVideoItem3': '各Blossomサーバーは独立して運営されており、独自のポリシーがあります',
+        'dmca.forMetadataTitle': '2. メタデータ/説明について',
+        'dmca.forMetadataDesc': '侵害コンテンツが動画タイトル、説明、その他のメタデータに含まれている場合：',
+        'dmca.forMetadataItem1': 'この情報はNostrリレーに保存されています',
+        'dmca.forMetadataItem2': 'コンテンツが表示される特定のNostrリレーオペレーターに連絡してください',
+        'dmca.forMetadataItem3': 'Nostrの分散型の性質により、複数のリレーが同じデータを保存している場合があります',
+        'dmca.whatWeCanDoTitle': 'Plebs ができること',
+        'dmca.whatWeCanDoDesc': 'コンテンツをホストしていませんが、以下のことができます：',
+        'dmca.whatWeCanDoItem1': '特定のコンテンツをホストしているBlossomサーバーやリレーの特定を支援',
+        'dmca.whatWeCanDoItem2': 'コンテンツをローカルブロックリストに追加し、当インターフェースに表示されないようにする（注意：これはplebs.appにのみ影響し、他のNostrクライアントには影響しません）',
+        'dmca.whatWeCanDoItem3': '適切なサービスオペレーターへの連絡方法のガイダンスを提供',
+        'dmca.toRequestAssistance': '支援をリクエストするには、以下を添えてご連絡ください：',
+        'dmca.assistanceItem1': '侵害コンテンツのURLまたは識別子',
+        'dmca.assistanceItem2': '著作権所有の証明',
+        'dmca.assistanceItem3': '著作権で保護された作品の説明',
+        'dmca.blossomOperatorsTitle': 'Blossom サーバーオペレーター',
+        'dmca.blossomOperatorsDesc': 'Blossomサーバーを運営していてDMCA削除リクエストを受け取った場合、管轄区域の法律に従って処理する責任があります。',
+        'dmca.blossomOperatorsLink': '既知のBlossomサーバーのリストについては、Blossomプロジェクトのドキュメントを参照してください。',
+        'dmca.considerationsTitle': '重要な考慮事項',
+        'dmca.considerationsItem1': '分散化：',
+        'dmca.considerationsItem1Desc': 'NostrとBlossomの分散型の性質により、すべてのソースからコンテンツを完全に削除することは不可能な場合があります。',
+        'dmca.considerationsItem2': '複数のコピー：',
+        'dmca.considerationsItem2Desc': 'コンテンツは複数のBlossomサーバーやリレーに存在する場合があります。複数のオペレーターに連絡する必要があるかもしれません。',
+        'dmca.considerationsItem3': 'ハッシュベースのストレージ：',
+        'dmca.considerationsItem3Desc': 'Blossomはコンテンツアドレス型ストレージを使用しています。同じファイルはどのサーバーでも同じハッシュを持ちます。',
+        'dmca.considerationsItem4': '中央管理なし：',
+        'dmca.considerationsItem4Desc': 'Plebsも他の単一の組織も、ネットワーク全体からコンテンツを削除する能力を持っていません。',
+        'dmca.counterNotificationTitle': '対抗通知',
+        'dmca.counterNotificationDesc': 'コンテンツがBlossomサーバーから誤って削除されたと思われる場合は、そのサーバーオペレーターに直接連絡して対抗通知を提出してください。',
+        'dmca.contactTitle': 'お問い合わせ',
+        'dmca.contactDesc': 'このポリシーに関する質問やコンテンツホストの特定についてのサポートは',
+        'dmca.contactLink': 'お問い合わせください',
 
         // Analytics
         'analytics.title': 'チャンネル分析',
@@ -4245,7 +4369,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': '개인 키', 'privateKey.warning': '중요: 안전한 곳에 저장하세요. 이 키를 잃어버리면 계정에 접근할 수 없습니다. 절대 다른 사람과 공유하지 마세요!', 'privateKey.show': '개인 키 표시', 'privateKey.hide': '개인 키 숨기기', 'privateKey.copy': '복사', 'privateKey.saved': '키를 저장했습니다', 'privateKey.yourPublicKey': '공개 키 (npub):', 'privateKey.yourPrivateKey': '개인 키 (nsec):',
         // Signup Modal
-        'signup.title': 'Nostr 계정 만들기', 'signup.whatIsNostr': 'Nostr란?', 'signup.nostrDescription': 'Nostr는 자신의 신원과 데이터를 제어할 수 있는 분산형 프로토콜입니다. 중앙 서버가 없으며 계정은 암호화 키 쌍입니다.', 'signup.whyNostr': '왜 Nostr인가?', 'signup.benefit1': '신원 소유권', 'signup.benefit2': '검열 없음', 'signup.benefit3': '플랫폼 간 이식성', 'signup.createNew': '새 계정 만들기', 'signup.haveAccount': '이미 계정이 있으신가요?', 'signup.login': '로그인', 'signup.createButton': '계정 만들기', 'signup.generating': '키 생성 중...', 'signup.displayName': '표시 이름', 'signup.displayNamePlaceholder': '표시 이름 입력', 'signup.username': '사용자 이름', 'signup.usernamePlaceholder': '사용자 이름 입력',
+        'signup.title': 'Nostr 계정 만들기', 'signup.whatIsNostr': 'Nostr란?', 'signup.nostrDescription': 'Nostr는 자신의 신원과 데이터를 제어할 수 있는 분산형 프로토콜입니다. 중앙 서버가 없으며 계정은 암호화 키 쌍입니다.', 'signup.whyNostr': '왜 Nostr인가?', 'signup.benefit1': '신원 소유권', 'signup.benefit2': '검열 없음', 'signup.benefit3': '플랫폼 간 이식성', 'signup.createNew': '새 계정 만들기', 'signup.haveAccount': '이미 계정이 있으신가요?', 'signup.login': '로그인', 'signup.createButton': '계정 만들기', 'signup.generating': '키 생성 중...', 'signup.displayName': '표시 이름', 'signup.displayNamePlaceholder': '표시 이름 입력', 'signup.username': '사용자 이름', 'signup.usernamePlaceholder': '사용자 이름 입력', 'signup.about': '소개 (선택사항)', 'signup.profilePicture': '프로필 사진 (선택사항)', 'signup.lightningAddress': 'Lightning 주소 (선택사항)', 'signup.nostrAddress': 'Nostr 주소', 'signup.nostrAddressPlaceholder': '사용자이름', 'signup.nostrAddressHint': 'Nostr 주소로 프로필을 더 쉽게 찾을 수 있습니다. 소문자, 숫자, _, -만 사용 가능.', 'signup.nostrAddressRequired': 'Nostr 주소를 입력해주세요', 'signup.nostrAddressAvailable': '사용 가능!', 'signup.nostrAddressUnavailable': '이미 사용 중', 'signup.nostrAddressChecking': '확인 중...', 'signup.nostrAddressInvalid': '잘못된 사용자 이름 형식', 'signup.nostrAddressRegistering': 'Nostr 주소 등록 중...', 'signup.nostrAddressSuccess': 'Nostr 주소가 등록되었습니다!', 'signup.nostrAddressFailed': 'Nostr 주소를 등록할 수 없습니다', 'signup.createAccountBtn': '계정 만들기', 'signup.termsAgree': '계정을 만들면 다음에 동의하게 됩니다', 'signup.and': '및', 'signup.success': '계정이 성공적으로 생성되었습니다!', 'signup.yourPrivateKey': '개인 키 (nsec)', 'signup.keyWarning': '이것이 계정에 접근하는 유일한 방법입니다. 안전하게 보관하세요!', 'signup.copyPrivateKey': '개인 키 복사', 'signup.howToUseKey': '개인 키 사용 방법', 'signup.continueToPlebs': 'Plebs로 계속', 'signup.step1': '안전하게 저장:', 'signup.step1Desc': 'nsec를 비밀번호 관리자에 저장하거나, 적어두거나, 암호화된 파일에 저장하세요. 절대 공개하지 마세요!', 'signup.step2': '다시 로그인:', 'signup.step2Desc': '로그인 화면에서 "개인 키"를 클릭하고 nsec를 붙여넣으세요. 비밀번호처럼 작동합니다.', 'signup.step3': '다른 앱에서 사용:', 'signup.step3Desc': 'nsec는 모든 Nostr 앱에서 사용할 수 있습니다 - Damus, Primal, Amethyst 등!', 'signup.step4': '서명 앱 고려:', 'signup.step4Desc': '더 나은 보안을 위해 Amber (Android) 또는 Alby와 같은 브라우저 확장 프로그램을 사용하세요.',
         // Notifications
         'notifications.title': '알림', 'notifications.empty': '알림이 없습니다', 'notifications.viewAll': '모든 알림 보기', 'notifications.markAllRead': '모두 읽음으로 표시', 'notifications.settings': '알림 설정', 'notifications.loading': '알림 로딩 중...', 'notifications.zap': 'Zap을 보냈습니다', 'notifications.like': '좋아요를 눌렀습니다', 'notifications.comment': '댓글을 달았습니다', 'notifications.follow': '팔로우했습니다', 'notifications.repost': '리포스트했습니다', 'notifications.mention': '멘션했습니다',
         // Settings Modal
@@ -4258,10 +4382,13 @@ const translations = {
         'goLive.title': '라이브 시작', 'goLive.streamTitle': '스트림 제목', 'goLive.streamTitlePlaceholder': '스트림 제목 입력', 'goLive.description': '설명', 'goLive.descriptionPlaceholder': '스트림 설명...', 'goLive.category': '카테고리', 'goLive.selectCategory': '카테고리 선택', 'goLive.tags': '태그', 'goLive.tagsPlaceholder': '쉼표로 구분하여 태그 추가', 'goLive.startStream': '스트림 시작', 'goLive.streamKey': '스트림 키', 'goLive.streamUrl': '스트림 URL', 'goLive.copy': '복사', 'goLive.hideKey': '키 숨기기', 'goLive.showKey': '키 표시', 'goLive.connecting': '연결 중...', 'goLive.live': '라이브', 'goLive.offline': '오프라인', 'goLive.viewers': '시청자', 'goLive.endStream': '스트림 종료', 'goLive.nsfw': 'NSFW 콘텐츠', 'goLive.nsfwDesc': '성인 콘텐츠로 표시', 'goLive.thumbnail': '스트림 썸네일', 'goLive.thumbnailDesc': '썸네일 업로드',
         // Edit Stream Modal
         'editStream.title': '스트림 편집', 'editStream.save': '변경 사항 저장',
+        // Live Stream
+        'live.live': '라이브', 'live.scheduled': '예정', 'live.ended': '스트림 종료', 'live.viewers': '시청자', 'live.viewer': '시청자', 'live.chat': '라이브 채팅', 'live.sendMessage': '메시지 보내기...', 'live.send': '보내기', 'live.goalReached': '목표 달성!', 'live.goalProgress': '목표의 {percent}%',
         // NSFW Warning Modal
         'nsfw.title': '성인 콘텐츠 경고', 'nsfw.warning': '이 콘텐츠는 NSFW(직장에서 보기 부적절)로 표시되어 있으며 성인 콘텐츠가 포함될 수 있습니다.', 'nsfw.confirm': '나이 확인', 'nsfw.confirmAge': '18세 이상입니다', 'nsfw.cancel': '돌아가기', 'nsfw.continue': '계속', 'nsfw.dontShowAgain': '이 경고 다시 표시 안 함',
         // Community Warning Modal
         'community.title': '커뮤니티 가이드라인', 'community.warning': '계속하기 전에 커뮤니티 가이드라인을 검토하세요.', 'community.guidelines': '다른 사람을 존중하고 커뮤니티 기준을 따르세요.', 'community.accept': '동의', 'community.decline': '거절',
+        'communityWarning.title': '커뮤니티 경고', 'communityWarning.description': '이 동영상은 커뮤니티에서 신고되었거나 많은 비추천을 받았습니다. 다음과 같은 이유일 수 있습니다:', 'communityWarning.reason1': 'NSFW로 적절히 표시되지 않은 부적절한 콘텐츠', 'communityWarning.reason2': '신규 또는 의심스러운 사용자 정보', 'communityWarning.reason3': '오해의 소지가 있거나 허위 정보', 'communityWarning.reason4': '스팸 또는 저품질 콘텐츠', 'communityWarning.reason5': '잠재적으로 해로운 또는 불법 콘텐츠', 'communityWarning.proceed': '주의하여 진행하세요.', 'communityWarning.goBack': '돌아가기', 'communityWarning.viewAnyway': '그래도 보기',
         // Report Modal
         'report.title': '콘텐츠 신고', 'report.reason': '신고 사유', 'report.selectReason': '사유 선택', 'report.spam': '스팸 또는 오해의 소지', 'report.inappropriate': '부적절한 콘텐츠', 'report.violence': '폭력적이거나 위험한 콘텐츠', 'report.copyright': '저작권 침해', 'report.other': '기타', 'report.details': '세부 정보', 'report.detailsPlaceholder': '세부 정보 입력...', 'report.submit': '신고 제출', 'report.cancel': '취소',
         // Share Modal
@@ -4275,7 +4402,7 @@ const translations = {
         // Video Page
         'video.views': '조회', 'video.like': '좋아요', 'video.dislike': '싫어요', 'video.share': '공유', 'video.save': '저장', 'video.report': '신고', 'video.follow': '팔로우', 'video.unfollow': '언팔로우', 'video.subscribe': '구독', 'video.subscribed': '구독 중', 'video.comments': '댓글', 'video.addComment': '댓글 추가...', 'video.reply': '답글', 'video.replies': '개의 답글', 'video.loadMore': '더 보기', 'video.noComments': '댓글이 없습니다. 첫 번째로 댓글을 달아보세요!', 'video.zap': 'Zap', 'video.zapAmount': 'Zap 금액 (sats)', 'video.sendZap': 'Zap 보내기', 'video.boost': '부스트', 'video.description': '설명', 'video.showMore': '더 보기', 'video.showLess': '접기', 'video.publishedOn': '게시일',
         // Toast Messages
-        'toast.loggedIn': '로그인 성공!', 'toast.loggedOut': '로그아웃됨', 'toast.settingsSaved': '설정 저장됨!', 'toast.settingsReset': '설정 초기화됨', 'toast.videoUploaded': '동영상 업로드됨!', 'toast.videoDeleted': '동영상 삭제됨', 'toast.profileUpdated': '프로필 업데이트됨!', 'toast.linkCopied': '링크 복사됨!', 'toast.embedCopied': '임베드 코드 복사됨!', 'toast.zapSent': 'Zap 전송됨!', 'toast.followed': '팔로우함!', 'toast.unfollowed': '언팔로우함', 'toast.reported': '신고 제출됨', 'toast.saved': '저장됨!', 'toast.error': '오류 발생', 'toast.networkError': '네트워크 오류. 다시 시도하세요.', 'toast.uploadError': '업로드 실패. 다시 시도하세요.', 'toast.languageChanged': '언어가 변경됨', 'toast.commentPosted': '댓글 게시됨', 'toast.keyCopied': '키 복사됨!',
+        'toast.loggedIn': '로그인 성공!', 'toast.settingsSaved': '설정 저장됨!', 'toast.settingsLocal': '설정이 로컬에 저장됨. Nostr에 저장 실패.', 'toast.settingsLocalOnly': '설정이 로컬에 저장됨!', 'toast.settingsReset': '설정이 기본값으로 초기화됨!', 'toast.avatarUploaded': '아바타 업로드 성공!', 'toast.profileUpdated': '프로필 업데이트 성공!', 'toast.copied': '클립보드에 복사됨!', 'toast.copyFailed': '복사 실패. 수동으로 복사하세요.', 'toast.installExtension': 'Alby 또는 nos2x와 같은 Nostr 브라우저 확장 프로그램을 설치하세요', 'toast.loginFailed': '확장 프로그램으로 로그인 실패. 다시 시도하세요.', 'toast.invalidKey': '잘못된 개인 키입니다. 확인 후 다시 시도하세요.', 'toast.enterKey': '개인 키를 입력하세요', 'toast.enterUsername': '사용자 이름을 입력하세요', 'toast.accountCreated': 'Plebs에 오신 것을 환영합니다! 로그인되었습니다.', 'toast.keyCopied': '개인 키가 클립보드에 복사됨!', 'toast.unmuted': '사용자 음소거 해제됨', 'toast.unmuteFailed': '음소거 해제 실패', 'toast.selectImage': '이미지 파일을 선택하세요', 'toast.imageTooLarge': '이미지는 5MB 미만이어야 합니다', 'toast.avatarFailed': '아바타 업로드 실패. 다시 시도하세요.', 'toast.mustBeLoggedIn': '프로필을 편집하려면 로그인이 필요합니다', 'toast.enterDisplayName': '표시 이름을 입력하세요', 'toast.profileFailed': '프로필 저장 실패. 다시 시도하세요.', 'toast.invalidBunker': '유효한 벙커 URL을 입력하세요', 'toast.connectFailed': '연결 실패', 'toast.showingFiltered': '필터링된 콘텐츠 표시 중', 'toast.reportSubmitted': '신고가 성공적으로 제출됨', 'toast.draftSaved': '임시 저장됨! 내 동영상에서 계속할 수 있습니다.', 'toast.draftLoaded': '임시 저장 불러옴. 업로드를 완료하고 게시하세요.', 'toast.draftDeleted': '임시 저장 삭제됨', 'toast.languageChanged': '언어가 변경됨', 'toast.videoBlocked': '동영상이 차단되고 Nostr에 게시됨', 'toast.waitForUpload': '동영상 업로드가 완료될 때까지 기다려주세요', 'toast.enterTitle': '제목을 입력하세요', 'toast.publishing': '동영상을 Nostr에 게시 중...',
         // Time
         'time.justNow': '방금 전', 'time.secondAgo': '1초 전', 'time.secondsAgo': '{n}초 전', 'time.minuteAgo': '1분 전', 'time.minutesAgo': '{n}분 전', 'time.hourAgo': '1시간 전', 'time.hoursAgo': '{n}시간 전', 'time.dayAgo': '1일 전', 'time.daysAgo': '{n}일 전', 'time.weekAgo': '1주 전', 'time.weeksAgo': '{n}주 전', 'time.monthAgo': '1개월 전', 'time.monthsAgo': '{n}개월 전', 'time.yearAgo': '1년 전', 'time.yearsAgo': '{n}년 전',
         // Empty States
@@ -4321,6 +4448,54 @@ const translations = {
         'warning.webmFormat': '참고: 브라우저는 WebM 형식을 출력합니다(iOS에서 재생되지 않을 수 있음). iOS 호환 MP4의 경우 Windows/Mac의 Chrome을 사용하세요.',
         // New Footer
         'footer.lastUpdated': '최종 업데이트: 2024년 12월',
+        // DMCA Page
+        'dmca.title': 'DMCA 및 콘텐츠 정책',
+        'dmca.lastUpdated': '최종 업데이트: 2024년 12월',
+        'dmca.architectureTitle': 'Plebs 아키텍처 이해하기',
+        'dmca.architectureDesc': 'Plebs는 기존 동영상 호스팅 서비스와 다르게 운영되는 분산형 비디오 플랫폼 인터페이스입니다. 플랫폼에서 콘텐츠가 어떻게 배포되는지 이해하는 것이 중요합니다:',
+        'dmca.architectureItem1': 'Plebs는 동영상이나 이미지 콘텐츠를 호스팅하지 않습니다.',
+        'dmca.architectureItem1Desc': '우리는 다른 곳에 저장된 콘텐츠를 표시하는 클라이언트/인터페이스입니다.',
+        'dmca.architectureItem2': '모든 미디어 파일(동영상, 이미지, 썸네일)은 제3자가 운영하는 독립적인 Blossom 서버에 저장됩니다.',
+        'dmca.architectureItem3': '동영상 메타데이터(제목, 설명 등)는 독립적으로 운영되는 Nostr 릴레이에 게시됩니다.',
+        'dmca.architectureItem4': 'Plebs는 단순히 이러한 분산 콘텐츠를 사용자 친화적인 인터페이스를 통해 집계하고 표시합니다.',
+        'dmca.filingTitle': 'DMCA 신고 제출',
+        'dmca.filingDesc': 'Plebs는 콘텐츠를 호스팅하지 않으므로 침해 자료를 직접 삭제할 수 없습니다. 저작권 침해에 대응하려면 적절한 당사자에게 연락해야 합니다:',
+        'dmca.forVideoTitle': '1. 동영상/이미지 콘텐츠의 경우',
+        'dmca.forVideoDesc': '미디어 파일은 Blossom 서버에 저장됩니다. 다음이 필요합니다:',
+        'dmca.forVideoItem1': '콘텐츠를 호스팅하는 Blossom 서버 식별(URL에 표시됨)',
+        'dmca.forVideoItem2': 'Blossom 서버 운영자에게 직접 DMCA 삭제 요청 연락',
+        'dmca.forVideoItem3': '각 Blossom 서버는 독립적으로 운영되며 자체 정책이 있습니다',
+        'dmca.forMetadataTitle': '2. 메타데이터/설명의 경우',
+        'dmca.forMetadataDesc': '침해 콘텐츠가 동영상 제목, 설명 또는 기타 메타데이터에 있는 경우:',
+        'dmca.forMetadataItem1': '이 정보는 Nostr 릴레이에 저장됩니다',
+        'dmca.forMetadataItem2': '콘텐츠가 표시되는 특정 Nostr 릴레이 운영자에게 연락하세요',
+        'dmca.forMetadataItem3': 'Nostr의 분산 특성으로 인해 여러 릴레이가 동일한 데이터를 저장할 수 있습니다',
+        'dmca.whatWeCanDoTitle': 'Plebs가 할 수 있는 것',
+        'dmca.whatWeCanDoDesc': '콘텐츠를 호스팅하지 않지만 다음을 할 수 있습니다:',
+        'dmca.whatWeCanDoItem1': '특정 콘텐츠를 호스팅하는 Blossom 서버 또는 릴레이 식별 지원',
+        'dmca.whatWeCanDoItem2': '콘텐츠를 로컬 차단 목록에 추가하여 인터페이스에 표시되지 않도록 함(참고: plebs.app에만 영향을 미치며 다른 Nostr 클라이언트에는 영향을 미치지 않음)',
+        'dmca.whatWeCanDoItem3': '적절한 서비스 운영자에게 연락하는 방법에 대한 안내 제공',
+        'dmca.toRequestAssistance': '지원을 요청하려면 다음과 함께 연락하세요:',
+        'dmca.assistanceItem1': '침해 콘텐츠의 URL 또는 식별자',
+        'dmca.assistanceItem2': '저작권 소유권 증명',
+        'dmca.assistanceItem3': '저작권 보호 작품 설명',
+        'dmca.blossomOperatorsTitle': 'Blossom 서버 운영자',
+        'dmca.blossomOperatorsDesc': 'Blossom 서버를 운영하고 DMCA 삭제 요청을 받은 경우 관할 지역 법률에 따라 처리할 책임이 있습니다.',
+        'dmca.blossomOperatorsLink': '알려진 Blossom 서버 목록은 Blossom 프로젝트 문서를 참조하세요.',
+        'dmca.considerationsTitle': '중요 고려사항',
+        'dmca.considerationsItem1': '분산화:',
+        'dmca.considerationsItem1Desc': 'Nostr 및 Blossom의 분산 특성으로 인해 모든 소스에서 콘텐츠를 완전히 제거하는 것이 불가능할 수 있습니다.',
+        'dmca.considerationsItem2': '여러 사본:',
+        'dmca.considerationsItem2Desc': '콘텐츠가 여러 Blossom 서버와 릴레이에 존재할 수 있습니다. 여러 운영자에게 연락해야 할 수 있습니다.',
+        'dmca.considerationsItem3': '해시 기반 저장:',
+        'dmca.considerationsItem3Desc': 'Blossom은 콘텐츠 주소 저장을 사용합니다. 동일한 파일은 어느 서버에서나 동일한 해시를 갖습니다.',
+        'dmca.considerationsItem4': '중앙 통제 없음:',
+        'dmca.considerationsItem4Desc': 'Plebs나 다른 단일 조직 모두 전체 네트워크에서 콘텐츠를 제거할 수 있는 능력이 없습니다.',
+        'dmca.counterNotificationTitle': '이의 신청',
+        'dmca.counterNotificationDesc': '콘텐츠가 Blossom 서버에서 잘못 제거되었다고 생각되면 해당 서버 운영자에게 직접 연락하여 이의 신청을 제출해야 합니다.',
+        'dmca.contactTitle': '연락처',
+        'dmca.contactDesc': '이 정책에 대한 질문이나 콘텐츠 호스트 식별에 대한 지원이 필요하면',
+        'dmca.contactLink': '문의하세요',
 
         // Analytics
         'analytics.title': '채널 분석',
@@ -4584,7 +4759,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'مفتاحك الخاص', 'privateKey.warning': 'مهم: احفظ هذا في مكان آمن. إذا فقدت هذا المفتاح، ستفقد الوصول إلى حسابك. لا تشاركه مع أي شخص!', 'privateKey.show': 'إظهار المفتاح الخاص', 'privateKey.hide': 'إخفاء المفتاح الخاص', 'privateKey.copy': 'نسخ', 'privateKey.saved': 'لقد حفظت مفتاحي', 'privateKey.yourPublicKey': 'مفتاحك العام (npub):', 'privateKey.yourPrivateKey': 'مفتاحك الخاص (nsec):',
         // Signup Modal
-        'signup.title': 'إنشاء حساب Nostr', 'signup.whatIsNostr': 'ما هو Nostr؟', 'signup.nostrDescription': 'Nostr هو بروتوكول لامركزي يمنحك التحكم في هويتك وبياناتك. لا يوجد خادم مركزي - حسابك هو زوج من المفاتيح المشفرة.', 'signup.whyNostr': 'لماذا Nostr؟', 'signup.benefit1': 'امتلك هويتك', 'signup.benefit2': 'بدون رقابة', 'signup.benefit3': 'قابلية النقل عبر المنصات', 'signup.createNew': 'إنشاء حساب جديد', 'signup.haveAccount': 'لديك حساب؟', 'signup.login': 'تسجيل الدخول', 'signup.createButton': 'إنشاء حساب', 'signup.generating': 'جاري إنشاء المفاتيح...', 'signup.displayName': 'الاسم المعروض', 'signup.displayNamePlaceholder': 'أدخل الاسم المعروض', 'signup.username': 'اسم المستخدم', 'signup.usernamePlaceholder': 'أدخل اسم المستخدم',
+        'signup.title': 'إنشاء حساب Nostr', 'signup.whatIsNostr': 'ما هو Nostr؟', 'signup.nostrDescription': 'Nostr هو بروتوكول لامركزي يمنحك التحكم في هويتك وبياناتك. لا يوجد خادم مركزي - حسابك هو زوج من المفاتيح المشفرة.', 'signup.whyNostr': 'لماذا Nostr؟', 'signup.benefit1': 'امتلك هويتك', 'signup.benefit2': 'بدون رقابة', 'signup.benefit3': 'قابلية النقل عبر المنصات', 'signup.createNew': 'إنشاء حساب جديد', 'signup.haveAccount': 'لديك حساب؟', 'signup.login': 'تسجيل الدخول', 'signup.createButton': 'إنشاء حساب', 'signup.generating': 'جاري إنشاء المفاتيح...', 'signup.displayName': 'الاسم المعروض', 'signup.displayNamePlaceholder': 'أدخل الاسم المعروض', 'signup.username': 'اسم المستخدم', 'signup.usernamePlaceholder': 'أدخل اسم المستخدم', 'signup.about': 'نبذة (اختياري)', 'signup.profilePicture': 'صورة الملف الشخصي (اختياري)', 'signup.lightningAddress': 'عنوان Lightning (اختياري)', 'signup.nostrAddress': 'عنوان Nostr', 'signup.nostrAddressPlaceholder': 'اسم_المستخدم', 'signup.nostrAddressHint': 'عنوان Nostr يسهل العثور على ملفك الشخصي. أحرف صغيرة وأرقام و _ و - فقط.', 'signup.nostrAddressRequired': 'الرجاء إدخال عنوان Nostr', 'signup.nostrAddressAvailable': 'متاح!', 'signup.nostrAddressUnavailable': 'مستخدم بالفعل', 'signup.nostrAddressChecking': 'جاري التحقق...', 'signup.nostrAddressInvalid': 'تنسيق اسم المستخدم غير صالح', 'signup.nostrAddressRegistering': 'جاري تسجيل عنوان Nostr...', 'signup.nostrAddressSuccess': 'تم تسجيل عنوان Nostr!', 'signup.nostrAddressFailed': 'تعذر تسجيل عنوان Nostr', 'signup.createAccountBtn': 'إنشاء حساب', 'signup.termsAgree': 'بإنشاء حساب، أنت توافق على', 'signup.and': 'و', 'signup.success': 'تم إنشاء الحساب بنجاح!', 'signup.yourPrivateKey': 'مفتاحك الخاص (nsec)', 'signup.keyWarning': 'هذه هي الطريقة الوحيدة للوصول إلى حسابك. احفظها بأمان!', 'signup.copyPrivateKey': 'نسخ المفتاح الخاص', 'signup.howToUseKey': 'كيفية استخدام مفتاحك الخاص', 'signup.continueToPlebs': 'المتابعة إلى Plebs', 'signup.step1': 'احفظه بأمان:', 'signup.step1Desc': 'احفظ nsec في مدير كلمات المرور، أو اكتبه، أو احفظه في ملف مشفر. لا تشاركه علنياً!', 'signup.step2': 'لتسجيل الدخول مرة أخرى:', 'signup.step2Desc': 'انقر على "المفتاح الخاص" في شاشة تسجيل الدخول والصق nsec. يعمل مثل كلمة المرور.', 'signup.step3': 'استخدم في تطبيقات أخرى:', 'signup.step3Desc': 'nsec يعمل في جميع تطبيقات Nostr - Damus وPrimal وAmethyst والمئات غيرها!', 'signup.step4': 'فكر في تطبيق توقيع:', 'signup.step4Desc': 'لأمان أفضل، استخدم تطبيقات مثل Amber (Android) أو إضافة متصفح مثل Alby لإدارة مفاتيحك.',
         // Notifications
         'notifications.title': 'الإشعارات', 'notifications.empty': 'لا توجد إشعارات', 'notifications.viewAll': 'عرض جميع الإشعارات', 'notifications.markAllRead': 'تحديد الكل كمقروء', 'notifications.settings': 'إعدادات الإشعارات', 'notifications.loading': 'جاري تحميل الإشعارات...', 'notifications.zap': 'أرسل لك زاب', 'notifications.like': 'أعجب بالمحتوى', 'notifications.comment': 'علق', 'notifications.follow': 'تابعك', 'notifications.repost': 'أعاد النشر', 'notifications.mention': 'ذكرك',
         // Settings Modal
@@ -4601,6 +4776,7 @@ const translations = {
         'nsfw.title': 'تحذير: محتوى للبالغين', 'nsfw.warning': 'تم تحديد هذا المحتوى كـ NSFW وقد يحتوي على محتوى للبالغين.', 'nsfw.confirm': 'تأكيد عمرك', 'nsfw.confirmAge': 'عمري 18 سنة أو أكثر', 'nsfw.cancel': 'رجوع', 'nsfw.continue': 'متابعة', 'nsfw.dontShowAgain': 'عدم إظهار هذا التحذير مرة أخرى',
         // Community Warning Modal
         'community.title': 'إرشادات المجتمع', 'community.warning': 'يرجى مراجعة إرشادات المجتمع قبل المتابعة.', 'community.guidelines': 'كن محترماً واتبع معايير المجتمع.', 'community.accept': 'قبول', 'community.decline': 'رفض',
+        'communityWarning.title': 'تحذير المجتمع', 'communityWarning.description': 'تم تمييز هذا الفيديو و/أو تلقى تقييمات سلبية كثيرة من المجتمع. قد يكون ذلك بسبب:', 'communityWarning.reason1': 'محتوى غير لائق لم يتم وضع علامة NSFW عليه بشكل صحيح', 'communityWarning.reason2': 'مستخدم جديد أو تفاصيل مستخدم مشبوهة', 'communityWarning.reason3': 'معلومات مضللة أو كاذبة', 'communityWarning.reason4': 'رسائل مزعجة أو محتوى منخفض الجودة', 'communityWarning.reason5': 'محتوى قد يكون ضارًا أو غير قانوني', 'communityWarning.proceed': 'تابع بحذر.', 'communityWarning.goBack': 'رجوع', 'communityWarning.viewAnyway': 'عرض على أي حال',
         // Report Modal
         'report.title': 'الإبلاغ عن محتوى', 'report.reason': 'سبب الإبلاغ', 'report.selectReason': 'اختر سبباً', 'report.spam': 'بريد مزعج أو مضلل', 'report.inappropriate': 'محتوى غير لائق', 'report.violence': 'محتوى عنيف أو خطير', 'report.copyright': 'انتهاك حقوق النشر', 'report.other': 'آخر', 'report.details': 'التفاصيل', 'report.detailsPlaceholder': 'قدم مزيداً من التفاصيل...', 'report.submit': 'إرسال البلاغ', 'report.cancel': 'إلغاء',
         // Share Modal
@@ -4614,7 +4790,7 @@ const translations = {
         // Video Page
         'video.views': 'مشاهدات', 'video.like': 'إعجاب', 'video.dislike': 'عدم إعجاب', 'video.share': 'مشاركة', 'video.save': 'حفظ', 'video.report': 'إبلاغ', 'video.follow': 'متابعة', 'video.unfollow': 'إلغاء المتابعة', 'video.subscribe': 'اشتراك', 'video.subscribed': 'مشترك', 'video.comments': 'التعليقات', 'video.addComment': 'أضف تعليقاً...', 'video.reply': 'رد', 'video.replies': 'ردود', 'video.loadMore': 'تحميل المزيد', 'video.noComments': 'لا توجد تعليقات. كن أول من يعلق!', 'video.zap': 'زاب', 'video.zapAmount': 'مبلغ الزاب (ساتوشي)', 'video.sendZap': 'إرسال زاب', 'video.boost': 'تعزيز', 'video.description': 'الوصف', 'video.showMore': 'عرض المزيد', 'video.showLess': 'عرض أقل', 'video.publishedOn': 'نُشر في',
         // Toast Messages
-        'toast.loggedIn': 'تم تسجيل الدخول!', 'toast.loggedOut': 'تم تسجيل الخروج', 'toast.settingsSaved': 'تم حفظ الإعدادات!', 'toast.settingsReset': 'تم إعادة تعيين الإعدادات', 'toast.videoUploaded': 'تم رفع الفيديو!', 'toast.videoDeleted': 'تم حذف الفيديو', 'toast.profileUpdated': 'تم تحديث الملف الشخصي!', 'toast.linkCopied': 'تم نسخ الرابط!', 'toast.embedCopied': 'تم نسخ كود التضمين!', 'toast.zapSent': 'تم إرسال الزاب!', 'toast.followed': 'تمت المتابعة!', 'toast.unfollowed': 'تم إلغاء المتابعة', 'toast.reported': 'تم إرسال البلاغ', 'toast.saved': 'تم الحفظ!', 'toast.error': 'حدث خطأ', 'toast.networkError': 'خطأ في الشبكة. حاول مرة أخرى.', 'toast.uploadError': 'فشل الرفع. حاول مرة أخرى.', 'toast.languageChanged': 'تم تغيير اللغة', 'toast.commentPosted': 'تم نشر التعليق', 'toast.keyCopied': 'تم نسخ المفتاح!',
+        'toast.loggedIn': 'تم تسجيل الدخول بنجاح!', 'toast.settingsSaved': 'تم حفظ الإعدادات بنجاح!', 'toast.settingsLocal': 'تم حفظ الإعدادات محلياً. تعذر الحفظ على Nostr.', 'toast.settingsLocalOnly': 'تم حفظ الإعدادات محلياً!', 'toast.settingsReset': 'تم إعادة الإعدادات إلى الافتراضي!', 'toast.avatarUploaded': 'تم رفع الصورة الرمزية بنجاح!', 'toast.profileUpdated': 'تم تحديث الملف الشخصي بنجاح!', 'toast.copied': 'تم النسخ إلى الحافظة!', 'toast.copyFailed': 'فشل النسخ. يرجى النسخ يدوياً.', 'toast.installExtension': 'يرجى تثبيت إضافة Nostr للمتصفح مثل Alby أو nos2x', 'toast.loginFailed': 'فشل تسجيل الدخول بالإضافة. حاول مرة أخرى.', 'toast.invalidKey': 'مفتاح خاص غير صالح. تحقق وحاول مرة أخرى.', 'toast.enterKey': 'يرجى إدخال المفتاح الخاص', 'toast.enterUsername': 'يرجى إدخال اسم المستخدم', 'toast.accountCreated': 'مرحباً بك في Plebs! تم تسجيل دخولك.', 'toast.keyCopied': 'تم نسخ المفتاح الخاص إلى الحافظة!', 'toast.unmuted': 'تم إلغاء كتم المستخدم', 'toast.unmuteFailed': 'فشل إلغاء الكتم', 'toast.selectImage': 'يرجى اختيار ملف صورة', 'toast.imageTooLarge': 'يجب أن تكون الصورة أقل من 5 ميجابايت', 'toast.avatarFailed': 'فشل رفع الصورة الرمزية. حاول مرة أخرى.', 'toast.mustBeLoggedIn': 'يجب تسجيل الدخول لتعديل ملفك الشخصي', 'toast.enterDisplayName': 'يرجى إدخال الاسم المعروض', 'toast.profileFailed': 'فشل حفظ الملف الشخصي. حاول مرة أخرى.', 'toast.invalidBunker': 'يرجى إدخال رابط bunker صالح', 'toast.connectFailed': 'فشل الاتصال', 'toast.showingFiltered': 'عرض المحتوى المصفى', 'toast.reportSubmitted': 'تم إرسال البلاغ بنجاح', 'toast.draftSaved': 'تم حفظ المسودة! يمكنك المتابعة لاحقاً من فيديوهاتي.', 'toast.draftLoaded': 'تم تحميل المسودة. أكمل الرفع والنشر.', 'toast.draftDeleted': 'تم حذف المسودة', 'toast.languageChanged': 'تم تغيير اللغة', 'toast.videoBlocked': 'تم حظر الفيديو ونشره على Nostr', 'toast.waitForUpload': 'يرجى الانتظار حتى اكتمال رفع الفيديو', 'toast.enterTitle': 'يرجى إدخال العنوان', 'toast.publishing': 'جار نشر الفيديو على Nostr...',
         // Time
         'time.justNow': 'الآن', 'time.secondAgo': 'منذ ثانية', 'time.secondsAgo': 'منذ {n} ثانية', 'time.minuteAgo': 'منذ دقيقة', 'time.minutesAgo': 'منذ {n} دقيقة', 'time.hourAgo': 'منذ ساعة', 'time.hoursAgo': 'منذ {n} ساعة', 'time.dayAgo': 'منذ يوم', 'time.daysAgo': 'منذ {n} يوم', 'time.weekAgo': 'منذ أسبوع', 'time.weeksAgo': 'منذ {n} أسبوع', 'time.monthAgo': 'منذ شهر', 'time.monthsAgo': 'منذ {n} شهر', 'time.yearAgo': 'منذ سنة', 'time.yearsAgo': 'منذ {n} سنة',
         // Empty States
@@ -5021,7 +5197,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'आपकी प्राइवेट की', 'privateKey.warning': 'महत्वपूर्ण: इसे सुरक्षित जगह पर सहेजें। यदि आप यह की खो देते हैं, तो आप अपने खाते तक पहुंच खो देंगे। इसे किसी के साथ साझा न करें!', 'privateKey.show': 'प्राइवेट की दिखाएं', 'privateKey.hide': 'प्राइवेट की छुपाएं', 'privateKey.copy': 'कॉपी करें', 'privateKey.saved': 'मैंने अपनी की सहेज ली है', 'privateKey.yourPublicKey': 'आपकी पब्लिक की (npub):', 'privateKey.yourPrivateKey': 'आपकी प्राइवेट की (nsec):',
         // Signup Modal
-        'signup.title': 'Nostr खाता बनाएं', 'signup.whatIsNostr': 'Nostr क्या है?', 'signup.nostrDescription': 'Nostr एक विकेंद्रीकृत प्रोटोकॉल है जो आपको अपनी पहचान और डेटा पर नियंत्रण देता है। कोई केंद्रीय सर्वर नहीं - आपका खाता एक क्रिप्टोग्राफिक की पेयर है।', 'signup.whyNostr': 'Nostr क्यों?', 'signup.benefit1': 'अपनी पहचान के मालिक बनें', 'signup.benefit2': 'कोई सेंसरशिप नहीं', 'signup.benefit3': 'प्लेटफॉर्म के बीच पोर्टेबिलिटी', 'signup.createNew': 'नया खाता बनाएं', 'signup.haveAccount': 'पहले से खाता है?', 'signup.login': 'लॉग इन करें', 'signup.createButton': 'खाता बनाएं', 'signup.generating': 'कीज़ जनरेट हो रही हैं...', 'signup.displayName': 'प्रदर्शित नाम', 'signup.displayNamePlaceholder': 'प्रदर्शित नाम दर्ज करें', 'signup.username': 'उपयोगकर्ता नाम', 'signup.usernamePlaceholder': 'उपयोगकर्ता नाम दर्ज करें',
+        'signup.title': 'Nostr खाता बनाएं', 'signup.whatIsNostr': 'Nostr क्या है?', 'signup.nostrDescription': 'Nostr एक विकेंद्रीकृत प्रोटोकॉल है जो आपको अपनी पहचान और डेटा पर नियंत्रण देता है। कोई केंद्रीय सर्वर नहीं - आपका खाता एक क्रिप्टोग्राफिक की पेयर है।', 'signup.whyNostr': 'Nostr क्यों?', 'signup.benefit1': 'अपनी पहचान के मालिक बनें', 'signup.benefit2': 'कोई सेंसरशिप नहीं', 'signup.benefit3': 'प्लेटफॉर्म के बीच पोर्टेबिलिटी', 'signup.createNew': 'नया खाता बनाएं', 'signup.haveAccount': 'पहले से खाता है?', 'signup.login': 'लॉग इन करें', 'signup.createButton': 'खाता बनाएं', 'signup.generating': 'कीज़ जनरेट हो रही हैं...', 'signup.displayName': 'प्रदर्शित नाम', 'signup.displayNamePlaceholder': 'प्रदर्शित नाम दर्ज करें', 'signup.username': 'उपयोगकर्ता नाम', 'signup.usernamePlaceholder': 'उपयोगकर्ता नाम दर्ज करें', 'signup.about': 'परिचय (वैकल्पिक)', 'signup.profilePicture': 'प्रोफाइल फोटो (वैकल्पिक)', 'signup.lightningAddress': 'Lightning पता (वैकल्पिक)', 'signup.nostrAddress': 'Nostr पता', 'signup.nostrAddressPlaceholder': 'उपयोगकर्तानाम', 'signup.nostrAddressHint': 'आपका Nostr पता आपकी प्रोफाइल को खोजना आसान बनाता है। केवल छोटे अक्षर, अंक, _ और -।', 'signup.nostrAddressRequired': 'कृपया Nostr पता दर्ज करें', 'signup.nostrAddressAvailable': 'उपलब्ध!', 'signup.nostrAddressUnavailable': 'पहले से उपयोग में है', 'signup.nostrAddressChecking': 'जांच हो रही है...', 'signup.nostrAddressInvalid': 'अमान्य उपयोगकर्ता नाम प्रारूप', 'signup.nostrAddressRegistering': 'आपका Nostr पता पंजीकृत हो रहा है...', 'signup.nostrAddressSuccess': 'Nostr पता पंजीकृत हो गया!', 'signup.nostrAddressFailed': 'Nostr पता पंजीकृत नहीं हो सका', 'signup.createAccountBtn': 'खाता बनाएं', 'signup.termsAgree': 'खाता बनाकर, आप सहमत हैं', 'signup.and': 'और', 'signup.success': 'खाता सफलतापूर्वक बना!', 'signup.yourPrivateKey': 'आपकी प्राइवेट की (nsec)', 'signup.keyWarning': 'यह आपके खाते तक पहुंचने का एकमात्र तरीका है। इसे सुरक्षित रखें!', 'signup.copyPrivateKey': 'प्राइवेट की कॉपी करें', 'signup.howToUseKey': 'अपनी प्राइवेट की का उपयोग कैसे करें', 'signup.continueToPlebs': 'Plebs पर जारी रखें', 'signup.step1': 'सुरक्षित रूप से सहेजें:', 'signup.step1Desc': 'nsec को पासवर्ड मैनेजर में सहेजें, लिख लें, या एन्क्रिप्टेड फाइल में सहेजें। सार्वजनिक रूप से साझा न करें!', 'signup.step2': 'फिर से लॉग इन करने के लिए:', 'signup.step2Desc': 'लॉगिन स्क्रीन पर "प्राइवेट की" पर क्लिक करें और nsec पेस्ट करें। यह पासवर्ड की तरह काम करता है।', 'signup.step3': 'अन्य ऐप्स में उपयोग करें:', 'signup.step3Desc': 'आपका nsec सभी Nostr ऐप्स में काम करता है - Damus, Primal, Amethyst और सैकड़ों अन्य!', 'signup.step4': 'साइनर ऐप पर विचार करें:', 'signup.step4Desc': 'बेहतर सुरक्षा के लिए, Amber (Android) या Alby जैसे ब्राउज़र एक्सटेंशन का उपयोग करें।',
         // Notifications
         'notifications.title': 'सूचनाएं', 'notifications.empty': 'कोई सूचना नहीं', 'notifications.viewAll': 'सभी सूचनाएं देखें', 'notifications.markAllRead': 'सभी को पढ़ा हुआ चिह्नित करें', 'notifications.settings': 'सूचना सेटिंग्स', 'notifications.loading': 'सूचनाएं लोड हो रही हैं...', 'notifications.zap': 'ने आपको ज़ैप भेजा', 'notifications.like': 'ने आपकी सामग्री पसंद की', 'notifications.comment': 'ने टिप्पणी की', 'notifications.follow': 'ने आपको फॉलो किया', 'notifications.repost': 'ने रीपोस्ट किया', 'notifications.mention': 'ने आपका उल्लेख किया',
         // Settings Modal
@@ -5038,6 +5214,7 @@ const translations = {
         'nsfw.title': 'वयस्क सामग्री चेतावनी', 'nsfw.warning': 'यह सामग्री NSFW के रूप में चिह्नित है और इसमें वयस्क सामग्री हो सकती है।', 'nsfw.confirm': 'अपनी आयु पुष्टि करें', 'nsfw.confirmAge': 'मेरी आयु 18 वर्ष या उससे अधिक है', 'nsfw.cancel': 'वापस जाएं', 'nsfw.continue': 'जारी रखें', 'nsfw.dontShowAgain': 'यह चेतावनी फिर न दिखाएं',
         // Community Warning Modal
         'community.title': 'समुदाय दिशानिर्देश', 'community.warning': 'कृपया जारी रखने से पहले हमारे समुदाय दिशानिर्देशों की समीक्षा करें।', 'community.guidelines': 'सम्मानजनक रहें और समुदाय मानकों का पालन करें।', 'community.accept': 'स्वीकार करें', 'community.decline': 'अस्वीकार करें',
+        'communityWarning.title': 'समुदाय चेतावनी', 'communityWarning.description': 'इस वीडियो को समुदाय द्वारा फ़्लैग किया गया है और/या भारी मात्रा में नकारात्मक वोट मिले हैं। यह इसके कारण हो सकता है:', 'communityWarning.reason1': 'अनुचित सामग्री जिसे NSFW के रूप में सही ढंग से चिह्नित नहीं किया गया', 'communityWarning.reason2': 'नया या संदिग्ध उपयोगकर्ता विवरण', 'communityWarning.reason3': 'भ्रामक या झूठी जानकारी', 'communityWarning.reason4': 'स्पैम या निम्न गुणवत्ता वाली सामग्री', 'communityWarning.reason5': 'संभावित हानिकारक या अवैध सामग्री', 'communityWarning.proceed': 'सावधानी से आगे बढ़ें।', 'communityWarning.goBack': 'वापस जाएं', 'communityWarning.viewAnyway': 'फिर भी देखें',
         // Report Modal
         'report.title': 'सामग्री की रिपोर्ट करें', 'report.reason': 'रिपोर्ट का कारण', 'report.selectReason': 'कारण चुनें', 'report.spam': 'स्पैम या भ्रामक', 'report.inappropriate': 'अनुचित सामग्री', 'report.violence': 'हिंसक या खतरनाक सामग्री', 'report.copyright': 'कॉपीराइट उल्लंघन', 'report.other': 'अन्य', 'report.details': 'विवरण', 'report.detailsPlaceholder': 'अधिक विवरण प्रदान करें...', 'report.submit': 'रिपोर्ट सबमिट करें', 'report.cancel': 'रद्द करें',
         // Share Modal
@@ -5051,7 +5228,7 @@ const translations = {
         // Video Page
         'video.views': 'बार देखा गया', 'video.like': 'पसंद', 'video.dislike': 'नापसंद', 'video.share': 'साझा करें', 'video.save': 'सहेजें', 'video.report': 'रिपोर्ट करें', 'video.follow': 'फॉलो करें', 'video.unfollow': 'अनफॉलो', 'video.subscribe': 'सब्सक्राइब', 'video.subscribed': 'सब्सक्राइब्ड', 'video.comments': 'टिप्पणियाँ', 'video.addComment': 'टिप्पणी जोड़ें...', 'video.reply': 'जवाब दें', 'video.replies': 'जवाब', 'video.loadMore': 'और लोड करें', 'video.noComments': 'कोई टिप्पणी नहीं। पहले टिप्पणी करें!', 'video.zap': 'ज़ैप', 'video.zapAmount': 'ज़ैप राशि (सैट्स)', 'video.sendZap': 'ज़ैप भेजें', 'video.boost': 'बूस्ट', 'video.description': 'विवरण', 'video.showMore': 'और दिखाएं', 'video.showLess': 'कम दिखाएं', 'video.publishedOn': 'प्रकाशित',
         // Toast Messages
-        'toast.loggedIn': 'लॉग इन सफल!', 'toast.loggedOut': 'लॉग आउट हो गए', 'toast.settingsSaved': 'सेटिंग्स सहेजी गईं!', 'toast.settingsReset': 'सेटिंग्स रीसेट हो गईं', 'toast.videoUploaded': 'वीडियो अपलोड हो गया!', 'toast.videoDeleted': 'वीडियो हटाया गया', 'toast.profileUpdated': 'प्रोफ़ाइल अपडेट हो गई!', 'toast.linkCopied': 'लिंक कॉपी हो गया!', 'toast.embedCopied': 'एम्बेड कोड कॉपी हो गया!', 'toast.zapSent': 'ज़ैप भेजा गया!', 'toast.followed': 'फॉलो किया!', 'toast.unfollowed': 'अनफॉलो किया', 'toast.reported': 'रिपोर्ट सबमिट हो गई', 'toast.saved': 'सहेजा गया!', 'toast.error': 'त्रुटि हुई', 'toast.networkError': 'नेटवर्क त्रुटि। पुनः प्रयास करें।', 'toast.uploadError': 'अपलोड विफल। पुनः प्रयास करें।', 'toast.languageChanged': 'भाषा बदली गई', 'toast.commentPosted': 'टिप्पणी पोस्ट हो गई', 'toast.keyCopied': 'की कॉपी हो गई!',
+        'toast.loggedIn': 'सफलतापूर्वक लॉग इन हो गए!', 'toast.settingsSaved': 'सेटिंग्स सफलतापूर्वक सहेजी गईं!', 'toast.settingsLocal': 'सेटिंग्स स्थानीय रूप से सहेजी गईं। Nostr पर सहेजने में विफल।', 'toast.settingsLocalOnly': 'सेटिंग्स स्थानीय रूप से सहेजी गईं!', 'toast.settingsReset': 'सेटिंग्स डिफ़ॉल्ट पर रीसेट हो गईं!', 'toast.avatarUploaded': 'अवतार सफलतापूर्वक अपलोड हो गया!', 'toast.profileUpdated': 'प्रोफ़ाइल सफलतापूर्वक अपडेट हो गई!', 'toast.copied': 'क्लिपबोर्ड पर कॉपी हो गया!', 'toast.copyFailed': 'कॉपी करने में विफल। कृपया मैन्युअल रूप से कॉपी करें।', 'toast.installExtension': 'कृपया Alby या nos2x जैसा Nostr ब्राउज़र एक्सटेंशन इंस्टॉल करें', 'toast.loginFailed': 'एक्सटेंशन से लॉगिन विफल। पुनः प्रयास करें।', 'toast.invalidKey': 'अमान्य प्राइवेट की। जाँच करें और पुनः प्रयास करें।', 'toast.enterKey': 'कृपया अपनी प्राइवेट की दर्ज करें', 'toast.enterUsername': 'कृपया उपयोगकर्ता नाम दर्ज करें', 'toast.accountCreated': 'Plebs में आपका स्वागत है! आप अब लॉग इन हैं।', 'toast.keyCopied': 'प्राइवेट की क्लिपबोर्ड पर कॉपी हो गई!', 'toast.unmuted': 'उपयोगकर्ता अनम्यूट हो गया', 'toast.unmuteFailed': 'अनम्यूट करने में विफल', 'toast.selectImage': 'कृपया एक इमेज फ़ाइल चुनें', 'toast.imageTooLarge': 'इमेज 5MB से कम होनी चाहिए', 'toast.avatarFailed': 'अवतार अपलोड करने में विफल। पुनः प्रयास करें।', 'toast.mustBeLoggedIn': 'प्रोफ़ाइल संपादित करने के लिए लॉग इन होना ज़रूरी है', 'toast.enterDisplayName': 'कृपया प्रदर्शित नाम दर्ज करें', 'toast.profileFailed': 'प्रोफ़ाइल सहेजने में विफल। पुनः प्रयास करें।', 'toast.invalidBunker': 'कृपया वैध bunker URL दर्ज करें', 'toast.connectFailed': 'कनेक्ट करने में विफल', 'toast.showingFiltered': 'फ़िल्टर की गई सामग्री दिखा रहे हैं', 'toast.reportSubmitted': 'रिपोर्ट सफलतापूर्वक सबमिट हो गई', 'toast.draftSaved': 'ड्राफ्ट सहेजा गया! आप मेरे वीडियो से बाद में जारी रख सकते हैं।', 'toast.draftLoaded': 'ड्राफ्ट लोड हो गया। अपलोड पूरा करें और प्रकाशित करें।', 'toast.draftDeleted': 'ड्राफ्ट हटा दिया गया', 'toast.languageChanged': 'भाषा बदली गई', 'toast.videoBlocked': 'वीडियो ब्लॉक किया गया और Nostr पर प्रकाशित हुआ', 'toast.waitForUpload': 'कृपया वीडियो अपलोड पूरा होने की प्रतीक्षा करें', 'toast.enterTitle': 'कृपया शीर्षक दर्ज करें', 'toast.publishing': 'Nostr पर वीडियो प्रकाशित हो रहा है...',
         // Time
         'time.justNow': 'अभी', 'time.secondAgo': '1 सेकंड पहले', 'time.secondsAgo': '{n} सेकंड पहले', 'time.minuteAgo': '1 मिनट पहले', 'time.minutesAgo': '{n} मिनट पहले', 'time.hourAgo': '1 घंटा पहले', 'time.hoursAgo': '{n} घंटे पहले', 'time.dayAgo': '1 दिन पहले', 'time.daysAgo': '{n} दिन पहले', 'time.weekAgo': '1 सप्ताह पहले', 'time.weeksAgo': '{n} सप्ताह पहले', 'time.monthAgo': '1 महीना पहले', 'time.monthsAgo': '{n} महीने पहले', 'time.yearAgo': '1 साल पहले', 'time.yearsAgo': '{n} साल पहले',
         // Empty States
@@ -5458,7 +5635,7 @@ const translations = {
         // Private Key Modal
         'privateKey.title': 'La Tua Chiave Privata', 'privateKey.warning': 'IMPORTANTE: Salva questo in un posto sicuro. Se perdi questa chiave, perderai l\'accesso al tuo account. Non condividerla mai con nessuno!', 'privateKey.show': 'Mostra Chiave Privata', 'privateKey.hide': 'Nascondi Chiave Privata', 'privateKey.copy': 'Copia', 'privateKey.saved': 'Ho salvato la mia chiave', 'privateKey.yourPublicKey': 'La tua Chiave Pubblica (npub):', 'privateKey.yourPrivateKey': 'La tua Chiave Privata (nsec):',
         // Signup Modal
-        'signup.title': 'Crea Account Nostr', 'signup.whatIsNostr': 'Cos\'è Nostr?', 'signup.nostrDescription': 'Nostr è un protocollo decentralizzato che ti dà il controllo sulla tua identità e i tuoi dati. Nessun server centrale - il tuo account è una coppia di chiavi crittografiche.', 'signup.whyNostr': 'Perché Nostr?', 'signup.benefit1': 'Possiedi la tua identità', 'signup.benefit2': 'Nessuna censura', 'signup.benefit3': 'Portabilità tra piattaforme', 'signup.createNew': 'Crea Nuovo Account', 'signup.haveAccount': 'Hai già un account?', 'signup.login': 'Accedi', 'signup.createButton': 'Crea Account', 'signup.generating': 'Generazione chiavi...', 'signup.displayName': 'Nome Visualizzato', 'signup.displayNamePlaceholder': 'Inserisci nome visualizzato', 'signup.username': 'Nome Utente', 'signup.usernamePlaceholder': 'Inserisci nome utente',
+        'signup.title': 'Crea Account Nostr', 'signup.whatIsNostr': 'Cos\'è Nostr?', 'signup.nostrDescription': 'Nostr è un protocollo decentralizzato che ti dà il controllo sulla tua identità e i tuoi dati. Nessun server centrale - il tuo account è una coppia di chiavi crittografiche.', 'signup.whyNostr': 'Perché Nostr?', 'signup.benefit1': 'Possiedi la tua identità', 'signup.benefit2': 'Nessuna censura', 'signup.benefit3': 'Portabilità tra piattaforme', 'signup.createNew': 'Crea Nuovo Account', 'signup.haveAccount': 'Hai già un account?', 'signup.login': 'Accedi', 'signup.createButton': 'Crea Account', 'signup.generating': 'Generazione chiavi...', 'signup.displayName': 'Nome Visualizzato', 'signup.displayNamePlaceholder': 'Inserisci nome visualizzato', 'signup.username': 'Nome Utente', 'signup.usernamePlaceholder': 'Inserisci nome utente', 'signup.about': 'Descrizione (opzionale)', 'signup.profilePicture': 'Foto Profilo (opzionale)', 'signup.lightningAddress': 'Indirizzo Lightning (opzionale)', 'signup.nostrAddress': 'Indirizzo Nostr', 'signup.nostrAddressPlaceholder': 'nomeutente', 'signup.nostrAddressHint': 'Il tuo indirizzo Nostr rende il tuo profilo più facile da trovare. Solo lettere minuscole, numeri, _ e -.', 'signup.nostrAddressRequired': 'Inserisci un indirizzo Nostr', 'signup.nostrAddressAvailable': 'Disponibile!', 'signup.nostrAddressUnavailable': 'Già in uso', 'signup.nostrAddressChecking': 'Verifica in corso...', 'signup.nostrAddressInvalid': 'Formato nome utente non valido', 'signup.nostrAddressRegistering': 'Registrazione indirizzo Nostr...', 'signup.nostrAddressSuccess': 'Indirizzo Nostr registrato!', 'signup.nostrAddressFailed': 'Impossibile registrare indirizzo Nostr', 'signup.createAccountBtn': 'Crea Account', 'signup.termsAgree': 'Creando un account, accetti i nostri', 'signup.and': 'e', 'signup.success': 'Account Creato con Successo!', 'signup.yourPrivateKey': 'La Tua Chiave Privata (nsec)', 'signup.keyWarning': 'Questo è l\'UNICO modo per accedere al tuo account. Conservala in un posto sicuro!', 'signup.copyPrivateKey': 'Copia Chiave Privata', 'signup.howToUseKey': 'Come usare la tua chiave privata', 'signup.continueToPlebs': 'Continua su Plebs', 'signup.step1': 'Salva in modo sicuro:', 'signup.step1Desc': 'Salva il tuo nsec in un gestore di password, scrivilo o salvalo in un file crittografato. Non condividerlo mai pubblicamente!', 'signup.step2': 'Per accedere di nuovo:', 'signup.step2Desc': 'Clicca su "Chiave Privata" nella schermata di accesso e incolla il tuo nsec. Funziona come una password.', 'signup.step3': 'Usa in altre app:', 'signup.step3Desc': 'Il tuo nsec funziona in tutte le app Nostr - Damus, Primal, Amethyst e centinaia di altre!', 'signup.step4': 'Considera un\'app di firma:', 'signup.step4Desc': 'Per maggiore sicurezza, usa app come Amber (Android) o un\'estensione del browser come Alby per gestire le tue chiavi.',
         // Notifications
         'notifications.title': 'Notifiche', 'notifications.empty': 'Nessuna notifica', 'notifications.viewAll': 'Vedi tutte le notifiche', 'notifications.markAllRead': 'Segna tutto come letto', 'notifications.settings': 'Impostazioni notifiche', 'notifications.loading': 'Caricamento notifiche...', 'notifications.zap': 'ti ha inviato uno zap', 'notifications.like': 'ha apprezzato il tuo contenuto', 'notifications.comment': 'ha commentato', 'notifications.follow': 'ti ha seguito', 'notifications.repost': 'ha ripostato', 'notifications.mention': 'ti ha menzionato',
         // Settings Modal
@@ -5475,6 +5652,7 @@ const translations = {
         'nsfw.title': 'Avviso Contenuto Adulti', 'nsfw.warning': 'Questo contenuto è contrassegnato come NSFW (Non Sicuro per il Lavoro) e potrebbe contenere materiale per adulti.', 'nsfw.confirm': 'Conferma la tua età', 'nsfw.confirmAge': 'Ho 18 anni o più', 'nsfw.cancel': 'Torna Indietro', 'nsfw.continue': 'Continua', 'nsfw.dontShowAgain': 'Non mostrare più questo avviso',
         // Community Warning Modal
         'community.title': 'Linee Guida Community', 'community.warning': 'Rivedi le nostre linee guida della community prima di continuare.', 'community.guidelines': 'Sii rispettoso e segui gli standard della community.', 'community.accept': 'Accetto', 'community.decline': 'Rifiuto',
+        'communityWarning.title': 'Avviso della Community', 'communityWarning.description': 'Questo video è stato segnalato e/o ha ricevuto molti voti negativi dalla community. Questo potrebbe essere dovuto a:', 'communityWarning.reason1': 'Contenuto inappropriato non correttamente contrassegnato come NSFW', 'communityWarning.reason2': 'Dettagli utente nuovi o sospetti', 'communityWarning.reason3': 'Informazioni fuorvianti o false', 'communityWarning.reason4': 'Spam o contenuto di bassa qualità', 'communityWarning.reason5': 'Contenuto potenzialmente dannoso o illegale', 'communityWarning.proceed': 'Procedere con cautela.', 'communityWarning.goBack': 'Torna Indietro', 'communityWarning.viewAnyway': 'Visualizza Comunque',
         // Report Modal
         'report.title': 'Segnala Contenuto', 'report.reason': 'Motivo della Segnalazione', 'report.selectReason': 'Seleziona motivo', 'report.spam': 'Spam o fuorviante', 'report.inappropriate': 'Contenuto inappropriato', 'report.violence': 'Contenuto violento o pericoloso', 'report.copyright': 'Violazione copyright', 'report.other': 'Altro', 'report.details': 'Dettagli', 'report.detailsPlaceholder': 'Fornisci maggiori dettagli...', 'report.submit': 'Invia Segnalazione', 'report.cancel': 'Annulla',
         // Share Modal
@@ -5488,7 +5666,7 @@ const translations = {
         // Video Page
         'video.views': 'visualizzazioni', 'video.like': 'Mi Piace', 'video.dislike': 'Non Mi Piace', 'video.share': 'Condividi', 'video.save': 'Salva', 'video.report': 'Segnala', 'video.follow': 'Segui', 'video.unfollow': 'Non Seguire', 'video.subscribe': 'Iscriviti', 'video.subscribed': 'Iscritto', 'video.comments': 'Commenti', 'video.addComment': 'Aggiungi commento...', 'video.reply': 'Rispondi', 'video.replies': 'risposte', 'video.loadMore': 'Carica Altri', 'video.noComments': 'Nessun commento. Sii il primo!', 'video.zap': 'Zap', 'video.zapAmount': 'Importo Zap (sats)', 'video.sendZap': 'Invia Zap', 'video.boost': 'Boost', 'video.description': 'Descrizione', 'video.showMore': 'Mostra di più', 'video.showLess': 'Mostra meno', 'video.publishedOn': 'Pubblicato il',
         // Toast Messages
-        'toast.loggedIn': 'Accesso effettuato!', 'toast.loggedOut': 'Disconnesso', 'toast.settingsSaved': 'Impostazioni salvate!', 'toast.settingsReset': 'Impostazioni ripristinate', 'toast.videoUploaded': 'Video caricato!', 'toast.videoDeleted': 'Video eliminato', 'toast.profileUpdated': 'Profilo aggiornato!', 'toast.linkCopied': 'Link copiato!', 'toast.embedCopied': 'Codice embed copiato!', 'toast.zapSent': 'Zap inviato!', 'toast.followed': 'Seguito!', 'toast.unfollowed': 'Non più seguito', 'toast.reported': 'Segnalazione inviata', 'toast.saved': 'Salvato!', 'toast.error': 'Si è verificato un errore', 'toast.networkError': 'Errore di rete. Riprova.', 'toast.uploadError': 'Caricamento fallito. Riprova.', 'toast.languageChanged': 'Lingua cambiata', 'toast.commentPosted': 'Commento pubblicato', 'toast.keyCopied': 'Chiave copiata!',
+        'toast.loggedIn': 'Accesso effettuato con successo!', 'toast.settingsSaved': 'Impostazioni salvate con successo!', 'toast.settingsLocal': 'Impostazioni salvate localmente. Impossibile salvare su Nostr.', 'toast.settingsLocalOnly': 'Impostazioni salvate localmente!', 'toast.settingsReset': 'Impostazioni ripristinate ai valori predefiniti!', 'toast.avatarUploaded': 'Avatar caricato con successo!', 'toast.profileUpdated': 'Profilo aggiornato con successo!', 'toast.copied': 'Copiato negli appunti!', 'toast.copyFailed': 'Copia fallita. Si prega di copiare manualmente.', 'toast.installExtension': 'Si prega di installare un\'estensione Nostr come Alby o nos2x', 'toast.loginFailed': 'Accesso con estensione fallito. Riprova.', 'toast.invalidKey': 'Chiave privata non valida. Controlla e riprova.', 'toast.enterKey': 'Si prega di inserire la chiave privata', 'toast.enterUsername': 'Si prega di inserire un nome utente', 'toast.accountCreated': 'Benvenuto su Plebs! Sei ora connesso.', 'toast.keyCopied': 'Chiave privata copiata negli appunti!', 'toast.unmuted': 'Utente riattivato', 'toast.unmuteFailed': 'Impossibile riattivare utente', 'toast.selectImage': 'Si prega di selezionare un file immagine', 'toast.imageTooLarge': 'L\'immagine deve essere inferiore a 5MB', 'toast.avatarFailed': 'Caricamento avatar fallito. Riprova.', 'toast.mustBeLoggedIn': 'Devi essere connesso per modificare il profilo', 'toast.enterDisplayName': 'Si prega di inserire un nome visualizzato', 'toast.profileFailed': 'Salvataggio profilo fallito. Riprova.', 'toast.invalidBunker': 'Si prega di inserire un URL bunker valido', 'toast.connectFailed': 'Connessione fallita', 'toast.showingFiltered': 'Visualizzazione contenuti filtrati', 'toast.reportSubmitted': 'Segnalazione inviata con successo', 'toast.draftSaved': 'Bozza salvata! Puoi continuare dopo da I Miei Video.', 'toast.draftLoaded': 'Bozza caricata. Completa il caricamento e pubblica.', 'toast.draftDeleted': 'Bozza eliminata', 'toast.languageChanged': 'Lingua cambiata', 'toast.videoBlocked': 'Video bloccato e pubblicato su Nostr', 'toast.waitForUpload': 'Attendere il completamento del caricamento video', 'toast.enterTitle': 'Si prega di inserire un titolo', 'toast.publishing': 'Pubblicazione video su Nostr...',
         // Time
         'time.justNow': 'adesso', 'time.secondAgo': '1 secondo fa', 'time.secondsAgo': '{n} secondi fa', 'time.minuteAgo': '1 minuto fa', 'time.minutesAgo': '{n} minuti fa', 'time.hourAgo': '1 ora fa', 'time.hoursAgo': '{n} ore fa', 'time.dayAgo': '1 giorno fa', 'time.daysAgo': '{n} giorni fa', 'time.weekAgo': '1 settimana fa', 'time.weeksAgo': '{n} settimane fa', 'time.monthAgo': '1 mese fa', 'time.monthsAgo': '{n} mesi fa', 'time.yearAgo': '1 anno fa', 'time.yearsAgo': '{n} anni fa',
         // Empty States
@@ -6023,6 +6201,16 @@ let sessionRatioedAllowed = new Set();
 let currentTrendingPeriod = 'week';
 let isInitializingSettings = false;
 let boostsCache = new Map();
+
+// Image asset cache for thumbnails and preview GIFs
+// Stores loaded images as blob URLs to avoid refetching when same video appears in multiple grids
+// Structure: Map<url, { blobUrl: string, size: number, lastAccessed: number }>
+const imageAssetCache = new Map();
+const IMAGE_CACHE_MAX_SIZE = 100 * 1024 * 1024; // 100MB max cache size
+const IMAGE_CACHE_MAX_ENTRIES = 500; // Max number of cached images
+let imageCacheTotalSize = 0;
+// Track URLs that failed due to CORS - don't retry fetching these
+const corsFailedUrls = new Set();
 
 // Mute list cache (NIP-51 kind 10000)
 let mutedUsersCache = new Set();
@@ -8998,33 +9186,50 @@ function initLazyLoading() {
     setInterval(checkVisibleLazyCards, 1000);
 }
 
-// Load a lazy card's media (both thumbnail and preview GIF)
+// Load a lazy card's media (both thumbnail and preview GIF) with caching
 function loadLazyCard(card) {
     if (card.dataset.loaded === 'true') return;
 
-    // Load thumbnail image
+    // Load thumbnail image - use cache if available, otherwise load normally
     const thumbnailImg = card.querySelector('img.thumbnail-img[data-src]');
     if (thumbnailImg && thumbnailImg.dataset.src) {
-        thumbnailImg.src = thumbnailImg.dataset.src;
+        const originalUrl = thumbnailImg.dataset.src;
         thumbnailImg.removeAttribute('data-src');
+        thumbnailImg.dataset.originalSrc = originalUrl;
+
+        // Use cached blob URL if available, otherwise use original URL
+        const cachedUrl = getCachedImageUrl(originalUrl);
+        thumbnailImg.src = cachedUrl || originalUrl;
         thumbnailImg.onload = () => {
             thumbnailImg.classList.add('loaded');
+            // Cache for future use if not already cached (same-origin only)
+            if (!cachedUrl && !isCrossOrigin(originalUrl)) {
+                fetchAndCacheImage(originalUrl).catch(() => {});
+            }
         };
     }
 
-    // Load preview GIF image (hidden until hover)
+    // Load preview GIF image - use cache if available, otherwise load normally
     const previewImg = card.querySelector('img.preview-img[data-src]');
     if (previewImg && previewImg.dataset.src) {
-        previewImg.src = previewImg.dataset.src;
+        const originalUrl = previewImg.dataset.src;
         previewImg.removeAttribute('data-src');
+        previewImg.dataset.originalSrc = originalUrl;
+
+        // Use cached blob URL if available, otherwise use original URL
+        const cachedUrl = getCachedImageUrl(originalUrl);
+        previewImg.src = cachedUrl || originalUrl;
         previewImg.onload = () => {
             previewImg.classList.add('loaded');
-            // Mark the card as having preview ready
             card.dataset.previewReady = 'true';
+            // Cache for future use if not already cached (same-origin only)
+            if (!cachedUrl && !isCrossOrigin(originalUrl)) {
+                fetchAndCacheImage(originalUrl).catch(() => {});
+            }
         };
     }
 
-    // Load video element if no thumbnail
+    // Load video element if no thumbnail (no caching for video sources)
     const video = card.querySelector('video[data-src]');
     if (video && video.dataset.src) {
         video.src = video.dataset.src;
@@ -9060,6 +9265,163 @@ function observeLazyCards() {
 
     document.querySelectorAll('.video-card[data-lazy="true"]:not([data-loaded="true"])').forEach(card => {
         lazyLoadObserver.observe(card);
+    });
+}
+
+// Image asset cache functions for reusing loaded thumbnails and preview GIFs
+// Check if an image URL is already cached and return the blob URL if available
+function getCachedImageUrl(originalUrl) {
+    if (!originalUrl) return null;
+    const cached = imageAssetCache.get(originalUrl);
+    if (cached) {
+        // Update last accessed time for LRU
+        cached.lastAccessed = Date.now();
+        return cached.blobUrl;
+    }
+    return null;
+}
+
+// Fetch and cache an image, returning a blob URL for reuse
+// Returns null if CORS blocks the request - caller should fall back to direct img src
+async function fetchAndCacheImage(url) {
+    if (!url) return null;
+
+    // Check if already cached
+    const cached = getCachedImageUrl(url);
+    if (cached) return cached;
+
+    // Skip URLs that previously failed due to CORS
+    if (corsFailedUrls.has(url)) return null;
+
+    try {
+        const response = await fetch(url, { mode: 'cors' });
+        if (!response.ok) return null;
+
+        const blob = await response.blob();
+        const size = blob.size;
+
+        // Evict old entries if needed before adding new one
+        evictImageCacheIfNeeded(size);
+
+        const blobUrl = URL.createObjectURL(blob);
+        imageAssetCache.set(url, {
+            blobUrl,
+            size,
+            lastAccessed: Date.now()
+        });
+        imageCacheTotalSize += size;
+
+        return blobUrl;
+    } catch (e) {
+        // CORS or network error - mark URL to avoid retrying
+        // This allows the image to load via <img> tag which doesn't require CORS
+        corsFailedUrls.add(url);
+        return null;
+    }
+}
+
+// Evict oldest entries from cache if over limits
+function evictImageCacheIfNeeded(incomingSize = 0) {
+    // Check if we need to evict based on entry count or size
+    while (
+        (imageAssetCache.size >= IMAGE_CACHE_MAX_ENTRIES ||
+         imageCacheTotalSize + incomingSize > IMAGE_CACHE_MAX_SIZE) &&
+        imageAssetCache.size > 0
+    ) {
+        // Find the least recently accessed entry
+        let oldestKey = null;
+        let oldestTime = Infinity;
+
+        for (const [key, value] of imageAssetCache) {
+            if (value.lastAccessed < oldestTime) {
+                oldestTime = value.lastAccessed;
+                oldestKey = key;
+            }
+        }
+
+        if (oldestKey) {
+            const entry = imageAssetCache.get(oldestKey);
+            if (entry) {
+                // Revoke the blob URL to free memory
+                URL.revokeObjectURL(entry.blobUrl);
+                imageCacheTotalSize -= entry.size;
+                imageAssetCache.delete(oldestKey);
+            }
+        } else {
+            break;
+        }
+    }
+}
+
+// Clear the entire image cache (useful on navigation or memory pressure)
+function clearImageCache() {
+    for (const [, entry] of imageAssetCache) {
+        URL.revokeObjectURL(entry.blobUrl);
+    }
+    imageAssetCache.clear();
+    imageCacheTotalSize = 0;
+}
+
+// Apply cached image to an img element if available
+function applyCachedImage(imgElement, originalUrl) {
+    const cachedUrl = getCachedImageUrl(originalUrl);
+    if (cachedUrl) {
+        imgElement.src = cachedUrl;
+        return true;
+    }
+    return false;
+}
+
+// Load image with caching - fetches, caches, and applies to element
+async function loadImageWithCache(imgElement, originalUrl, onLoad) {
+    if (!originalUrl) return;
+
+    // First check if already cached
+    const cachedUrl = getCachedImageUrl(originalUrl);
+    if (cachedUrl) {
+        imgElement.src = cachedUrl;
+        if (onLoad) onLoad();
+        return;
+    }
+
+    // Try to fetch and cache
+    const blobUrl = await fetchAndCacheImage(originalUrl);
+    if (blobUrl) {
+        imgElement.src = blobUrl;
+        if (onLoad) onLoad();
+    } else {
+        // Fall back to direct URL loading
+        imgElement.src = originalUrl;
+        imgElement.onload = onLoad;
+    }
+}
+
+// Check if a URL is cross-origin (different host than current page)
+function isCrossOrigin(url) {
+    try {
+        const urlObj = new URL(url, window.location.origin);
+        return urlObj.origin !== window.location.origin;
+    } catch {
+        return true; // Assume cross-origin if URL parsing fails
+    }
+}
+
+// Cache an already-loaded image element (called from onload for immediate-load images)
+// Only caches same-origin images - cross-origin images rely on browser cache
+function cacheLoadedImage(imgElement) {
+    const originalUrl = imgElement.dataset.originalSrc;
+    if (!originalUrl) return;
+
+    // Skip if already cached
+    if (imageAssetCache.has(originalUrl)) return;
+
+    // Skip cross-origin URLs - they can't be fetched due to CORS
+    // Browser cache will handle them when loaded via <img> tags
+    if (isCrossOrigin(originalUrl)) return;
+
+    // Fetch and cache in background (browser should serve from cache)
+    fetchAndCacheImage(originalUrl).catch(() => {
+        // Silently ignore cache failures
     });
 }
 
@@ -11790,9 +12152,13 @@ function showSignupModal() {
     const usernameInput = document.getElementById('signupUsername');
     const aboutInput = document.getElementById('signupAbout');
     const lnInput = document.getElementById('signupLightningAddress');
+    const nostrAddressInput = document.getElementById('signupNostrAddress');
+    const nostrAddressStatus = document.getElementById('nostrAddressStatus');
     if (usernameInput) usernameInput.value = '';
     if (aboutInput) aboutInput.value = '';
     if (lnInput) lnInput.value = '';
+    if (nostrAddressInput) nostrAddressInput.value = '';
+    if (nostrAddressStatus) nostrAddressStatus.style.display = 'none';
 
     // Reset avatar preview
     resetAvatarUpload();
@@ -11807,7 +12173,7 @@ function showSignupForm() {
     preGeneratedKeys = { privateKey, publicKey };
 
     document.getElementById('nostrExplainer').style.display = 'none';
-    document.getElementById('signupFormSection').style.display = 'block';
+    document.getElementById('signupFormSection').style.display = 'flex';
     updateSignupPreview();
 
     // Add input listeners for preview updates
@@ -12057,9 +12423,21 @@ async function createAccount() {
     const username = document.getElementById('signupUsername').value.trim();
     const about = document.getElementById('signupAbout').value.trim();
     const lightningAddress = document.getElementById('signupLightningAddress')?.value.trim() || '';
+    const nostrAddressUsername = document.getElementById('signupNostrAddress')?.value.trim().toLowerCase() || '';
 
     if (!username) {
         showToast('Please enter a username', 'error');
+        return;
+    }
+
+    // Validate required nostr address
+    if (!nostrAddressUsername) {
+        showToast(t('signup.nostrAddressRequired'), 'error');
+        return;
+    }
+
+    if (!/^[a-z0-9_-]+$/.test(nostrAddressUsername)) {
+        showToast(t('signup.nostrAddressInvalid'), 'error');
         return;
     }
 
@@ -12084,12 +12462,55 @@ async function createAccount() {
         const profileContent = {
             name: username,
             about: about,
-            picture: signupAvatarUrl || `https://robohash.org/${publicKey}.png`
+            picture: signupAvatarUrl
         };
 
         // Add lightning address if provided
         if (lightningAddress) {
             profileContent.lud16 = lightningAddress;
+        }
+
+        // Register NIP-05 address (required)
+        // First check availability
+        const availabilityResult = await checkNostrAddressAvailability(nostrAddressUsername);
+
+        if (!availabilityResult.available) {
+            if (availabilityResult.error === 'taken') {
+                showToast(t('signup.nostrAddressUnavailable'), 'error');
+            } else if (availabilityResult.error === 'invalid') {
+                showToast(t('signup.nostrAddressInvalid'), 'error');
+            } else {
+                showToast(t('signup.nostrAddressFailed'), 'error');
+            }
+            if (createBtn) {
+                createBtn.disabled = false;
+                createBtn.textContent = t('signup.createAccountBtn');
+            }
+            return;
+        }
+
+        // Try to register
+        if (createBtn) {
+            createBtn.textContent = t('signup.nostrAddressRegistering');
+        }
+
+        const registerResult = await registerNostrAddress(nostrAddressUsername, publicKey, privateKey);
+
+        if (registerResult.success) {
+            profileContent.nip05 = registerResult.nip05;
+        } else {
+            // Registration failed - show error and stop
+            console.error('NIP-05 registration failed:', registerResult.error);
+            showToast(t('signup.nostrAddressFailed'), 'error');
+            if (createBtn) {
+                createBtn.disabled = false;
+                createBtn.textContent = t('signup.createAccountBtn');
+            }
+            return;
+        }
+
+        if (createBtn) {
+            createBtn.textContent = t('button.creatingAccount');
         }
 
         // Create profile event
@@ -12194,6 +12615,149 @@ function finishAccountCreation() {
     onUserLoggedIn(true);
 
     showToast('Welcome to Plebs! You are now logged in.', 'success');
+}
+
+// NostrCheck.me API integration for NIP-05 registration
+const NOSTRCHECK_API = 'https://nostrcheck.me/api/v2';
+let nostrAddressCheckTimer = null;
+
+// Check if a username is available on nostrcheck.me
+async function checkNostrAddressAvailability(username) {
+    if (!username || username.length < 1) {
+        return { available: false, error: 'empty' };
+    }
+
+    // Validate username format (lowercase alphanumeric, underscore, hyphen)
+    if (!/^[a-z0-9_-]+$/.test(username)) {
+        return { available: false, error: 'invalid' };
+    }
+
+    try {
+        const response = await fetch(`${NOSTRCHECK_API}/nostraddress?name=${encodeURIComponent(username)}`);
+
+        // 404 means username is available (not found)
+        if (response.status === 404) {
+            return { available: true };
+        }
+
+        const data = await response.json();
+
+        // If the username exists in the names object, it's taken
+        if (data.names && data.names[username]) {
+            return { available: false, error: 'taken' };
+        }
+
+        return { available: true };
+    } catch (error) {
+        console.error('Error checking nostr address availability:', error);
+        return { available: false, error: 'network' };
+    }
+}
+
+// Register a NIP-05 address on nostrcheck.me
+async function registerNostrAddress(username, pubkey, privateKey) {
+    if (!username || !pubkey || !privateKey) {
+        return { success: false, error: 'missing_params' };
+    }
+
+    try {
+        // Create NIP-98 authorization header
+        const authEvent = {
+            kind: 27235,
+            created_at: Math.floor(Date.now() / 1000),
+            tags: [
+                ['u', `${NOSTRCHECK_API}/register`],
+                ['method', 'POST']
+            ],
+            content: '',
+            pubkey: pubkey
+        };
+
+        const signedAuthEvent = window.NostrTools.finalizeEvent(authEvent, privateKey);
+        const authHeader = btoa(JSON.stringify(signedAuthEvent));
+
+        // Generate a random password (not needed for login with nostr, but required by API)
+        const randomPassword = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+            .map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const response = await fetch(`${NOSTRCHECK_API}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Nostr ${authHeader}`
+            },
+            body: JSON.stringify({
+                username: username,
+                domain: 'nostrcheck.me',
+                pubkey: pubkey,
+                password: randomPassword
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.status === 'success') {
+            return { success: true, nip05: `${username}@nostrcheck.me` };
+        } else {
+            console.error('NostrCheck registration failed:', data);
+            return { success: false, error: data.message || 'registration_failed' };
+        }
+    } catch (error) {
+        console.error('Error registering nostr address:', error);
+        return { success: false, error: 'network' };
+    }
+}
+
+// Update the nostr address status display
+function updateNostrAddressStatus(status, message) {
+    const statusDiv = document.getElementById('nostrAddressStatus');
+    if (!statusDiv) return;
+
+    statusDiv.style.display = 'flex';
+    statusDiv.className = 'nostr-address-status ' + status;
+    statusDiv.querySelector('.status-text').textContent = message;
+}
+
+// Handle nostr address input changes with debounce
+function handleNostrAddressInput(event) {
+    const username = event.target.value.trim().toLowerCase();
+    const statusDiv = document.getElementById('nostrAddressStatus');
+
+    // Clear previous timer
+    if (nostrAddressCheckTimer) {
+        clearTimeout(nostrAddressCheckTimer);
+    }
+
+    // Hide status if empty
+    if (!username) {
+        if (statusDiv) statusDiv.style.display = 'none';
+        return;
+    }
+
+    // Validate format immediately
+    if (!/^[a-z0-9_-]+$/.test(username)) {
+        updateNostrAddressStatus('unavailable', t('signup.nostrAddressInvalid'));
+        return;
+    }
+
+    // Show checking status
+    updateNostrAddressStatus('checking', t('signup.nostrAddressChecking'));
+
+    // Debounce the availability check
+    nostrAddressCheckTimer = setTimeout(async () => {
+        const result = await checkNostrAddressAvailability(username);
+
+        if (result.available) {
+            updateNostrAddressStatus('available', t('signup.nostrAddressAvailable'));
+        } else if (result.error === 'taken') {
+            updateNostrAddressStatus('unavailable', t('signup.nostrAddressUnavailable'));
+        } else if (result.error === 'invalid') {
+            updateNostrAddressStatus('unavailable', t('signup.nostrAddressInvalid'));
+        } else {
+            // Network error - hide status
+            if (statusDiv) statusDiv.style.display = 'none';
+        }
+    }, 500);
 }
 
 // View own profile function
@@ -15989,7 +16553,7 @@ function createSidebarVideoCard(event, profile, reactions) {
             <div class="sidebar-video-thumbnail ${showBlurred ? overlayType : ''}"
                  ${videoData.preview ? `data-preview="${escapeHtml(videoData.preview)}" data-thumbnail="${escapeHtml(videoData.thumbnail || '')}"` : ''}>
                 ${videoData.thumbnail ?
-                    `<img class="thumbnail-img" src="${videoData.thumbnail}" alt="${videoData.title}" onerror="this.style.display='none'">` :
+                    `<img class="thumbnail-img" src="${videoData.thumbnail}" data-original-src="${videoData.thumbnail}" alt="${videoData.title}" onload="cacheLoadedImage(this)" onerror="this.style.display='none'">` :
                     `<video src="${videoData.url}" preload="metadata"></video>`
                 }
                 ${showBlurred ? `
@@ -20762,12 +21326,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set up signup form listeners
     const signupUsername = document.getElementById('signupUsername');
     const signupAbout = document.getElementById('signupAbout');
+    const signupNostrAddress = document.getElementById('signupNostrAddress');
 
     if (signupUsername) {
         signupUsername.addEventListener('input', updateSignupPreview);
     }
     if (signupAbout) {
         signupAbout.addEventListener('input', updateSignupPreview);
+    }
+    if (signupNostrAddress) {
+        signupNostrAddress.addEventListener('input', handleNostrAddressInput);
     }
 
     // Set up file input listeners
@@ -21218,11 +21786,11 @@ async function loadTrendingVideos(period = 'today') {
 
             const trendingGrid = document.getElementById('trendingGrid');
             if (trendingGrid && trendingVideos.length > 0) {
-                const currentlyRendered = renderedVideoIds.size;
                 const videosToRender = trendingVideos.filter(v => !renderedVideoIds.has(v.id));
 
                 if (videosToRender.length > 0 || trendingVideos.length !== lastRenderCount) {
-                    renderTrendingVideosIncremental(trendingVideos, renderedVideoIds);
+                    // Use optimized DOM-diffing render to avoid re-rendering existing cards
+                    renderTrendingVideosOptimized(trendingVideos, renderedVideoIds);
                     lastRenderCount = trendingVideos.length;
                 }
             }
@@ -21726,8 +22294,9 @@ function renderTrendingVideosIncremental(trendingVideos, renderedVideoIds) {
         spinner.remove();
     }
 
-    // Limit to max 4 cards initially on homepage
-    const maxInitialCards = 4;
+    // Limit cards on homepage - 3 on mobile, 4 on desktop
+    const isMobile = window.innerWidth <= 480;
+    const maxInitialCards = isMobile ? 3 : 4;
     const videosToRender = trendingVideos.slice(0, maxInitialCards);
 
     // Find videos that need profiles loaded
@@ -21788,6 +22357,161 @@ function renderTrendingVideosIncremental(trendingVideos, renderedVideoIds) {
     } else if (trendingVideos.length === 0) {
         const periodText = currentTrendingPeriod === 'today' ? 'today' : 'this week';
         trendingGrid.innerHTML = `<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No trending videos ${periodText}.</p>`;
+    }
+}
+
+// Optimized DOM-diffing render for trending videos - reuses existing DOM nodes
+// Prevents re-rendering of already loaded cards when new videos are inserted
+function renderTrendingVideosOptimized(trendingVideos, renderedVideoIds) {
+    const trendingGrid = document.getElementById('trendingGrid');
+    if (!trendingGrid) return;
+
+    // Remove skeleton loaders first
+    const skeletons = trendingGrid.querySelectorAll('.skeleton-card');
+    skeletons.forEach(s => s.remove());
+
+    const spinner = trendingGrid.querySelector('.spinner');
+    if (spinner) spinner.remove();
+
+    // Limit cards on homepage - 3 on mobile, 4 on desktop
+    const isMobile = window.innerWidth <= 480;
+    const maxInitialCards = isMobile ? 3 : 4;
+    const videosToRender = trendingVideos.slice(0, maxInitialCards);
+
+    // Handle empty state
+    if (videosToRender.length === 0) {
+        const periodText = currentTrendingPeriod === 'today' ? 'today' : 'this week';
+        trendingGrid.innerHTML = `<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">No trending videos ${periodText}.</p>`;
+        return;
+    }
+
+    // Build map of currently rendered cards in the DOM
+    const existingCards = new Map();
+    trendingGrid.querySelectorAll('.video-card').forEach(card => {
+        const eventId = card.dataset.eventId || card.id.replace('video-card-', '');
+        if (eventId) existingCards.set(eventId, card);
+    });
+
+    // Track which cards we need to keep (in order)
+    const targetOrder = videosToRender.map(v => v.id);
+    const cardsToRemove = new Set(existingCards.keys());
+    const newCards = [];
+    const cardsToUpdate = [];
+
+    // Determine what needs to be created vs updated
+    videosToRender.forEach((event, index) => {
+        if (existingCards.has(event.id)) {
+            // Card exists - mark for keeping and potential update
+            cardsToRemove.delete(event.id);
+            cardsToUpdate.push({ event, index });
+        } else {
+            // New card - needs to be created
+            newCards.push({ event, index });
+            renderedVideoIds.add(event.id);
+        }
+    });
+
+    // Remove cards that are no longer in the top list
+    cardsToRemove.forEach(eventId => {
+        const card = existingCards.get(eventId);
+        if (card) card.remove();
+        existingCards.delete(eventId);
+    });
+
+    // Update existing cards in place (profiles, reactions, boost indicators)
+    cardsToUpdate.forEach(({ event }) => {
+        const profile = profileCache.get(event.pubkey);
+        const reactions = reactionsCache.get(event.id);
+        updateVideoCardInPlace(event.id, profile, reactions);
+    });
+
+    // Create new cards using DocumentFragment for batch insertion
+    if (newCards.length > 0) {
+        const fragment = document.createDocumentFragment();
+        const tempContainer = document.createElement('div');
+
+        newCards.forEach(({ event, index }) => {
+            const profile = profileCache.get(event.pubkey);
+            const reactions = reactionsCache.get(event.id);
+            const cardHTML = createVideoCard(event, profile, reactions, true);
+            if (cardHTML) {
+                tempContainer.innerHTML = cardHTML;
+                const cardElement = tempContainer.firstElementChild;
+                if (cardElement) {
+                    cardElement.dataset.targetIndex = index;
+                    fragment.appendChild(cardElement);
+                }
+            }
+        });
+
+        // Append all new cards at once
+        trendingGrid.appendChild(fragment);
+    }
+
+    // Reorder cards to match target order (only if order changed)
+    const currentCards = Array.from(trendingGrid.querySelectorAll('.video-card'));
+    const currentOrder = currentCards.map(c => c.dataset.eventId || c.id.replace('video-card-', ''));
+
+    // Check if reordering is needed
+    const needsReorder = !targetOrder.every((id, i) => currentOrder[i] === id);
+
+    if (needsReorder && currentCards.length > 0) {
+        // Use insertBefore for efficient DOM reordering
+        targetOrder.forEach((eventId, targetIndex) => {
+            const card = trendingGrid.querySelector(`[data-event-id="${eventId}"], #video-card-${eventId}`);
+            if (card) {
+                const currentIndex = Array.from(trendingGrid.children).indexOf(card);
+                if (currentIndex !== targetIndex) {
+                    const referenceNode = trendingGrid.children[targetIndex];
+                    if (referenceNode && referenceNode !== card) {
+                        trendingGrid.insertBefore(card, referenceNode);
+                    }
+                }
+            }
+        });
+    }
+
+    // Initialize lazy loading and carousel for any new cards
+    if (newCards.length > 0) {
+        observeLazyCards();
+        initializeCarousel();
+
+        // Load profiles for new videos only
+        newCards.forEach(({ event }) => loadProfileAndUpdateCards(event.pubkey));
+
+        // Load boosts for new videos only
+        newCards.forEach(({ event }) => {
+            if (!boostsCache.has(event.id)) {
+                loadBoostsForVideo(event.id, (totalBoosts) => {
+                    const card = document.getElementById(`video-card-${event.id}`);
+                    if (!card) return;
+                    const boostLevel = getBoostLevel(totalBoosts);
+                    const isBoosted = boostLevel > 0;
+                    if (isBoosted) {
+                        card.classList.add('boosted', `boost-level-${boostLevel}`);
+                        for (let i = 1; i <= 4; i++) {
+                            if (i !== boostLevel) card.classList.remove(`boost-level-${i}`);
+                        }
+                        const thumbnail = card.querySelector('.video-thumbnail');
+                        if (thumbnail) {
+                            const existingIndicator = thumbnail.querySelector('.boost-indicator');
+                            const indicatorHTML = `<div class="boost-indicator"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" stroke-width="2"/></svg>${formatSats(totalBoosts)}</div>`;
+                            if (existingIndicator) {
+                                existingIndicator.outerHTML = indicatorHTML;
+                            } else {
+                                thumbnail.insertAdjacentHTML('beforeend', indicatorHTML);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        // Load views for new videos only
+        const newVideoIds = newCards.map(({ event }) => event.id);
+        if (newVideoIds.length > 0) {
+            loadViewsForVideos(newVideoIds, true);
+        }
     }
 }
 
@@ -22239,13 +22963,14 @@ async function loadHomeFeed() {
 }
 
 // Load trending section as a grid (1 row, max 4 cards)
-// Note: loadTrendingVideos already does progressive rendering via renderTrendingVideosIncremental
+// Note: loadTrendingVideos uses renderTrendingVideosOptimized for DOM-diffing updates
 // This function just needs to handle caching and view more button
 async function loadTrendingSectionGrid() {
     const trendingGrid = document.getElementById('trendingGrid');
     const viewMoreBtn = document.getElementById('trendingViewMore');
-    // Limit to max 4 cards on homepage regardless of viewport width
-    const maxTrendingCards = 4;
+    // Limit cards on homepage - 3 on mobile, 4 on desktop
+    const isMobile = window.innerWidth <= 480;
+    const maxTrendingCards = isMobile ? 3 : 4;
 
     try {
         // loadTrendingVideos already renders progressively as data arrives
@@ -22539,6 +23264,7 @@ async function loadShortsSection() {
     const shortsGrid = document.getElementById('shortsGrid');
     const viewMoreBtn = document.getElementById('shortsViewMore');
     const cardsPerRow = getShortsCardsPerRow();
+    const isMobile = window.innerWidth <= 480;
 
     if (!shortsSection || !shortsGrid) return;
 
@@ -22550,7 +23276,8 @@ async function loadShortsSection() {
 
     const videos = [];
     let renderedCount = 0;
-    const maxInitialDisplay = cardsPerRow;
+    // Show 4 shorts on mobile, otherwise one row worth
+    const maxInitialDisplay = isMobile ? 4 : cardsPerRow;
 
     // Queue for batch loading reactions and boosts
     const reactionQueue = new Set();
@@ -22695,8 +23422,8 @@ function createShortCard(event, profile, reactions, showOwnerActions = false) {
         <div class="video-card short-card ${isBoosted ? `boosted boost-level-${boostLevel}` : ''}" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}"${videoData.preview ? ' data-has-preview="true"' : ''}>
             <div class="video-thumbnail short-thumbnail ${showBlurred ? overlayType : ''}"
                  onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">
-                ${thumbnailUrl ? `<img class="thumbnail-img" src="${thumbnailUrl}" alt="${escapeHtml(title)}" loading="lazy">` : '<div class="thumbnail-placeholder"></div>'}
-                ${videoData.preview ? `<img class="preview-img" src="${videoData.preview}" alt="${escapeHtml(title)} preview" style="display:none;" onload="this.classList.add('loaded')">` : ''}
+                ${thumbnailUrl ? `<img class="thumbnail-img" src="${thumbnailUrl}" data-original-src="${thumbnailUrl}" alt="${escapeHtml(title)}" loading="lazy" onload="cacheLoadedImage(this)">` : '<div class="thumbnail-placeholder"></div>'}
+                ${videoData.preview ? `<img class="preview-img" src="${videoData.preview}" data-original-src="${videoData.preview}" alt="${escapeHtml(title)} preview" style="display:none;" onload="this.classList.add('loaded'); cacheLoadedImage(this)">` : ''}
                 ${showBlurred ? `
                     <div class="${overlayType}-overlay">
                         <div class="${overlayType}-badge">${overlayType === 'nsfw' ? t('badge.nsfw') : t('badge.communityWarning')}</div>
@@ -24111,7 +24838,7 @@ function createMyLiveStreamCard(event, liveData, profile) {
         <div class="video-card live-stream-card ${statusClass} ${boostClasses}" data-event-id="${event.id}" data-live-event-id="${event.id}" data-pubkey="${event.pubkey}" onclick="navigateTo('/live/${event.id}')">
             <div class="video-thumbnail">
                 ${liveData.thumbnail
-                    ? `<img src="${liveData.thumbnail}" alt="${escapeHtml(liveData.title)}" loading="lazy">`
+                    ? `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${escapeHtml(liveData.title)}" loading="lazy" onload="cacheLoadedImage(this)">`
                     : '<div style="width:100%; height:100%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><svg width="48" height="48" viewBox="0 0 24 24" fill="var(--text-secondary)"><circle cx="12" cy="12" r="4"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>'
                 }
                 ${statusBadge}
@@ -32851,10 +33578,10 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
             <div class="video-thumbnail ${showBlurred ? overlayType : ''}"
                  onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">
                 ${videoData.thumbnail ?
-            `<img class="thumbnail-img" ${lazy ? `data-src="${videoData.thumbnail}"` : `src="${videoData.thumbnail}"`} alt="${videoData.title}" onerror="this.style.display='none'">` :
+            `<img class="thumbnail-img" ${lazy ? `data-src="${videoData.thumbnail}"` : `src="${videoData.thumbnail}" data-original-src="${videoData.thumbnail}" onload="cacheLoadedImage(this)"`} alt="${videoData.title}" onerror="this.style.display='none'">` :
             `<video ${lazy ? `data-src="${videoData.url}"` : `src="${videoData.url}"`} preload="metadata"></video>`
         }
-                ${videoData.preview ? `<img class="preview-img" ${lazy ? `data-src="${videoData.preview}"` : `src="${videoData.preview}" onload="this.classList.add('loaded')"`} alt="${videoData.title} preview" style="display:none;">` : ''}
+                ${videoData.preview ? `<img class="preview-img" ${lazy ? `data-src="${videoData.preview}"` : `src="${videoData.preview}" data-original-src="${videoData.preview}" onload="this.classList.add('loaded'); cacheLoadedImage(this)"`} alt="${videoData.title} preview" style="display:none;">` : ''}
                 ${showBlurred ? `
                     <div class="${overlayType}-overlay">
                         <div class="${overlayType}-badge">${overlayType === 'nsfw' ? t('badge.nsfw') : t('badge.communityWarning')}</div>
@@ -35966,7 +36693,7 @@ function createLiveStreamCard(event, liveData, profile, isEnded = false, reactio
         <div class="video-card is-live ${boostClasses}" data-live-event-id="${event.id}" data-pubkey="${event.pubkey}" onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playLive', '${event.id}')` : `showRatioedModal('${event.id}', 'live')`) : `navigateTo('/live/${event.id}')`}">
             <div class="video-thumbnail ${showBlurred ? overlayType : ''}">
                 ${liveData.thumbnail ?
-                    `<img src="${liveData.thumbnail}" alt="${liveData.title}"${showBlurred ? ' style="filter: blur(20px);"' : ''}>` :
+                    `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${liveData.title}" onload="cacheLoadedImage(this)"${showBlurred ? ' style="filter: blur(20px);"' : ''}>` :
                     '<div style="width:100%; height:100%; background: var(--bg-secondary);"></div>'
                 }
                 ${showBlurred ? `
@@ -36056,7 +36783,7 @@ function createScheduledStreamCard(event, liveData, profile) {
         <div class="scheduled-stream-card" data-event-id="${event.id}" data-pubkey="${event.pubkey}" onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playLive', '${event.id}')` : `showRatioedModal('${event.id}', 'live')`) : `navigateTo('/live/${event.id}')`}">
             <div class="scheduled-stream-thumbnail ${showBlurred ? overlayType : ''}">
                 ${liveData.thumbnail ?
-                    `<img src="${liveData.thumbnail}" alt="${liveData.title}"${showBlurred ? ' style="filter: blur(20px);"' : ''}>` :
+                    `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${liveData.title}" onload="cacheLoadedImage(this)"${showBlurred ? ' style="filter: blur(20px);"' : ''}>` :
                     '<div style="width:100%; height:100%; background: var(--bg-secondary);"></div>'
                 }
                 ${showBlurred ? `
