@@ -1,3 +1,8 @@
+## v2.7.15 - 2025-12-19
+
+Hotfix: video card previews load faster
+Hotfix: further translated sections
+
 ## v2.7.14 - 2025-12-19
 
 Hotfix: further translated sections

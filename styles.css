@@ -346,6 +346,10 @@ header {
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-footer-links:last-of-type {
     margin-bottom: 1rem;
 }
 
@@ -366,6 +370,7 @@ header {
 
 .sidebar-footer-credits {
     line-height: 1.8;
+    margin-top: 1rem;
 }
 
 /* Hide credits text when collapsed, show only in expanded */
@@ -611,17 +616,13 @@ header {
     object-fit: cover;
 }
 
-/* Hover preview GIF transition */
-.video-thumbnail img.thumbnail-img {
-    transition: opacity 0.15s ease-in-out;
+/* Preview GIF - initially hidden, positioned same as thumbnail */
+.video-thumbnail img.preview-img {
+    z-index: 1;
 }
 
-.video-thumbnail.preview-active img.thumbnail-img {
-    opacity: 1;
-}
-
-/* Subtle indicator that preview is playing */
-.video-thumbnail[data-preview]:hover {
+/* Subtle indicator that preview is available */
+.video-card[data-has-preview="true"]:hover .video-thumbnail {
     cursor: pointer;
 }
 

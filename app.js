@@ -305,6 +305,7 @@ const translations = {
         'filter.politicsDesc': 'Filters partisan political content and divisive rhetoric',
         'filter.profanity': 'Strong Profanity',
         'filter.profanityDesc': 'Filters strong profanity and vulgar language',
+        'filter.customFilter': 'Custom Filter',
         // Toast Messages
         'toast.loggedIn': 'Logged in successfully!',
         'toast.settingsSaved': 'Settings saved successfully!',
@@ -1093,6 +1094,54 @@ const translations = {
         'filter.contentHidden': 'Content hidden by content filter',
         // Following Page
         'following.noFollowingYet': 'You\'re not following anyone yet. Find creators to follow!',
+        // DMCA Page
+        'dmca.title': 'DMCA & Content Policy',
+        'dmca.lastUpdated': 'Last Updated: December 2024',
+        'dmca.architectureTitle': 'Understanding Plebs Architecture',
+        'dmca.architectureDesc': 'Plebs is a decentralized video platform interface that operates differently from traditional video hosting services. It\'s important to understand how content is distributed on our platform:',
+        'dmca.architectureItem1': 'Plebs does not host any video or image content.',
+        'dmca.architectureItem1Desc': 'We are a client/interface that displays content stored elsewhere.',
+        'dmca.architectureItem2': 'All media files (videos, images, thumbnails) are stored on independent Blossom servers operated by third parties.',
+        'dmca.architectureItem3': 'Video metadata (titles, descriptions, etc.) is published to Nostr relays, which are also independently operated.',
+        'dmca.architectureItem4': 'Plebs simply aggregates and displays this distributed content through a user-friendly interface.',
+        'dmca.filingTitle': 'Filing a DMCA Claim',
+        'dmca.filingDesc': 'Because Plebs does not host content, we cannot directly remove infringing material. To address copyright infringement, you must contact the appropriate parties:',
+        'dmca.forVideoTitle': '1. For Video/Image Content',
+        'dmca.forVideoDesc': 'Media files are stored on Blossom servers. You need to:',
+        'dmca.forVideoItem1': 'Identify which Blossom server is hosting the content (the URL will indicate this)',
+        'dmca.forVideoItem2': 'Contact the Blossom server operator directly with your DMCA takedown request',
+        'dmca.forVideoItem3': 'Each Blossom server operates independently and has its own policies',
+        'dmca.forMetadataTitle': '2. For Metadata/Descriptions',
+        'dmca.forMetadataDesc': 'If the infringing content is in the video title, description, or other metadata:',
+        'dmca.forMetadataItem1': 'This information is stored on Nostr relays',
+        'dmca.forMetadataItem2': 'Contact the specific Nostr relay operators where the content appears',
+        'dmca.forMetadataItem3': 'Multiple relays may store the same data due to Nostr\'s distributed nature',
+        'dmca.whatWeCanDoTitle': 'What Plebs Can Do',
+        'dmca.whatWeCanDoDesc': 'While we don\'t host content, we can:',
+        'dmca.whatWeCanDoItem1': 'Help you identify which Blossom servers or relays are hosting specific content',
+        'dmca.whatWeCanDoItem2': 'Add content to a local blocklist so it doesn\'t appear in our interface (note: this only affects plebs.app, not other Nostr clients)',
+        'dmca.whatWeCanDoItem3': 'Provide guidance on how to contact the appropriate service operators',
+        'dmca.toRequestAssistance': 'To request assistance, please contact us with:',
+        'dmca.assistanceItem1': 'The URL or identifier of the infringing content',
+        'dmca.assistanceItem2': 'Proof of your copyright ownership',
+        'dmca.assistanceItem3': 'A description of the copyrighted work',
+        'dmca.blossomOperatorsTitle': 'Blossom Server Operators',
+        'dmca.blossomOperatorsDesc': 'If you operate a Blossom server and receive a DMCA takedown request, you are responsible for handling it according to your jurisdiction\'s laws.',
+        'dmca.blossomOperatorsLink': 'For a list of known Blossom servers, refer to the Blossom project documentation.',
+        'dmca.considerationsTitle': 'Important Considerations',
+        'dmca.considerationsItem1': 'Decentralization:',
+        'dmca.considerationsItem1Desc': 'Due to the decentralized nature of Nostr and Blossom, complete removal of content from all sources may not be possible.',
+        'dmca.considerationsItem2': 'Multiple Copies:',
+        'dmca.considerationsItem2Desc': 'Content may exist on multiple Blossom servers and relays. You may need to contact multiple operators.',
+        'dmca.considerationsItem3': 'Hash-Based Storage:',
+        'dmca.considerationsItem3Desc': 'Blossom uses content-addressed storage. The same file will have the same hash on any server.',
+        'dmca.considerationsItem4': 'No Central Control:',
+        'dmca.considerationsItem4Desc': 'Neither Plebs nor any single entity has the ability to remove content from the entire network.',
+        'dmca.counterNotificationTitle': 'Counter-Notification',
+        'dmca.counterNotificationDesc': 'If you believe your content was wrongly removed from a Blossom server, you should contact that server operator directly to file a counter-notification.',
+        'dmca.contactTitle': 'Contact',
+        'dmca.contactDesc': 'For questions about this policy or assistance identifying content hosts, please',
+        'dmca.contactLink': 'contact us',
     },
     es: {
         // Navigation & Header
@@ -1109,7 +1158,7 @@ const translations = {
         // Notifications
         'notifications.title': 'Notificaciones', 'notifications.settings': 'Configuración de Notificaciones', 'notifications.reactions': 'Reacciones (me gusta/no me gusta)', 'notifications.replies': 'Comentarios y Respuestas', 'notifications.zaps': 'Zaps', 'notifications.chatMentions': 'Menciones en Chat en Vivo', 'notifications.newFollowers': 'Nuevos Seguidores', 'notifications.syncNote': 'La configuración se sincroniza entre dispositivos vía Nostr', 'notifications.settingsTitle': 'Configuración de Notificaciones',
         // Settings Modal
-        'settings.title': 'Configuración', 'settings.language': 'Idioma', 'settings.languageDesc': 'Elige tu idioma preferido', 'settings.saveToNostr': 'Guardar en Nostr', 'settings.saveToNostrDesc': 'Sincronizar configuración en todas las instancias de Plebs', 'settings.darkMode': 'Modo Oscuro', 'settings.darkModeDesc': 'Cambiar entre tema claro y oscuro', 'settings.contentWarnings': 'Preferencias de Advertencias de Contenido', 'settings.showNSFW': 'Mostrar advertencias NSFW', 'settings.showNSFWDesc': 'Mostrar verificación de edad para contenido NSFW', 'settings.showCommunity': 'Mostrar advertencias de la comunidad', 'settings.showCommunityDesc': 'Mostrar advertencias para contenido marcado o con muchos votos negativos', 'settings.showFollowsReport': 'Mostrar advertencias de reportes de seguidos', 'settings.showFollowsReportDesc': 'Mostrar advertencias cuando 5+ personas que sigues han reportado contenido', 'settings.filterPacks': 'Paquetes de Filtros de Contenido', 'settings.filterPacksDesc': 'Habilita paquetes de filtros para ocultar automáticamente contenido que coincida con palabras clave específicas.', 'settings.customKeywords': 'Filtro de Palabras Clave Personalizado', 'settings.customKeywordsPlaceholder': 'Ingresa palabras clave o frases separadas por comas', 'settings.customKeywordsDesc': 'Agrega tus propias palabras clave para filtrar (separadas por comas)', 'settings.mutedUsers': 'Usuarios Silenciados', 'settings.mutedUsersDesc': 'Los usuarios que silencies no aparecerán en tu feed o comentarios.', 'settings.blossomSettings': 'Configuración del Servidor Blossom', 'settings.premiumBlossom': 'Servidor Blossom Premium (NostrMedia.com)', 'settings.premiumBlossomDesc': 'Usa NostrMedia.com si eres usuario suscrito', 'settings.customBlossom': 'Servidores Blossom Personalizados', 'settings.customBlossomDesc': 'Agrega tus propios servidores Blossom (separados por comas)', 'settings.relaySettings': 'Configuración de Relays', 'settings.useWotRelays': 'Usar Relays Web of Trust', 'settings.useWotRelaysDesc': 'Conectar a relays Web of Trust para mejor filtrado de spam', 'settings.saveSettings': 'Guardar Configuración', 'settings.resetDefaults': 'Restablecer Valores',
+        'settings.title': 'Configuración', 'settings.language': 'Idioma', 'settings.languageDesc': 'Elige tu idioma preferido', 'settings.saveToNostr': 'Guardar en Nostr', 'settings.saveToNostrDesc': 'Sincronizar configuración en todas las instancias de Plebs', 'settings.darkMode': 'Modo Oscuro', 'settings.darkModeDesc': 'Cambiar entre tema claro y oscuro', 'settings.contentWarnings': 'Preferencias de Advertencias de Contenido', 'settings.contentWarning': 'Preferencias de Advertencias de Contenido', 'settings.showNSFW': 'Mostrar advertencias NSFW', 'settings.showNSFWDesc': 'Mostrar verificación de edad para contenido NSFW', 'settings.showNsfwWarnings': 'Mostrar advertencias NSFW', 'settings.showNsfwWarningsDesc': 'Mostrar verificación de edad para contenido NSFW', 'settings.showCommunity': 'Mostrar advertencias de la comunidad', 'settings.showCommunityDesc': 'Mostrar advertencias para contenido marcado o con muchos votos negativos', 'settings.showCommunityWarnings': 'Mostrar advertencias de la comunidad', 'settings.showCommunityWarningsDesc': 'Mostrar advertencias para contenido marcado o con muchos votos negativos', 'settings.showFollowsReport': 'Mostrar advertencias de reportes de seguidos', 'settings.showFollowsReportDesc': 'Mostrar advertencias cuando 5+ personas que sigues han reportado contenido', 'settings.showFollowsReportWarnings': 'Mostrar advertencias de reportes de seguidos', 'settings.showFollowsReportWarningsDesc': 'Mostrar advertencias cuando 5+ personas que sigues han reportado contenido', 'settings.filterPacks': 'Paquetes de Filtros de Contenido', 'settings.filterPacksDesc': 'Habilita paquetes de filtros para ocultar automáticamente contenido que coincida con palabras clave específicas.', 'settings.customKeywords': 'Filtro de Palabras Clave Personalizado', 'settings.customKeywordsPlaceholder': 'Ingresa palabras clave o frases separadas por comas', 'settings.customKeywordsDesc': 'Agrega tus propias palabras clave para filtrar (separadas por comas)', 'settings.customKeywordFilter': 'Filtro de Palabras Clave Personalizado', 'settings.customKeywordFilterPlaceholder': 'Ingresa palabras clave o frases separadas por comas\nEjemplo: spam, contenido no deseado, frase específica', 'settings.customKeywordFilterDesc': 'Agrega tus propias palabras clave para filtrar (separadas por comas)', 'settings.mutedUsers': 'Usuarios Silenciados', 'settings.mutedUsersDesc': 'Los usuarios que silencies no aparecerán en tu feed o comentarios.', 'settings.blossomSettings': 'Configuración del Servidor Blossom', 'settings.premiumBlossom': 'Servidor Blossom Premium (NostrMedia.com)', 'settings.premiumBlossomDesc': 'Usa NostrMedia.com si eres usuario suscrito', 'settings.customBlossom': 'Servidores Blossom Personalizados', 'settings.customBlossomDesc': 'Agrega tus propios servidores Blossom (separados por comas)', 'settings.relaySettings': 'Configuración de Relays', 'settings.useWotRelays': 'Usar Relays Web of Trust', 'settings.useWotRelaysDesc': 'Conectar a relays Web of Trust para mejor filtrado de spam', 'settings.saveSettings': 'Guardar Configuración', 'settings.resetDefaults': 'Restablecer Valores',
         // Upload Modal
         'upload.title': 'Subir Video', 'upload.videoFile': 'Archivo de Video', 'upload.recordFromCamera': 'Grabar desde Cámara', 'upload.stop': 'Detener', 'upload.recordHint': 'Graba un video vertical (hasta 60 segundos)', 'upload.or': 'o', 'upload.clickToSelect': 'Haz clic para seleccionar video o arrastra y suelta', 'upload.fileTypes': 'MP4, AVI, MOV, etc (máx 2GB entrada, se comprimirá a <100MB)', 'upload.preparing': 'Preparando...', 'upload.thumbnail': 'Miniatura', 'upload.thumbnailHint': 'Haz clic para seleccionar o auto-generar del video', 'upload.uploading': 'Subiendo...', 'upload.titleLabel': 'Título', 'upload.titlePlaceholder': 'Ingresa el título del video', 'upload.descriptionLabel': 'Descripción', 'upload.descriptionPlaceholder': 'Cuéntale a los espectadores sobre tu video', 'upload.tagsLabel': 'Etiquetas (separadas por comas)', 'upload.tagsPlaceholder': 'bitcoin, nostr, tutorial', 'upload.markNsfw': 'Marcar como NSFW (18+)', 'upload.nsfwDesc': 'El contenido que contiene material adulto debe marcarse como NSFW', 'upload.saveDraft': 'Guardar como Borrador', 'upload.publish': 'Publicar', 'upload.selectVideo': 'Selecciona un video para subir', 'upload.optional': '(opcional)', 'upload.remove': 'Eliminar', 'upload.removeThumbnail': 'Eliminar y subir diferente miniatura', 'upload.removeVideo': 'Eliminar y subir diferente video', 'upload.qualityHigh': 'Alta', 'upload.backToCreate': 'Volver a Crear',
         // Create Modal
@@ -1227,7 +1276,8 @@ const translations = {
         'dmca.counterNotificationTitle': 'Contra-Notificación',
         'dmca.counterNotificationDesc': 'Si cree que su contenido fue eliminado erróneamente de un servidor Blossom, debe contactar directamente al operador de ese servidor para presentar una contra-notificación.',
         'dmca.contactTitle': 'Contacto',
-        'dmca.contactDesc': 'Para preguntas sobre esta política o asistencia identificando hosts de contenido, por favor contáctenos.',
+        'dmca.contactDesc': 'Para preguntas sobre esta política o asistencia identificando hosts de contenido, por favor',
+        'dmca.contactLink': 'contáctenos',
         // Admin Dashboard
         'admin.title': 'Panel de Administración',
         'admin.loading': 'Cargando análisis de plataforma...',
@@ -1558,6 +1608,8 @@ const translations = {
         'confirm.logout': 'Cerrar Sesión', 'confirm.logoutMessage': '¿Estás seguro de que quieres cerrar sesión?', 'confirm.resetSettings': 'Restablecer Configuración', 'confirm.resetSettingsMessage': '¿Estás seguro de que quieres restablecer toda la configuración a los valores predeterminados?', 'confirm.reset': 'Restablecer', 'confirm.clearHistory': 'Borrar Historial', 'confirm.clearHistoryMessage': '¿Estás seguro de que quieres borrar todo tu historial de reproducción? Esto no se puede deshacer.', 'confirm.deleteDraft': 'Eliminar Borrador', 'confirm.deleteDraftMessage': '¿Estás seguro de que quieres eliminar este borrador?', 'confirm.delete': 'Eliminar', 'confirm.deleteVideo': 'Eliminar Video', 'confirm.deleteVideoMessage': '¿Estás seguro de que quieres eliminar este video? Esta acción no se puede deshacer.', 'confirm.endStream': 'Finalizar Transmisión en Vivo', 'confirm.endStreamMessage': '¿Estás seguro de que quieres finalizar esta transmisión en vivo? Esta acción no se puede deshacer.', 'confirm.endStreamButton': 'Finalizar Transmisión',
         // Content Filters
         'filter.hiddenByPack': 'Oculto por {pack}', 'filter.showAnyway': 'Mostrar de todos modos', 'filter.contentHidden': 'Contenido oculto por filtro de contenido',
+        // Filter Packs
+        'filter.racism': 'Racismo y Discurso de Odio', 'filter.racismDesc': 'Filtra insultos raciales, discurso de odio étnico y contenido discriminatorio', 'filter.sexualExplicit': 'Sexualmente Explícito', 'filter.sexualExplicitDesc': 'Filtra términos pornográficos y contenido sexualmente explícito', 'filter.violence': 'Violencia y Gore', 'filter.violenceDesc': 'Filtra violencia gráfica, gore y amenazas violentas', 'filter.drugs': 'Drogas y Sustancias', 'filter.drugsDesc': 'Filtra contenido relacionado con drogas y abuso de sustancias', 'filter.spam': 'Spam y Estafas', 'filter.spamDesc': 'Filtra spam común, estafas y contenido promocional', 'filter.crypto': 'Criptomonedas', 'filter.cryptoDesc': 'Filtra promoción de criptomonedas, señales de trading y promoción de tokens', 'filter.politics': 'Contenido Político', 'filter.politicsDesc': 'Filtra contenido político partidista y retórica divisiva', 'filter.profanity': 'Lenguaje Fuerte', 'filter.profanityDesc': 'Filtra blasfemias fuertes y lenguaje vulgar', 'filter.customFilter': 'Filtro Personalizado',
         // Following Page
         'following.noFollowingYet': 'Aún no sigues a nadie. ¡Encuentra creadores para seguir!',
     },
@@ -1576,7 +1628,7 @@ const translations = {
         // Notifications
         'notifications.title': 'Notifications', 'notifications.settings': 'Paramètres de Notifications', 'notifications.reactions': 'Réactions (j\'aime/je n\'aime pas)', 'notifications.replies': 'Commentaires & Réponses', 'notifications.zaps': 'Zaps', 'notifications.chatMentions': 'Mentions en Chat en Direct', 'notifications.newFollowers': 'Nouveaux Abonnés', 'notifications.syncNote': 'Les paramètres sont synchronisés entre appareils via Nostr',
         // Settings Modal
-        'settings.title': 'Paramètres', 'settings.language': 'Langue', 'settings.languageDesc': 'Choisissez votre langue préférée', 'settings.saveToNostr': 'Enregistrer sur Nostr', 'settings.saveToNostrDesc': 'Synchroniser les paramètres sur toutes les instances Plebs', 'settings.darkMode': 'Mode Sombre', 'settings.darkModeDesc': 'Basculer entre thème clair et sombre', 'settings.saveSettings': 'Enregistrer les Paramètres', 'settings.resetDefaults': 'Réinitialiser',
+        'settings.title': 'Paramètres', 'settings.language': 'Langue', 'settings.languageDesc': 'Choisissez votre langue préférée', 'settings.saveToNostr': 'Enregistrer sur Nostr', 'settings.saveToNostrDesc': 'Synchroniser les paramètres sur toutes les instances Plebs', 'settings.darkMode': 'Mode Sombre', 'settings.darkModeDesc': 'Basculer entre thème clair et sombre', 'settings.contentWarning': 'Préférences d\'avertissement de contenu', 'settings.showNsfwWarnings': 'Afficher les avertissements NSFW', 'settings.showNsfwWarningsDesc': 'Afficher la vérification d\'âge pour le contenu NSFW', 'settings.showCommunityWarnings': 'Afficher les avertissements de la communauté', 'settings.showCommunityWarningsDesc': 'Afficher les avertissements pour le contenu signalé ou fortement négatif', 'settings.showFollowsReportWarnings': 'Afficher les avertissements des rapports suivis', 'settings.showFollowsReportWarningsDesc': 'Afficher les avertissements lorsque 5+ personnes que vous suivez ont signalé du contenu', 'settings.filterPacks': 'Packs de filtres de contenu', 'settings.filterPacksDesc': 'Activez les packs de filtres pour masquer automatiquement le contenu correspondant à des mots-clés spécifiques.', 'settings.customKeywordFilter': 'Filtre de mots-clés personnalisé', 'settings.customKeywordFilterPlaceholder': 'Entrez des mots-clés ou phrases séparés par des virgules\nExemple: spam, contenu indésirable, phrase spécifique', 'settings.customKeywordFilterDesc': 'Ajoutez vos propres mots-clés à filtrer (séparés par des virgules)', 'settings.saveSettings': 'Enregistrer les Paramètres', 'settings.resetDefaults': 'Réinitialiser',
         // Upload Modal
         'upload.title': 'Télécharger une Vidéo', 'upload.videoFile': 'Fichier Vidéo', 'upload.clickToSelect': 'Cliquez pour sélectionner une vidéo ou glissez-déposez', 'upload.fileTypes': 'MP4, AVI, MOV, etc (max 2Go entrée, sera compressé à <100Mo)', 'upload.preparing': 'Préparation...', 'upload.thumbnail': 'Miniature', 'upload.thumbnailHint': 'Cliquez pour sélectionner ou auto-générer depuis la vidéo', 'upload.uploading': 'Téléchargement...', 'upload.titleLabel': 'Titre', 'upload.titlePlaceholder': 'Entrez le titre de la vidéo', 'upload.descriptionLabel': 'Description', 'upload.descriptionPlaceholder': 'Parlez de votre vidéo aux spectateurs', 'upload.tagsLabel': 'Tags (séparés par des virgules)', 'upload.tagsPlaceholder': 'bitcoin, nostr, tutoriel', 'upload.markNsfw': 'Marquer comme NSFW (18+)', 'upload.nsfwDesc': 'Le contenu pour adultes doit être marqué comme NSFW', 'upload.saveDraft': 'Enregistrer comme Brouillon', 'upload.publish': 'Publier', 'upload.selectVideo': 'Sélectionnez une vidéo à télécharger', 'upload.optional': '(optionnel)', 'upload.remove': 'Supprimer', 'upload.qualityHigh': 'Haute',
         // Create Modal
@@ -1694,7 +1746,8 @@ const translations = {
         'dmca.counterNotificationTitle': 'Contre-Notification',
         'dmca.counterNotificationDesc': 'Si vous pensez que votre contenu a été supprimé par erreur, contactez l\'opérateur du serveur.',
         'dmca.contactTitle': 'Contact',
-        'dmca.contactDesc': 'Pour des questions, veuillez nous contacter.',
+        'dmca.contactDesc': 'Pour des questions, veuillez',
+        'dmca.contactLink': 'nous contacter',
         // Admin Dashboard
         'admin.title': 'Tableau de Bord Admin',
         'admin.loading': 'Chargement des analyses...',
@@ -2025,6 +2078,8 @@ const translations = {
         'confirm.logout': 'Déconnexion', 'confirm.logoutMessage': 'Êtes-vous sûr de vouloir vous déconnecter?', 'confirm.resetSettings': 'Réinitialiser les Paramètres', 'confirm.resetSettingsMessage': 'Êtes-vous sûr de vouloir réinitialiser tous les paramètres aux valeurs par défaut?', 'confirm.reset': 'Réinitialiser', 'confirm.clearHistory': 'Effacer l\'Historique', 'confirm.clearHistoryMessage': 'Êtes-vous sûr de vouloir effacer tout votre historique de visionnage? Cette action ne peut pas être annulée.', 'confirm.deleteDraft': 'Supprimer le Brouillon', 'confirm.deleteDraftMessage': 'Êtes-vous sûr de vouloir supprimer ce brouillon?', 'confirm.delete': 'Supprimer', 'confirm.deleteVideo': 'Supprimer la Vidéo', 'confirm.deleteVideoMessage': 'Êtes-vous sûr de vouloir supprimer cette vidéo? Cette action ne peut pas être annulée.', 'confirm.endStream': 'Terminer la Diffusion en Direct', 'confirm.endStreamMessage': 'Êtes-vous sûr de vouloir terminer cette diffusion en direct? Cette action ne peut pas être annulée.', 'confirm.endStreamButton': 'Terminer la Diffusion',
         // Content Filters
         'filter.hiddenByPack': 'Masqué par {pack}', 'filter.showAnyway': 'Afficher quand même', 'filter.contentHidden': 'Contenu masqué par filtre de contenu',
+        // Filter Packs
+        'filter.racism': 'Racisme et Discours de Haine', 'filter.racismDesc': 'Filtre les insultes raciales, le discours de haine ethnique et le contenu discriminatoire', 'filter.sexualExplicit': 'Sexuellement Explicite', 'filter.sexualExplicitDesc': 'Filtre les termes pornographiques et le contenu sexuellement explicite', 'filter.violence': 'Violence et Gore', 'filter.violenceDesc': 'Filtre la violence graphique, le gore et les menaces violentes', 'filter.drugs': 'Drogues et Substances', 'filter.drugsDesc': 'Filtre le contenu lié aux drogues et l\'abus de substances', 'filter.spam': 'Spam et Arnaques', 'filter.spamDesc': 'Filtre le spam courant, les arnaques et le contenu promotionnel', 'filter.crypto': 'Cryptomonnaie', 'filter.cryptoDesc': 'Filtre la promotion de cryptomonnaies, les signaux de trading et la promotion de tokens', 'filter.politics': 'Contenu Politique', 'filter.politicsDesc': 'Filtre le contenu politique partisan et la rhétorique divisive', 'filter.profanity': 'Langage Grossier', 'filter.profanityDesc': 'Filtre les gros mots et le langage vulgaire', 'filter.customFilter': 'Filtre Personnalisé',
         // Following Page
         'following.noFollowingYet': 'Vous ne suivez personne encore. Trouvez des créateurs à suivre!',
     },
@@ -2043,7 +2098,7 @@ const translations = {
         // Notifications
         'notifications.title': 'Benachrichtigungen', 'notifications.settings': 'Benachrichtigungseinstellungen', 'notifications.reactions': 'Reaktionen (Gefällt mir/Gefällt mir nicht)', 'notifications.replies': 'Kommentare & Antworten', 'notifications.zaps': 'Zaps', 'notifications.chatMentions': 'Live-Chat-Erwähnungen', 'notifications.newFollowers': 'Neue Abonnenten', 'notifications.syncNote': 'Einstellungen werden über Nostr zwischen Geräten synchronisiert',
         // Settings Modal
-        'settings.title': 'Einstellungen', 'settings.language': 'Sprache', 'settings.languageDesc': 'Wählen Sie Ihre bevorzugte Sprache', 'settings.saveToNostr': 'Auf Nostr speichern', 'settings.saveToNostrDesc': 'Einstellungen über alle Plebs-Instanzen synchronisieren', 'settings.darkMode': 'Dunkelmodus', 'settings.darkModeDesc': 'Zwischen hellem und dunklem Design wechseln', 'settings.saveSettings': 'Einstellungen speichern', 'settings.resetDefaults': 'Zurücksetzen',
+        'settings.title': 'Einstellungen', 'settings.language': 'Sprache', 'settings.languageDesc': 'Wählen Sie Ihre bevorzugte Sprache', 'settings.saveToNostr': 'Auf Nostr speichern', 'settings.saveToNostrDesc': 'Einstellungen über alle Plebs-Instanzen synchronisieren', 'settings.darkMode': 'Dunkelmodus', 'settings.darkModeDesc': 'Zwischen hellem und dunklem Design wechseln', 'settings.contentWarning': 'Inhaltswarnungseinstellungen', 'settings.showNsfwWarnings': 'NSFW-Warnungen anzeigen', 'settings.showNsfwWarningsDesc': 'Altersverifizierung für NSFW-Inhalte anzeigen', 'settings.showCommunityWarnings': 'Community-Warnungen anzeigen', 'settings.showCommunityWarningsDesc': 'Warnungen für markierte oder stark negativ bewertete Inhalte anzeigen', 'settings.showFollowsReportWarnings': 'Warnungen von gefolgten Berichten anzeigen', 'settings.showFollowsReportWarningsDesc': 'Warnungen anzeigen, wenn 5+ Personen, denen Sie folgen, Inhalte gemeldet haben', 'settings.filterPacks': 'Inhaltsfilter-Pakete', 'settings.filterPacksDesc': 'Aktivieren Sie Filterpakete, um Inhalte mit bestimmten Schlüsselwörtern automatisch auszublenden.', 'settings.customKeywordFilter': 'Benutzerdefinierter Schlüsselwortfilter', 'settings.customKeywordFilterPlaceholder': 'Geben Sie Schlüsselwörter oder Phrasen durch Kommas getrennt ein\nBeispiel: Spam, unerwünschter Inhalt, bestimmter Ausdruck', 'settings.customKeywordFilterDesc': 'Fügen Sie Ihre eigenen Schlüsselwörter zum Filtern hinzu (durch Kommas getrennt)', 'settings.saveSettings': 'Einstellungen speichern', 'settings.resetDefaults': 'Zurücksetzen',
         // Upload Modal
         'upload.title': 'Video hochladen', 'upload.videoFile': 'Videodatei', 'upload.clickToSelect': 'Klicken zum Auswählen oder per Drag & Drop', 'upload.fileTypes': 'MP4, AVI, MOV, etc (max 2GB Eingabe, wird auf <100MB komprimiert)', 'upload.preparing': 'Vorbereitung...', 'upload.thumbnail': 'Thumbnail', 'upload.thumbnailHint': 'Klicken zum Auswählen oder automatisch aus Video generieren', 'upload.uploading': 'Wird hochgeladen...', 'upload.titleLabel': 'Titel', 'upload.titlePlaceholder': 'Videotitel eingeben', 'upload.descriptionLabel': 'Beschreibung', 'upload.descriptionPlaceholder': 'Erzählen Sie den Zuschauern von Ihrem Video', 'upload.tagsLabel': 'Tags (kommagetrennt)', 'upload.tagsPlaceholder': 'bitcoin, nostr, tutorial', 'upload.markNsfw': 'Als NSFW markieren (18+)', 'upload.nsfwDesc': 'Inhalte für Erwachsene sollten als NSFW markiert werden', 'upload.saveDraft': 'Als Entwurf speichern', 'upload.publish': 'Veröffentlichen', 'upload.selectVideo': 'Video zum Hochladen auswählen', 'upload.optional': '(optional)', 'upload.remove': 'Entfernen', 'upload.qualityHigh': 'Hoch',
         // Create Modal
@@ -2161,7 +2216,8 @@ const translations = {
         'dmca.counterNotificationTitle': 'Gegendarstellung',
         'dmca.counterNotificationDesc': 'Wenn Sie glauben, dass Ihr Inhalt fälschlicherweise von einem Blossom-Server entfernt wurde, müssen Sie den Betreiber dieses Servers direkt kontaktieren, um eine Gegendarstellung einzureichen.',
         'dmca.contactTitle': 'Kontakt',
-        'dmca.contactDesc': 'Für Fragen zu dieser Richtlinie oder Hilfe bei der Identifizierung von Inhalts-Hosts, kontaktieren Sie uns bitte.',
+        'dmca.contactDesc': 'Für Fragen zu dieser Richtlinie oder Hilfe bei der Identifizierung von Inhalts-Hosts, bitte',
+        'dmca.contactLink': 'kontaktieren Sie uns',
         // Admin Dashboard
         'admin.title': 'Admin-Dashboard',
         'admin.loading': 'Lade Plattform-Analysen...',
@@ -2492,6 +2548,8 @@ const translations = {
         'confirm.logout': 'Abmelden', 'confirm.logoutMessage': 'Sind Sie sicher, dass Sie sich abmelden möchten?', 'confirm.resetSettings': 'Einstellungen zurücksetzen', 'confirm.resetSettingsMessage': 'Sind Sie sicher, dass Sie alle Einstellungen auf die Standardwerte zurücksetzen möchten?', 'confirm.reset': 'Zurücksetzen', 'confirm.clearHistory': 'Verlauf löschen', 'confirm.clearHistoryMessage': 'Sind Sie sicher, dass Sie Ihren gesamten Wiedergabeverlauf löschen möchten? Dies kann nicht rückgängig gemacht werden.', 'confirm.deleteDraft': 'Entwurf löschen', 'confirm.deleteDraftMessage': 'Sind Sie sicher, dass Sie diesen Entwurf löschen möchten?', 'confirm.delete': 'Löschen', 'confirm.deleteVideo': 'Video löschen', 'confirm.deleteVideoMessage': 'Sind Sie sicher, dass Sie dieses Video löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.', 'confirm.endStream': 'Livestream beenden', 'confirm.endStreamMessage': 'Sind Sie sicher, dass Sie diesen Livestream beenden möchten? Diese Aktion kann nicht rückgängig gemacht werden.', 'confirm.endStreamButton': 'Stream beenden',
         // Content Filters
         'filter.hiddenByPack': 'Versteckt durch {pack}', 'filter.showAnyway': 'Trotzdem anzeigen', 'filter.contentHidden': 'Inhalt durch Inhaltsfilter versteckt',
+        // Filter Packs
+        'filter.racism': 'Rassismus & Hassrede', 'filter.racismDesc': 'Filtert rassistische Beleidigungen, ethnische Hassrede und diskriminierende Inhalte', 'filter.sexualExplicit': 'Sexuell Explizit', 'filter.sexualExplicitDesc': 'Filtert pornografische Begriffe und sexuell explizite Inhalte', 'filter.violence': 'Gewalt & Gore', 'filter.violenceDesc': 'Filtert grafische Gewalt, Gore und Gewaltdrohungen', 'filter.drugs': 'Drogen & Substanzen', 'filter.drugsDesc': 'Filtert drogenbezogene Inhalte und Substanzmissbrauch', 'filter.spam': 'Spam & Betrug', 'filter.spamDesc': 'Filtert gängigen Spam, Betrug und Werbeinhalte', 'filter.crypto': 'Kryptowährung', 'filter.cryptoDesc': 'Filtert Kryptowährungswerbung, Trading-Signale und Token-Promotion', 'filter.politics': 'Politische Inhalte', 'filter.politicsDesc': 'Filtert parteiische politische Inhalte und spaltende Rhetorik', 'filter.profanity': 'Starke Schimpfwörter', 'filter.profanityDesc': 'Filtert starke Schimpfwörter und vulgäre Sprache', 'filter.customFilter': 'Benutzerdefinierter Filter',
         // Following Page
         'following.noFollowingYet': 'Du folgst noch niemandem. Finde Creator zum Folgen!',
     },
@@ -2510,7 +2568,7 @@ const translations = {
         // Notifications
         'notifications.title': 'Notificações', 'notifications.settings': 'Configurações de Notificações', 'notifications.reactions': 'Reações (curtir/não curtir)', 'notifications.replies': 'Comentários & Respostas', 'notifications.zaps': 'Zaps', 'notifications.chatMentions': 'Menções no Chat ao Vivo', 'notifications.newFollowers': 'Novos Seguidores', 'notifications.syncNote': 'Configurações são sincronizadas entre dispositivos via Nostr',
         // Settings Modal
-        'settings.title': 'Configurações', 'settings.language': 'Idioma', 'settings.languageDesc': 'Escolha seu idioma preferido', 'settings.saveToNostr': 'Salvar no Nostr', 'settings.saveToNostrDesc': 'Sincronizar configurações em todas as instâncias do Plebs', 'settings.darkMode': 'Modo Escuro', 'settings.darkModeDesc': 'Alternar entre tema claro e escuro', 'settings.saveSettings': 'Salvar Configurações', 'settings.resetDefaults': 'Redefinir',
+        'settings.title': 'Configurações', 'settings.language': 'Idioma', 'settings.languageDesc': 'Escolha seu idioma preferido', 'settings.saveToNostr': 'Salvar no Nostr', 'settings.saveToNostrDesc': 'Sincronizar configurações em todas as instâncias do Plebs', 'settings.darkMode': 'Modo Escuro', 'settings.darkModeDesc': 'Alternar entre tema claro e escuro', 'settings.contentWarning': 'Preferências de Aviso de Conteúdo', 'settings.showNsfwWarnings': 'Mostrar avisos NSFW', 'settings.showNsfwWarningsDesc': 'Exibir verificação de idade para conteúdo NSFW', 'settings.showCommunityWarnings': 'Mostrar avisos da comunidade', 'settings.showCommunityWarningsDesc': 'Exibir avisos para conteúdo sinalizado ou com muitos votos negativos', 'settings.showFollowsReportWarnings': 'Mostrar avisos de relatórios de seguidos', 'settings.showFollowsReportWarningsDesc': 'Exibir avisos quando 5+ pessoas que você segue reportaram conteúdo', 'settings.filterPacks': 'Pacotes de Filtros de Conteúdo', 'settings.filterPacksDesc': 'Ative pacotes de filtros para ocultar automaticamente conteúdo com palavras-chave específicas.', 'settings.customKeywordFilter': 'Filtro de Palavras-chave Personalizado', 'settings.customKeywordFilterPlaceholder': 'Digite palavras-chave ou frases separadas por vírgulas\nExemplo: spam, conteúdo indesejado, frase específica', 'settings.customKeywordFilterDesc': 'Adicione suas próprias palavras-chave para filtrar (separadas por vírgulas)', 'settings.saveSettings': 'Salvar Configurações', 'settings.resetDefaults': 'Redefinir',
         // Upload Modal
         'upload.title': 'Enviar Vídeo', 'upload.videoFile': 'Arquivo de Vídeo', 'upload.clickToSelect': 'Clique para selecionar vídeo ou arraste e solte', 'upload.fileTypes': 'MP4, AVI, MOV, etc (máx 2GB entrada, será comprimido para <100MB)', 'upload.preparing': 'Preparando...', 'upload.thumbnail': 'Miniatura', 'upload.thumbnailHint': 'Clique para selecionar ou gerar automaticamente do vídeo', 'upload.uploading': 'Enviando...', 'upload.titleLabel': 'Título', 'upload.titlePlaceholder': 'Digite o título do vídeo', 'upload.descriptionLabel': 'Descrição', 'upload.descriptionPlaceholder': 'Conte aos espectadores sobre seu vídeo', 'upload.tagsLabel': 'Tags (separadas por vírgula)', 'upload.tagsPlaceholder': 'bitcoin, nostr, tutorial', 'upload.markNsfw': 'Marcar como NSFW (18+)', 'upload.nsfwDesc': 'Conteúdo adulto deve ser marcado como NSFW', 'upload.saveDraft': 'Salvar como Rascunho', 'upload.publish': 'Publicar', 'upload.selectVideo': 'Selecione um vídeo para enviar', 'upload.optional': '(opcional)', 'upload.remove': 'Remover', 'upload.qualityHigh': 'Alta',
         // Create Modal
@@ -2628,7 +2686,8 @@ const translations = {
         'dmca.counterNotificationTitle': 'Contra-Notificação',
         'dmca.counterNotificationDesc': 'Se você acredita que seu conteúdo foi removido por engano, contate o operador do servidor.',
         'dmca.contactTitle': 'Contato',
-        'dmca.contactDesc': 'Para perguntas, entre em contato conosco.',
+        'dmca.contactDesc': 'Para perguntas, por favor',
+        'dmca.contactLink': 'entre em contato conosco',
         // Admin Dashboard
         'admin.title': 'Painel de Administração',
         'admin.loading': 'Carregando análises da plataforma...',
@@ -2991,6 +3050,8 @@ const translations = {
         'filter.hiddenByPack': 'Oculto por {pack}',
         'filter.showAnyway': 'Mostrar mesmo assim',
         'filter.contentHidden': 'Conteúdo oculto pelo filtro de conteúdo',
+        // Filter Packs
+        'filter.racism': 'Racismo e Discurso de Ódio', 'filter.racismDesc': 'Filtra insultos raciais, discurso de ódio étnico e conteúdo discriminatório', 'filter.sexualExplicit': 'Sexualmente Explícito', 'filter.sexualExplicitDesc': 'Filtra termos pornográficos e conteúdo sexualmente explícito', 'filter.violence': 'Violência e Gore', 'filter.violenceDesc': 'Filtra violência gráfica, gore e ameaças violentas', 'filter.drugs': 'Drogas e Substâncias', 'filter.drugsDesc': 'Filtra conteúdo relacionado a drogas e abuso de substâncias', 'filter.spam': 'Spam e Golpes', 'filter.spamDesc': 'Filtra spam comum, golpes e conteúdo promocional', 'filter.crypto': 'Criptomoeda', 'filter.cryptoDesc': 'Filtra promoção de criptomoedas, sinais de trading e promoção de tokens', 'filter.politics': 'Conteúdo Político', 'filter.politicsDesc': 'Filtra conteúdo político partidário e retórica divisiva', 'filter.profanity': 'Linguagem Forte', 'filter.profanityDesc': 'Filtra palavrões fortes e linguagem vulgar', 'filter.customFilter': 'Filtro Personalizado',
         // Following Page
         'following.noFollowingYet': 'Você ainda não está seguindo ninguém. Encontre criadores para seguir!',
     },
@@ -3009,7 +3070,7 @@ const translations = {
         // Notifications
         'notifications.title': 'Уведомления', 'notifications.empty': 'Пока нет уведомлений', 'notifications.viewAll': 'Смотреть все уведомления', 'notifications.markAllRead': 'Отметить все как прочитанные', 'notifications.settings': 'Настройки уведомлений', 'notifications.loading': 'Загрузка уведомлений...', 'notifications.zap': 'отправил(а) вам зап', 'notifications.like': 'понравился ваш контент', 'notifications.comment': 'оставил(а) комментарий', 'notifications.follow': 'подписался(ась) на вас', 'notifications.repost': 'сделал(а) репост', 'notifications.mention': 'упомянул(а) вас',
         // Settings Modal
-        'settings.title': 'Настройки', 'settings.language': 'Язык', 'settings.languageDesc': 'Выберите язык', 'settings.saveToNostr': 'Сохранить в Nostr', 'settings.darkMode': 'Тёмная тема', 'settings.darkModeDesc': 'Переключение тёмной темы', 'settings.autoplay': 'Автовоспроизведение', 'settings.autoplayDesc': 'Автоматически воспроизводить видео', 'settings.saveSettings': 'Сохранить настройки', 'settings.resetDefaults': 'Сбросить', 'settings.notifications': 'Уведомления', 'settings.notificationsDesc': 'Получать push-уведомления', 'settings.quality': 'Качество по умолчанию', 'settings.qualityDesc': 'Качество воспроизведения видео',
+        'settings.title': 'Настройки', 'settings.language': 'Язык', 'settings.languageDesc': 'Выберите язык', 'settings.saveToNostr': 'Сохранить в Nostr', 'settings.darkMode': 'Тёмная тема', 'settings.darkModeDesc': 'Переключение тёмной темы', 'settings.contentWarning': 'Настройки предупреждений о контенте', 'settings.showNsfwWarnings': 'Показывать предупреждения NSFW', 'settings.showNsfwWarningsDesc': 'Отображать проверку возраста для контента NSFW', 'settings.showCommunityWarnings': 'Показывать предупреждения сообщества', 'settings.showCommunityWarningsDesc': 'Отображать предупреждения для помеченного или негативно оцененного контента', 'settings.showFollowsReportWarnings': 'Показывать предупреждения от подписок', 'settings.showFollowsReportWarningsDesc': 'Отображать предупреждения, когда 5+ людей, на которых вы подписаны, пожаловались на контент', 'settings.filterPacks': 'Пакеты фильтров контента', 'settings.filterPacksDesc': 'Включите пакеты фильтров для автоматического скрытия контента с определёнными ключевыми словами.', 'settings.customKeywordFilter': 'Пользовательский фильтр ключевых слов', 'settings.customKeywordFilterPlaceholder': 'Введите ключевые слова или фразы через запятую\nПример: спам, нежелательный контент, конкретная фраза', 'settings.customKeywordFilterDesc': 'Добавьте свои ключевые слова для фильтрации (через запятую)', 'settings.autoplay': 'Автовоспроизведение', 'settings.autoplayDesc': 'Автоматически воспроизводить видео', 'settings.saveSettings': 'Сохранить настройки', 'settings.resetDefaults': 'Сбросить', 'settings.notifications': 'Уведомления', 'settings.notificationsDesc': 'Получать push-уведомления', 'settings.quality': 'Качество по умолчанию', 'settings.qualityDesc': 'Качество воспроизведения видео',
         // Upload Modal
         'upload.title': 'Загрузить видео', 'upload.dragDrop': 'Перетащите видеофайл сюда', 'upload.or': 'или', 'upload.browse': 'Выбрать файлы', 'upload.supportedFormats': 'Поддерживаемые форматы: MP4, WebM, MOV', 'upload.maxSize': 'Максимальный размер: 2ГБ', 'upload.videoTitle': 'Название', 'upload.titlePlaceholder': 'Введите название видео', 'upload.description': 'Описание', 'upload.descriptionPlaceholder': 'Опишите ваше видео...', 'upload.tags': 'Теги', 'upload.tagsPlaceholder': 'Добавьте теги через запятую', 'upload.visibility': 'Видимость', 'upload.public': 'Публичное', 'upload.unlisted': 'По ссылке', 'upload.uploadButton': 'Загрузить видео', 'upload.uploading': 'Загрузка...', 'upload.processing': 'Обработка...', 'upload.complete': 'Завершено!', 'upload.error': 'Ошибка загрузки', 'upload.nsfw': 'Контент NSFW', 'upload.nsfwDesc': 'Отметить как контент для взрослых', 'upload.thumbnail': 'Обложка', 'upload.thumbnailDesc': 'Загрузите обложку для видео', 'upload.preparing': 'Подготовка...', 'upload.cancel': 'Отмена', 'upload.progress': 'Прогресс загрузки', 'upload.transcoding': 'Транскодирование', 'upload.complete': 'Завершено', 'upload.status.preparing': 'Подготовка загрузки...', 'upload.status.uploading': 'Загрузка видео...', 'upload.status.transcoding': 'Транскодирование видео...', 'upload.status.complete': 'Загрузка завершена!', 'upload.qualityHigh': 'Высокое', 'upload.qualityMedium': 'Среднее', 'upload.qualityLow': 'Низкое',
         // Create Modal
@@ -3127,7 +3188,8 @@ const translations = {
         'dmca.counterNotificationTitle': 'Встречное Уведомление',
         'dmca.counterNotificationDesc': 'Если вы считаете, что ваш контент был удалён по ошибке, свяжитесь с оператором сервера.',
         'dmca.contactTitle': 'Контакт',
-        'dmca.contactDesc': 'По вопросам свяжитесь с нами.',
+        'dmca.contactDesc': 'По вопросам',
+        'dmca.contactLink': 'свяжитесь с нами',
         // Admin Dashboard
         'admin.title': 'Панель Администратора',
         'admin.loading': 'Загрузка аналитики платформы...',
@@ -3490,6 +3552,8 @@ const translations = {
         'filter.hiddenByPack': 'Скрыто {pack}',
         'filter.showAnyway': 'Показать в любом случае',
         'filter.contentHidden': 'Контент скрыт фильтром контента',
+        // Filter Packs
+        'filter.racism': 'Расизм и разжигание ненависти', 'filter.racismDesc': 'Фильтрует расовые оскорбления, этническую ненависть и дискриминационный контент', 'filter.sexualExplicit': 'Сексуально откровенный', 'filter.sexualExplicitDesc': 'Фильтрует порнографические термины и сексуально откровенный контент', 'filter.violence': 'Насилие и жестокость', 'filter.violenceDesc': 'Фильтрует графическое насилие, жестокость и угрозы насилия', 'filter.drugs': 'Наркотики и вещества', 'filter.drugsDesc': 'Фильтрует контент, связанный с наркотиками и злоупотреблением веществами', 'filter.spam': 'Спам и мошенничество', 'filter.spamDesc': 'Фильтрует распространённый спам, мошенничество и рекламный контент', 'filter.crypto': 'Криптовалюта', 'filter.cryptoDesc': 'Фильтрует продвижение криптовалют, торговые сигналы и продвижение токенов', 'filter.politics': 'Политический контент', 'filter.politicsDesc': 'Фильтрует партийный политический контент и разделяющую риторику', 'filter.profanity': 'Сильная ненормативная лексика', 'filter.profanityDesc': 'Фильтрует грубую ненормативную лексику и вульгарный язык', 'filter.customFilter': 'Пользовательский фильтр',
         // Following Page
         'following.noFollowingYet': 'Вы пока ни на кого не подписаны. Найдите авторов, на которых можно подписаться!',
     },
@@ -3508,7 +3572,7 @@ const translations = {
         // Notifications
         'notifications.title': '通知', 'notifications.empty': '暂无通知', 'notifications.viewAll': '查看全部通知', 'notifications.markAllRead': '全部标记为已读', 'notifications.settings': '通知设置', 'notifications.loading': '加载通知中...', 'notifications.zap': '给您发送了打赏', 'notifications.like': '喜欢了您的内容', 'notifications.comment': '评论了', 'notifications.follow': '关注了您', 'notifications.repost': '转发了', 'notifications.mention': '提到了您',
         // Settings Modal
-        'settings.title': '设置', 'settings.language': '语言', 'settings.languageDesc': '选择您的语言', 'settings.saveToNostr': '保存到 Nostr', 'settings.darkMode': '深色模式', 'settings.darkModeDesc': '切换深色/浅色主题', 'settings.autoplay': '自动播放', 'settings.autoplayDesc': '自动播放视频', 'settings.saveSettings': '保存设置', 'settings.resetDefaults': '重置默认', 'settings.notifications': '通知', 'settings.notificationsDesc': '接收推送通知', 'settings.quality': '默认质量', 'settings.qualityDesc': '视频播放质量',
+        'settings.title': '设置', 'settings.language': '语言', 'settings.languageDesc': '选择您的语言', 'settings.saveToNostr': '保存到 Nostr', 'settings.darkMode': '深色模式', 'settings.darkModeDesc': '切换深色/浅色主题', 'settings.autoplay': '自动播放', 'settings.autoplayDesc': '自动播放视频', 'settings.saveSettings': '保存设置', 'settings.resetDefaults': '重置默认', 'settings.notifications': '通知', 'settings.notificationsDesc': '接收推送通知', 'settings.quality': '默认质量', 'settings.qualityDesc': '视频播放质量', 'settings.contentWarning': '内容警告偏好', 'settings.showNsfwWarnings': '显示 NSFW 警告', 'settings.showNsfwWarningsDesc': '对 NSFW 内容显示年龄验证', 'settings.showCommunityWarnings': '显示社区警告', 'settings.showCommunityWarningsDesc': '对被标记或大量差评的内容显示警告', 'settings.showFollowsReportWarnings': '显示关注者举报警告', 'settings.showFollowsReportWarningsDesc': '当 5 个以上关注的人举报内容时显示警告', 'settings.filterPacks': '内容过滤器包', 'settings.filterPacksDesc': '启用过滤器包以自动隐藏包含特定关键词的内容。', 'settings.customKeywordFilter': '自定义关键词过滤器', 'settings.customKeywordFilterPlaceholder': '输入关键词或短语，用逗号分隔\n例如：垃圾信息，不想要的内容，特定短语', 'settings.customKeywordFilterDesc': '添加您自己的关键词进行过滤（用逗号分隔）',
         // Upload Modal
         'upload.title': '上传视频', 'upload.dragDrop': '拖放视频文件到此处', 'upload.or': '或', 'upload.browse': '浏览文件', 'upload.supportedFormats': '支持格式：MP4、WebM、MOV', 'upload.maxSize': '最大文件大小：2GB', 'upload.videoTitle': '标题', 'upload.titlePlaceholder': '输入视频标题', 'upload.description': '描述', 'upload.descriptionPlaceholder': '描述您的视频...', 'upload.tags': '标签', 'upload.tagsPlaceholder': '添加标签，用逗号分隔', 'upload.visibility': '可见性', 'upload.public': '公开', 'upload.unlisted': '不公开', 'upload.uploadButton': '上传视频', 'upload.uploading': '上传中...', 'upload.processing': '处理中...', 'upload.complete': '完成！', 'upload.error': '上传失败', 'upload.nsfw': 'NSFW 内容', 'upload.nsfwDesc': '标记为成人内容', 'upload.thumbnail': '缩略图', 'upload.thumbnailDesc': '上传视频缩略图', 'upload.preparing': '准备中...', 'upload.cancel': '取消', 'upload.progress': '上传进度', 'upload.transcoding': '转码中', 'upload.status.preparing': '准备上传...', 'upload.status.uploading': '上传视频中...', 'upload.status.transcoding': '转码视频中...', 'upload.status.complete': '上传完成！', 'upload.qualityHigh': '高', 'upload.qualityMedium': '中', 'upload.qualityLow': '低',
         // Create Modal
@@ -3826,6 +3890,8 @@ const translations = {
         'filter.hiddenByPack': '被{pack}隐藏',
         'filter.showAnyway': '仍然显示',
         'filter.contentHidden': '内容已被内容过滤器隐藏',
+        // Filter Packs
+        'filter.racism': '种族主义和仇恨言论', 'filter.racismDesc': '过滤种族歧视、民族仇恨言论和歧视性内容', 'filter.sexualExplicit': '色情内容', 'filter.sexualExplicitDesc': '过滤色情术语和性暴露内容', 'filter.violence': '暴力和血腥', 'filter.violenceDesc': '过滤暴力画面、血腥内容和暴力威胁', 'filter.drugs': '毒品和物质', 'filter.drugsDesc': '过滤与毒品相关的内容和物质滥用', 'filter.spam': '垃圾信息和诈骗', 'filter.spamDesc': '过滤常见垃圾信息、诈骗和推广内容', 'filter.crypto': '加密货币', 'filter.cryptoDesc': '过滤加密货币推广、交易信号和代币推广', 'filter.politics': '政治内容', 'filter.politicsDesc': '过滤党派政治内容和分裂性言论', 'filter.profanity': '粗俗语言', 'filter.profanityDesc': '过滤粗俗脏话和低俗语言', 'filter.customFilter': '自定义过滤器',
         // Following Page
         'following.noFollowingYet': '您还没有关注任何人。找到创作者关注吧！',
     },
@@ -3844,7 +3910,7 @@ const translations = {
         // Notifications
         'notifications.title': '通知', 'notifications.empty': '通知はありません', 'notifications.viewAll': 'すべての通知を見る', 'notifications.markAllRead': 'すべて既読にする', 'notifications.settings': '通知設定', 'notifications.loading': '通知を読み込み中...', 'notifications.zap': 'Zapを送りました', 'notifications.like': 'いいねしました', 'notifications.comment': 'コメントしました', 'notifications.follow': 'フォローしました', 'notifications.repost': 'リポストしました', 'notifications.mention': 'メンションしました',
         // Settings Modal
-        'settings.title': '設定', 'settings.language': '言語', 'settings.languageDesc': '言語を選択', 'settings.saveToNostr': 'Nostrに保存', 'settings.darkMode': 'ダークモード', 'settings.darkModeDesc': 'ダーク/ライトテーマを切り替え', 'settings.autoplay': '自動再生', 'settings.autoplayDesc': '動画を自動再生', 'settings.saveSettings': '設定を保存', 'settings.resetDefaults': 'リセット', 'settings.notifications': '通知', 'settings.notificationsDesc': 'プッシュ通知を受け取る', 'settings.quality': 'デフォルト画質', 'settings.qualityDesc': '動画再生の画質',
+        'settings.title': '設定', 'settings.language': '言語', 'settings.languageDesc': '言語を選択', 'settings.saveToNostr': 'Nostrに保存', 'settings.darkMode': 'ダークモード', 'settings.darkModeDesc': 'ダーク/ライトテーマを切り替え', 'settings.autoplay': '自動再生', 'settings.autoplayDesc': '動画を自動再生', 'settings.saveSettings': '設定を保存', 'settings.resetDefaults': 'リセット', 'settings.notifications': '通知', 'settings.notificationsDesc': 'プッシュ通知を受け取る', 'settings.quality': 'デフォルト画質', 'settings.qualityDesc': '動画再生の画質', 'settings.contentWarning': 'コンテンツ警告設定', 'settings.showNsfwWarnings': 'NSFW警告を表示', 'settings.showNsfwWarningsDesc': 'NSFWコンテンツに年齢確認を表示', 'settings.showCommunityWarnings': 'コミュニティ警告を表示', 'settings.showCommunityWarningsDesc': 'フラグ付きまたは低評価のコンテンツに警告を表示', 'settings.showFollowsReportWarnings': 'フォロー中の報告警告を表示', 'settings.showFollowsReportWarningsDesc': 'フォロー中の5人以上がコンテンツを報告した場合に警告を表示', 'settings.filterPacks': 'コンテンツフィルターパック', 'settings.filterPacksDesc': 'フィルターパックを有効にして、特定のキーワードに一致するコンテンツを自動的に非表示にします。', 'settings.customKeywordFilter': 'カスタムキーワードフィルター', 'settings.customKeywordFilterPlaceholder': 'キーワードまたはフレーズをカンマ区切りで入力\n例：スパム、不要なコンテンツ、特定のフレーズ', 'settings.customKeywordFilterDesc': '独自のフィルターキーワードを追加（カンマ区切り）',
         // Upload Modal
         'upload.title': '動画をアップロード', 'upload.dragDrop': 'ここに動画ファイルをドロップ', 'upload.or': 'または', 'upload.browse': 'ファイルを選択', 'upload.supportedFormats': '対応形式: MP4, WebM, MOV', 'upload.maxSize': '最大ファイルサイズ: 2GB', 'upload.videoTitle': 'タイトル', 'upload.titlePlaceholder': '動画タイトルを入力', 'upload.description': '説明', 'upload.descriptionPlaceholder': '動画の説明...', 'upload.tags': 'タグ', 'upload.tagsPlaceholder': 'カンマ区切りでタグを追加', 'upload.visibility': '公開設定', 'upload.public': '公開', 'upload.unlisted': '限定公開', 'upload.uploadButton': '動画をアップロード', 'upload.uploading': 'アップロード中...', 'upload.processing': '処理中...', 'upload.complete': '完了！', 'upload.error': 'アップロード失敗', 'upload.nsfw': 'NSFWコンテンツ', 'upload.nsfwDesc': 'アダルトコンテンツとしてマーク', 'upload.thumbnail': 'サムネイル', 'upload.thumbnailDesc': 'サムネイルをアップロード', 'upload.preparing': '準備中...', 'upload.cancel': 'キャンセル', 'upload.progress': 'アップロード進捗', 'upload.transcoding': 'トランスコード中', 'upload.status.preparing': 'アップロード準備中...', 'upload.status.uploading': '動画をアップロード中...', 'upload.status.transcoding': '動画をトランスコード中...', 'upload.status.complete': 'アップロード完了！', 'upload.qualityHigh': '高', 'upload.qualityMedium': '中', 'upload.qualityLow': '低',
         // Create Modal
@@ -4163,6 +4229,8 @@ const translations = {
         'filter.hiddenByPack': '{pack}により非表示',
         'filter.showAnyway': 'とにかく表示',
         'filter.contentHidden': 'コンテンツフィルターにより非表示',
+        // Filter Packs
+        'filter.racism': '人種差別とヘイトスピーチ', 'filter.racismDesc': '人種差別的な中傷、民族に対するヘイトスピーチ、差別的なコンテンツをフィルタリング', 'filter.sexualExplicit': '性的に露骨なコンテンツ', 'filter.sexualExplicitDesc': 'ポルノ用語や性的に露骨なコンテンツをフィルタリング', 'filter.violence': '暴力とグロ', 'filter.violenceDesc': 'グラフィックな暴力、グロテスクな内容、暴力的な脅迫をフィルタリング', 'filter.drugs': '薬物と物質', 'filter.drugsDesc': '薬物関連のコンテンツと物質乱用をフィルタリング', 'filter.spam': 'スパムと詐欺', 'filter.spamDesc': '一般的なスパム、詐欺、プロモーションコンテンツをフィルタリング', 'filter.crypto': '暗号通貨', 'filter.cryptoDesc': '暗号通貨のプロモーション、取引シグナル、トークンの宣伝をフィルタリング', 'filter.politics': '政治的コンテンツ', 'filter.politicsDesc': '党派的な政治コンテンツと分裂的なレトリックをフィルタリング', 'filter.profanity': '強い罵倒語', 'filter.profanityDesc': '強い罵倒語と下品な言葉をフィルタリング', 'filter.customFilter': 'カスタムフィルター',
         // Following Page
         'following.noFollowingYet': 'まだ誰もフォローしていません。フォローするクリエイターを見つけましょう！',
     },
@@ -4181,7 +4249,7 @@ const translations = {
         // Notifications
         'notifications.title': '알림', 'notifications.empty': '알림이 없습니다', 'notifications.viewAll': '모든 알림 보기', 'notifications.markAllRead': '모두 읽음으로 표시', 'notifications.settings': '알림 설정', 'notifications.loading': '알림 로딩 중...', 'notifications.zap': 'Zap을 보냈습니다', 'notifications.like': '좋아요를 눌렀습니다', 'notifications.comment': '댓글을 달았습니다', 'notifications.follow': '팔로우했습니다', 'notifications.repost': '리포스트했습니다', 'notifications.mention': '멘션했습니다',
         // Settings Modal
-        'settings.title': '설정', 'settings.language': '언어', 'settings.languageDesc': '언어 선택', 'settings.saveToNostr': 'Nostr에 저장', 'settings.darkMode': '다크 모드', 'settings.darkModeDesc': '다크/라이트 테마 전환', 'settings.autoplay': '자동 재생', 'settings.autoplayDesc': '동영상 자동 재생', 'settings.saveSettings': '설정 저장', 'settings.resetDefaults': '초기화', 'settings.notifications': '알림', 'settings.notificationsDesc': '푸시 알림 받기', 'settings.quality': '기본 화질', 'settings.qualityDesc': '동영상 재생 화질',
+        'settings.title': '설정', 'settings.language': '언어', 'settings.languageDesc': '언어 선택', 'settings.saveToNostr': 'Nostr에 저장', 'settings.darkMode': '다크 모드', 'settings.darkModeDesc': '다크/라이트 테마 전환', 'settings.autoplay': '자동 재생', 'settings.autoplayDesc': '동영상 자동 재생', 'settings.saveSettings': '설정 저장', 'settings.resetDefaults': '초기화', 'settings.notifications': '알림', 'settings.notificationsDesc': '푸시 알림 받기', 'settings.quality': '기본 화질', 'settings.qualityDesc': '동영상 재생 화질', 'settings.contentWarning': '콘텐츠 경고 설정', 'settings.showNsfwWarnings': 'NSFW 경고 표시', 'settings.showNsfwWarningsDesc': 'NSFW 콘텐츠에 연령 확인 표시', 'settings.showCommunityWarnings': '커뮤니티 경고 표시', 'settings.showCommunityWarningsDesc': '신고되거나 비추천이 많은 콘텐츠에 경고 표시', 'settings.showFollowsReportWarnings': '팔로우 신고 경고 표시', 'settings.showFollowsReportWarningsDesc': '팔로우하는 5명 이상이 콘텐츠를 신고하면 경고 표시', 'settings.filterPacks': '콘텐츠 필터 팩', 'settings.filterPacksDesc': '필터 팩을 활성화하여 특정 키워드와 일치하는 콘텐츠를 자동으로 숨깁니다.', 'settings.customKeywordFilter': '사용자 지정 키워드 필터', 'settings.customKeywordFilterPlaceholder': '키워드 또는 구문을 쉼표로 구분하여 입력\n예: 스팸, 원치 않는 콘텐츠, 특정 구문', 'settings.customKeywordFilterDesc': '필터링할 고유 키워드 추가 (쉼표로 구분)',
         // Upload Modal
         'upload.title': '동영상 업로드', 'upload.dragDrop': '여기에 동영상 파일을 드롭하세요', 'upload.or': '또는', 'upload.browse': '파일 찾아보기', 'upload.supportedFormats': '지원 형식: MP4, WebM, MOV', 'upload.maxSize': '최대 파일 크기: 2GB', 'upload.videoTitle': '제목', 'upload.titlePlaceholder': '동영상 제목 입력', 'upload.description': '설명', 'upload.descriptionPlaceholder': '동영상 설명...', 'upload.tags': '태그', 'upload.tagsPlaceholder': '쉼표로 구분하여 태그 추가', 'upload.visibility': '공개 설정', 'upload.public': '공개', 'upload.unlisted': '미등록', 'upload.uploadButton': '동영상 업로드', 'upload.uploading': '업로드 중...', 'upload.processing': '처리 중...', 'upload.complete': '완료!', 'upload.error': '업로드 실패', 'upload.nsfw': 'NSFW 콘텐츠', 'upload.nsfwDesc': '성인 콘텐츠로 표시', 'upload.thumbnail': '썸네일', 'upload.thumbnailDesc': '썸네일 업로드', 'upload.preparing': '준비 중...', 'upload.cancel': '취소', 'upload.progress': '업로드 진행률', 'upload.transcoding': '트랜스코딩 중', 'upload.status.preparing': '업로드 준비 중...', 'upload.status.uploading': '동영상 업로드 중...', 'upload.status.transcoding': '동영상 트랜스코딩 중...', 'upload.status.complete': '업로드 완료!', 'upload.qualityHigh': '높음', 'upload.qualityMedium': '중간', 'upload.qualityLow': '낮음',
         // Create Modal
@@ -4500,6 +4568,8 @@ const translations = {
         'filter.hiddenByPack': '{pack}에 의해 숨김',
         'filter.showAnyway': '그래도 표시',
         'filter.contentHidden': '콘텐츠 필터로 인해 숨겨짐',
+        // Filter Packs
+        'filter.racism': '인종차별 및 혐오 발언', 'filter.racismDesc': '인종차별적 비방, 민족 혐오 발언 및 차별적 콘텐츠를 필터링', 'filter.sexualExplicit': '성적으로 노골적인 콘텐츠', 'filter.sexualExplicitDesc': '포르노 용어 및 성적으로 노골적인 콘텐츠를 필터링', 'filter.violence': '폭력 및 잔인함', 'filter.violenceDesc': '그래픽 폭력, 잔인한 콘텐츠 및 폭력 위협을 필터링', 'filter.drugs': '마약 및 약물', 'filter.drugsDesc': '마약 관련 콘텐츠 및 약물 남용을 필터링', 'filter.spam': '스팸 및 사기', 'filter.spamDesc': '일반적인 스팸, 사기 및 홍보 콘텐츠를 필터링', 'filter.crypto': '암호화폐', 'filter.cryptoDesc': '암호화폐 홍보, 거래 신호 및 토큰 홍보를 필터링', 'filter.politics': '정치적 콘텐츠', 'filter.politicsDesc': '당파적 정치 콘텐츠 및 분열적 수사를 필터링', 'filter.profanity': '강한 욕설', 'filter.profanityDesc': '강한 욕설 및 저속한 언어를 필터링', 'filter.customFilter': '사용자 정의 필터',
         // Following Page
         'following.noFollowingYet': '아직 팔로우한 사람이 없습니다. 팔로우할 크리에이터를 찾아보세요!',
     },
@@ -4518,7 +4588,7 @@ const translations = {
         // Notifications
         'notifications.title': 'الإشعارات', 'notifications.empty': 'لا توجد إشعارات', 'notifications.viewAll': 'عرض جميع الإشعارات', 'notifications.markAllRead': 'تحديد الكل كمقروء', 'notifications.settings': 'إعدادات الإشعارات', 'notifications.loading': 'جاري تحميل الإشعارات...', 'notifications.zap': 'أرسل لك زاب', 'notifications.like': 'أعجب بالمحتوى', 'notifications.comment': 'علق', 'notifications.follow': 'تابعك', 'notifications.repost': 'أعاد النشر', 'notifications.mention': 'ذكرك',
         // Settings Modal
-        'settings.title': 'الإعدادات', 'settings.language': 'اللغة', 'settings.languageDesc': 'اختر لغتك', 'settings.saveToNostr': 'حفظ في Nostr', 'settings.darkMode': 'الوضع الداكن', 'settings.darkModeDesc': 'تبديل السمة الداكنة/الفاتحة', 'settings.autoplay': 'التشغيل التلقائي', 'settings.autoplayDesc': 'تشغيل الفيديو تلقائياً', 'settings.saveSettings': 'حفظ الإعدادات', 'settings.resetDefaults': 'إعادة تعيين', 'settings.notifications': 'الإشعارات', 'settings.notificationsDesc': 'تلقي إشعارات الدفع', 'settings.quality': 'الجودة الافتراضية', 'settings.qualityDesc': 'جودة تشغيل الفيديو',
+        'settings.title': 'الإعدادات', 'settings.language': 'اللغة', 'settings.languageDesc': 'اختر لغتك', 'settings.saveToNostr': 'حفظ في Nostr', 'settings.darkMode': 'الوضع الداكن', 'settings.darkModeDesc': 'تبديل السمة الداكنة/الفاتحة', 'settings.autoplay': 'التشغيل التلقائي', 'settings.autoplayDesc': 'تشغيل الفيديو تلقائياً', 'settings.saveSettings': 'حفظ الإعدادات', 'settings.resetDefaults': 'إعادة تعيين', 'settings.notifications': 'الإشعارات', 'settings.notificationsDesc': 'تلقي إشعارات الدفع', 'settings.quality': 'الجودة الافتراضية', 'settings.qualityDesc': 'جودة تشغيل الفيديو', 'settings.contentWarning': 'تفضيلات تحذير المحتوى', 'settings.showNsfwWarnings': 'إظهار تحذيرات NSFW', 'settings.showNsfwWarningsDesc': 'إظهار التحقق من العمر لمحتوى NSFW', 'settings.showCommunityWarnings': 'إظهار تحذيرات المجتمع', 'settings.showCommunityWarningsDesc': 'إظهار تحذيرات للمحتوى المبلغ عنه أو ذي التقييم السلبي', 'settings.showFollowsReportWarnings': 'إظهار تحذيرات بلاغات المتابعين', 'settings.showFollowsReportWarningsDesc': 'إظهار تحذيرات عندما يبلغ 5+ أشخاص تتابعهم عن محتوى', 'settings.filterPacks': 'حزم فلاتر المحتوى', 'settings.filterPacksDesc': 'تفعيل حزم الفلاتر لإخفاء المحتوى المطابق لكلمات مفتاحية محددة تلقائياً.', 'settings.customKeywordFilter': 'فلتر الكلمات المفتاحية المخصص', 'settings.customKeywordFilterPlaceholder': 'أدخل كلمات مفتاحية أو عبارات مفصولة بفواصل\nمثال: رسائل مزعجة، محتوى غير مرغوب، عبارة محددة', 'settings.customKeywordFilterDesc': 'أضف كلماتك المفتاحية للفلترة (مفصولة بفواصل)',
         // Upload Modal
         'upload.title': 'رفع فيديو', 'upload.dragDrop': 'اسحب وأفلت ملف الفيديو هنا', 'upload.or': 'أو', 'upload.browse': 'تصفح الملفات', 'upload.supportedFormats': 'الصيغ المدعومة: MP4, WebM, MOV', 'upload.maxSize': 'الحجم الأقصى: 2GB', 'upload.videoTitle': 'العنوان', 'upload.titlePlaceholder': 'أدخل عنوان الفيديو', 'upload.description': 'الوصف', 'upload.descriptionPlaceholder': 'صف الفيديو...', 'upload.tags': 'الوسوم', 'upload.tagsPlaceholder': 'أضف وسوماً مفصولة بفواصل', 'upload.visibility': 'الظهور', 'upload.public': 'عام', 'upload.unlisted': 'غير مدرج', 'upload.uploadButton': 'رفع الفيديو', 'upload.uploading': 'جاري الرفع...', 'upload.processing': 'جاري المعالجة...', 'upload.complete': 'اكتمل!', 'upload.error': 'فشل الرفع', 'upload.nsfw': 'محتوى للبالغين', 'upload.nsfwDesc': 'تحديد كمحتوى للبالغين', 'upload.thumbnail': 'الصورة المصغرة', 'upload.thumbnailDesc': 'رفع صورة مصغرة', 'upload.preparing': 'جاري التحضير...', 'upload.cancel': 'إلغاء', 'upload.progress': 'تقدم الرفع', 'upload.transcoding': 'التحويل', 'upload.status.preparing': 'جاري تحضير الرفع...', 'upload.status.uploading': 'جاري رفع الفيديو...', 'upload.status.transcoding': 'جاري تحويل الفيديو...', 'upload.status.complete': 'اكتمل الرفع!', 'upload.qualityHigh': 'عالية', 'upload.qualityMedium': 'متوسطة', 'upload.qualityLow': 'منخفضة',
         // Create Modal
@@ -4636,7 +4706,8 @@ const translations = {
         'dmca.counterNotificationTitle': 'إخطار مضاد',
         'dmca.counterNotificationDesc': 'إذا كنت تعتقد أن محتواك أُزيل بالخطأ، اتصل بمشغل الخادم.',
         'dmca.contactTitle': 'اتصل بنا',
-        'dmca.contactDesc': 'للأسئلة، يرجى الاتصال بنا.',
+        'dmca.contactDesc': 'للأسئلة، يرجى',
+        'dmca.contactLink': 'الاتصال بنا',
         // Admin Dashboard
         'admin.title': 'لوحة تحكم المسؤول',
         'admin.loading': 'جاري تحميل تحليلات المنصة...',
@@ -4933,6 +5004,8 @@ const translations = {
         'filter.hiddenByPack': 'مخفي بواسطة {pack}',
         'filter.showAnyway': 'إظهار على أي حال',
         'filter.contentHidden': 'المحتوى مخفي بواسطة مرشح المحتوى',
+        // Filter Packs
+        'filter.racism': 'العنصرية وخطاب الكراهية', 'filter.racismDesc': 'يرشح الإهانات العنصرية وخطاب الكراهية العرقية والمحتوى التمييزي', 'filter.sexualExplicit': 'محتوى جنسي صريح', 'filter.sexualExplicitDesc': 'يرشح المصطلحات الإباحية والمحتوى الجنسي الصريح', 'filter.violence': 'العنف والدموية', 'filter.violenceDesc': 'يرشح العنف الرسومي والدموية والتهديدات العنيفة', 'filter.drugs': 'المخدرات والمواد', 'filter.drugsDesc': 'يرشح المحتوى المتعلق بالمخدرات وإساءة استخدام المواد', 'filter.spam': 'الرسائل المزعجة والاحتيال', 'filter.spamDesc': 'يرشح الرسائل المزعجة الشائعة والاحتيال والمحتوى الترويجي', 'filter.crypto': 'العملات المشفرة', 'filter.cryptoDesc': 'يرشح ترويج العملات المشفرة وإشارات التداول والترويج للرموز', 'filter.politics': 'المحتوى السياسي', 'filter.politicsDesc': 'يرشح المحتوى السياسي الحزبي والخطاب المنقسم', 'filter.profanity': 'الألفاظ البذيئة', 'filter.profanityDesc': 'يرشح الألفاظ البذيئة القوية واللغة الفجة', 'filter.customFilter': 'مرشح مخصص',
         // Following Page
         'following.noFollowingYet': 'لا تتابع أحداً بعد. ابحث عن منشئي محتوى لمتابعتهم!',
 
@@ -4952,7 +5025,7 @@ const translations = {
         // Notifications
         'notifications.title': 'सूचनाएं', 'notifications.empty': 'कोई सूचना नहीं', 'notifications.viewAll': 'सभी सूचनाएं देखें', 'notifications.markAllRead': 'सभी को पढ़ा हुआ चिह्नित करें', 'notifications.settings': 'सूचना सेटिंग्स', 'notifications.loading': 'सूचनाएं लोड हो रही हैं...', 'notifications.zap': 'ने आपको ज़ैप भेजा', 'notifications.like': 'ने आपकी सामग्री पसंद की', 'notifications.comment': 'ने टिप्पणी की', 'notifications.follow': 'ने आपको फॉलो किया', 'notifications.repost': 'ने रीपोस्ट किया', 'notifications.mention': 'ने आपका उल्लेख किया',
         // Settings Modal
-        'settings.title': 'सेटिंग्स', 'settings.language': 'भाषा', 'settings.languageDesc': 'भाषा चुनें', 'settings.saveToNostr': 'Nostr पर सहेजें', 'settings.darkMode': 'डार्क मोड', 'settings.darkModeDesc': 'डार्क/लाइट थीम टॉगल करें', 'settings.autoplay': 'ऑटोप्ले', 'settings.autoplayDesc': 'वीडियो ऑटो-प्ले करें', 'settings.saveSettings': 'सेटिंग्स सहेजें', 'settings.resetDefaults': 'रीसेट', 'settings.notifications': 'सूचनाएं', 'settings.notificationsDesc': 'पुश सूचनाएं प्राप्त करें', 'settings.quality': 'डिफ़ॉल्ट गुणवत्ता', 'settings.qualityDesc': 'वीडियो प्लेबैक गुणवत्ता',
+        'settings.title': 'सेटिंग्स', 'settings.language': 'भाषा', 'settings.languageDesc': 'भाषा चुनें', 'settings.saveToNostr': 'Nostr पर सहेजें', 'settings.darkMode': 'डार्क मोड', 'settings.darkModeDesc': 'डार्क/लाइट थीम टॉगल करें', 'settings.autoplay': 'ऑटोप्ले', 'settings.autoplayDesc': 'वीडियो ऑटो-प्ले करें', 'settings.saveSettings': 'सेटिंग्स सहेजें', 'settings.resetDefaults': 'रीसेट', 'settings.notifications': 'सूचनाएं', 'settings.notificationsDesc': 'पुश सूचनाएं प्राप्त करें', 'settings.quality': 'डिफ़ॉल्ट गुणवत्ता', 'settings.qualityDesc': 'वीडियो प्लेबैक गुणवत्ता', 'settings.contentWarning': 'सामग्री चेतावनी प्राथमिकताएं', 'settings.showNsfwWarnings': 'NSFW चेतावनियां दिखाएं', 'settings.showNsfwWarningsDesc': 'NSFW सामग्री के लिए आयु सत्यापन दिखाएं', 'settings.showCommunityWarnings': 'समुदाय चेतावनियां दिखाएं', 'settings.showCommunityWarningsDesc': 'फ़्लैग की गई या अधिक डाउनवोट वाली सामग्री के लिए चेतावनियां दिखाएं', 'settings.showFollowsReportWarnings': 'फॉलो रिपोर्ट चेतावनियां दिखाएं', 'settings.showFollowsReportWarningsDesc': 'जब आपके 5+ फॉलो किए गए लोग सामग्री की रिपोर्ट करें तो चेतावनियां दिखाएं', 'settings.filterPacks': 'सामग्री फ़िल्टर पैक', 'settings.filterPacksDesc': 'विशिष्ट कीवर्ड से मेल खाने वाली सामग्री को स्वचालित रूप से छुपाने के लिए फ़िल्टर पैक सक्षम करें।', 'settings.customKeywordFilter': 'कस्टम कीवर्ड फ़िल्टर', 'settings.customKeywordFilterPlaceholder': 'कीवर्ड या वाक्यांश अल्पविराम से अलग करके दर्ज करें\nउदाहरण: स्पैम, अवांछित सामग्री, विशिष्ट वाक्यांश', 'settings.customKeywordFilterDesc': 'फ़िल्टर करने के लिए अपने कीवर्ड जोड़ें (अल्पविराम से अलग)',
         // Upload Modal
         'upload.title': 'वीडियो अपलोड करें', 'upload.dragDrop': 'वीडियो फ़ाइल यहाँ ड्रैग और ड्रॉप करें', 'upload.or': 'या', 'upload.browse': 'फ़ाइलें ब्राउज़ करें', 'upload.supportedFormats': 'समर्थित प्रारूप: MP4, WebM, MOV', 'upload.maxSize': 'अधिकतम आकार: 2GB', 'upload.videoTitle': 'शीर्षक', 'upload.titlePlaceholder': 'वीडियो शीर्षक दर्ज करें', 'upload.description': 'विवरण', 'upload.descriptionPlaceholder': 'अपने वीडियो का वर्णन करें...', 'upload.tags': 'टैग्स', 'upload.tagsPlaceholder': 'अल्पविराम से अलग टैग जोड़ें', 'upload.visibility': 'दृश्यता', 'upload.public': 'सार्वजनिक', 'upload.unlisted': 'असूचीबद्ध', 'upload.uploadButton': 'वीडियो अपलोड करें', 'upload.uploading': 'अपलोड हो रहा है...', 'upload.processing': 'प्रोसेस हो रहा है...', 'upload.complete': 'पूर्ण!', 'upload.error': 'अपलोड विफल', 'upload.nsfw': 'NSFW सामग्री', 'upload.nsfwDesc': 'वयस्क सामग्री के रूप में चिह्नित करें', 'upload.thumbnail': 'थंबनेल', 'upload.thumbnailDesc': 'थंबनेल अपलोड करें', 'upload.preparing': 'तैयारी हो रही है...', 'upload.cancel': 'रद्द करें', 'upload.progress': 'अपलोड प्रगति', 'upload.transcoding': 'ट्रांसकोडिंग', 'upload.status.preparing': 'अपलोड की तैयारी...', 'upload.status.uploading': 'वीडियो अपलोड हो रहा है...', 'upload.status.transcoding': 'वीडियो ट्रांसकोड हो रहा है...', 'upload.status.complete': 'अपलोड पूर्ण!', 'upload.qualityHigh': 'उच्च', 'upload.qualityMedium': 'मध्यम', 'upload.qualityLow': 'निम्न',
         // Create Modal
@@ -5070,7 +5143,8 @@ const translations = {
         'dmca.counterNotificationTitle': 'काउंटर नोटिफिकेशन',
         'dmca.counterNotificationDesc': 'यदि आपको लगता है कि आपकी सामग्री गलती से हटा दी गई, तो सर्वर ऑपरेटर से संपर्क करें।',
         'dmca.contactTitle': 'हमसे संपर्क करें',
-        'dmca.contactDesc': 'प्रश्नों के लिए, कृपया हमसे संपर्क करें।',
+        'dmca.contactDesc': 'प्रश्नों के लिए, कृपया',
+        'dmca.contactLink': 'हमसे संपर्क करें',
         // Admin Dashboard
         'admin.title': 'एडमिन डैशबोर्ड',
         'admin.loading': 'प्लेटफॉर्म एनालिटिक्स लोड हो रहा है...',
@@ -5340,6 +5414,8 @@ const translations = {
         'filter.hiddenByPack': '{pack} द्वारा छिपाया गया',
         'filter.showAnyway': 'वैसे भी दिखाएं',
         'filter.contentHidden': 'सामग्री फ़िल्टर द्वारा सामग्री छिपाई गई',
+        // Filter Packs
+        'filter.racism': 'नस्लवाद और घृणा भाषण', 'filter.racismDesc': 'नस्लीय गालियां, जातीय घृणा भाषण और भेदभावपूर्ण सामग्री को फ़िल्टर करता है', 'filter.sexualExplicit': 'यौन स्पष्ट', 'filter.sexualExplicitDesc': 'अश्लील शब्दों और यौन स्पष्ट सामग्री को फ़िल्टर करता है', 'filter.violence': 'हिंसा और गोर', 'filter.violenceDesc': 'ग्राफिक हिंसा, गोर और हिंसक धमकियों को फ़िल्टर करता है', 'filter.drugs': 'ड्रग्स और पदार्थ', 'filter.drugsDesc': 'ड्रग-संबंधित सामग्री और पदार्थ दुरुपयोग को फ़िल्टर करता है', 'filter.spam': 'स्पैम और घोटाले', 'filter.spamDesc': 'सामान्य स्पैम, घोटाले और प्रचार सामग्री को फ़िल्टर करता है', 'filter.crypto': 'क्रिप्टोकरेंसी', 'filter.cryptoDesc': 'क्रिप्टोकरेंसी प्रचार, ट्रेडिंग सिग्नल और टोकन प्रचार को फ़िल्टर करता है', 'filter.politics': 'राजनीतिक सामग्री', 'filter.politicsDesc': 'पक्षपातपूर्ण राजनीतिक सामग्री और विभाजनकारी बयानबाजी को फ़िल्टर करता है', 'filter.profanity': 'कड़ी अपशब्द', 'filter.profanityDesc': 'कड़ी अपशब्द और अश्लील भाषा को फ़िल्टर करता है', 'filter.customFilter': 'कस्टम फ़िल्टर',
         // Following Page
         'following.noFollowingYet': 'आप अभी तक किसी को फॉलो नहीं कर रहे हैं। क्रिएटर्स खोजें और फॉलो करें!',
         'faq.a18': 'किसी उपयोगकर्ता को म्यूट करने के लिए, उनकी प्रोफ़ाइल पर जाएं और म्यूट बटन पर क्लिक करें। एक बार म्यूट करने के बाद, उनके सभी वीडियो आपके फ़ीड से छिपा दिए जाएंगे, उनकी टिप्पणियां "म्यूट किए गए उपयोगकर्ता से संदेश" के रूप में दिखाई देंगी, और उनके लाइव चैट संदेश छिपाए जाएंगे। आपकी म्यूट सूची Nostr पर संग्रहीत है, इसलिए यह उपकरणों में सिंक होती है। आप "म्यूट किए गए उपयोगकर्ता" के तहत अपनी प्रोफ़ाइल सेटिंग्स में म्यूट किए गए उपयोगकर्ताओं को प्रबंधित कर सकते हैं।',
@@ -5386,7 +5462,7 @@ const translations = {
         // Notifications
         'notifications.title': 'Notifiche', 'notifications.empty': 'Nessuna notifica', 'notifications.viewAll': 'Vedi tutte le notifiche', 'notifications.markAllRead': 'Segna tutto come letto', 'notifications.settings': 'Impostazioni notifiche', 'notifications.loading': 'Caricamento notifiche...', 'notifications.zap': 'ti ha inviato uno zap', 'notifications.like': 'ha apprezzato il tuo contenuto', 'notifications.comment': 'ha commentato', 'notifications.follow': 'ti ha seguito', 'notifications.repost': 'ha ripostato', 'notifications.mention': 'ti ha menzionato',
         // Settings Modal
-        'settings.title': 'Impostazioni', 'settings.language': 'Lingua', 'settings.languageDesc': 'Scegli la lingua', 'settings.saveToNostr': 'Salva su Nostr', 'settings.darkMode': 'Modalità Scura', 'settings.darkModeDesc': 'Attiva/disattiva tema scuro', 'settings.autoplay': 'Riproduzione Auto', 'settings.autoplayDesc': 'Riproduci video automaticamente', 'settings.saveSettings': 'Salva Impostazioni', 'settings.resetDefaults': 'Ripristina', 'settings.notifications': 'Notifiche', 'settings.notificationsDesc': 'Ricevi notifiche push', 'settings.quality': 'Qualità Predefinita', 'settings.qualityDesc': 'Qualità riproduzione video',
+        'settings.title': 'Impostazioni', 'settings.language': 'Lingua', 'settings.languageDesc': 'Scegli la lingua', 'settings.saveToNostr': 'Salva su Nostr', 'settings.darkMode': 'Modalità Scura', 'settings.darkModeDesc': 'Attiva/disattiva tema scuro', 'settings.autoplay': 'Riproduzione Auto', 'settings.autoplayDesc': 'Riproduci video automaticamente', 'settings.saveSettings': 'Salva Impostazioni', 'settings.resetDefaults': 'Ripristina', 'settings.notifications': 'Notifiche', 'settings.notificationsDesc': 'Ricevi notifiche push', 'settings.quality': 'Qualità Predefinita', 'settings.qualityDesc': 'Qualità riproduzione video', 'settings.contentWarning': 'Preferenze Avvisi Contenuto', 'settings.showNsfwWarnings': 'Mostra avvisi NSFW', 'settings.showNsfwWarningsDesc': 'Mostra verifica età per contenuti NSFW', 'settings.showCommunityWarnings': 'Mostra avvisi della community', 'settings.showCommunityWarningsDesc': 'Mostra avvisi per contenuti segnalati o con molti voti negativi', 'settings.showFollowsReportWarnings': 'Mostra avvisi segnalazioni seguiti', 'settings.showFollowsReportWarningsDesc': 'Mostra avvisi quando 5+ persone che segui segnalano contenuti', 'settings.filterPacks': 'Pacchetti Filtri Contenuto', 'settings.filterPacksDesc': 'Abilita pacchetti filtri per nascondere automaticamente contenuti con parole chiave specifiche.', 'settings.customKeywordFilter': 'Filtro Parole Chiave Personalizzato', 'settings.customKeywordFilterPlaceholder': 'Inserisci parole chiave o frasi separate da virgola\nEsempio: spam, contenuto indesiderato, frase specifica', 'settings.customKeywordFilterDesc': 'Aggiungi le tue parole chiave da filtrare (separate da virgola)',
         // Upload Modal
         'upload.title': 'Carica Video', 'upload.dragDrop': 'Trascina e rilascia il file video qui', 'upload.or': 'oppure', 'upload.browse': 'Sfoglia File', 'upload.supportedFormats': 'Formati supportati: MP4, WebM, MOV', 'upload.maxSize': 'Dimensione massima: 2GB', 'upload.videoTitle': 'Titolo', 'upload.titlePlaceholder': 'Inserisci titolo video', 'upload.description': 'Descrizione', 'upload.descriptionPlaceholder': 'Descrivi il tuo video...', 'upload.tags': 'Tag', 'upload.tagsPlaceholder': 'Aggiungi tag separati da virgola', 'upload.visibility': 'Visibilità', 'upload.public': 'Pubblico', 'upload.unlisted': 'Non elencato', 'upload.uploadButton': 'Carica Video', 'upload.uploading': 'Caricamento...', 'upload.processing': 'Elaborazione...', 'upload.complete': 'Completato!', 'upload.error': 'Caricamento fallito', 'upload.nsfw': 'Contenuto NSFW', 'upload.nsfwDesc': 'Contrassegna come contenuto per adulti', 'upload.thumbnail': 'Miniatura', 'upload.thumbnailDesc': 'Carica miniatura video', 'upload.preparing': 'Preparazione...', 'upload.cancel': 'Annulla', 'upload.progress': 'Progresso caricamento', 'upload.transcoding': 'Transcodifica', 'upload.status.preparing': 'Preparazione caricamento...', 'upload.status.uploading': 'Caricamento video...', 'upload.status.transcoding': 'Transcodifica video...', 'upload.status.complete': 'Caricamento completato!', 'upload.qualityHigh': 'Alta', 'upload.qualityMedium': 'Media', 'upload.qualityLow': 'Bassa',
         // Create Modal
@@ -5504,7 +5580,8 @@ const translations = {
         'dmca.counterNotificationTitle': 'Contro-Notifica',
         'dmca.counterNotificationDesc': 'Se ritieni che il tuo contenuto sia stato rimosso per errore, contatta l\'operatore del server.',
         'dmca.contactTitle': 'Contatto',
-        'dmca.contactDesc': 'Per domande, contattaci.',
+        'dmca.contactDesc': 'Per domande,',
+        'dmca.contactLink': 'contattaci',
         // Admin Dashboard
         'admin.title': 'Dashboard Amministratore',
         'admin.loading': 'Caricamento analisi della piattaforma...',
@@ -5755,6 +5832,8 @@ const translations = {
         'filter.hiddenByPack': 'Nascosto da {pack}',
         'filter.showAnyway': 'Mostra comunque',
         'filter.contentHidden': 'Contenuto nascosto dal filtro contenuti',
+        // Filter Packs
+        'filter.racism': 'Razzismo e Incitamento all\'Odio', 'filter.racismDesc': 'Filtra insulti razziali, incitamento all\'odio etnico e contenuti discriminatori', 'filter.sexualExplicit': 'Sessualmente Esplicito', 'filter.sexualExplicitDesc': 'Filtra termini pornografici e contenuti sessualmente espliciti', 'filter.violence': 'Violenza e Gore', 'filter.violenceDesc': 'Filtra violenza grafica, gore e minacce violente', 'filter.drugs': 'Droghe e Sostanze', 'filter.drugsDesc': 'Filtra contenuti relativi alle droghe e abuso di sostanze', 'filter.spam': 'Spam e Truffe', 'filter.spamDesc': 'Filtra spam comune, truffe e contenuti promozionali', 'filter.crypto': 'Criptovalute', 'filter.cryptoDesc': 'Filtra promozione di criptovalute, segnali di trading e promozione di token', 'filter.politics': 'Contenuto Politico', 'filter.politicsDesc': 'Filtra contenuti politici di parte e retorica divisiva', 'filter.profanity': 'Parolacce Forti', 'filter.profanityDesc': 'Filtra parolacce forti e linguaggio volgare', 'filter.customFilter': 'Filtro Personalizzato',
         // Following Page
         'following.noFollowingYet': 'Non segui ancora nessuno. Trova i creatori da seguire!',
         'faq.a17Intro': 'I Pacchetti di Filtri per Contenuti sono filtri di parole chiave predefiniti che puoi abilitare per nascondere specifici tipi di contenuto. I pacchetti disponibili includono:',
@@ -6311,8 +6390,8 @@ const FILTER_PACK_ICONS = {
 
 const FILTER_PACKS = {
     racism: {
-        name: 'Racism & Hate Speech',
-        description: 'Filters racial slurs, ethnic hate speech, and discriminatory content',
+        nameKey: 'filter.racism',
+        descKey: 'filter.racismDesc',
         icon: FILTER_PACK_ICONS.racism,
         keywords: [
             'nigger', 'nigga', 'n1gger', 'n1gga', 'nigg3r', 'nig nog', 'spic', 'sp1c', 'wetback', 'beaner',
@@ -6327,8 +6406,8 @@ const FILTER_PACKS = {
         ]
     },
     sexualExplicit: {
-        name: 'Sexually Explicit',
-        description: 'Filters pornographic terms and sexually explicit content',
+        nameKey: 'filter.sexualExplicit',
+        descKey: 'filter.sexualExplicitDesc',
         icon: FILTER_PACK_ICONS.sexualExplicit,
         keywords: [
             'porn', 'p0rn', 'pron', 'xxx', 'xxxx', 'hardcore sex', 'anal sex', 'blowjob', 'blow job',
@@ -6346,8 +6425,8 @@ const FILTER_PACKS = {
         ]
     },
     violence: {
-        name: 'Violence & Gore',
-        description: 'Filters graphic violence, gore, and violent threats',
+        nameKey: 'filter.violence',
+        descKey: 'filter.violenceDesc',
         icon: FILTER_PACK_ICONS.violence,
         keywords: [
             'gore', 'g0re', 'gory', 'beheading', 'decapitat', 'dismember', 'mutilat', 'disembowel',
@@ -6361,8 +6440,8 @@ const FILTER_PACKS = {
         ]
     },
     drugs: {
-        name: 'Drugs & Substances',
-        description: 'Filters drug-related content and substance abuse',
+        nameKey: 'filter.drugs',
+        descKey: 'filter.drugsDesc',
         icon: FILTER_PACK_ICONS.drugs,
         keywords: [
             'cocaine', 'c0caine', 'coke dealer', 'crack cocaine', 'heroin', 'her0in', 'h3roin',
@@ -6376,8 +6455,8 @@ const FILTER_PACKS = {
         ]
     },
     spam: {
-        name: 'Spam & Scams',
-        description: 'Filters common spam, scam, and promotional content',
+        nameKey: 'filter.spam',
+        descKey: 'filter.spamDesc',
         icon: FILTER_PACK_ICONS.spam,
         keywords: [
             'free bitcoin', 'free btc', 'free crypto', 'double your bitcoin', 'double your btc',
@@ -6394,8 +6473,8 @@ const FILTER_PACKS = {
         ]
     },
     crypto: {
-        name: 'Cryptocurrency',
-        description: 'Filters cryptocurrency promotion, trading signals, and token shilling',
+        nameKey: 'filter.crypto',
+        descKey: 'filter.cryptoDesc',
         icon: FILTER_PACK_ICONS.crypto,
         keywords: [
             'bitcoin', 'btc', 'ethereum', 'eth', 'crypto', 'cryptocurrency', 'altcoin', 'altcoins',
@@ -6415,8 +6494,8 @@ const FILTER_PACKS = {
         ]
     },
     politics: {
-        name: 'Political Content',
-        description: 'Filters partisan political content and divisive rhetoric',
+        nameKey: 'filter.politics',
+        descKey: 'filter.politicsDesc',
         icon: FILTER_PACK_ICONS.politics,
         keywords: [
             'maga', 'make america great', 'trump', 'biden', 'lets go brandon', 'fjb',
@@ -6432,8 +6511,8 @@ const FILTER_PACKS = {
         ]
     },
     profanity: {
-        name: 'Strong Profanity',
-        description: 'Filters strong profanity and vulgar language',
+        nameKey: 'filter.profanity',
+        descKey: 'filter.profanityDesc',
         icon: FILTER_PACK_ICONS.profanity,
         keywords: [
             'fuck', 'f*ck', 'fuk', 'fck', 'f u c k', 'fucking', 'fuckin', 'fucker', 'motherfuck',
@@ -6535,7 +6614,7 @@ function matchesFilterPacks(text) {
             const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i');
 
             if (regex.test(lowerText)) {
-                matchedPacks.push({ packId, packName: pack.name, keyword });
+                matchedPacks.push({ packId, packName: t(pack.nameKey), keyword });
                 break; // One match per pack is enough
             }
         }
@@ -6548,7 +6627,7 @@ function matchesFilterPacks(text) {
             const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i');
 
             if (regex.test(lowerText)) {
-                matchedPacks.push({ packId: 'custom', packName: 'Custom Filter', keyword });
+                matchedPacks.push({ packId: 'custom', packName: t('filter.customFilter'), keyword });
                 break; // One match is enough for custom keywords
             }
         }
@@ -7123,6 +7202,7 @@ function generatePreviewGif(videoUrl, options = {}) {
 
     return new Promise((resolve, reject) => {
         // Use parallel video loading for faster frame capture on all browsers
+        // iOS/Safari requires play() before seeking works reliably
         const captureFrameAtTime = (url, time, width, height) => {
             return new Promise((resolveFrame, rejectFrame) => {
                 const video = document.createElement('video');
@@ -7131,24 +7211,28 @@ function generatePreviewGif(videoUrl, options = {}) {
 
                 video.muted = true;
                 video.playsInline = true;  // Required for iOS
-                video.preload = 'metadata';
+                video.preload = 'auto';    // Load more data for seeking
                 video.crossOrigin = 'anonymous';
+                video.setAttribute('playsinline', '');  // Extra iOS compatibility
+
+                let resolved = false;
 
                 // Timeout for this frame capture
                 const timeout = setTimeout(() => {
-                    video.src = '';
-                    rejectFrame(new Error('Frame capture timeout'));
+                    if (!resolved) {
+                        resolved = true;
+                        video.pause();
+                        video.src = '';
+                        rejectFrame(new Error('Frame capture timeout'));
+                    }
                 }, seekTimeout);
 
-                video.onloadedmetadata = () => {
-                    canvas.width = width;
-                    canvas.height = height;
-                    video.currentTime = Math.min(time, video.duration - 0.1);
-                };
-
-                video.onseeked = () => {
+                const captureFrame = () => {
+                    if (resolved) return;
+                    resolved = true;
                     clearTimeout(timeout);
                     try {
+                        video.pause();
                         ctx.drawImage(video, 0, 0, width, height);
                         const imageData = ctx.getImageData(0, 0, width, height);
                         video.src = '';  // Clean up
@@ -7159,13 +7243,46 @@ function generatePreviewGif(videoUrl, options = {}) {
                     }
                 };
 
+                video.onseeked = captureFrame;
+
+                // For iOS: also try capturing on timeupdate as fallback
+                video.ontimeupdate = () => {
+                    if (!resolved && Math.abs(video.currentTime - time) < 0.5) {
+                        captureFrame();
+                    }
+                };
+
+                video.onloadeddata = () => {
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    // iOS requires play() before seeking works
+                    // Play briefly then seek to desired time
+                    const playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            video.pause();
+                            video.currentTime = Math.min(time, video.duration - 0.1);
+                        }).catch(() => {
+                            // Autoplay blocked, try seeking directly
+                            video.currentTime = Math.min(time, video.duration - 0.1);
+                        });
+                    } else {
+                        video.currentTime = Math.min(time, video.duration - 0.1);
+                    }
+                };
+
                 video.onerror = () => {
-                    clearTimeout(timeout);
-                    video.src = '';
-                    rejectFrame(new Error('Failed to load video frame'));
+                    if (!resolved) {
+                        resolved = true;
+                        clearTimeout(timeout);
+                        video.src = '';
+                        rejectFrame(new Error('Failed to load video frame'));
+                    }
                 };
 
                 video.src = url;
+                video.load();  // Explicitly load on iOS
             });
         };
 
@@ -7779,10 +7896,22 @@ function shouldSkipLegacyEvent(event) {
         return false;
     }
 
-    // For kind 1 events: skip if they have a nip71-d tag (means NIP-71 version exists)
+    // For kind 1 events: skip if they have a nip71-d tag OR if addressable counterpart exists
     if (event.kind === 1) {
         const nip71DTag = event.tags?.find(t => t[0] === 'nip71-d')?.[1];
         if (nip71DTag) {
+            // Has nip71-d tag - check if addressable counterpart exists in cache
+            for (const [id, cachedEvent] of allEvents) {
+                if ((cachedEvent.kind === NIP71_VIDEO_KIND || cachedEvent.kind === NIP71_SHORT_KIND) &&
+                    cachedEvent.pubkey === event.pubkey) {
+                    const cachedDTag = cachedEvent.tags?.find(t => t[0] === 'd')?.[1];
+                    if (cachedDTag === nip71DTag) {
+                        return true;
+                    }
+                }
+            }
+            // nip71-d tag exists but addressable counterpart not in cache yet
+            // Still skip if we know the NIP-71 version exists (indicated by the tag)
             return true;
         }
     }
@@ -8869,19 +8998,34 @@ function initLazyLoading() {
     setInterval(checkVisibleLazyCards, 1000);
 }
 
-// Load a lazy card's media
+// Load a lazy card's media (both thumbnail and preview GIF)
 function loadLazyCard(card) {
     if (card.dataset.loaded === 'true') return;
 
-    const img = card.querySelector('img[data-src]');
-    const video = card.querySelector('video[data-src]');
-
-    if (img && img.dataset.src) {
-        img.src = img.dataset.src;
-        img.removeAttribute('data-src');
-        img.onload = () => img.classList.add('loaded');
+    // Load thumbnail image
+    const thumbnailImg = card.querySelector('img.thumbnail-img[data-src]');
+    if (thumbnailImg && thumbnailImg.dataset.src) {
+        thumbnailImg.src = thumbnailImg.dataset.src;
+        thumbnailImg.removeAttribute('data-src');
+        thumbnailImg.onload = () => {
+            thumbnailImg.classList.add('loaded');
+        };
     }
 
+    // Load preview GIF image (hidden until hover)
+    const previewImg = card.querySelector('img.preview-img[data-src]');
+    if (previewImg && previewImg.dataset.src) {
+        previewImg.src = previewImg.dataset.src;
+        previewImg.removeAttribute('data-src');
+        previewImg.onload = () => {
+            previewImg.classList.add('loaded');
+            // Mark the card as having preview ready
+            card.dataset.previewReady = 'true';
+        };
+    }
+
+    // Load video element if no thumbnail
+    const video = card.querySelector('video[data-src]');
     if (video && video.dataset.src) {
         video.src = video.dataset.src;
         video.removeAttribute('data-src');
@@ -8892,6 +9036,7 @@ function loadLazyCard(card) {
         lazyLoadObserver.unobserve(card);
     }
 }
+
 
 // Fallback check for cards that might have been missed by IntersectionObserver
 function checkVisibleLazyCards() {
@@ -12991,6 +13136,8 @@ function populateFilterPacksList() {
     let html = '';
     for (const [packId, pack] of Object.entries(FILTER_PACKS)) {
         const isEnabled = enabledFilterPacks.has(packId);
+        const packName = t(pack.nameKey);
+        const packDesc = t(pack.descKey);
         html += `
             <div class="filter-pack-item">
                 <div class="filter-pack-header">
@@ -13000,11 +13147,11 @@ function populateFilterPacksList() {
                                onchange="toggleFilterPack('${packId}')">
                         <label for="filterPack_${packId}">
                             <span class="filter-pack-icon">${pack.icon}</span>
-                            ${pack.name}
+                            ${packName}
                         </label>
                     </div>
                 </div>
-                <p class="filter-pack-description">${pack.description}</p>
+                <p class="filter-pack-description">${packDesc}</p>
             </div>
         `;
     }
@@ -14159,7 +14306,7 @@ async function loadLikedVideos() {
     const skeletons = Array(skeletonCount).fill(createSkeletonCard()).join('');
 
     mainContent.innerHTML = `
-        <h2 style="margin-bottom: 1.5rem;">Liked Videos</h2>
+        <h2 style="margin-bottom: 1.5rem;">${t('pageTitle.likedVideos')}</h2>
         <!-- Live Streams Section -->
         <div id="likedLiveSection" style="display: none; margin-bottom: 2rem;">
             <h3 style="margin-bottom: 1rem;">
@@ -14167,7 +14314,7 @@ async function loadLikedVideos() {
                     <circle cx="12" cy="12" r="4" fill="#f44336"/>
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                 </svg>
-                Live Streams
+                ${t('pageTitle.liveStreams')}
             </h3>
             <div class="video-grid" id="likedLiveGrid"></div>
         </div>
@@ -14178,11 +14325,11 @@ async function loadLikedVideos() {
                     <rect x="6" y="2" width="12" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
                     <path d="M10 8l6 4-6 4V8z"/>
                 </svg>
-                Shorts
+                ${t('section.shorts')}
             </h3>
             <div class="shorts-grid" id="likedShortsGrid"></div>
             <div class="view-more-container" id="likedShortsViewMore" style="display: none;">
-                <button class="action-btn view-more-btn" onclick="expandSection('likedShorts')">View More</button>
+                <button class="action-btn view-more-btn" onclick="expandSection('likedShorts')">${t('button.viewMore')}</button>
             </div>
         </div>
         <!-- Videos Section -->
@@ -14190,7 +14337,7 @@ async function loadLikedVideos() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 0.5rem;">
                     <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 8l7 4-7 4V8z"/>
                 </svg>
-                Videos
+                ${t('section.videos')}
             </h3>
         <div class="video-grid" id="videoGrid">
             ${skeletons}
@@ -16078,7 +16225,7 @@ async function loadWatchHistory() {
 
     mainContent.innerHTML = `
         <div class="history-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-            <h2 style="margin: 0;">Watched History</h2>
+            <h2 style="margin: 0;">${t('pageTitle.watchHistory')}</h2>
             <div style="display: flex; gap: 0.75rem; align-items: center;">
                 <div class="history-search-container" style="position: relative;">
                     <input type="text" id="historySearch" placeholder="${t('placeholder.searchHistory')}"
@@ -16088,7 +16235,7 @@ async function loadWatchHistory() {
                     </svg>
                 </div>
                 <button id="clearHistoryBtn" class="action-btn" style="padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem;" onclick="confirmClearHistory()">
-                    Clear All
+                    ${t('button.clearAll')}
                 </button>
             </div>
         </div>
@@ -16099,7 +16246,7 @@ async function loadWatchHistory() {
                     <circle cx="12" cy="12" r="4" fill="#f44336"/>
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                 </svg>
-                Live Streams
+                ${t('pageTitle.liveStreams')}
             </h3>
             <div class="video-grid" id="historyLiveGrid"></div>
         </div>
@@ -16110,7 +16257,7 @@ async function loadWatchHistory() {
                     <rect x="6" y="2" width="12" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
                     <path d="M10 8l6 4-6 4V8z"/>
                 </svg>
-                Shorts
+                ${t('section.shorts')}
             </h3>
             <div class="shorts-grid" id="historyShortsGrid"></div>
         </div>
@@ -16119,7 +16266,7 @@ async function loadWatchHistory() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 0.5rem;">
                     <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 8l7 4-7 4V8z"/>
                 </svg>
-                Videos
+                ${t('section.videos')}
             </h3>
         <div class="video-grid" id="videoGrid">
             ${skeletons}
@@ -17256,7 +17403,7 @@ function loadDmcaPage() {
             <section class="static-section">
                 <h2>${t('dmca.blossomOperatorsTitle')}</h2>
                 <p>${t('dmca.blossomOperatorsDesc')}</p>
-                <p>${t('dmca.blossomOperatorsLink')}</p>
+                <p><a href="https://github.com/hzrd149/blossom" target="_blank" rel="noopener" class="accent-link">${t('dmca.blossomOperatorsLink')}</a></p>
             </section>
 
             <section class="static-section">
@@ -17276,7 +17423,7 @@ function loadDmcaPage() {
 
             <section class="static-section">
                 <h2>${t('dmca.contactTitle')}</h2>
-                <p>${t('dmca.contactDesc')}</p>
+                <p>${t('dmca.contactDesc')} <a href="#/contact" class="accent-link">${t('dmca.contactLink')}</a></p>
             </section>
         </div>
     `;
@@ -20485,61 +20632,87 @@ function createNote(event) {
 }
 
 // Initialize hover preview functionality using event delegation
+// Supports both mouse hover and touch for mobile devices
+// Shows/hides pre-loaded preview GIF images (no src swapping needed)
 function initializeHoverPreview() {
     const mainContent = document.getElementById('mainContent');
     if (!mainContent) return;
 
-    // Track which thumbnail is currently showing preview to avoid redundant operations
-    let currentPreviewThumbnail = null;
+    // Track touch state for mobile
+    let touchActiveCard = null;
 
-    // Use event delegation for better performance
-    // Support both regular video cards and sidebar video cards
-    mainContent.addEventListener('mouseenter', (e) => {
-        const thumbnail = e.target.closest('.video-thumbnail[data-preview], .sidebar-video-thumbnail[data-preview]');
-        if (!thumbnail || thumbnail === currentPreviewThumbnail) return;
+    // Helper function to show preview on a card
+    const showPreview = (card) => {
+        if (!card || card.dataset.hasPreview !== 'true') return;
 
-        const previewUrl = thumbnail.dataset.preview;
-        const thumbnailUrl = thumbnail.dataset.thumbnail;
-        const img = thumbnail.querySelector('img.thumbnail-img');
+        const thumbnailImg = card.querySelector('img.thumbnail-img');
+        const previewImg = card.querySelector('img.preview-img');
 
-        if (!img || !previewUrl) return;
+        if (!thumbnailImg || !previewImg) return;
 
-        // Store the current thumbnail URL if not already stored
-        if (!img.dataset.originalSrc) {
-            img.dataset.originalSrc = img.src || thumbnailUrl;
+        // Only show if preview is loaded
+        if (previewImg.classList.contains('loaded')) {
+            thumbnailImg.style.display = 'none';
+            previewImg.style.display = 'block';
+            card.classList.add('preview-active');
         }
+    };
 
-        // Preload the preview GIF before switching
-        const preloadImg = new Image();
-        preloadImg.onload = () => {
-            // Only switch if still hovering over same thumbnail
-            if (thumbnail.matches(':hover')) {
-                img.src = previewUrl;
-                thumbnail.classList.add('preview-active');
-                currentPreviewThumbnail = thumbnail;
-            }
-        };
-        preloadImg.src = previewUrl;
+    // Helper function to hide preview on a card
+    const hidePreview = (card) => {
+        if (!card) return;
+
+        const thumbnailImg = card.querySelector('img.thumbnail-img');
+        const previewImg = card.querySelector('img.preview-img');
+
+        if (thumbnailImg) thumbnailImg.style.display = '';
+        if (previewImg) previewImg.style.display = 'none';
+        card.classList.remove('preview-active');
+    };
+
+    // Mouse hover events (desktop)
+    mainContent.addEventListener('mouseenter', (e) => {
+        const card = e.target.closest('.video-card[data-has-preview="true"], .short-card[data-has-preview="true"]');
+        if (card) showPreview(card);
     }, true);
 
     mainContent.addEventListener('mouseleave', (e) => {
-        const thumbnail = e.target.closest('.video-thumbnail[data-preview], .sidebar-video-thumbnail[data-preview]');
-        if (!thumbnail) return;
-
-        const img = thumbnail.querySelector('img.thumbnail-img');
-        if (!img) return;
-
-        // Restore original thumbnail
-        const originalSrc = img.dataset.originalSrc || thumbnail.dataset.thumbnail;
-        if (originalSrc && img.src !== originalSrc) {
-            img.src = originalSrc;
-        }
-        thumbnail.classList.remove('preview-active');
-
-        if (currentPreviewThumbnail === thumbnail) {
-            currentPreviewThumbnail = null;
-        }
+        const card = e.target.closest('.video-card[data-has-preview="true"], .short-card[data-has-preview="true"]');
+        if (card) hidePreview(card);
     }, true);
+
+    // Touch events (mobile)
+    mainContent.addEventListener('touchstart', (e) => {
+        const card = e.target.closest('.video-card[data-has-preview="true"], .short-card[data-has-preview="true"]');
+        if (!card) return;
+
+        // If touching a new card, hide preview on the previous one
+        if (touchActiveCard && touchActiveCard !== card) {
+            hidePreview(touchActiveCard);
+        }
+
+        touchActiveCard = card;
+        showPreview(card);
+    }, { passive: true });
+
+    // Hide preview when scrolling starts
+    mainContent.addEventListener('scroll', () => {
+        if (touchActiveCard) {
+            hidePreview(touchActiveCard);
+            touchActiveCard = null;
+        }
+    }, { passive: true });
+
+    // Also hide when touching outside video cards
+    document.addEventListener('touchstart', (e) => {
+        if (touchActiveCard) {
+            const card = e.target.closest('.video-card[data-has-preview="true"], .short-card[data-has-preview="true"]');
+            if (!card) {
+                hidePreview(touchActiveCard);
+                touchActiveCard = null;
+            }
+        }
+    }, { passive: true });
 }
 
 // Initialize app on DOM load
@@ -21539,6 +21712,7 @@ async function loadTrendingVideos(period = 'today') {
 
 // Helper function for incremental rendering
 // Progressive rendering for trending videos - renders immediately, updates profiles in-place
+// Limits to max 4 videos on homepage initially, with View More for expansion
 function renderTrendingVideosIncremental(trendingVideos, renderedVideoIds) {
     const trendingGrid = document.getElementById('trendingGrid');
     if (!trendingGrid) return;
@@ -21552,14 +21726,18 @@ function renderTrendingVideosIncremental(trendingVideos, renderedVideoIds) {
         spinner.remove();
     }
 
+    // Limit to max 4 cards initially on homepage
+    const maxInitialCards = 4;
+    const videosToRender = trendingVideos.slice(0, maxInitialCards);
+
     // Find videos that need profiles loaded
-    const newVideos = trendingVideos.filter(v => !renderedVideoIds.has(v.id));
+    const newVideos = videosToRender.filter(v => !renderedVideoIds.has(v.id));
     const uncachedPubkeys = [...new Set(newVideos.map(v => v.pubkey).filter(pk => !profileCache.has(pk)))];
 
     // Render immediately with available data
     trendingGrid.innerHTML = '';
 
-    const renderedCards = trendingVideos.map((event, index) => {
+    const renderedCards = videosToRender.map((event, index) => {
         const profile = profileCache.get(event.pubkey);
         const reactions = reactionsCache.get(event.id);
         renderedVideoIds.add(event.id);
@@ -21571,11 +21749,11 @@ function renderTrendingVideosIncremental(trendingVideos, renderedVideoIds) {
         observeLazyCards();
         initializeCarousel();
 
-        // Load profiles immediately for trending videos
-        trendingVideos.forEach(event => loadProfileAndUpdateCards(event.pubkey));
+        // Load profiles immediately for rendered trending videos only
+        videosToRender.forEach(event => loadProfileAndUpdateCards(event.pubkey));
 
-        // Load boosts for trending videos
-        trendingVideos.forEach(event => {
+        // Load boosts for rendered trending videos only
+        videosToRender.forEach(event => {
             if (!boostsCache.has(event.id)) {
                 loadBoostsForVideo(event.id, (totalBoosts) => {
                     const card = document.getElementById(`video-card-${event.id}`);
@@ -21602,8 +21780,8 @@ function renderTrendingVideosIncremental(trendingVideos, renderedVideoIds) {
             }
         });
 
-        // Load views for trending videos
-        const trendingIds = trendingVideos.map(e => e.id);
+        // Load views for rendered trending videos only
+        const trendingIds = videosToRender.map(e => e.id);
         if (trendingIds.length > 0) {
             loadViewsForVideos(trendingIds, true);
         }
@@ -21649,9 +21827,9 @@ function getShortsCardsPerRow() {
 
 // Available topics for featured sections - Music, Gaming, Bitcoin
 const FEATURED_TOPICS = [
-    { tag: 'music', name: 'Music', icon: '<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>' },
-    { tag: 'gaming', name: 'Gaming', icon: '<path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>' },
-    { tag: 'bitcoin', name: 'Bitcoin', icon: '<path d="M17.06 11.57c.59-.69.94-1.59.94-2.57 0-1.86-1.27-3.43-3-3.87V3h-2v2h-2V3H9v2H6v2h1c.55 0 1 .45 1 1v8c0 .55-.45 1-1 1H6v2h3v2h2v-2h2v2h2v-2.13c2.39-.54 4-2.65 4-5.07 0-1.37-.53-2.62-1.4-3.55M10 7h4c1.1 0 2 .9 2 2s-.9 2-2 2h-4V7zm5 10h-5v-4h5c1.1 0 2 .9 2 2s-.9 2-2 2z"/>' }
+    { tag: 'music', nameKey: 'nav.music', icon: '<path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>' },
+    { tag: 'gaming', nameKey: 'nav.gaming', icon: '<path d="M15 7.5V2H9v5.5l3 3 3-3zM7.5 9H2v6h5.5l3-3-3-3zM9 16.5V22h6v-5.5l-3-3-3 3zM16.5 9l-3 3 3 3H22V9h-5.5z"/>' },
+    { tag: 'bitcoin', nameKey: 'nav.bitcoin', icon: '<path d="M17.06 11.57c.59-.69.94-1.59.94-2.57 0-1.86-1.27-3.43-3-3.87V3h-2v2h-2V3H9v2H6v2h1c.55 0 1 .45 1 1v8c0 .55-.45 1-1 1H6v2h3v2h2v-2h2v2h2v-2.13c2.39-.54 4-2.65 4-5.07 0-1.37-.53-2.62-1.4-3.55M10 7h4c1.1 0 2 .9 2 2s-.9 2-2 2h-4V7zm5 10h-5v-4h5c1.1 0 2 .9 2 2s-.9 2-2 2z"/>' }
 ];
 
 // Storage for section videos (to support View More expansion)
@@ -22060,13 +22238,14 @@ async function loadHomeFeed() {
     loadLatestVideosSection();
 }
 
-// Load trending section as a grid (1 row)
+// Load trending section as a grid (1 row, max 4 cards)
 // Note: loadTrendingVideos already does progressive rendering via renderTrendingVideosIncremental
 // This function just needs to handle caching and view more button
 async function loadTrendingSectionGrid() {
     const trendingGrid = document.getElementById('trendingGrid');
     const viewMoreBtn = document.getElementById('trendingViewMore');
-    const cardsPerRow = getCardsPerRow();
+    // Limit to max 4 cards on homepage regardless of viewport width
+    const maxTrendingCards = 4;
 
     try {
         // loadTrendingVideos already renders progressively as data arrives
@@ -22085,8 +22264,8 @@ async function loadTrendingSectionGrid() {
         // Cache all trending videos for View More expansion
         cachedTrendingVideos = trendingVideos;
 
-        // Show View More if there are more videos than one row
-        if (trendingVideos.length > cardsPerRow && viewMoreBtn) {
+        // Show View More if there are more videos than max cards shown
+        if (trendingVideos.length > maxTrendingCards && viewMoreBtn) {
             viewMoreBtn.style.display = 'block';
         }
     } catch (error) {
@@ -22513,10 +22692,11 @@ function createShortCard(event, profile, reactions, showOwnerActions = false) {
     const cardId = `video-card-${event.id}`;
 
     return `
-        <div class="video-card short-card ${isBoosted ? `boosted boost-level-${boostLevel}` : ''}" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}">
-            <div class="video-thumbnail short-thumbnail ${showBlurred ? overlayType : ''}" data-thumbnail="${escapeHtml(thumbnailUrl)}"${videoData.preview ? ` data-preview="${escapeHtml(videoData.preview)}"` : ''}
+        <div class="video-card short-card ${isBoosted ? `boosted boost-level-${boostLevel}` : ''}" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}"${videoData.preview ? ' data-has-preview="true"' : ''}>
+            <div class="video-thumbnail short-thumbnail ${showBlurred ? overlayType : ''}"
                  onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">
                 ${thumbnailUrl ? `<img class="thumbnail-img" src="${thumbnailUrl}" alt="${escapeHtml(title)}" loading="lazy">` : '<div class="thumbnail-placeholder"></div>'}
+                ${videoData.preview ? `<img class="preview-img" src="${videoData.preview}" alt="${escapeHtml(title)} preview" style="display:none;" onload="this.classList.add('loaded')">` : ''}
                 ${showBlurred ? `
                     <div class="${overlayType}-overlay">
                         <div class="${overlayType}-badge">${overlayType === 'nsfw' ? t('badge.nsfw') : t('badge.communityWarning')}</div>
@@ -22619,7 +22799,7 @@ async function loadFeaturedTopics() {
 
         // Set topic info
         iconEl.innerHTML = topic.icon;
-        nameEl.textContent = topic.name;
+        nameEl.textContent = t(topic.nameKey);
         // Set up View More to expand section
         viewMoreBtn.onclick = () => expandSection('featured', index);
 
@@ -23126,8 +23306,8 @@ async function loadFollowing() {
 
         if (followingList.length === 0) {
             mainContent.innerHTML = `
-                <h2 style="margin-bottom: 1.5rem;">Following</h2>
-                <p style="text-align: center; color: var(--text-secondary);">You're not following anyone yet. Find creators to follow!</p>
+                <h2 style="margin-bottom: 1.5rem;">${t('pageTitle.following')}</h2>
+                <p style="text-align: center; color: var(--text-secondary);">${t('following.noFollowingYet')}</p>
             `;
             return;
         }
@@ -23142,10 +23322,10 @@ async function loadFollowing() {
         const shortSkeletons = Array(getShortsCardsPerRow()).fill(createShortSkeletonCard()).join('');
 
         mainContent.innerHTML = `
-            <h2 style="margin-bottom: 1.5rem;">Following</h2>
+            <h2 style="margin-bottom: 1.5rem;">${t('pageTitle.following')}</h2>
             <div class="following-users-section">
                 <div class="following-users-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.75rem;">
-                    <h3 style="margin: 0; color: var(--text-secondary);">Users You Follow</h3>
+                    <h3 style="margin: 0; color: var(--text-secondary);">${t('section.usersYouFollow')}</h3>
                     <div class="following-search-container" style="position: relative;">
                         <input type="text" id="followingUserSearch" placeholder="${t('placeholder.searchUsers')}"
                                style="padding: 0.5rem 0.75rem 0.5rem 2.25rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-secondary); color: var(--text-primary); width: 200px; font-size: 0.875rem;">
@@ -23171,7 +23351,7 @@ async function loadFollowing() {
                         <circle cx="12" cy="12" r="4" fill="#f44336"/>
                         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                     </svg>
-                    Live Streams
+                    ${t('pageTitle.liveStreams')}
                 </h3>
                 <div class="video-grid" id="followingLiveGrid">${liveSkeletons}</div>
             </div>
@@ -23182,11 +23362,11 @@ async function loadFollowing() {
                         <rect x="6" y="2" width="12" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
                         <path d="M10 8l6 4-6 4V8z"/>
                     </svg>
-                    Shorts
+                    ${t('section.shorts')}
                 </h3>
                 <div class="shorts-grid" id="followingShortsGrid">${shortSkeletons}</div>
                 <div class="view-more-container" id="followingShortsViewMore" style="display: none;">
-                    <button class="action-btn view-more-btn" onclick="expandSection('followingShorts')">View More</button>
+                    <button class="action-btn view-more-btn" onclick="expandSection('followingShorts')">${t('button.viewMore')}</button>
                 </div>
             </div>
             <!-- Videos Section -->
@@ -23194,7 +23374,7 @@ async function loadFollowing() {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 0.5rem;">
                     <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 8l7 4-7 4V8z"/>
                 </svg>
-                Latest Videos
+                ${t('section.latestVideos')}
             </h3>
             <div class="video-grid" id="followingVideoGrid">
                 ${videoSkeletons}
@@ -23798,7 +23978,7 @@ async function loadMyVideos() {
         '#t': ['pv69420']
     };
 
-    await displayVideosStreamWithDrafts('My Videos', filter);
+    await displayVideosStreamWithDrafts(t('pageTitle.myVideos'), filter);
 }
 
 // Load user's live streams for My Videos page
@@ -24060,7 +24240,7 @@ async function displayVideosStreamWithDrafts(title, filter) {
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M3 13h2v8H3v-8zm4-5h2v13H7V8zm4-5h2v18h-2V3zm4 8h2v10h-2V11zm4-3h2v13h-2V8z"/>
                     </svg>
-                    Analytics
+                    ${t('button.viewAnalytics')}
                 </button>
             </div>
         </div>
@@ -24072,7 +24252,7 @@ async function displayVideosStreamWithDrafts(title, filter) {
                     <circle cx="12" cy="12" r="4" fill="#f44336"/>
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                 </svg>
-                Live Streams
+                ${t('pageTitle.liveStreams')}
             </h3>
             <div class="video-grid" id="myVideosLiveGrid">${liveSkeletons}</div>
         </div>
@@ -24083,11 +24263,11 @@ async function displayVideosStreamWithDrafts(title, filter) {
                     <rect x="6" y="2" width="12" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
                     <path d="M10 8l6 4-6 4V8z"/>
                 </svg>
-                Shorts
+                ${t('section.shorts')}
             </h3>
             <div class="shorts-grid" id="myVideosShortsGrid">${shortSkeletons}</div>
             <div class="view-more-container" id="myVideosShortsViewMore" style="display: none;">
-                <button class="action-btn view-more-btn" onclick="expandSection('myVideosShorts')">View More</button>
+                <button class="action-btn view-more-btn" onclick="expandSection('myVideosShorts')">${t('button.viewMore')}</button>
             </div>
         </div>
         <!-- Videos Section -->
@@ -24095,7 +24275,7 @@ async function displayVideosStreamWithDrafts(title, filter) {
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 0.5rem;">
                     <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 8l7 4-7 4V8z"/>
                 </svg>
-                Videos
+                ${t('section.videos')}
             </h3>
         <div class="video-grid" id="videoGrid">
             ${skeletons}
@@ -26153,7 +26333,7 @@ async function loadTag(tag) {
     const skeletons = Array(skeletonCount).fill(createSkeletonCard()).join('');
 
     mainContent.innerHTML = `
-        <h2 style="margin-bottom: 1.5rem;">${displayTag} Videos</h2>
+        <h2 style="margin-bottom: 1.5rem;">${displayTag} ${t('section.videos')}</h2>
         <!-- Shorts Section -->
         <div id="tagShortsSection" style="display: none; margin-bottom: 2rem;">
             <h3 style="margin-bottom: 1rem;">
@@ -26161,7 +26341,7 @@ async function loadTag(tag) {
                     <rect x="6" y="2" width="12" height="20" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/>
                     <path d="M10 8l6 4-6 4V8z"/>
                 </svg>
-                Shorts
+                ${t('section.shorts')}
             </h3>
             <div class="shorts-grid" id="tagShortsGrid"></div>
         </div>
@@ -28099,6 +28279,17 @@ async function loadProfile(pubkey) {
                     </button>
                 </div>
             </div>
+            <!-- Live Streams Section -->
+            <div id="profileLiveSection" style="display: none; margin-bottom: 2rem;">
+                <h2 style="margin-bottom: 1rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 0.5rem;">
+                        <circle cx="12" cy="12" r="4" fill="#f44336"/>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                    </svg>
+                    Live Streams
+                </h2>
+                <div class="video-grid" id="profileLiveGrid"></div>
+            </div>
             <!-- Shorts Section -->
             <div id="profileShortsSection" style="display: none; margin-bottom: 2rem;">
                 <h2 style="margin-bottom: 1rem;">
@@ -28111,7 +28302,12 @@ async function loadProfile(pubkey) {
                 <div class="shorts-grid" id="profileShortsGrid"></div>
             </div>
             <!-- Videos Section -->
-            <h2 style="margin-bottom: 1.5rem;">Videos</h2>
+            <h2 style="margin-bottom: 1.5rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="vertical-align: middle; margin-right: 0.5rem;">
+                    <path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM9 8l7 4-7 4V8z"/>
+                </svg>
+                Videos
+            </h2>
             <div class="video-grid" id="profileVideoGrid">
                 ${skeletons}
             </div>
@@ -28320,6 +28516,84 @@ async function loadProfile(pubkey) {
         }, () => {
             if (videoEvents.length === 0) {
                 videoGrid.innerHTML = `<p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">${t('empty.noUploadedVideos')}</p>`;
+            }
+        });
+
+        // Load live streams for this user
+        const liveFilter = {
+            kinds: [NIP53_LIVE_EVENT_KIND],
+            authors: [pubkey],
+            '#t': ['pv69420'],
+            limit: 50
+        };
+
+        const liveGrid = document.getElementById('profileLiveGrid');
+        const liveSection = document.getElementById('profileLiveSection');
+        const liveEvents = [];
+
+        await requestEventsStream(liveFilter, (event) => {
+            const liveData = parseLiveEvent(event);
+            if (!liveData) return;
+
+            allEvents.set(event.id, event);
+            liveEvents.push({ event, liveData });
+
+            // Show live section
+            if (liveSection) {
+                liveSection.style.display = 'block';
+            }
+
+            // Check if active (live) or ended
+            const isActive = isLiveStreamActive(liveData);
+            const isEnded = isLiveStreamEnded(liveData);
+
+            // Create and insert card
+            const cardHTML = createLiveStreamCard(event, liveData, profile, isEnded);
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = cardHTML;
+
+            if (tempDiv.firstElementChild) {
+                // Sort: active streams first, then by date
+                let inserted = false;
+                const existingCards = liveGrid.querySelectorAll('.video-card');
+
+                for (let i = 0; i < existingCards.length; i++) {
+                    const existingCard = existingCards[i];
+                    const existingIsLive = existingCard.classList.contains('is-live') &&
+                                           existingCard.querySelector('.live-badge');
+
+                    // Active streams go before ended ones
+                    if (isActive && !existingIsLive) {
+                        existingCard.parentNode.insertBefore(tempDiv.firstElementChild, existingCard);
+                        inserted = true;
+                        break;
+                    }
+
+                    // Among same status, sort by date
+                    if (isActive === !!existingIsLive) {
+                        const existingEventId = existingCard.dataset.liveEventId;
+                        const existingEvent = allEvents.get(existingEventId);
+                        if (existingEvent && event.created_at > existingEvent.created_at) {
+                            existingCard.parentNode.insertBefore(tempDiv.firstElementChild, existingCard);
+                            inserted = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (!inserted) {
+                    liveGrid.appendChild(tempDiv.firstElementChild);
+                }
+            }
+        }, () => {
+            // Live streams loaded - load viewer counts for active streams
+            const activeLiveIds = liveEvents
+                .filter(({ liveData }) => isLiveStreamActive(liveData))
+                .map(({ event }) => event.id);
+
+            if (activeLiveIds.length > 0) {
+                loadLiveStreamCardsViewers(activeLiveIds);
             }
         });
 
@@ -32573,14 +32847,14 @@ function createVideoCard(event, profile, reactions, isTrending = false, trending
     }
 
     const cardHTML = `
-        <div class="video-card ${isBoosted ? `boosted boost-level-${boostLevel}` : ''}" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}"${lazy ? ' data-lazy="true"' : ''}>
+        <div class="video-card ${isBoosted ? `boosted boost-level-${boostLevel}` : ''}" id="${cardId}" data-event-id="${event.id}" data-pubkey="${event.pubkey}" data-is-trending="${isTrending}" data-validation-pending="${avatarUrl || nip05 ? 'true' : 'false'}"${lazy ? ' data-lazy="true"' : ''}${videoData.preview ? ' data-has-preview="true"' : ''}>
             <div class="video-thumbnail ${showBlurred ? overlayType : ''}"
-                 onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}"
-                 ${videoData.preview ? `data-preview="${videoData.preview}" data-thumbnail="${videoData.thumbnail || ''}"` : ''}>
+                 onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playVideo', '${event.id}')` : `showRatioedModal('${event.id}')`) : `navigateTo('/video/${event.id}')`}">
                 ${videoData.thumbnail ?
             `<img class="thumbnail-img" ${lazy ? `data-src="${videoData.thumbnail}"` : `src="${videoData.thumbnail}"`} alt="${videoData.title}" onerror="this.style.display='none'">` :
             `<video ${lazy ? `data-src="${videoData.url}"` : `src="${videoData.url}"`} preload="metadata"></video>`
         }
+                ${videoData.preview ? `<img class="preview-img" ${lazy ? `data-src="${videoData.preview}"` : `src="${videoData.preview}" onload="this.classList.add('loaded')"`} alt="${videoData.title} preview" style="display:none;">` : ''}
                 ${showBlurred ? `
                     <div class="${overlayType}-overlay">
                         <div class="${overlayType}-badge">${overlayType === 'nsfw' ? t('badge.nsfw') : t('badge.communityWarning')}</div>
@@ -35533,7 +35807,7 @@ async function loadLiveFeed() {
                     <circle cx="12" cy="12" r="4" fill="#f44336"/>
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                 </svg>
-                Live Streams
+                ${t('pageTitle.liveStreams')}
             </h2>
             <span class="live-count" id="live-count">Loading...</span>
         </div>
