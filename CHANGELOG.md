@@ -1,3 +1,7 @@
+## v2.7.19 - 2025-12-20
+
+Hotfix: bug with camera switch on create short
+
 ## v2.7.18 - 2025-12-19
 
 Hotfix: option to switch cameras on mobile for creating short
