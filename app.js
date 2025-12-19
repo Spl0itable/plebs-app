@@ -7716,7 +7716,7 @@ function createNip71VideoEvent(videoData) {
 }
 
 // Create a kind 1 video event (for backwards compatibility)
-function createKind1VideoEvent(videoData) {
+function createKind1VideoEvent(videoData, addressableEventId = null) {
     const tags = [
         ['title', videoData.title],
         ['t', 'pv69420'],
@@ -7739,10 +7739,19 @@ function createKind1VideoEvent(videoData) {
         tags.push(['nip71-d', videoData.dTag]);
     }
 
+    // Build content with video URL above description and plebs link at end
+    let content = `${escapeHtml(videoData.title)}\n\n${videoData.url}`;
+    if (videoData.description) {
+        content += `\n\n${escapeHtml(videoData.description)}`;
+    }
+    if (addressableEventId) {
+        content += `\n\nhttps://plebs.app/#/video/${addressableEventId}`;
+    }
+
     return {
         kind: 1,
         tags: tags,
-        content: `${escapeHtml(videoData.title)}\n\n${escapeHtml(videoData.description)}\n\n${videoData.url}`,
+        content: content,
         created_at: Math.floor(Date.now() / 1000)
     };
 }
@@ -21508,7 +21517,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const signedLegacyNip71Event = await signEvent(legacyNip71Event);
 
                 // Create kind 1 event for backwards compatibility (maximum reach)
-                const kind1Event = createKind1VideoEvent(videoData);
+                // Pass the addressable event ID so we can link to it on plebs.app
+                const kind1Event = createKind1VideoEvent(videoData, signedAddressableEvent.id);
                 const signedKind1Event = await signEvent(kind1Event);
 
                 // Publish all three events in parallel for maximum reach
@@ -31956,6 +31966,8 @@ let recordedChunks = [];
 let recordingStream = null;
 let recordingTimer = null;
 let recordingSeconds = 0;
+let currentFacingMode = 'user'; // 'user' (front) or 'environment' (back)
+let isRecordedFromCamera = false; // Flag to skip orientation validation for camera recordings
 
 function showUploadModal(type = 'video') {
     if (!currentUser) {
@@ -32126,6 +32138,10 @@ function hideUploadModal() {
     if (recordBtnText) {
         recordBtnText.textContent = t('button.recordFromCamera');
     }
+    const cameraSwitchBtn = document.getElementById('cameraSwitchBtn');
+    if (cameraSwitchBtn) {
+        cameraSwitchBtn.style.display = 'none';
+    }
 
     // Reset upload type
     currentUploadType = 'video';
@@ -32153,6 +32169,19 @@ function stopRecordingCleanup() {
         recordingTimer = null;
     }
     recordingSeconds = 0;
+
+    // Unlock screen orientation
+    if (screen.orientation && screen.orientation.unlock) {
+        try {
+            screen.orientation.unlock();
+        } catch (e) {
+            // Ignore unlock errors
+        }
+    }
+
+    // Reset camera state
+    currentFacingMode = 'user';
+    // Note: Don't reset isRecordedFromCamera here - it needs to persist until file is processed
 }
 
 async function toggleRecording() {
@@ -32178,7 +32207,7 @@ async function toggleRecording() {
             // unreliable on some systems and may not show cameras until permission is granted
             const constraints = {
                 video: {
-                    facingMode: 'user',
+                    facingMode: currentFacingMode,
                     width: { ideal: 1080 },
                     height: { ideal: 1920 },
                     aspectRatio: { ideal: 9/16 }
@@ -32187,10 +32216,28 @@ async function toggleRecording() {
             };
 
             recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
+            isRecordedFromCamera = true; // Mark as recorded from camera to skip orientation check
 
             // Show preview
             preview.srcObject = recordingStream;
             previewContainer.style.display = 'block';
+
+            // Show camera switch button on mobile devices (which typically have multiple cameras)
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            const switchBtn = document.getElementById('cameraSwitchBtn');
+            if (switchBtn && isMobile) {
+                switchBtn.style.display = 'flex';
+            }
+
+            // Try to lock orientation to portrait on mobile devices for vertical video
+            if (isMobile && screen.orientation && screen.orientation.lock) {
+                try {
+                    await screen.orientation.lock('portrait');
+                } catch (lockErr) {
+                    // Orientation lock may not be supported or allowed - continue anyway
+                    console.log('Could not lock orientation:', lockErr.message);
+                }
+            }
 
             // Setup media recorder
             const options = { mimeType: 'video/webm;codecs=vp9,opus' };
@@ -32300,6 +32347,73 @@ function stopRecording() {
     const recordBtnText = document.getElementById('recordBtnText');
     if (recordBtn) recordBtn.classList.remove('recording');
     if (recordBtnText) recordBtnText.textContent = t('button.recordFromCamera');
+
+    // Hide camera switch button
+    const switchBtn = document.getElementById('cameraSwitchBtn');
+    if (switchBtn) switchBtn.style.display = 'none';
+}
+
+async function switchCamera() {
+    // Toggle facing mode
+    currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+
+    const preview = document.getElementById('recordPreview');
+
+    // Stop current stream
+    if (recordingStream) {
+        recordingStream.getTracks().forEach(track => track.stop());
+    }
+
+    try {
+        // Request new stream with updated facing mode
+        const constraints = {
+            video: {
+                facingMode: currentFacingMode,
+                width: { ideal: 1080 },
+                height: { ideal: 1920 },
+                aspectRatio: { ideal: 9/16 }
+            },
+            audio: true
+        };
+
+        recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+        // Update preview
+        if (preview) {
+            preview.srcObject = recordingStream;
+        }
+
+        // If we were recording, we need to restart the MediaRecorder with the new stream
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            // Stop the current recorder (this will trigger ondataavailable and preserve chunks)
+            mediaRecorder.stop();
+
+            // Setup new media recorder with new stream
+            const options = { mimeType: 'video/webm;codecs=vp9,opus' };
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options.mimeType = 'video/webm';
+            }
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                options.mimeType = 'video/mp4';
+            }
+
+            mediaRecorder = new MediaRecorder(recordingStream, options);
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    recordedChunks.push(e.data);
+                }
+            };
+            mediaRecorder.onstop = () => {
+                handleRecordingComplete();
+            };
+            mediaRecorder.start(1000);
+        }
+    } catch (err) {
+        console.error('Error switching camera:', err);
+        // Revert facing mode on error
+        currentFacingMode = currentFacingMode === 'user' ? 'environment' : 'user';
+        showToast('Unable to switch camera', 'error');
+    }
 }
 
 function updateRecordingTimer() {
@@ -32489,8 +32603,13 @@ async function processAndUploadVideo(file) {
 
     let fileToUpload = file;
 
-    // Compress if needed
-    if (file.size > maxFinalSize) {
+    // Check if file needs transcoding (WebM from camera recording needs to be converted to MP4)
+    const isWebM = file.type === 'video/webm' || file.name.endsWith('.webm');
+    const needsTranscode = isWebM && file.size <= maxFinalSize;
+    const needsCompression = file.size > maxFinalSize;
+
+    // Compress or transcode if needed
+    if (needsCompression || needsTranscode) {
         uploadState.video.status = 'compressing';
 
         // Check iOS compatibility before starting compression
@@ -32501,7 +32620,8 @@ async function processAndUploadVideo(file) {
             console.warn('iOS-compatible encoding not supported in this browser');
         }
 
-        updateVideoUploadUI('compressing', 5, `Compressing ${fileSizeMB.toFixed(1)}MB to <100MB...${warningText}`);
+        const actionText = needsTranscode ? 'Converting to MP4' : `Compressing ${fileSizeMB.toFixed(1)}MB to <100MB`;
+        updateVideoUploadUI('compressing', 5, `${actionText}...${warningText}`);
 
         // Always use high quality
         window.suggestedCompressionQuality = 'high';
@@ -32525,7 +32645,9 @@ async function processAndUploadVideo(file) {
                             break;
                         case 'preparing':
                             progress = 15;
-                            details = `Preparing compression (${info.quality} quality)...`;
+                            details = needsTranscode
+                                ? 'Preparing MP4 conversion...'
+                                : `Preparing compression (${info.quality} quality)...`;
                             break;
                         case 'compressing':
                             progress = info.progress || 20;
@@ -32539,8 +32661,12 @@ async function processAndUploadVideo(file) {
                             break;
                         case 'complete':
                             progress = 100;
-                            const savedPct = ((1 - info.compressionRatio) * 100).toFixed(0);
-                            details = `Compressed: ${(info.compressedSize / 1024 / 1024).toFixed(1)}MB (${savedPct}% smaller)`;
+                            if (needsTranscode) {
+                                details = `Converted to MP4: ${(info.compressedSize / 1024 / 1024).toFixed(1)}MB`;
+                            } else {
+                                const savedPct = ((1 - info.compressionRatio) * 100).toFixed(0);
+                                details = `Compressed: ${(info.compressedSize / 1024 / 1024).toFixed(1)}MB (${savedPct}% smaller)`;
+                            }
                             break;
                     }
 
@@ -32843,6 +32969,10 @@ function resetUploadState() {
     uploadedVideoHash = null;
     window.userSelectedQuality = null;
     window.suggestedCompressionQuality = null;
+
+    // Reset camera recording state
+    isRecordedFromCamera = false;
+    currentFacingMode = 'user';
 }
 
 // Handle file selection - now starts upload immediately
@@ -32880,7 +33010,8 @@ async function handleFileSelect(event) {
         }
 
         // If uploading via Create Short modal, validate that video is vertical
-        if (currentUploadType === 'short') {
+        // Skip validation for camera-recorded videos (mobile browsers often report wrong dimensions due to sensor orientation)
+        if (currentUploadType === 'short' && !isRecordedFromCamera) {
             const isVertical = await validateVideoIsVertical(file);
             if (!isVertical) {
                 showToast('This video appears to be horizontal (landscape). Shorts must be vertical (portrait) videos. Please use "Upload Video" for horizontal videos.', 'error', 7000);
@@ -32888,6 +33019,9 @@ async function handleFileSelect(event) {
                 return;
             }
         }
+
+        // Reset the camera recording flag after validation
+        isRecordedFromCamera = false;
 
         // Hide the file upload drop zone, show progress
         const fileUpload = document.getElementById('fileUpload');

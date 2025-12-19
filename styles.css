@@ -2032,6 +2032,25 @@ nostr-zap {
     background: #d32f2f;
 }
 
+.camera-switch-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.camera-switch-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
 .record-hint {
     font-size: 0.875rem;
     color: var(--text-secondary);

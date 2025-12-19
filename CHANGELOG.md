@@ -1,3 +1,9 @@
+## v2.7.18 - 2025-12-19
+
+Hotfix: option to switch cameras on mobile for creating short
+Hotfix: convert camera recorded video to MP4
+Hotfix: changed kind 1 event structure
+
 ## v2.7.17 - 2025-12-19
 
 Hotfix: improved grid on mobile/tablet/desktop#
