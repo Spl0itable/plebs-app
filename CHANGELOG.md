@@ -1,3 +1,7 @@
+## v2.7.17 - 2025-12-19
+
+Hotfix: improved grid on mobile/tablet/desktop
+
 ## v2.7.16 - 2025-12-19
 
 Hotfix: trending carousel loading improvement
