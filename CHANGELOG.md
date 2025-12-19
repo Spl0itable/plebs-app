@@ -1,3 +1,7 @@
+## v2.7.20 - 2025-12-20
+
+Hotfix: orientation issue when recording short video
+
 ## v2.7.19 - 2025-12-20
 
 Hotfix: bug with camera switch on create short

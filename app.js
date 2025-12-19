@@ -9897,7 +9897,8 @@ const VideoCompressor = {
     currentMimeType: null,
 
     async compressVideo(file, options = {}) {
-        const { maxSizeMB = 100, onProgress = () => { } } = options;
+        const { maxSizeMB = 100, onProgress = () => { }, rotate90 = false } = options;
+        this.rotate90 = rotate90; // Store for use in frame drawing
 
         if (this.compressionInProgress) {
             throw new Error('Compression already in progress');
@@ -10654,8 +10655,13 @@ const VideoCompressor = {
 
             video.onloadedmetadata = async () => {
                 try {
-                    const targetWidth = Math.round(video.videoWidth * settings.scale);
-                    const targetHeight = Math.round(video.videoHeight * settings.scale);
+                    let targetWidth = Math.round(video.videoWidth * settings.scale);
+                    let targetHeight = Math.round(video.videoHeight * settings.scale);
+
+                    // If rotating 90 degrees, swap width and height
+                    if (this.rotate90) {
+                        [targetWidth, targetHeight] = [targetHeight, targetWidth];
+                    }
 
                     // Ensure even dimensions for codec compatibility
                     canvas.width = targetWidth % 2 === 0 ? targetWidth : targetWidth - 1;
@@ -10669,7 +10675,7 @@ const VideoCompressor = {
                         canvas.height = canvas.height % 2 === 0 ? canvas.height : canvas.height - 1;
                     }
 
-                    console.log(`Compressing: ${video.videoWidth}x${video.videoHeight} -> ${canvas.width}x${canvas.height}`);
+                    console.log(`Compressing: ${video.videoWidth}x${video.videoHeight} -> ${canvas.width}x${canvas.height}${this.rotate90 ? ' (rotated 90°)' : ''}`);
                     console.log(`Bitrate: ${(settings.bitrate / 1000000).toFixed(2)} Mbps, FPS: ${settings.fps}`);
 
                     const stream = canvas.captureStream(settings.fps);
@@ -10776,12 +10782,27 @@ const VideoCompressor = {
                     let lastDrawTime = 0;
                     const frameInterval = 1000 / settings.fps;
 
+                    // Helper to draw frame with optional rotation
+                    const drawVideoFrame = () => {
+                        if (this.rotate90) {
+                            // Rotate 90 degrees counter-clockwise (landscape to portrait)
+                            ctx.save();
+                            ctx.translate(canvas.width / 2, canvas.height / 2);
+                            ctx.rotate(-Math.PI / 2);
+                            // Draw centered, with swapped dimensions
+                            ctx.drawImage(video, -canvas.height / 2, -canvas.width / 2, canvas.height, canvas.width);
+                            ctx.restore();
+                        } else {
+                            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        }
+                    };
+
                     const drawFrame = (timestamp) => {
                         if (!video.paused && !video.ended && mediaRecorder.state === 'recording') {
                             // Draw frame at correct interval
                             if (timestamp - lastDrawTime >= frameInterval) {
                                 try {
-                                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                    drawVideoFrame();
                                     frameCount++;
                                     lastDrawTime = timestamp;
                                 } catch (e) {
@@ -32220,9 +32241,27 @@ async function toggleRecording() {
             recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
             isRecordedFromCamera = true; // Mark as recorded from camera to skip orientation check
 
+            // Check actual video dimensions - mobile cameras often return landscape regardless of constraints
+            const videoTrack = recordingStream.getVideoTracks()[0];
+            const settings = videoTrack.getSettings();
+            const isStreamLandscape = settings.width > settings.height;
+
             // Show preview
             preview.srcObject = recordingStream;
             previewContainer.style.display = 'block';
+
+            // If stream is landscape but we want portrait, rotate the preview display
+            // The actual video will be rotated during transcoding
+            if (isStreamLandscape) {
+                preview.style.transform = 'rotate(-90deg)';
+                preview.style.width = '100%';
+                preview.style.height = 'auto';
+                // Store flag for transcoding
+                window.cameraRecordingNeedsRotation = true;
+            } else {
+                preview.style.transform = '';
+                window.cameraRecordingNeedsRotation = false;
+            }
 
             // Show camera switch button on mobile devices (which typically have multiple cameras)
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -32355,6 +32394,12 @@ function stopRecording() {
     // Hide camera switch button
     const switchBtn = document.getElementById('cameraSwitchBtn');
     if (switchBtn) switchBtn.style.display = 'none';
+
+    // Reset preview transform
+    const preview = document.getElementById('recordPreview');
+    if (preview) {
+        preview.style.transform = '';
+    }
 }
 
 async function switchCamera() {
@@ -32391,9 +32436,24 @@ async function switchCamera() {
 
         recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
 
+        // Check actual video dimensions for rotation
+        const videoTrack = recordingStream.getVideoTracks()[0];
+        const settings = videoTrack.getSettings();
+        const isStreamLandscape = settings.width > settings.height;
+
         // Update preview
         if (preview) {
             preview.srcObject = recordingStream;
+            // Apply rotation if stream is landscape
+            if (isStreamLandscape) {
+                preview.style.transform = 'rotate(-90deg)';
+                preview.style.width = '100%';
+                preview.style.height = 'auto';
+                window.cameraRecordingNeedsRotation = true;
+            } else {
+                preview.style.transform = '';
+                window.cameraRecordingNeedsRotation = false;
+            }
         }
 
         // If we were recording, restart the MediaRecorder with the new stream
@@ -32634,16 +32694,26 @@ async function processAndUploadVideo(file) {
             console.warn('iOS-compatible encoding not supported in this browser');
         }
 
-        const actionText = needsTranscode ? 'Converting to MP4' : `Compressing ${fileSizeMB.toFixed(1)}MB to <100MB`;
+        let actionText = needsTranscode ? 'Converting to MP4' : `Compressing ${fileSizeMB.toFixed(1)}MB to <100MB`;
+        if (window.cameraRecordingNeedsRotation) {
+            actionText += ' (rotating to portrait)';
+        }
         updateVideoUploadUI('compressing', 5, `${actionText}...${warningText}`);
 
         // Always use high quality
         window.suggestedCompressionQuality = 'high';
         window.userSelectedQuality = 'high';
 
+        // Check if camera recording needs rotation (landscape to portrait)
+        const needsRotation = window.cameraRecordingNeedsRotation || false;
+        if (needsRotation) {
+            console.log('Camera recording needs 90° rotation for portrait orientation');
+        }
+
         try {
             fileToUpload = await VideoCompressor.compressVideo(file, {
                 maxSizeMB: 100,
+                rotate90: needsRotation,
                 onProgress: (info) => {
                     let progress = 5;
                     let details = '';
@@ -32842,6 +32912,7 @@ function deleteVideoUpload() {
         // Reset camera recording state
         isRecordedFromCamera = false;
         currentFacingMode = 'environment';
+        window.cameraRecordingNeedsRotation = false;
     }
 
     // Update publish button
@@ -33014,6 +33085,7 @@ function resetUploadState() {
     // Reset camera recording state
     isRecordedFromCamera = false;
     currentFacingMode = 'environment';
+    window.cameraRecordingNeedsRotation = false;
 }
 
 // Handle file selection - now starts upload immediately
