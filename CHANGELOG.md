@@ -1,3 +1,7 @@
+## v2.7.22 - 2025-12-20
+
+Hotfix: audio not captured during create short recording
+
 ## v2.7.21 - 2025-12-20
 
 Hotfix: short camera recording not cropping properly

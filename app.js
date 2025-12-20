@@ -32296,7 +32296,8 @@ async function toggleRecording() {
             // Update button to show we're requesting access
             recordBtnText.textContent = t('button.requestingCamera');
 
-            // Request camera access with vertical video preference
+            // Request camera and microphone access
+            // iOS Safari requires explicit audio constraints for reliable mic access
             const constraints = {
                 video: {
                     facingMode: currentFacingMode,
@@ -32304,11 +32305,27 @@ async function toggleRecording() {
                     height: { ideal: 1920 },
                     aspectRatio: { ideal: 9/16 }
                 },
-                audio: true
+                audio: {
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
             };
 
             recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
             isRecordedFromCamera = true;
+
+            // Verify we have audio tracks
+            const audioTracks = recordingStream.getAudioTracks();
+            if (audioTracks.length === 0) {
+                try {
+                    const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    audioStream.getAudioTracks().forEach(track => {
+                        recordingStream.addTrack(track);
+                    });
+                } catch (audioErr) {
+                    console.warn('Could not get audio:', audioErr);
+                }
+            }
 
             // Always set flag to crop to portrait in post-processing
             // This ensures vertical 9:16 video output regardless of camera orientation
@@ -32394,9 +32411,22 @@ async function toggleRecording() {
                 // Try again with simpler constraints
                 try {
                     recordBtnText.textContent = t('button.requestingCamera');
-                    recordingStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    recordingStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: { echoCancellation: true, noiseSuppression: true }
+                    });
                     isRecordedFromCamera = true;
                     window.cameraRecordingNeedsCrop = true;
+
+                    // Verify audio tracks
+                    if (recordingStream.getAudioTracks().length === 0) {
+                        try {
+                            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                            audioStream.getAudioTracks().forEach(track => recordingStream.addTrack(track));
+                        } catch (e) {
+                            console.warn('Could not add audio track:', e);
+                        }
+                    }
 
                     preview.srcObject = recordingStream;
                     preview.style.transform = '';
@@ -32502,10 +32532,23 @@ async function switchCamera() {
                 height: { ideal: 1920 },
                 aspectRatio: { ideal: 9/16 }
             },
-            audio: true
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true
+            }
         };
 
         recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
+
+        // Verify audio tracks
+        if (recordingStream.getAudioTracks().length === 0) {
+            try {
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioStream.getAudioTracks().forEach(track => recordingStream.addTrack(track));
+            } catch (e) {
+                console.warn('Could not add audio track:', e);
+            }
+        }
 
         // Update preview with object-fit:cover to simulate crop
         if (preview) {
