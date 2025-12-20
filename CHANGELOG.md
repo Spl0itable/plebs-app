@@ -1,3 +1,7 @@
+## v2.7.27 - 2025-12-20
+
+Hotfix: gif preview generation not working
+
 ## v2.7.26 - 2025-12-20
 
 Hotfix: remove duplicate video cards

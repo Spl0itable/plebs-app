@@ -21527,6 +21527,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Auto-generate thumbnail if not provided
+            // Create local blob URL for thumbnail/preview generation to avoid CORS issues
+            // with remote Blossom server URLs
+            let localVideoUrl = null;
+            if (uploadState.video.file && (uploadState.thumbnail.status !== 'complete' || uploadState.preview.status !== 'complete')) {
+                localVideoUrl = URL.createObjectURL(uploadState.video.file);
+            }
+
             if (uploadState.thumbnail.status !== 'complete') {
                 if (publishText) {
                     publishText.textContent = t('status.generatingThumbnail');
@@ -21534,7 +21541,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     // Capture a frame from the video (2 seconds in)
-                    const frameData = await captureVideoFrame(uploadState.video.url, 2);
+                    // Use local blob URL to avoid CORS issues with remote Blossom URLs
+                    const videoUrlForCapture = localVideoUrl || uploadState.video.url;
+                    const frameData = await captureVideoFrame(videoUrlForCapture, 2);
 
                     if (publishText) {
                         publishText.textContent = t('status.uploadingThumbnail');
@@ -21555,6 +21564,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast('Failed to generate thumbnail. Please upload one manually.', 'error');
                     if (publishBtn) publishBtn.disabled = false;
                     if (publishText) publishText.textContent = t('publish.autoThumbnail');
+                    // Clean up local blob URL before returning
+                    if (localVideoUrl) {
+                        URL.revokeObjectURL(localVideoUrl);
+                    }
                     return;
                 }
             }
@@ -21567,7 +21580,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     // Let the function use optimized defaults for iOS/Safari
-                    const previewData = await generatePreviewGif(uploadState.video.url, {
+                    // Use local blob URL to avoid CORS issues with remote Blossom URLs
+                    const videoUrlForPreview = localVideoUrl || uploadState.video.url;
+                    const previewData = await generatePreviewGif(videoUrlForPreview, {
                         startTime: 0.5,
                         duration: 4,
                         frameDelay: 150
@@ -21593,6 +21608,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.warn('Preview generation failed:', error);
                     uploadState.preview.status = 'error';
                 }
+            }
+
+            // Clean up local blob URL after thumbnail/preview generation
+            if (localVideoUrl) {
+                URL.revokeObjectURL(localVideoUrl);
             }
 
             if (publishText) {
