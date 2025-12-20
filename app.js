@@ -33052,6 +33052,8 @@ async function processAndUploadVideo(file) {
 
             uploadState.video.size = fileToUpload.size;
             uploadState.video.type = fileToUpload.type;
+            // Update file reference to the compressed file for preview/thumbnail generation
+            uploadState.video.file = fileToUpload;
         } catch (error) {
             console.error('Compression failed:', error);
             uploadState.video.status = 'error';

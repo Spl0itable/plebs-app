@@ -1,3 +1,7 @@
+## v2.7.28 - 2025-12-20
+
+Hotfix: gif generation not working for compressed video
+
 ## v2.7.27 - 2025-12-20
 
 Hotfix: gif preview generation not working
