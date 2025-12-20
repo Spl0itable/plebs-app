@@ -8144,6 +8144,63 @@ function shouldSkipLegacyEvent(event) {
     return false;
 }
 
+// Remove legacy counterpart from videos array when addressable event arrives
+// This handles the race condition where legacy events (kind 1/21/22) may arrive before their addressable counterparts (kind 34235/34236)
+// Returns array of removed legacy events
+function removeLegacyCounterpart(event, videosArray, renderedIds = null) {
+    // Only process addressable events
+    if (event.kind !== NIP71_VIDEO_KIND && event.kind !== NIP71_SHORT_KIND) {
+        return [];
+    }
+
+    const dTag = event.tags?.find(t => t[0] === 'd')?.[1];
+    if (!dTag) return [];
+
+    const removedEvents = [];
+
+    // Helper to remove an event at index
+    const removeAtIndex = (index) => {
+        const legacyEvent = videosArray[index];
+        videosArray.splice(index, 1);
+
+        // Remove from rendered IDs set if provided
+        if (renderedIds) {
+            renderedIds.delete(legacyEvent.id);
+        }
+
+        // Remove from DOM if rendered
+        const legacyCard = document.getElementById(`video-card-${legacyEvent.id}`);
+        if (legacyCard) {
+            legacyCard.remove();
+        }
+
+        removedEvents.push(legacyEvent);
+    };
+
+    // 1. Find and remove legacy NIP-71 counterpart (kind 21/22) with same d-tag
+    const legacyKind = event.kind === NIP71_VIDEO_KIND ? NIP71_VIDEO_KIND_LEGACY : NIP71_SHORT_KIND_LEGACY;
+    const legacyIndex = videosArray.findIndex(v =>
+        v.kind === legacyKind &&
+        v.pubkey === event.pubkey &&
+        v.tags?.find(t => t[0] === 'd')?.[1] === dTag
+    );
+    if (legacyIndex !== -1) {
+        removeAtIndex(legacyIndex);
+    }
+
+    // 2. Find and remove kind 1 counterpart with matching nip71-d tag
+    const kind1Index = videosArray.findIndex(v =>
+        v.kind === 1 &&
+        v.pubkey === event.pubkey &&
+        v.tags?.find(t => t[0] === 'nip71-d')?.[1] === dTag
+    );
+    if (kind1Index !== -1) {
+        removeAtIndex(kind1Index);
+    }
+
+    return removedEvents;
+}
+
 // Get all event IDs to query for reactions/zaps (includes linked events)
 // This allows merging reactions from addressable, legacy NIP-71, and kind 1 events
 function getAllLinkedEventIds(eventId) {
@@ -15937,6 +15994,8 @@ async function refreshRecommendedSection() {
         // Stream events and render progressively
         requestEventsStream(videoFilter, (event) => {
             allEvents.set(event.id, event);
+            // Remove any legacy counterpart that was already added (handles race condition)
+            removeLegacyCounterpart(event, videos, renderedIds);
             // Skip legacy events when addressable counterpart exists
             if (shouldSkipLegacyEvent(event)) return;
             // Never show logged-in user's own videos in recommendations
@@ -20640,6 +20699,9 @@ async function displayVideosStream(title, filter, clientFilter = null, container
         // Store event first so shouldSkipLegacyEvent can find NIP-71 counterparts
         allEvents.set(event.id, event);
 
+        // Remove any legacy counterpart that was already added (handles race condition)
+        removeLegacyCounterpart(event, videoEvents);
+
         // Skip legacy events (kind 1 and 21/22) if addressable counterpart exists
         if (shouldSkipLegacyEvent(event)) {
             return;
@@ -23305,6 +23367,9 @@ async function refreshRecommendedSectionGrid() {
         requestEventsStream(videoFilter, (event) => {
             allEvents.set(event.id, event);
 
+            // Remove any legacy counterpart that was already added (handles race condition)
+            removeLegacyCounterpart(event, videos, renderedIds);
+
             // Skip legacy events (kind 1 and 21/22) if addressable counterpart exists
             if (shouldSkipLegacyEvent(event)) return;
 
@@ -23404,7 +23469,34 @@ async function loadShortsSection() {
 
             allEvents.set(event.id, event);
 
-            // Skip legacy events (kind 22) if addressable counterpart (kind 34236) exists
+            // Remove any legacy counterpart that was already added (handles race condition)
+            // Count rendered cards that will be removed so we can decrement renderedCount
+            if (event.kind === NIP71_SHORT_KIND) {
+                const dTag = event.tags?.find(t => t[0] === 'd')?.[1];
+                if (dTag) {
+                    // Check for kind 22 legacy event
+                    const legacyEvent = videos.find(v =>
+                        v.kind === NIP71_SHORT_KIND_LEGACY &&
+                        v.pubkey === event.pubkey &&
+                        v.tags?.find(t => t[0] === 'd')?.[1] === dTag
+                    );
+                    if (legacyEvent && document.getElementById(`video-card-${legacyEvent.id}`)) {
+                        renderedCount--;
+                    }
+                    // Check for kind 1 event with nip71-d tag
+                    const kind1Event = videos.find(v =>
+                        v.kind === 1 &&
+                        v.pubkey === event.pubkey &&
+                        v.tags?.find(t => t[0] === 'nip71-d')?.[1] === dTag
+                    );
+                    if (kind1Event && document.getElementById(`video-card-${kind1Event.id}`)) {
+                        renderedCount--;
+                    }
+                }
+            }
+            removeLegacyCounterpart(event, videos);
+
+            // Skip legacy events (kind 1/22) if addressable counterpart (kind 34236) exists
             if (shouldSkipLegacyEvent(event)) return;
 
             videos.push(event);
@@ -23742,6 +23834,9 @@ async function loadFeaturedTopics() {
             if (hasTag) {
                 allEvents.set(event.id, event);
 
+                // Remove any legacy counterpart that was already added (handles race condition)
+                removeLegacyCounterpart(event, videos, renderedIds);
+
                 // Skip legacy events (kind 1 and 21/22) if addressable counterpart exists
                 if (shouldSkipLegacyEvent(event)) return;
 
@@ -23923,6 +24018,9 @@ async function loadLatestVideosSection() {
     // Stream events and render progressively
     requestEventsStream(filter, (event) => {
         allEvents.set(event.id, event);
+
+        // Remove any legacy counterpart that was already added (handles race condition)
+        removeLegacyCounterpart(event, videos, renderedIds);
 
         // Skip legacy events (kind 1 and 21/22) if addressable counterpart exists
         if (shouldSkipLegacyEvent(event)) return;
@@ -24644,6 +24742,14 @@ async function loadFollowing() {
 
                     allEvents.set(event.id, event);
 
+                    // Remove any legacy counterpart that was already added (handles race condition)
+                    // Check both video and short arrays based on event type
+                    if (event.kind === NIP71_VIDEO_KIND) {
+                        removeLegacyCounterpart(event, videoEvents);
+                    } else if (event.kind === NIP71_SHORT_KIND) {
+                        removeLegacyCounterpart(event, shortEvents);
+                    }
+
                     // Skip legacy events (kind 1 and 21/22) if addressable counterpart exists
                     if (shouldSkipLegacyEvent(event)) return;
 
@@ -25171,6 +25277,14 @@ async function displayVideosStreamWithDrafts(title, filter) {
         if (!tags.some(tag => tag[0] === 'x')) return;
 
         allEvents.set(event.id, event);
+
+        // Remove any legacy counterpart that was already added (handles race condition)
+        if (event.kind === NIP71_VIDEO_KIND) {
+            removeLegacyCounterpart(event, videoEvents);
+        } else if (event.kind === NIP71_SHORT_KIND) {
+            removeLegacyCounterpart(event, shortEvents);
+        }
+
         if (shouldSkipLegacyEvent(event)) return;
 
         const isShort = isNip71ShortKind(event.kind);
@@ -27289,6 +27403,14 @@ async function loadTag(tag) {
         if (!tagFilter(event)) return;
 
         allEvents.set(event.id, event);
+
+        // Remove any legacy counterpart that was already added (handles race condition)
+        if (event.kind === NIP71_VIDEO_KIND) {
+            removeLegacyCounterpart(event, videoEvents);
+        } else if (event.kind === NIP71_SHORT_KIND) {
+            removeLegacyCounterpart(event, shortEvents);
+        }
+
         if (shouldSkipLegacyEvent(event)) return;
 
         const isShort = isNip71ShortKind(event.kind);
@@ -29275,6 +29397,13 @@ async function loadProfile(pubkey) {
 
             allEvents.set(event.id, event);
 
+            // Remove any legacy counterpart that was already added (handles race condition)
+            if (event.kind === NIP71_VIDEO_KIND) {
+                removeLegacyCounterpart(event, videoEvents);
+            } else if (event.kind === NIP71_SHORT_KIND) {
+                removeLegacyCounterpart(event, shortEvents);
+            }
+
             // Skip legacy events (kind 1 and 21/22) if addressable counterpart exists
             if (shouldSkipLegacyEvent(event)) return;
 
@@ -29933,6 +30062,13 @@ async function performSearch(query) {
         }
 
         allEvents.set(event.id, event);
+
+        // Remove any legacy counterpart that was already added (handles race condition)
+        if (event.kind === NIP71_VIDEO_KIND) {
+            removeLegacyCounterpart(event, videoEvents);
+        } else if (event.kind === NIP71_SHORT_KIND) {
+            removeLegacyCounterpart(event, shortEvents);
+        }
 
         // Skip legacy events (kind 1 and 21/22) if addressable counterpart exists
         if (shouldSkipLegacyEvent(event)) return;

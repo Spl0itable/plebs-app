@@ -1,3 +1,7 @@
+## v2.7.26 - 2025-12-20
+
+Hotfix: remove duplicate video cards
+
 ## v2.7.25 - 2025-12-20
 
 Hotfix: use native camera on ios/android for recording shorts
