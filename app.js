@@ -32086,6 +32086,35 @@ function showUploadModal(type = 'video') {
             : 'MP4, AVI, MOV, etc (max 2GB input, will compress to <100MB)';
     }
 
+    // Create hidden camera input for mobile devices (will be triggered by record button)
+    // Uses native camera app which handles orientation and audio correctly
+    let mobileCameraInput = document.getElementById('mobileCameraInput');
+    if (!mobileCameraInput) {
+        mobileCameraInput = document.createElement('input');
+        mobileCameraInput.type = 'file';
+        mobileCameraInput.id = 'mobileCameraInput';
+        mobileCameraInput.accept = 'video/*';
+        mobileCameraInput.capture = 'environment';
+        mobileCameraInput.style.display = 'none';
+        mobileCameraInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const file = e.target.files[0];
+                // Trigger the video file selection handler
+                const videoInput = document.getElementById('videoFile');
+                if (videoInput) {
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    videoInput.files = dataTransfer.files;
+                    const event = new Event('change', { bubbles: true });
+                    videoInput.dispatchEvent(event);
+                }
+            }
+            // Reset for next use
+            e.target.value = '';
+        });
+        document.body.appendChild(mobileCameraInput);
+    }
+
     document.getElementById('uploadModal').classList.add('active');
 }
 
@@ -32284,6 +32313,19 @@ async function toggleRecording() {
     const previewContainer = document.getElementById('recordPreviewContainer');
     const preview = document.getElementById('recordPreview');
 
+    // On mobile devices, use native camera app instead of MediaRecorder
+    // This handles orientation and audio correctly across all mobile browsers
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+        // Trigger the hidden camera input to launch native Camera app
+        const mobileCameraInput = document.getElementById('mobileCameraInput');
+        if (mobileCameraInput) {
+            mobileCameraInput.click();
+        }
+        return;
+    }
+
     if (!mediaRecorder || mediaRecorder.state === 'inactive') {
         // Start recording
         try {
@@ -32297,12 +32339,6 @@ async function toggleRecording() {
             recordBtnText.textContent = t('button.requestingCamera');
 
             // Request camera and microphone access
-            // iOS Safari has issues with combined audio+video streams in MediaRecorder
-            // So we request them separately and combine into a new MediaStream
-            const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-                               !window.MSStream &&
-                               /Safari/.test(navigator.userAgent);
-
             const videoConstraints = {
                 facingMode: currentFacingMode,
                 width: { ideal: 1080 },
@@ -32310,23 +32346,10 @@ async function toggleRecording() {
                 aspectRatio: { ideal: 9/16 }
             };
 
-            if (isIOSSafari) {
-                // On iOS Safari, request video and audio separately, then combine
-                const videoStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
-                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-                // Create a new stream with tracks from both
-                recordingStream = new MediaStream([
-                    ...videoStream.getVideoTracks(),
-                    ...audioStream.getAudioTracks()
-                ]);
-            } else {
-                // On other browsers, request together
-                recordingStream = await navigator.mediaDevices.getUserMedia({
-                    video: videoConstraints,
-                    audio: true
-                });
-            }
+            recordingStream = await navigator.mediaDevices.getUserMedia({
+                video: videoConstraints,
+                audio: true
+            });
             isRecordedFromCamera = true;
 
             // Always set flag to crop to portrait in post-processing
@@ -32529,11 +32552,6 @@ async function switchCamera() {
 
     try {
         // Request new stream with updated facing mode
-        // iOS Safari needs separate audio/video requests
-        const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-                           !window.MSStream &&
-                           /Safari/.test(navigator.userAgent);
-
         const videoConstraints = {
             facingMode: currentFacingMode,
             width: { ideal: 1080 },
@@ -32541,20 +32559,10 @@ async function switchCamera() {
             aspectRatio: { ideal: 9/16 }
         };
 
-        if (isIOSSafari) {
-            const videoStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
-            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-            recordingStream = new MediaStream([
-                ...videoStream.getVideoTracks(),
-                ...audioStream.getAudioTracks()
-            ]);
-        } else {
-            recordingStream = await navigator.mediaDevices.getUserMedia({
-                video: videoConstraints,
-                audio: true
-            });
-        }
+        recordingStream = await navigator.mediaDevices.getUserMedia({
+            video: videoConstraints,
+            audio: true
+        });
 
         // Update preview with object-fit:cover to simulate crop
         if (preview) {
@@ -32787,8 +32795,18 @@ async function processAndUploadVideo(file) {
     const isWebM = file.type === 'video/webm' || file.name.endsWith('.webm');
     const needsTranscode = isWebM && file.size <= maxFinalSize;
     const needsCompression = file.size > maxFinalSize;
+
     // Check if camera recording needs cropping to portrait (9:16)
-    const needsCrop = window.cameraRecordingNeedsCrop || false;
+    // iOS Safari doesn't support video.captureStream() so cropping would lose audio
+    // Skip cropping on iOS Safari to preserve audio
+    const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+                       !window.MSStream &&
+                       /Safari/.test(navigator.userAgent);
+    const needsCrop = (window.cameraRecordingNeedsCrop || false) && !isIOSSafari;
+
+    if (isIOSSafari && window.cameraRecordingNeedsCrop) {
+        console.log('iOS Safari detected - skipping crop to preserve audio');
+    }
 
     // Compress, transcode, or crop if needed
     if (needsCompression || needsTranscode || needsCrop) {

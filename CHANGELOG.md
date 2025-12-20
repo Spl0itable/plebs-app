@@ -1,3 +1,7 @@
+## v2.7.25 - 2025-12-20
+
+Hotfix: use native camera on ios/android for recording shorts
+
 ## v2.7.24 - 2025-12-20
 
 Hotfix: detect ios safari for shorts recording
