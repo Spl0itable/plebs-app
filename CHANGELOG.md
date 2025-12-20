@@ -1,3 +1,7 @@
+## v2.7.23 - 2025-12-20
+
+Hotfix: shorts recording in mp4
+
 ## v2.7.22 - 2025-12-20
 
 Hotfix: audio not captured during create short recording

@@ -32353,13 +32353,13 @@ async function toggleRecording() {
                 }
             }
 
-            // Setup media recorder - record raw stream, crop in post-processing
-            const options = { mimeType: 'video/webm;codecs=vp9,opus' };
+            // Setup media recorder - prefer MP4 since we process to MP4 anyway
+            let options = { mimeType: 'video/mp4' };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options.mimeType = 'video/webm';
             }
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options.mimeType = 'video/mp4';
+            if (recordingStream.getAudioTracks().length > 0) {
+                options.audioBitsPerSecond = 128000;
             }
 
             mediaRecorder = new MediaRecorder(recordingStream, options);
@@ -32433,9 +32433,13 @@ async function toggleRecording() {
                     preview.style.objectFit = 'cover';
                     previewContainer.style.display = 'block';
 
-                    const options = { mimeType: 'video/webm' };
+                    // Prefer MP4 since we process to MP4 anyway
+                    let options = { mimeType: 'video/mp4' };
                     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                        options.mimeType = 'video/mp4';
+                        options.mimeType = 'video/webm';
+                    }
+                    if (recordingStream.getAudioTracks().length > 0) {
+                        options.audioBitsPerSecond = 128000;
                     }
                     mediaRecorder = new MediaRecorder(recordingStream, options);
                     recordedChunks = [];
@@ -32559,12 +32563,12 @@ async function switchCamera() {
 
         // If we were recording, restart the MediaRecorder with the new stream
         if (wasRecording) {
-            const options = { mimeType: 'video/webm;codecs=vp9,opus' };
+            let options = { mimeType: 'video/mp4' };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options.mimeType = 'video/webm';
             }
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options.mimeType = 'video/mp4';
+            if (recordingStream.getAudioTracks().length > 0) {
+                options.audioBitsPerSecond = 128000;
             }
 
             mediaRecorder = new MediaRecorder(recordingStream, options);
@@ -32616,8 +32620,10 @@ function handleRecordingComplete() {
 
     // Create video file from recorded chunks
     if (recordedChunks.length > 0) {
-        const blob = new Blob(recordedChunks, { type: recordedChunks[0].type || 'video/webm' });
-        const file = new File([blob], `short_${Date.now()}.webm`, { type: blob.type });
+        const mimeType = recordedChunks[0].type || 'video/webm';
+        const blob = new Blob(recordedChunks, { type: mimeType });
+        const extension = mimeType.includes('mp4') ? 'mp4' : 'webm';
+        const file = new File([blob], `short_${Date.now()}.${extension}`, { type: blob.type });
 
         // Trigger the video file selection handler
         const videoInput = document.getElementById('videoFile');
