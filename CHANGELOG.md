@@ -1,3 +1,7 @@
+## v2.7.24 - 2025-12-20
+
+Hotfix: detect ios safari for shorts recording
+
 ## v2.7.23 - 2025-12-20
 
 Hotfix: shorts recording in mp4

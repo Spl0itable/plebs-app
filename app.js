@@ -32297,35 +32297,37 @@ async function toggleRecording() {
             recordBtnText.textContent = t('button.requestingCamera');
 
             // Request camera and microphone access
-            // iOS Safari requires explicit audio constraints for reliable mic access
-            const constraints = {
-                video: {
-                    facingMode: currentFacingMode,
-                    width: { ideal: 1080 },
-                    height: { ideal: 1920 },
-                    aspectRatio: { ideal: 9/16 }
-                },
-                audio: {
-                    echoCancellation: true,
-                    noiseSuppression: true
-                }
+            // iOS Safari has issues with combined audio+video streams in MediaRecorder
+            // So we request them separately and combine into a new MediaStream
+            const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+                               !window.MSStream &&
+                               /Safari/.test(navigator.userAgent);
+
+            const videoConstraints = {
+                facingMode: currentFacingMode,
+                width: { ideal: 1080 },
+                height: { ideal: 1920 },
+                aspectRatio: { ideal: 9/16 }
             };
 
-            recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
-            isRecordedFromCamera = true;
+            if (isIOSSafari) {
+                // On iOS Safari, request video and audio separately, then combine
+                const videoStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-            // Verify we have audio tracks
-            const audioTracks = recordingStream.getAudioTracks();
-            if (audioTracks.length === 0) {
-                try {
-                    const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                    audioStream.getAudioTracks().forEach(track => {
-                        recordingStream.addTrack(track);
-                    });
-                } catch (audioErr) {
-                    console.warn('Could not get audio:', audioErr);
-                }
+                // Create a new stream with tracks from both
+                recordingStream = new MediaStream([
+                    ...videoStream.getVideoTracks(),
+                    ...audioStream.getAudioTracks()
+                ]);
+            } else {
+                // On other browsers, request together
+                recordingStream = await navigator.mediaDevices.getUserMedia({
+                    video: videoConstraints,
+                    audio: true
+                });
             }
+            isRecordedFromCamera = true;
 
             // Always set flag to crop to portrait in post-processing
             // This ensures vertical 9:16 video output regardless of camera orientation
@@ -32354,12 +32356,10 @@ async function toggleRecording() {
             }
 
             // Setup media recorder - prefer MP4 since we process to MP4 anyway
+            // Keep options simple for iOS Safari compatibility
             let options = { mimeType: 'video/mp4' };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options.mimeType = 'video/webm';
-            }
-            if (recordingStream.getAudioTracks().length > 0) {
-                options.audioBitsPerSecond = 128000;
             }
 
             mediaRecorder = new MediaRecorder(recordingStream, options);
@@ -32529,29 +32529,31 @@ async function switchCamera() {
 
     try {
         // Request new stream with updated facing mode
-        const constraints = {
-            video: {
-                facingMode: currentFacingMode,
-                width: { ideal: 1080 },
-                height: { ideal: 1920 },
-                aspectRatio: { ideal: 9/16 }
-            },
-            audio: {
-                echoCancellation: true,
-                noiseSuppression: true
-            }
+        // iOS Safari needs separate audio/video requests
+        const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+                           !window.MSStream &&
+                           /Safari/.test(navigator.userAgent);
+
+        const videoConstraints = {
+            facingMode: currentFacingMode,
+            width: { ideal: 1080 },
+            height: { ideal: 1920 },
+            aspectRatio: { ideal: 9/16 }
         };
 
-        recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (isIOSSafari) {
+            const videoStream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints });
+            const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-        // Verify audio tracks
-        if (recordingStream.getAudioTracks().length === 0) {
-            try {
-                const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                audioStream.getAudioTracks().forEach(track => recordingStream.addTrack(track));
-            } catch (e) {
-                console.warn('Could not add audio track:', e);
-            }
+            recordingStream = new MediaStream([
+                ...videoStream.getVideoTracks(),
+                ...audioStream.getAudioTracks()
+            ]);
+        } else {
+            recordingStream = await navigator.mediaDevices.getUserMedia({
+                video: videoConstraints,
+                audio: true
+            });
         }
 
         // Update preview with object-fit:cover to simulate crop
@@ -32566,9 +32568,6 @@ async function switchCamera() {
             let options = { mimeType: 'video/mp4' };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options.mimeType = 'video/webm';
-            }
-            if (recordingStream.getAudioTracks().length > 0) {
-                options.audioBitsPerSecond = 128000;
             }
 
             mediaRecorder = new MediaRecorder(recordingStream, options);
