@@ -1,3 +1,7 @@
+## v2.7.21 - 2025-12-20
+
+Hotfix: short camera recording not cropping properly
+
 ## v2.7.20 - 2025-12-20
 
 Hotfix: orientation issue when recording short video

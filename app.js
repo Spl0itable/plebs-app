@@ -9897,8 +9897,8 @@ const VideoCompressor = {
     currentMimeType: null,
 
     async compressVideo(file, options = {}) {
-        const { maxSizeMB = 100, onProgress = () => { }, rotate90 = false } = options;
-        this.rotate90 = rotate90; // Store for use in frame drawing
+        const { maxSizeMB = 100, onProgress = () => { }, cropToPortrait = false } = options;
+        this.cropToPortrait = cropToPortrait; // Store for use in frame drawing
 
         if (this.compressionInProgress) {
             throw new Error('Compression already in progress');
@@ -9906,10 +9906,15 @@ const VideoCompressor = {
 
         const fileSizeMB = file.size / (1024 * 1024);
 
-        // If file is already small enough, return it
-        if (fileSizeMB <= maxSizeMB) {
+        // If file is already small enough AND doesn't need cropping, return it
+        if (fileSizeMB <= maxSizeMB && !cropToPortrait) {
             console.log('File already meets size requirements');
             return file;
+        }
+
+        // If we need cropping, force processing even for small files
+        if (cropToPortrait) {
+            console.log('File needs cropping to portrait - will process regardless of size');
         }
 
         this.compressionInProgress = true;
@@ -10658,9 +10663,37 @@ const VideoCompressor = {
                     let targetWidth = Math.round(video.videoWidth * settings.scale);
                     let targetHeight = Math.round(video.videoHeight * settings.scale);
 
-                    // If rotating 90 degrees, swap width and height
-                    if (this.rotate90) {
-                        [targetWidth, targetHeight] = [targetHeight, targetWidth];
+                    // If cropping to portrait (9:16), calculate crop dimensions
+                    if (this.cropToPortrait) {
+                        const srcWidth = video.videoWidth;
+                        const srcHeight = video.videoHeight;
+                        const targetAspect = 9 / 16;
+
+                        // Calculate the crop region from the source video
+                        let cropWidth, cropHeight, cropX, cropY;
+
+                        if (srcWidth / srcHeight > targetAspect) {
+                            // Video is wider than 9:16 - crop the sides
+                            cropHeight = srcHeight;
+                            cropWidth = Math.round(srcHeight * targetAspect);
+                            cropX = Math.round((srcWidth - cropWidth) / 2);
+                            cropY = 0;
+                        } else {
+                            // Video is taller than 9:16 - crop top/bottom
+                            cropWidth = srcWidth;
+                            cropHeight = Math.round(srcWidth / targetAspect);
+                            cropX = 0;
+                            cropY = Math.round((srcHeight - cropHeight) / 2);
+                        }
+
+                        // Store crop parameters for drawing
+                        this.cropParams = { cropX, cropY, cropWidth, cropHeight };
+
+                        // Output dimensions (scaled portrait)
+                        targetWidth = Math.round(cropWidth * settings.scale);
+                        targetHeight = Math.round(cropHeight * settings.scale);
+
+                        console.log(`Crop region: (${cropX}, ${cropY}) ${cropWidth}x${cropHeight} from ${srcWidth}x${srcHeight}`);
                     }
 
                     // Ensure even dimensions for codec compatibility
@@ -10675,7 +10708,10 @@ const VideoCompressor = {
                         canvas.height = canvas.height % 2 === 0 ? canvas.height : canvas.height - 1;
                     }
 
-                    console.log(`Compressing: ${video.videoWidth}x${video.videoHeight} -> ${canvas.width}x${canvas.height}${this.rotate90 ? ' (rotated 90°)' : ''}`);
+                    console.log(`Compressing: ${video.videoWidth}x${video.videoHeight} -> ${canvas.width}x${canvas.height}${this.cropToPortrait ? ' (cropping to 9:16 portrait)' : ''}`);
+                    if (this.cropToPortrait) {
+                        console.log(`Cropping enabled: output ${canvas.width}x${canvas.height} (portrait 9:16)`);
+                    }
                     console.log(`Bitrate: ${(settings.bitrate / 1000000).toFixed(2)} Mbps, FPS: ${settings.fps}`);
 
                     const stream = canvas.captureStream(settings.fps);
@@ -10782,16 +10818,16 @@ const VideoCompressor = {
                     let lastDrawTime = 0;
                     const frameInterval = 1000 / settings.fps;
 
-                    // Helper to draw frame with optional rotation
+                    // Helper to draw frame with optional cropping
                     const drawVideoFrame = () => {
-                        if (this.rotate90) {
-                            // Rotate 90 degrees counter-clockwise (landscape to portrait)
-                            ctx.save();
-                            ctx.translate(canvas.width / 2, canvas.height / 2);
-                            ctx.rotate(-Math.PI / 2);
-                            // Draw centered, with swapped dimensions
-                            ctx.drawImage(video, -canvas.height / 2, -canvas.width / 2, canvas.height, canvas.width);
-                            ctx.restore();
+                        if (this.cropToPortrait && this.cropParams) {
+                            // Draw cropped region to fill canvas (center crop to 9:16)
+                            const { cropX, cropY, cropWidth, cropHeight } = this.cropParams;
+                            ctx.drawImage(
+                                video,
+                                cropX, cropY, cropWidth, cropHeight,  // Source crop region
+                                0, 0, canvas.width, canvas.height     // Destination (full canvas)
+                            );
                         } else {
                             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                         }
@@ -11010,21 +11046,44 @@ const VideoCompressor = {
                 reject(new Error('Video metadata loading timeout'));
             }, 30000);
 
-            video.onloadedmetadata = () => {
+            video.onloadedmetadata = async () => {
                 clearTimeout(timeout);
-                URL.revokeObjectURL(video.src);
 
-                // Validate metadata
+                // WebM files from MediaRecorder often have Infinity duration
+                // We need to seek to get the actual duration
                 if (!video.duration || video.duration === Infinity) {
-                    reject(new Error('Invalid video duration'));
-                    return;
+                    try {
+                        // Seek to a large time to force browser to calculate duration
+                        video.currentTime = Number.MAX_SAFE_INTEGER;
+                        await new Promise((res) => {
+                            video.ontimeupdate = () => {
+                                video.ontimeupdate = null;
+                                res();
+                            };
+                            // Fallback timeout
+                            setTimeout(res, 2000);
+                        });
+                        video.currentTime = 0;
+                    } catch (e) {
+                        console.warn('Could not seek to get duration:', e);
+                    }
                 }
 
+                // If still no valid duration, estimate from file size (rough estimate)
+                let duration = video.duration;
+                if (!duration || duration === Infinity || isNaN(duration)) {
+                    // Estimate: assume ~1MB per 10 seconds for typical WebM
+                    duration = Math.max(1, file.size / (1024 * 1024) * 10);
+                    console.warn(`Could not get video duration, estimating: ${duration.toFixed(1)}s`);
+                }
+
+                URL.revokeObjectURL(video.src);
+
                 resolve({
-                    duration: video.duration,
-                    width: video.videoWidth,
-                    height: video.videoHeight,
-                    aspectRatio: video.videoWidth / video.videoHeight
+                    duration: duration,
+                    width: video.videoWidth || 1920,
+                    height: video.videoHeight || 1080,
+                    aspectRatio: (video.videoWidth || 1920) / (video.videoHeight || 1080)
                 });
             };
 
@@ -32193,6 +32252,18 @@ function stopRecordingCleanup() {
     }
     recordingSeconds = 0;
 
+    // Clean up rotation resources
+    if (window._rotationAnimationId) {
+        cancelAnimationFrame(window._rotationAnimationId);
+        window._rotationAnimationId = null;
+    }
+    if (window._rotationVideo) {
+        window._rotationVideo.pause();
+        window._rotationVideo.srcObject = null;
+        window._rotationVideo = null;
+    }
+    window._rotationCanvas = null;
+
     // Unlock screen orientation
     if (screen.orientation && screen.orientation.unlock) {
         try {
@@ -32226,8 +32297,6 @@ async function toggleRecording() {
             recordBtnText.textContent = t('button.requestingCamera');
 
             // Request camera access with vertical video preference
-            // We request directly without pre-checking enumerateDevices, as that can be
-            // unreliable on some systems and may not show cameras until permission is granted
             const constraints = {
                 video: {
                     facingMode: currentFacingMode,
@@ -32239,48 +32308,35 @@ async function toggleRecording() {
             };
 
             recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
-            isRecordedFromCamera = true; // Mark as recorded from camera to skip orientation check
+            isRecordedFromCamera = true;
 
-            // Check actual video dimensions - mobile cameras often return landscape regardless of constraints
-            const videoTrack = recordingStream.getVideoTracks()[0];
-            const settings = videoTrack.getSettings();
-            const isStreamLandscape = settings.width > settings.height;
+            // Always set flag to crop to portrait in post-processing
+            // This ensures vertical 9:16 video output regardless of camera orientation
+            window.cameraRecordingNeedsCrop = true;
 
-            // Show preview
+            // Show preview with object-fit:cover to simulate the crop visually
             preview.srcObject = recordingStream;
+            preview.style.transform = '';
+            preview.style.objectFit = 'cover';
             previewContainer.style.display = 'block';
 
-            // If stream is landscape but we want portrait, rotate the preview display
-            // The actual video will be rotated during transcoding
-            if (isStreamLandscape) {
-                preview.style.transform = 'rotate(-90deg)';
-                preview.style.width = '100%';
-                preview.style.height = 'auto';
-                // Store flag for transcoding
-                window.cameraRecordingNeedsRotation = true;
-            } else {
-                preview.style.transform = '';
-                window.cameraRecordingNeedsRotation = false;
-            }
-
-            // Show camera switch button on mobile devices (which typically have multiple cameras)
+            // Show camera switch button on mobile
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             const switchBtn = document.getElementById('cameraSwitchBtn');
             if (switchBtn && isMobile) {
                 switchBtn.style.display = 'flex';
             }
 
-            // Try to lock orientation to portrait on mobile devices for vertical video
+            // Try to lock orientation
             if (isMobile && screen.orientation && screen.orientation.lock) {
                 try {
                     await screen.orientation.lock('portrait');
                 } catch (lockErr) {
-                    // Orientation lock may not be supported or allowed - continue anyway
                     console.log('Could not lock orientation:', lockErr.message);
                 }
             }
 
-            // Setup media recorder
+            // Setup media recorder - record raw stream, crop in post-processing
             const options = { mimeType: 'video/webm;codecs=vp9,opus' };
             if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                 options.mimeType = 'video/webm';
@@ -32304,7 +32360,7 @@ async function toggleRecording() {
                 }
             };
 
-            mediaRecorder.start(1000); // Collect data every second
+            mediaRecorder.start(1000);
 
             // Update UI
             recordBtn.classList.add('recording');
@@ -32316,8 +32372,6 @@ async function toggleRecording() {
             recordingTimer = setInterval(() => {
                 recordingSeconds++;
                 updateRecordingTimer();
-
-                // Auto-stop at 60 seconds
                 if (recordingSeconds >= 60) {
                     stopRecording();
                 }
@@ -32341,8 +32395,14 @@ async function toggleRecording() {
                 try {
                     recordBtnText.textContent = t('button.requestingCamera');
                     recordingStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                    isRecordedFromCamera = true;
+                    window.cameraRecordingNeedsCrop = true;
+
                     preview.srcObject = recordingStream;
+                    preview.style.transform = '';
+                    preview.style.objectFit = 'cover';
                     previewContainer.style.display = 'block';
+
                     const options = { mimeType: 'video/webm' };
                     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
                         options.mimeType = 'video/mp4';
@@ -32352,7 +32412,11 @@ async function toggleRecording() {
                     mediaRecorder.ondataavailable = (e) => {
                         if (e.data.size > 0) recordedChunks.push(e.data);
                     };
-                    mediaRecorder.onstop = () => handleRecordingComplete();
+                    mediaRecorder.onstop = () => {
+                        if (!isSwitchingCamera) {
+                            handleRecordingComplete();
+                        }
+                    };
                     mediaRecorder.start(1000);
                     recordBtn.classList.add('recording');
                     recordBtnText.textContent = t('button.recording');
@@ -32363,6 +32427,13 @@ async function toggleRecording() {
                         updateRecordingTimer();
                         if (recordingSeconds >= 60) stopRecording();
                     }, 1000);
+
+                    // Show camera switch button on mobile
+                    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                    const switchBtn = document.getElementById('cameraSwitchBtn');
+                    if (switchBtn && isMobile) {
+                        switchBtn.style.display = 'flex';
+                    }
                 } catch (retryErr) {
                     recordBtnText.textContent = t('button.recordFromCamera');
                     alert(t('alert.cameraUnableAccess'));
@@ -32436,24 +32507,11 @@ async function switchCamera() {
 
         recordingStream = await navigator.mediaDevices.getUserMedia(constraints);
 
-        // Check actual video dimensions for rotation
-        const videoTrack = recordingStream.getVideoTracks()[0];
-        const settings = videoTrack.getSettings();
-        const isStreamLandscape = settings.width > settings.height;
-
-        // Update preview
+        // Update preview with object-fit:cover to simulate crop
         if (preview) {
             preview.srcObject = recordingStream;
-            // Apply rotation if stream is landscape
-            if (isStreamLandscape) {
-                preview.style.transform = 'rotate(-90deg)';
-                preview.style.width = '100%';
-                preview.style.height = 'auto';
-                window.cameraRecordingNeedsRotation = true;
-            } else {
-                preview.style.transform = '';
-                window.cameraRecordingNeedsRotation = false;
-            }
+            preview.style.transform = '';
+            preview.style.objectFit = 'cover';
         }
 
         // If we were recording, restart the MediaRecorder with the new stream
@@ -32681,9 +32739,11 @@ async function processAndUploadVideo(file) {
     const isWebM = file.type === 'video/webm' || file.name.endsWith('.webm');
     const needsTranscode = isWebM && file.size <= maxFinalSize;
     const needsCompression = file.size > maxFinalSize;
+    // Check if camera recording needs cropping to portrait (9:16)
+    const needsCrop = window.cameraRecordingNeedsCrop || false;
 
-    // Compress or transcode if needed
-    if (needsCompression || needsTranscode) {
+    // Compress, transcode, or crop if needed
+    if (needsCompression || needsTranscode || needsCrop) {
         uploadState.video.status = 'compressing';
 
         // Check iOS compatibility before starting compression
@@ -32694,9 +32754,15 @@ async function processAndUploadVideo(file) {
             console.warn('iOS-compatible encoding not supported in this browser');
         }
 
-        let actionText = needsTranscode ? 'Converting to MP4' : `Compressing ${fileSizeMB.toFixed(1)}MB to <100MB`;
-        if (window.cameraRecordingNeedsRotation) {
-            actionText += ' (rotating to portrait)';
+        let actionText;
+        if (needsCrop && !needsTranscode && !needsCompression) {
+            actionText = 'Cropping to portrait';
+        } else if (needsTranscode) {
+            actionText = 'Converting to MP4';
+            if (needsCrop) actionText += ' and cropping to portrait';
+        } else {
+            actionText = `Compressing ${fileSizeMB.toFixed(1)}MB to <100MB`;
+            if (needsCrop) actionText += ' (cropping to portrait)';
         }
         updateVideoUploadUI('compressing', 5, `${actionText}...${warningText}`);
 
@@ -32704,16 +32770,15 @@ async function processAndUploadVideo(file) {
         window.suggestedCompressionQuality = 'high';
         window.userSelectedQuality = 'high';
 
-        // Check if camera recording needs rotation (landscape to portrait)
-        const needsRotation = window.cameraRecordingNeedsRotation || false;
-        if (needsRotation) {
-            console.log('Camera recording needs 90° rotation for portrait orientation');
+        console.log(`Processing video: isWebM=${isWebM}, needsTranscode=${needsTranscode}, needsCompression=${needsCompression}, needsCrop=${needsCrop}`);
+        if (needsCrop) {
+            console.log('Camera recording needs cropping to 9:16 portrait');
         }
 
         try {
             fileToUpload = await VideoCompressor.compressVideo(file, {
                 maxSizeMB: 100,
-                rotate90: needsRotation,
+                cropToPortrait: needsCrop,
                 onProgress: (info) => {
                     let progress = 5;
                     let details = '';
@@ -32912,7 +32977,7 @@ function deleteVideoUpload() {
         // Reset camera recording state
         isRecordedFromCamera = false;
         currentFacingMode = 'environment';
-        window.cameraRecordingNeedsRotation = false;
+        window.cameraRecordingNeedsCrop = false;
     }
 
     // Update publish button
@@ -33085,7 +33150,7 @@ function resetUploadState() {
     // Reset camera recording state
     isRecordedFromCamera = false;
     currentFacingMode = 'environment';
-    window.cameraRecordingNeedsRotation = false;
+    window.cameraRecordingNeedsCrop = false;
 }
 
 // Handle file selection - now starts upload immediately
