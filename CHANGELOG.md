@@ -1,3 +1,13 @@
+## v2.7.30 - 2025-12-20
+
+Hotfix: broken gif preview generation
+Hotfix: trending section glitch
+Hotfix: made description field optional
+
+## v2.7.29 - 2025-12-20
+
+Hotfix: switched gif preview to blob url
+
 ## v2.7.28 - 2025-12-20
 
 Hotfix: gif generation not working for compressed video

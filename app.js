@@ -232,6 +232,7 @@ const translations = {
         'goLive.streamTitlePlaceholder': 'Enter your stream title',
         'goLive.streamUrl': 'Stream URL (RTMP, HLS, or WebRTC)',
         'goLive.zapGoal': 'Zap Goal (optional)',
+        'goLive.zapGoalLabel': 'Zap Goal',
         'goLive.setupGuide': 'Stream Setup Guide',
         'goLive.cancel': 'Cancel',
         'goLive.goLiveBtn': 'Go Live',
@@ -501,6 +502,10 @@ const translations = {
         'goLive.obsDesc': 'any RTMP ingest server',
         'goLive.otherProviders': 'Cloudflare Stream, Mux, or other HLS providers',
         'goLive.goLiveButton': 'Go Live',
+        // Video page
+        'video.noDescription': 'No description has been added to this video.',
+        // Live stream page
+        'live.noDescription': 'No description has been added to this live stream.',
         // Additional Edit Stream keys
         'editStream.titleLabel': 'Title',
         // NSFW Modal
@@ -1186,7 +1191,8 @@ const translations = {
         // Create Modal
         'create.title': 'Crear', 'create.goLive': 'En Vivo', 'create.goLiveDesc': 'Inicia una transmisión en vivo o programa una', 'create.uploadVideo': 'Subir Video', 'create.uploadVideoDesc': 'Sube un video desde tu dispositivo', 'create.createShort': 'Crear Short', 'create.createShortDesc': 'Sube un video vertical (menos de 60s)',
         // Go Live Modal
-        'goLive.title': 'En Vivo', 'goLive.when': '¿Cuándo quieres transmitir en vivo?', 'goLive.now': 'Transmitir Ahora', 'goLive.schedule': 'Programar Transmisión', 'goLive.scheduleDateTime': 'Fecha y Hora Programada', 'goLive.streamThumbnail': 'Miniatura de Transmisión', 'goLive.streamTitle': 'Título de Transmisión', 'goLive.streamTitlePlaceholder': 'Ingresa el título de tu transmisión', 'goLive.description': 'Descripción', 'goLive.descriptionPlaceholder': 'Cuéntale a los espectadores de qué trata tu transmisión', 'goLive.tags': 'Etiquetas (separadas por comas)', 'goLive.tagsPlaceholder': 'gaming, bitcoin, tutorial', 'goLive.streamUrl': 'URL de Transmisión (RTMP, HLS o WebRTC)', 'goLive.streamUrlPlaceholder': 'https://tu-servicio-streaming.com/stream.m3u8', 'goLive.streamUrlHint': 'Usa servicios como zap.stream, OBS Ninja, Cloudflare Stream o cualquier proveedor RTMP/HLS', 'goLive.zapGoal': 'Meta de Zaps (opcional)', 'goLive.zapGoalPlaceholder': 'ej. 10000', 'goLive.zapGoalHint': 'Establece una meta de propinas de Bitcoin (en sats) para mostrar en tu transmisión', 'goLive.setupGuide': 'Guía de Configuración de Transmisión', 'goLive.setupGuideDesc': 'Para transmitir en vivo, necesitas una URL de streaming de un proveedor de servicios:', 'goLive.cancel': 'Cancelar', 'goLive.goLiveBtn': 'Transmitir',
+        'goLive.title': 'En Vivo', 'goLive.when': '¿Cuándo quieres transmitir en vivo?', 'goLive.now': 'Transmitir Ahora', 'goLive.schedule': 'Programar Transmisión', 'goLive.scheduleDateTime': 'Fecha y Hora Programada', 'goLive.streamThumbnail': 'Miniatura de Transmisión', 'goLive.streamTitle': 'Título de Transmisión', 'goLive.streamTitlePlaceholder': 'Ingresa el título de tu transmisión', 'goLive.description': 'Descripción', 'goLive.descriptionPlaceholder': 'Cuéntale a los espectadores de qué trata tu transmisión', 'goLive.tags': 'Etiquetas (separadas por comas)', 'goLive.tagsPlaceholder': 'gaming, bitcoin, tutorial', 'goLive.streamUrl': 'URL de Transmisión (RTMP, HLS o WebRTC)', 'goLive.streamUrlPlaceholder': 'https://tu-servicio-streaming.com/stream.m3u8', 'goLive.streamUrlHint': 'Usa servicios como zap.stream, OBS Ninja, Cloudflare Stream o cualquier proveedor RTMP/HLS', 'goLive.zapGoal': 'Meta de Zaps (opcional)', 'goLive.zapGoalLabel': 'Meta de Zaps', 'goLive.zapGoalPlaceholder': 'ej. 10000', 'goLive.zapGoalHint': 'Establece una meta de propinas de Bitcoin (en sats) para mostrar en tu transmisión', 'goLive.setupGuide': 'Guía de Configuración de Transmisión', 'goLive.setupGuideDesc': 'Para transmitir en vivo, necesitas una URL de streaming de un proveedor de servicios:', 'goLive.cancel': 'Cancelar', 'goLive.goLiveBtn': 'Transmitir',
+        'video.noDescription': 'No se ha añadido descripción a este video.', 'live.noDescription': 'No se ha añadido descripción a esta transmisión en vivo.',
         // Edit Stream Modal
         'editStream.title': 'Editar Transmisión', 'editStream.changeThumbnail': 'Cambiar Miniatura', 'editStream.titleLabel': 'Título', 'editStream.saveChanges': 'Guardar Cambios',
         // NSFW Warning Modal
@@ -1656,7 +1662,8 @@ const translations = {
         // Create Modal
         'create.title': 'Créer', 'create.goLive': 'En Direct', 'create.goLiveDesc': 'Démarrer une diffusion en direct ou en programmer une', 'create.uploadVideo': 'Télécharger une Vidéo', 'create.uploadVideoDesc': 'Télécharger une vidéo depuis votre appareil', 'create.createShort': 'Créer un Short', 'create.createShortDesc': 'Télécharger une vidéo verticale (moins de 60s)',
         // Go Live Modal
-        'goLive.title': 'En Direct', 'goLive.when': 'Quand voulez-vous diffuser en direct?', 'goLive.now': 'Diffuser Maintenant', 'goLive.schedule': 'Programmer une Diffusion', 'goLive.streamTitle': 'Titre de la Diffusion', 'goLive.streamTitlePlaceholder': 'Entrez le titre de votre diffusion', 'goLive.description': 'Description', 'goLive.descriptionPlaceholder': 'Dites aux spectateurs de quoi parle votre diffusion', 'goLive.tags': 'Tags (séparés par des virgules)', 'goLive.tagsPlaceholder': 'gaming, bitcoin, tutoriel', 'goLive.streamUrl': 'URL de Diffusion (RTMP, HLS ou WebRTC)', 'goLive.streamUrlPlaceholder': 'https://votre-service-streaming.com/stream.m3u8', 'goLive.zapGoal': 'Objectif de Zaps (optionnel)', 'goLive.zapGoalPlaceholder': 'ex. 10000', 'goLive.cancel': 'Annuler', 'goLive.goLiveBtn': 'Diffuser',
+        'goLive.title': 'En Direct', 'goLive.when': 'Quand voulez-vous diffuser en direct?', 'goLive.now': 'Diffuser Maintenant', 'goLive.schedule': 'Programmer une Diffusion', 'goLive.streamTitle': 'Titre de la Diffusion', 'goLive.streamTitlePlaceholder': 'Entrez le titre de votre diffusion', 'goLive.description': 'Description', 'goLive.descriptionPlaceholder': 'Dites aux spectateurs de quoi parle votre diffusion', 'goLive.tags': 'Tags (séparés par des virgules)', 'goLive.tagsPlaceholder': 'gaming, bitcoin, tutoriel', 'goLive.streamUrl': 'URL de Diffusion (RTMP, HLS ou WebRTC)', 'goLive.streamUrlPlaceholder': 'https://votre-service-streaming.com/stream.m3u8', 'goLive.zapGoal': 'Objectif de Zaps (optionnel)', 'goLive.zapGoalLabel': 'Objectif de Zaps', 'goLive.zapGoalPlaceholder': 'ex. 10000', 'goLive.cancel': 'Annuler', 'goLive.goLiveBtn': 'Diffuser',
+        'video.noDescription': 'Aucune description n\'a été ajoutée à cette vidéo.', 'live.noDescription': 'Aucune description n\'a été ajoutée à cette diffusion en direct.',
         // Edit Stream Modal
         'editStream.title': 'Modifier la Diffusion', 'editStream.changeThumbnail': 'Changer la Miniature', 'editStream.titleLabel': 'Titre', 'editStream.saveChanges': 'Enregistrer les Modifications',
         // NSFW Warning Modal
@@ -2126,7 +2133,9 @@ const translations = {
         // Create Modal
         'create.title': 'Erstellen', 'create.goLive': 'Live gehen', 'create.goLiveDesc': 'Starten oder planen Sie einen Livestream', 'create.uploadVideo': 'Video hochladen', 'create.uploadVideoDesc': 'Laden Sie ein Video von Ihrem Gerät hoch', 'create.createShort': 'Short erstellen', 'create.createShortDesc': 'Laden Sie ein vertikales Video hoch (unter 60s)',
         // Go Live Modal
-        'goLive.title': 'Live gehen', 'goLive.when': 'Wann möchten Sie live gehen?', 'goLive.now': 'Jetzt live gehen', 'goLive.schedule': 'Stream planen', 'goLive.streamTitle': 'Stream-Titel', 'goLive.streamTitlePlaceholder': 'Geben Sie Ihren Stream-Titel ein', 'goLive.description': 'Beschreibung', 'goLive.descriptionPlaceholder': 'Erzählen Sie den Zuschauern, worum es in Ihrem Stream geht', 'goLive.tags': 'Tags (kommagetrennt)', 'goLive.tagsPlaceholder': 'gaming, bitcoin, tutorial', 'goLive.streamUrl': 'Stream-URL (RTMP, HLS oder WebRTC)', 'goLive.streamUrlPlaceholder': 'https://ihr-streaming-dienst.com/stream.m3u8', 'goLive.zapGoal': 'Zap-Ziel (optional)', 'goLive.zapGoalPlaceholder': 'z.B. 10000', 'goLive.cancel': 'Abbrechen', 'goLive.goLiveBtn': 'Live gehen',
+        'goLive.title': 'Live gehen', 'goLive.when': 'Wann möchten Sie live gehen?', 'goLive.now': 'Jetzt live gehen', 'goLive.schedule': 'Stream planen', 'goLive.streamTitle': 'Stream-Titel', 'goLive.streamTitlePlaceholder': 'Geben Sie Ihren Stream-Titel ein', 'goLive.description': 'Beschreibung', 'goLive.descriptionPlaceholder': 'Erzählen Sie den Zuschauern, worum es in Ihrem Stream geht', 'goLive.tags': 'Tags (kommagetrennt)', 'goLive.tagsPlaceholder': 'gaming, bitcoin, tutorial', 'goLive.streamUrl': 'Stream-URL (RTMP, HLS oder WebRTC)', 'goLive.streamUrlPlaceholder': 'https://ihr-streaming-dienst.com/stream.m3u8', 'goLive.zapGoal': 'Zap-Ziel (optional)', 'goLive.zapGoalLabel': 'Zap-Ziel', 'goLive.zapGoalPlaceholder': 'z.B. 10000', 'goLive.cancel': 'Abbrechen', 'goLive.goLiveBtn': 'Live gehen',
+        // Video/Live No Description
+        'video.noDescription': 'Keine Beschreibung zu diesem Video hinzugefügt.', 'live.noDescription': 'Keine Beschreibung zu diesem Livestream hinzugefügt.',
         // Edit Stream Modal
         'editStream.title': 'Stream bearbeiten', 'editStream.changeThumbnail': 'Thumbnail ändern', 'editStream.titleLabel': 'Titel', 'editStream.saveChanges': 'Änderungen speichern',
         // NSFW Warning Modal
@@ -2596,7 +2605,9 @@ const translations = {
         // Create Modal
         'create.title': 'Criar', 'create.goLive': 'Ao Vivo', 'create.goLiveDesc': 'Inicie uma transmissão ao vivo ou agende uma', 'create.uploadVideo': 'Enviar Vídeo', 'create.uploadVideoDesc': 'Envie um vídeo do seu dispositivo', 'create.createShort': 'Criar Short', 'create.createShortDesc': 'Envie um vídeo vertical (menos de 60s)',
         // Go Live Modal
-        'goLive.title': 'Ao Vivo', 'goLive.when': 'Quando você quer transmitir ao vivo?', 'goLive.now': 'Transmitir Agora', 'goLive.schedule': 'Agendar Transmissão', 'goLive.streamTitle': 'Título da Transmissão', 'goLive.streamTitlePlaceholder': 'Digite o título da sua transmissão', 'goLive.description': 'Descrição', 'goLive.descriptionPlaceholder': 'Conte aos espectadores sobre o que é sua transmissão', 'goLive.tags': 'Tags (separadas por vírgula)', 'goLive.tagsPlaceholder': 'gaming, bitcoin, tutorial', 'goLive.streamUrl': 'URL da Transmissão (RTMP, HLS ou WebRTC)', 'goLive.streamUrlPlaceholder': 'https://seu-servico-streaming.com/stream.m3u8', 'goLive.zapGoal': 'Meta de Zaps (opcional)', 'goLive.zapGoalPlaceholder': 'ex. 10000', 'goLive.cancel': 'Cancelar', 'goLive.goLiveBtn': 'Transmitir',
+        'goLive.title': 'Ao Vivo', 'goLive.when': 'Quando você quer transmitir ao vivo?', 'goLive.now': 'Transmitir Agora', 'goLive.schedule': 'Agendar Transmissão', 'goLive.streamTitle': 'Título da Transmissão', 'goLive.streamTitlePlaceholder': 'Digite o título da sua transmissão', 'goLive.description': 'Descrição', 'goLive.descriptionPlaceholder': 'Conte aos espectadores sobre o que é sua transmissão', 'goLive.tags': 'Tags (separadas por vírgula)', 'goLive.tagsPlaceholder': 'gaming, bitcoin, tutorial', 'goLive.streamUrl': 'URL da Transmissão (RTMP, HLS ou WebRTC)', 'goLive.streamUrlPlaceholder': 'https://seu-servico-streaming.com/stream.m3u8', 'goLive.zapGoal': 'Meta de Zaps (opcional)', 'goLive.zapGoalLabel': 'Meta de Zaps', 'goLive.zapGoalPlaceholder': 'ex. 10000', 'goLive.cancel': 'Cancelar', 'goLive.goLiveBtn': 'Transmitir',
+        // Video/Live No Description
+        'video.noDescription': 'Nenhuma descrição foi adicionada a este vídeo.', 'live.noDescription': 'Nenhuma descrição foi adicionada a esta transmissão ao vivo.',
         // Edit Stream Modal
         'editStream.title': 'Editar Transmissão', 'editStream.changeThumbnail': 'Alterar Miniatura', 'editStream.titleLabel': 'Título', 'editStream.saveChanges': 'Salvar Alterações',
         // NSFW Warning Modal
@@ -3098,7 +3109,9 @@ const translations = {
         // Create Modal
         'create.title': 'Создать', 'create.uploadVideo': 'Загрузить видео', 'create.uploadDesc': 'Поделиться видео', 'create.goLive': 'Начать трансляцию', 'create.goLiveDesc': 'Запустить прямую трансляцию', 'create.createPost': 'Создать пост', 'create.createPostDesc': 'Поделиться текстом',
         // Go Live Modal
-        'goLive.title': 'Начать трансляцию', 'goLive.streamTitle': 'Название трансляции', 'goLive.streamTitlePlaceholder': 'Введите название трансляции', 'goLive.description': 'Описание', 'goLive.descriptionPlaceholder': 'Опишите вашу трансляцию...', 'goLive.category': 'Категория', 'goLive.selectCategory': 'Выберите категорию', 'goLive.tags': 'Теги', 'goLive.tagsPlaceholder': 'Добавьте теги через запятую', 'goLive.startStream': 'Начать трансляцию', 'goLive.streamKey': 'Ключ трансляции', 'goLive.streamUrl': 'URL трансляции', 'goLive.copy': 'Копировать', 'goLive.hideKey': 'Скрыть ключ', 'goLive.showKey': 'Показать ключ', 'goLive.connecting': 'Подключение...', 'goLive.live': 'В ЭФИРЕ', 'goLive.offline': 'Не в сети', 'goLive.viewers': 'зрителей', 'goLive.endStream': 'Завершить трансляцию', 'goLive.nsfw': 'Контент NSFW', 'goLive.nsfwDesc': 'Отметить как контент для взрослых', 'goLive.thumbnail': 'Обложка трансляции', 'goLive.thumbnailDesc': 'Загрузите обложку',
+        'goLive.title': 'Начать трансляцию', 'goLive.streamTitle': 'Название трансляции', 'goLive.streamTitlePlaceholder': 'Введите название трансляции', 'goLive.description': 'Описание', 'goLive.descriptionPlaceholder': 'Опишите вашу трансляцию...', 'goLive.category': 'Категория', 'goLive.selectCategory': 'Выберите категорию', 'goLive.tags': 'Теги', 'goLive.tagsPlaceholder': 'Добавьте теги через запятую', 'goLive.startStream': 'Начать трансляцию', 'goLive.streamKey': 'Ключ трансляции', 'goLive.streamUrl': 'URL трансляции', 'goLive.copy': 'Копировать', 'goLive.hideKey': 'Скрыть ключ', 'goLive.showKey': 'Показать ключ', 'goLive.connecting': 'Подключение...', 'goLive.live': 'В ЭФИРЕ', 'goLive.offline': 'Не в сети', 'goLive.viewers': 'зрителей', 'goLive.endStream': 'Завершить трансляцию', 'goLive.nsfw': 'Контент NSFW', 'goLive.nsfwDesc': 'Отметить как контент для взрослых', 'goLive.thumbnail': 'Обложка трансляции', 'goLive.thumbnailDesc': 'Загрузите обложку', 'goLive.zapGoal': 'Цель Zap (опционально)', 'goLive.zapGoalLabel': 'Цель Zap',
+        // Video/Live No Description
+        'video.noDescription': 'К этому видео не добавлено описание.', 'live.noDescription': 'К этой трансляции не добавлено описание.',
         // Edit Stream Modal
         'editStream.title': 'Редактировать трансляцию', 'editStream.save': 'Сохранить изменения',
         // NSFW Warning Modal
@@ -3601,7 +3614,9 @@ const translations = {
         // Create Modal
         'create.title': '创建', 'create.uploadVideo': '上传视频', 'create.uploadDesc': '分享视频', 'create.goLive': '开始直播', 'create.goLiveDesc': '开始直播', 'create.createPost': '创建帖子', 'create.createPostDesc': '分享文字帖子',
         // Go Live Modal
-        'goLive.title': '开始直播', 'goLive.streamTitle': '直播标题', 'goLive.streamTitlePlaceholder': '输入直播标题', 'goLive.description': '描述', 'goLive.descriptionPlaceholder': '描述您的直播...', 'goLive.category': '分类', 'goLive.selectCategory': '选择分类', 'goLive.tags': '标签', 'goLive.tagsPlaceholder': '添加标签，用逗号分隔', 'goLive.startStream': '开始直播', 'goLive.streamKey': '直播密钥', 'goLive.streamUrl': '直播 URL', 'goLive.copy': '复制', 'goLive.hideKey': '隐藏密钥', 'goLive.showKey': '显示密钥', 'goLive.connecting': '连接中...', 'goLive.live': '直播中', 'goLive.offline': '离线', 'goLive.viewers': '观众', 'goLive.endStream': '结束直播', 'goLive.nsfw': 'NSFW 内容', 'goLive.nsfwDesc': '标记为成人内容', 'goLive.thumbnail': '直播缩略图', 'goLive.thumbnailDesc': '上传缩略图',
+        'goLive.title': '开始直播', 'goLive.streamTitle': '直播标题', 'goLive.streamTitlePlaceholder': '输入直播标题', 'goLive.description': '描述', 'goLive.descriptionPlaceholder': '描述您的直播...', 'goLive.category': '分类', 'goLive.selectCategory': '选择分类', 'goLive.tags': '标签', 'goLive.tagsPlaceholder': '添加标签，用逗号分隔', 'goLive.startStream': '开始直播', 'goLive.streamKey': '直播密钥', 'goLive.streamUrl': '直播 URL', 'goLive.copy': '复制', 'goLive.hideKey': '隐藏密钥', 'goLive.showKey': '显示密钥', 'goLive.connecting': '连接中...', 'goLive.live': '直播中', 'goLive.offline': '离线', 'goLive.viewers': '观众', 'goLive.endStream': '结束直播', 'goLive.nsfw': 'NSFW 内容', 'goLive.nsfwDesc': '标记为成人内容', 'goLive.thumbnail': '直播缩略图', 'goLive.thumbnailDesc': '上传缩略图', 'goLive.zapGoal': 'Zap 目标（可选）', 'goLive.zapGoalLabel': 'Zap 目标',
+        // Video/Live No Description
+        'video.noDescription': '此视频未添加描述。', 'live.noDescription': '此直播未添加描述。',
         // Edit Stream Modal
         'editStream.title': '编辑直播', 'editStream.save': '保存更改',
         // Live Stream
@@ -3990,7 +4005,9 @@ const translations = {
         // Create Modal
         'create.title': '作成', 'create.uploadVideo': '動画をアップロード', 'create.uploadDesc': '動画を共有', 'create.goLive': 'ライブ配信', 'create.goLiveDesc': 'ライブ配信を開始', 'create.createPost': '投稿を作成', 'create.createPostDesc': 'テキスト投稿を共有',
         // Go Live Modal
-        'goLive.title': 'ライブ配信', 'goLive.streamTitle': '配信タイトル', 'goLive.streamTitlePlaceholder': '配信タイトルを入力', 'goLive.description': '説明', 'goLive.descriptionPlaceholder': '配信の説明...', 'goLive.category': 'カテゴリ', 'goLive.selectCategory': 'カテゴリを選択', 'goLive.tags': 'タグ', 'goLive.tagsPlaceholder': 'カンマ区切りでタグを追加', 'goLive.startStream': '配信開始', 'goLive.streamKey': 'ストリームキー', 'goLive.streamUrl': 'ストリームURL', 'goLive.copy': 'コピー', 'goLive.hideKey': 'キーを隠す', 'goLive.showKey': 'キーを表示', 'goLive.connecting': '接続中...', 'goLive.live': 'ライブ中', 'goLive.offline': 'オフライン', 'goLive.viewers': '視聴者', 'goLive.endStream': '配信終了', 'goLive.nsfw': 'NSFWコンテンツ', 'goLive.nsfwDesc': 'アダルトコンテンツとしてマーク', 'goLive.thumbnail': '配信サムネイル', 'goLive.thumbnailDesc': 'サムネイルをアップロード',
+        'goLive.title': 'ライブ配信', 'goLive.streamTitle': '配信タイトル', 'goLive.streamTitlePlaceholder': '配信タイトルを入力', 'goLive.description': '説明', 'goLive.descriptionPlaceholder': '配信の説明...', 'goLive.category': 'カテゴリ', 'goLive.selectCategory': 'カテゴリを選択', 'goLive.tags': 'タグ', 'goLive.tagsPlaceholder': 'カンマ区切りでタグを追加', 'goLive.startStream': '配信開始', 'goLive.streamKey': 'ストリームキー', 'goLive.streamUrl': 'ストリームURL', 'goLive.copy': 'コピー', 'goLive.hideKey': 'キーを隠す', 'goLive.showKey': 'キーを表示', 'goLive.connecting': '接続中...', 'goLive.live': 'ライブ中', 'goLive.offline': 'オフライン', 'goLive.viewers': '視聴者', 'goLive.endStream': '配信終了', 'goLive.nsfw': 'NSFWコンテンツ', 'goLive.nsfwDesc': 'アダルトコンテンツとしてマーク', 'goLive.thumbnail': '配信サムネイル', 'goLive.thumbnailDesc': 'サムネイルをアップロード', 'goLive.zapGoal': 'Zap目標（オプション）', 'goLive.zapGoalLabel': 'Zap目標',
+        // Video/Live No Description
+        'video.noDescription': 'この動画に説明は追加されていません。', 'live.noDescription': 'この配信に説明は追加されていません。',
         // Edit Stream Modal
         'editStream.title': '配信を編集', 'editStream.save': '変更を保存',
         // Live Stream
@@ -4380,7 +4397,9 @@ const translations = {
         // Create Modal
         'create.title': '만들기', 'create.uploadVideo': '동영상 업로드', 'create.uploadDesc': '동영상 공유', 'create.goLive': '라이브 시작', 'create.goLiveDesc': '라이브 스트리밍 시작', 'create.createPost': '게시물 작성', 'create.createPostDesc': '텍스트 게시물 공유',
         // Go Live Modal
-        'goLive.title': '라이브 시작', 'goLive.streamTitle': '스트림 제목', 'goLive.streamTitlePlaceholder': '스트림 제목 입력', 'goLive.description': '설명', 'goLive.descriptionPlaceholder': '스트림 설명...', 'goLive.category': '카테고리', 'goLive.selectCategory': '카테고리 선택', 'goLive.tags': '태그', 'goLive.tagsPlaceholder': '쉼표로 구분하여 태그 추가', 'goLive.startStream': '스트림 시작', 'goLive.streamKey': '스트림 키', 'goLive.streamUrl': '스트림 URL', 'goLive.copy': '복사', 'goLive.hideKey': '키 숨기기', 'goLive.showKey': '키 표시', 'goLive.connecting': '연결 중...', 'goLive.live': '라이브', 'goLive.offline': '오프라인', 'goLive.viewers': '시청자', 'goLive.endStream': '스트림 종료', 'goLive.nsfw': 'NSFW 콘텐츠', 'goLive.nsfwDesc': '성인 콘텐츠로 표시', 'goLive.thumbnail': '스트림 썸네일', 'goLive.thumbnailDesc': '썸네일 업로드',
+        'goLive.title': '라이브 시작', 'goLive.streamTitle': '스트림 제목', 'goLive.streamTitlePlaceholder': '스트림 제목 입력', 'goLive.description': '설명', 'goLive.descriptionPlaceholder': '스트림 설명...', 'goLive.category': '카테고리', 'goLive.selectCategory': '카테고리 선택', 'goLive.tags': '태그', 'goLive.tagsPlaceholder': '쉼표로 구분하여 태그 추가', 'goLive.startStream': '스트림 시작', 'goLive.streamKey': '스트림 키', 'goLive.streamUrl': '스트림 URL', 'goLive.copy': '복사', 'goLive.hideKey': '키 숨기기', 'goLive.showKey': '키 표시', 'goLive.connecting': '연결 중...', 'goLive.live': '라이브', 'goLive.offline': '오프라인', 'goLive.viewers': '시청자', 'goLive.endStream': '스트림 종료', 'goLive.nsfw': 'NSFW 콘텐츠', 'goLive.nsfwDesc': '성인 콘텐츠로 표시', 'goLive.thumbnail': '스트림 썸네일', 'goLive.thumbnailDesc': '썸네일 업로드', 'goLive.zapGoal': 'Zap 목표 (선택 사항)', 'goLive.zapGoalLabel': 'Zap 목표',
+        // Video/Live No Description
+        'video.noDescription': '이 동영상에 설명이 추가되지 않았습니다.', 'live.noDescription': '이 라이브 스트림에 설명이 추가되지 않았습니다.',
         // Edit Stream Modal
         'editStream.title': '스트림 편집', 'editStream.save': '변경 사항 저장',
         // Live Stream
@@ -4770,7 +4789,9 @@ const translations = {
         // Create Modal
         'create.title': 'إنشاء', 'create.uploadVideo': 'رفع فيديو', 'create.uploadDesc': 'مشاركة فيديو', 'create.goLive': 'بث مباشر', 'create.goLiveDesc': 'بدء بث مباشر', 'create.createPost': 'إنشاء منشور', 'create.createPostDesc': 'مشاركة نص',
         // Go Live Modal
-        'goLive.title': 'بث مباشر', 'goLive.streamTitle': 'عنوان البث', 'goLive.streamTitlePlaceholder': 'أدخل عنوان البث', 'goLive.description': 'الوصف', 'goLive.descriptionPlaceholder': 'صف البث...', 'goLive.category': 'الفئة', 'goLive.selectCategory': 'اختر فئة', 'goLive.tags': 'الوسوم', 'goLive.tagsPlaceholder': 'أضف وسوماً مفصولة بفواصل', 'goLive.startStream': 'بدء البث', 'goLive.streamKey': 'مفتاح البث', 'goLive.streamUrl': 'رابط البث', 'goLive.copy': 'نسخ', 'goLive.hideKey': 'إخفاء المفتاح', 'goLive.showKey': 'إظهار المفتاح', 'goLive.connecting': 'جاري الاتصال...', 'goLive.live': 'مباشر', 'goLive.offline': 'غير متصل', 'goLive.viewers': 'مشاهدين', 'goLive.endStream': 'إنهاء البث', 'goLive.nsfw': 'محتوى للبالغين', 'goLive.nsfwDesc': 'تحديد كمحتوى للبالغين', 'goLive.thumbnail': 'صورة البث', 'goLive.thumbnailDesc': 'رفع صورة مصغرة',
+        'goLive.title': 'بث مباشر', 'goLive.streamTitle': 'عنوان البث', 'goLive.streamTitlePlaceholder': 'أدخل عنوان البث', 'goLive.description': 'الوصف', 'goLive.descriptionPlaceholder': 'صف البث...', 'goLive.category': 'الفئة', 'goLive.selectCategory': 'اختر فئة', 'goLive.tags': 'الوسوم', 'goLive.tagsPlaceholder': 'أضف وسوماً مفصولة بفواصل', 'goLive.startStream': 'بدء البث', 'goLive.streamKey': 'مفتاح البث', 'goLive.streamUrl': 'رابط البث', 'goLive.copy': 'نسخ', 'goLive.hideKey': 'إخفاء المفتاح', 'goLive.showKey': 'إظهار المفتاح', 'goLive.connecting': 'جاري الاتصال...', 'goLive.live': 'مباشر', 'goLive.offline': 'غير متصل', 'goLive.viewers': 'مشاهدين', 'goLive.endStream': 'إنهاء البث', 'goLive.nsfw': 'محتوى للبالغين', 'goLive.nsfwDesc': 'تحديد كمحتوى للبالغين', 'goLive.thumbnail': 'صورة البث', 'goLive.thumbnailDesc': 'رفع صورة مصغرة', 'goLive.zapGoal': 'هدف Zap (اختياري)', 'goLive.zapGoalLabel': 'هدف Zap',
+        // Video/Live No Description
+        'video.noDescription': 'لم يتم إضافة وصف لهذا الفيديو.', 'live.noDescription': 'لم يتم إضافة وصف لهذا البث المباشر.',
         // Edit Stream Modal
         'editStream.title': 'تعديل البث', 'editStream.save': 'حفظ التغييرات',
         // NSFW Warning Modal
@@ -5208,7 +5229,9 @@ const translations = {
         // Create Modal
         'create.title': 'बनाएं', 'create.uploadVideo': 'वीडियो अपलोड करें', 'create.uploadDesc': 'वीडियो साझा करें', 'create.goLive': 'लाइव जाएं', 'create.goLiveDesc': 'लाइव स्ट्रीम शुरू करें', 'create.createPost': 'पोस्ट बनाएं', 'create.createPostDesc': 'टेक्स्ट पोस्ट साझा करें',
         // Go Live Modal
-        'goLive.title': 'लाइव जाएं', 'goLive.streamTitle': 'स्ट्रीम शीर्षक', 'goLive.streamTitlePlaceholder': 'स्ट्रीम शीर्षक दर्ज करें', 'goLive.description': 'विवरण', 'goLive.descriptionPlaceholder': 'अपनी स्ट्रीम का वर्णन करें...', 'goLive.category': 'श्रेणी', 'goLive.selectCategory': 'श्रेणी चुनें', 'goLive.tags': 'टैग्स', 'goLive.tagsPlaceholder': 'अल्पविराम से अलग टैग जोड़ें', 'goLive.startStream': 'स्ट्रीम शुरू करें', 'goLive.streamKey': 'स्ट्रीम की', 'goLive.streamUrl': 'स्ट्रीम URL', 'goLive.copy': 'कॉपी करें', 'goLive.hideKey': 'की छुपाएं', 'goLive.showKey': 'की दिखाएं', 'goLive.connecting': 'कनेक्ट हो रहा है...', 'goLive.live': 'लाइव', 'goLive.offline': 'ऑफलाइन', 'goLive.viewers': 'दर्शक', 'goLive.endStream': 'स्ट्रीम समाप्त करें', 'goLive.nsfw': 'NSFW सामग्री', 'goLive.nsfwDesc': 'वयस्क सामग्री के रूप में चिह्नित करें', 'goLive.thumbnail': 'स्ट्रीम थंबनेल', 'goLive.thumbnailDesc': 'थंबनेल अपलोड करें',
+        'goLive.title': 'लाइव जाएं', 'goLive.streamTitle': 'स्ट्रीम शीर्षक', 'goLive.streamTitlePlaceholder': 'स्ट्रीम शीर्षक दर्ज करें', 'goLive.description': 'विवरण', 'goLive.descriptionPlaceholder': 'अपनी स्ट्रीम का वर्णन करें...', 'goLive.category': 'श्रेणी', 'goLive.selectCategory': 'श्रेणी चुनें', 'goLive.tags': 'टैग्स', 'goLive.tagsPlaceholder': 'अल्पविराम से अलग टैग जोड़ें', 'goLive.startStream': 'स्ट्रीम शुरू करें', 'goLive.streamKey': 'स्ट्रीम की', 'goLive.streamUrl': 'स्ट्रीम URL', 'goLive.copy': 'कॉपी करें', 'goLive.hideKey': 'की छुपाएं', 'goLive.showKey': 'की दिखाएं', 'goLive.connecting': 'कनेक्ट हो रहा है...', 'goLive.live': 'लाइव', 'goLive.offline': 'ऑफलाइन', 'goLive.viewers': 'दर्शक', 'goLive.endStream': 'स्ट्रीम समाप्त करें', 'goLive.nsfw': 'NSFW सामग्री', 'goLive.nsfwDesc': 'वयस्क सामग्री के रूप में चिह्नित करें', 'goLive.thumbnail': 'स्ट्रीम थंबनेल', 'goLive.thumbnailDesc': 'थंबनेल अपलोड करें', 'goLive.zapGoal': 'Zap लक्ष्य (वैकल्पिक)', 'goLive.zapGoalLabel': 'Zap लक्ष्य',
+        // Video/Live No Description
+        'video.noDescription': 'इस वीडियो में कोई विवरण नहीं जोड़ा गया है।', 'live.noDescription': 'इस लाइव स्ट्रीम में कोई विवरण नहीं जोड़ा गया है।',
         // Edit Stream Modal
         'editStream.title': 'स्ट्रीम संपादित करें', 'editStream.save': 'परिवर्तन सहेजें',
         // NSFW Warning Modal
@@ -5646,7 +5669,9 @@ const translations = {
         // Create Modal
         'create.title': 'Crea', 'create.uploadVideo': 'Carica Video', 'create.uploadDesc': 'Condividi un video', 'create.goLive': 'Vai in Diretta', 'create.goLiveDesc': 'Avvia streaming live', 'create.createPost': 'Crea Post', 'create.createPostDesc': 'Condividi un post testuale',
         // Go Live Modal
-        'goLive.title': 'Vai in Diretta', 'goLive.streamTitle': 'Titolo Stream', 'goLive.streamTitlePlaceholder': 'Inserisci titolo stream', 'goLive.description': 'Descrizione', 'goLive.descriptionPlaceholder': 'Descrivi il tuo stream...', 'goLive.category': 'Categoria', 'goLive.selectCategory': 'Seleziona categoria', 'goLive.tags': 'Tag', 'goLive.tagsPlaceholder': 'Aggiungi tag separati da virgola', 'goLive.startStream': 'Avvia Stream', 'goLive.streamKey': 'Chiave Stream', 'goLive.streamUrl': 'URL Stream', 'goLive.copy': 'Copia', 'goLive.hideKey': 'Nascondi Chiave', 'goLive.showKey': 'Mostra Chiave', 'goLive.connecting': 'Connessione...', 'goLive.live': 'IN DIRETTA', 'goLive.offline': 'Offline', 'goLive.viewers': 'spettatori', 'goLive.endStream': 'Termina Stream', 'goLive.nsfw': 'Contenuto NSFW', 'goLive.nsfwDesc': 'Contrassegna come contenuto per adulti', 'goLive.thumbnail': 'Miniatura Stream', 'goLive.thumbnailDesc': 'Carica miniatura',
+        'goLive.title': 'Vai in Diretta', 'goLive.streamTitle': 'Titolo Stream', 'goLive.streamTitlePlaceholder': 'Inserisci titolo stream', 'goLive.description': 'Descrizione', 'goLive.descriptionPlaceholder': 'Descrivi il tuo stream...', 'goLive.category': 'Categoria', 'goLive.selectCategory': 'Seleziona categoria', 'goLive.tags': 'Tag', 'goLive.tagsPlaceholder': 'Aggiungi tag separati da virgola', 'goLive.startStream': 'Avvia Stream', 'goLive.streamKey': 'Chiave Stream', 'goLive.streamUrl': 'URL Stream', 'goLive.copy': 'Copia', 'goLive.hideKey': 'Nascondi Chiave', 'goLive.showKey': 'Mostra Chiave', 'goLive.connecting': 'Connessione...', 'goLive.live': 'IN DIRETTA', 'goLive.offline': 'Offline', 'goLive.viewers': 'spettatori', 'goLive.endStream': 'Termina Stream', 'goLive.nsfw': 'Contenuto NSFW', 'goLive.nsfwDesc': 'Contrassegna come contenuto per adulti', 'goLive.thumbnail': 'Miniatura Stream', 'goLive.thumbnailDesc': 'Carica miniatura', 'goLive.zapGoal': 'Obiettivo Zap (opzionale)', 'goLive.zapGoalLabel': 'Obiettivo Zap',
+        // Video/Live No Description
+        'video.noDescription': 'Nessuna descrizione aggiunta a questo video.', 'live.noDescription': 'Nessuna descrizione aggiunta a questa diretta.',
         // Edit Stream Modal
         'editStream.title': 'Modifica Stream', 'editStream.save': 'Salva Modifiche',
         // NSFW Warning Modal
@@ -7099,25 +7124,20 @@ function isThumbnailOrientationValid(thumbnailWidth, thumbnailHeight, isShortVid
     return isShortVideo === thumbnailIsVertical;
 }
 
-// Capture a frame from a video URL at a specific time and return as a File object
-function captureVideoFrame(videoUrl, captureTimeSeconds = 2) {
+// Capture a frame from the video preview player and return as a File object
+// Uses the existing video preview player to avoid CORS/tainted canvas issues
+function captureVideoFrame(unusedUrl, captureTimeSeconds = 2) {
     return new Promise((resolve, reject) => {
-        const video = document.createElement('video');
+        const video = document.getElementById('videoPreviewPlayer');
+        if (!video || !video.src) {
+            reject(new Error('Video preview player not found'));
+            return;
+        }
+
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
 
-        video.muted = true;
-        video.preload = 'auto';
-        video.crossOrigin = 'anonymous';
-
-        video.onloadedmetadata = () => {
-            // Ensure capture time is within video duration (default to 2s or 10% into video)
-            const duration = video.duration;
-            const seekTime = Math.min(captureTimeSeconds, duration * 0.1, duration - 0.5);
-            video.currentTime = Math.max(0, seekTime);
-        };
-
-        video.onseeked = () => {
+        const captureCurrentFrame = () => {
             try {
                 // Set canvas to video dimensions
                 canvas.width = video.videoWidth;
@@ -7129,7 +7149,6 @@ function captureVideoFrame(videoUrl, captureTimeSeconds = 2) {
                 // Convert canvas to blob
                 canvas.toBlob((blob) => {
                     if (blob) {
-                        // Create a File object from the blob
                         const file = new File([blob], 'auto-thumbnail.jpg', { type: 'image/jpeg' });
                         resolve({
                             file: file,
@@ -7145,11 +7164,34 @@ function captureVideoFrame(videoUrl, captureTimeSeconds = 2) {
             }
         };
 
-        video.onerror = () => {
-            reject(new Error('Failed to load video for thumbnail capture'));
-        };
+        // If video is ready, seek to the capture time
+        if (video.readyState >= 2) {
+            const seekTime = Math.min(captureTimeSeconds, video.duration * 0.1, video.duration - 0.5);
+            const targetTime = Math.max(0, seekTime);
 
-        video.src = videoUrl;
+            if (Math.abs(video.currentTime - targetTime) < 0.5) {
+                // Already at the right time, capture immediately
+                captureCurrentFrame();
+            } else {
+                // Seek to the target time
+                video.onseeked = () => {
+                    video.onseeked = null;
+                    captureCurrentFrame();
+                };
+                video.currentTime = targetTime;
+            }
+        } else {
+            // Wait for video to load
+            video.onloadeddata = () => {
+                video.onloadeddata = null;
+                const seekTime = Math.min(captureTimeSeconds, video.duration * 0.1, video.duration - 0.5);
+                video.onseeked = () => {
+                    video.onseeked = null;
+                    captureCurrentFrame();
+                };
+                video.currentTime = Math.max(0, seekTime);
+            };
+        }
     });
 }
 
@@ -7372,11 +7414,10 @@ function isIOSOrSafari() {
     return isIOS || isSafari;
 }
 
-// Generate an animated GIF preview from a video URL
+// Generate an animated GIF preview using the video preview player
 // Captures frames from the first few seconds and creates a looping GIF
-// Optimized for cross-browser compatibility including iOS/Safari
-function generatePreviewGif(videoUrl, options = {}) {
-    // Use fewer frames on iOS/Safari for faster processing
+// Uses the existing video preview player to avoid CORS/tainted canvas issues
+function generatePreviewGif(unusedUrl, options = {}) {
     const isMobileOrSafari = isIOSOrSafari();
     const defaultFrameCount = isMobileOrSafari ? 5 : 8;
 
@@ -7384,180 +7425,103 @@ function generatePreviewGif(videoUrl, options = {}) {
         frameCount = defaultFrameCount,
         startTime = 0.5,
         duration = 3,
-        maxWidth = isMobileOrSafari ? 240 : 320,  // Smaller on mobile for speed
-        frameDelay = 150,
-        seekTimeout = isMobileOrSafari ? 3000 : 2000  // Timeout per seek operation
+        maxWidth = isMobileOrSafari ? 240 : 320,
+        frameDelay = 150
     } = options;
 
-    return new Promise((resolve, reject) => {
-        // Use parallel video loading for faster frame capture on all browsers
-        // iOS/Safari requires play() before seeking works reliably
-        const captureFrameAtTime = (url, time, width, height) => {
-            return new Promise((resolveFrame, rejectFrame) => {
-                const video = document.createElement('video');
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
+    return new Promise(async (resolve, reject) => {
+        const video = document.getElementById('videoPreviewPlayer');
+        if (!video || !video.src) {
+            reject(new Error('Video preview player not found'));
+            return;
+        }
 
-                video.muted = true;
-                video.playsInline = true;  // Required for iOS
-                video.preload = 'auto';    // Load more data for seeking
-                video.crossOrigin = 'anonymous';
-                video.setAttribute('playsinline', '');  // Extra iOS compatibility
+        // Wait for video to be ready if needed
+        if (video.readyState < 2) {
+            await new Promise((res) => {
+                video.onloadeddata = () => {
+                    video.onloadeddata = null;
+                    res();
+                };
+            });
+        }
 
-                let resolved = false;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-                // Timeout for this frame capture
-                const timeout = setTimeout(() => {
-                    if (!resolved) {
-                        resolved = true;
-                        video.pause();
-                        video.src = '';
-                        rejectFrame(new Error('Frame capture timeout'));
-                    }
-                }, seekTimeout);
+        // Calculate scaled dimensions
+        const aspectRatio = video.videoWidth / video.videoHeight;
+        let width = Math.min(maxWidth, video.videoWidth);
+        let height = Math.round(width / aspectRatio);
 
-                const captureFrame = () => {
-                    if (resolved) return;
-                    resolved = true;
-                    clearTimeout(timeout);
+        // Ensure even dimensions
+        width = width - (width % 2);
+        height = height - (height % 2);
+
+        canvas.width = width;
+        canvas.height = height;
+
+        // Calculate frame times
+        const videoDuration = video.duration;
+        const actualDuration = Math.min(duration, videoDuration - startTime);
+        const frameInterval = actualDuration / (frameCount - 1);
+
+        const frameTimes = [];
+        for (let i = 0; i < frameCount; i++) {
+            frameTimes.push(Math.min(startTime + (i * frameInterval), videoDuration - 0.1));
+        }
+
+        // Capture frames sequentially by seeking the video player
+        const frames = [];
+        const originalTime = video.currentTime;
+
+        const captureFrameAtTime = (time) => {
+            return new Promise((res) => {
+                const onSeeked = () => {
+                    video.removeEventListener('seeked', onSeeked);
                     try {
-                        video.pause();
                         ctx.drawImage(video, 0, 0, width, height);
                         const imageData = ctx.getImageData(0, 0, width, height);
-                        video.src = '';  // Clean up
-                        resolveFrame(new Uint8Array(imageData.data));
+                        res(new Uint8Array(imageData.data));
                     } catch (error) {
-                        video.src = '';
-                        rejectFrame(error);
+                        console.warn('Frame capture failed:', error);
+                        res(null);
                     }
                 };
-
-                video.onseeked = captureFrame;
-
-                // For iOS: also try capturing on timeupdate as fallback
-                video.ontimeupdate = () => {
-                    if (!resolved && Math.abs(video.currentTime - time) < 0.5) {
-                        captureFrame();
-                    }
-                };
-
-                video.onloadeddata = () => {
-                    canvas.width = width;
-                    canvas.height = height;
-
-                    // iOS requires play() before seeking works
-                    // Play briefly then seek to desired time
-                    const playPromise = video.play();
-                    if (playPromise !== undefined) {
-                        playPromise.then(() => {
-                            video.pause();
-                            video.currentTime = Math.min(time, video.duration - 0.1);
-                        }).catch(() => {
-                            // Autoplay blocked, try seeking directly
-                            video.currentTime = Math.min(time, video.duration - 0.1);
-                        });
-                    } else {
-                        video.currentTime = Math.min(time, video.duration - 0.1);
-                    }
-                };
-
-                video.onerror = () => {
-                    if (!resolved) {
-                        resolved = true;
-                        clearTimeout(timeout);
-                        video.src = '';
-                        rejectFrame(new Error('Failed to load video frame'));
-                    }
-                };
-
-                video.src = url;
-                video.load();  // Explicitly load on iOS
+                video.addEventListener('seeked', onSeeked);
+                video.currentTime = time;
             });
         };
 
-        // First, get video metadata to calculate dimensions and timing
-        const metaVideo = document.createElement('video');
-        metaVideo.muted = true;
-        metaVideo.playsInline = true;
-        metaVideo.preload = 'metadata';
-        metaVideo.crossOrigin = 'anonymous';
-
-        const metaTimeout = setTimeout(() => {
-            metaVideo.src = '';
-            reject(new Error('Video metadata load timeout'));
-        }, 10000);
-
-        metaVideo.onloadedmetadata = async () => {
-            clearTimeout(metaTimeout);
-
-            try {
-                // Calculate scaled dimensions
-                const aspectRatio = metaVideo.videoWidth / metaVideo.videoHeight;
-                let width = Math.min(maxWidth, metaVideo.videoWidth);
-                let height = Math.round(width / aspectRatio);
-
-                // Ensure even dimensions
-                width = width - (width % 2);
-                height = height - (height % 2);
-
-                // Calculate frame times
-                const videoDuration = metaVideo.duration;
-                const actualDuration = Math.min(duration, videoDuration - startTime);
-                const frameInterval = actualDuration / (frameCount - 1);
-
-                const frameTimes = [];
-                for (let i = 0; i < frameCount; i++) {
-                    frameTimes.push(Math.min(startTime + (i * frameInterval), videoDuration - 0.1));
-                }
-
-                metaVideo.src = '';  // Clean up metadata video
-
-                // Capture frames in parallel (up to 3 concurrent for balance)
-                const frames = [];
-                const batchSize = isMobileOrSafari ? 2 : 3;  // Smaller batches on mobile
-
-                for (let i = 0; i < frameTimes.length; i += batchSize) {
-                    const batch = frameTimes.slice(i, i + batchSize);
-                    const batchPromises = batch.map(time =>
-                        captureFrameAtTime(videoUrl, time, width, height)
-                            .catch(() => null)  // Don't fail entire process for one frame
-                    );
-
-                    const batchResults = await Promise.all(batchPromises);
-                    for (const result of batchResults) {
-                        if (result) frames.push(result);
-                    }
-                }
-
-                // Need at least 2 frames for a GIF
-                if (frames.length < 2) {
-                    reject(new Error('Could not capture enough frames'));
-                    return;
-                }
-
-                // Generate GIF
-                const gifData = GIFEncoder.encode(width, height, frames, frameDelay);
-                const blob = new Blob([gifData], { type: 'image/gif' });
-                const file = new File([blob], 'preview.gif', { type: 'image/gif' });
-
-                resolve({
-                    file: file,
-                    width: width,
-                    height: height,
-                    frameCount: frames.length
-                });
-            } catch (error) {
-                reject(new Error('Failed to generate GIF: ' + error.message));
+        try {
+            for (const time of frameTimes) {
+                const frame = await captureFrameAtTime(time);
+                if (frame) frames.push(frame);
             }
-        };
 
-        metaVideo.onerror = () => {
-            clearTimeout(metaTimeout);
-            metaVideo.src = '';
-            reject(new Error('Failed to load video for preview generation'));
-        };
+            // Restore original video position
+            video.currentTime = originalTime;
 
-        metaVideo.src = videoUrl;
+            // Need at least 2 frames for a GIF
+            if (frames.length < 2) {
+                reject(new Error('Could not capture enough frames'));
+                return;
+            }
+
+            // Generate GIF
+            const gifData = GIFEncoder.encode(width, height, frames, frameDelay);
+            const blob = new Blob([gifData], { type: 'image/gif' });
+            const file = new File([blob], 'preview.gif', { type: 'image/gif' });
+
+            resolve({
+                file: file,
+                width: width,
+                height: height,
+                frameCount: frames.length
+            });
+        } catch (error) {
+            reject(new Error('Failed to generate GIF: ' + error.message));
+        }
     });
 }
 
@@ -21527,12 +21491,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Auto-generate thumbnail if not provided
-            // Create local blob URL for thumbnail/preview generation to avoid CORS issues
-            // with remote Blossom server URLs
-            let localVideoUrl = null;
-            if (uploadState.video.file && (uploadState.thumbnail.status !== 'complete' || uploadState.preview.status !== 'complete')) {
-                localVideoUrl = URL.createObjectURL(uploadState.video.file);
-            }
+            // Use the blob URL stored by showVideoPreview (same-origin, no CORS/tainted canvas issues)
+            const localVideoUrl = uploadState.video.previewUrl || uploadState.video.url;
+            console.log('Using video URL for thumbnail/preview generation:', localVideoUrl.startsWith('blob:') ? 'blob URL' : 'remote URL');
 
             if (uploadState.thumbnail.status !== 'complete') {
                 if (publishText) {
@@ -21541,9 +21502,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 try {
                     // Capture a frame from the video (2 seconds in)
-                    // Use local blob URL to avoid CORS issues with remote Blossom URLs
-                    const videoUrlForCapture = localVideoUrl || uploadState.video.url;
-                    const frameData = await captureVideoFrame(videoUrlForCapture, 2);
+                    const frameData = await captureVideoFrame(localVideoUrl, 2);
 
                     if (publishText) {
                         publishText.textContent = t('status.uploadingThumbnail');
@@ -21564,10 +21523,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast('Failed to generate thumbnail. Please upload one manually.', 'error');
                     if (publishBtn) publishBtn.disabled = false;
                     if (publishText) publishText.textContent = t('publish.autoThumbnail');
-                    // Clean up local blob URL before returning
-                    if (localVideoUrl) {
-                        URL.revokeObjectURL(localVideoUrl);
-                    }
                     return;
                 }
             }
@@ -21579,13 +21534,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 try {
-                    // Let the function use optimized defaults for iOS/Safari
-                    // Use local blob URL to avoid CORS issues with remote Blossom URLs
-                    const videoUrlForPreview = localVideoUrl || uploadState.video.url;
-                    const previewData = await generatePreviewGif(videoUrlForPreview, {
+                    // Generate GIF preview covering 6 seconds of video with 12 frames
+                    const previewData = await generatePreviewGif(localVideoUrl, {
                         startTime: 0.5,
-                        duration: 4,
-                        frameDelay: 150
+                        duration: 6,
+                        frameCount: 12,
+                        frameDelay: 120
                     });
 
                     if (publishText) {
@@ -21608,11 +21562,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.warn('Preview generation failed:', error);
                     uploadState.preview.status = 'error';
                 }
-            }
-
-            // Clean up local blob URL after thumbnail/preview generation
-            if (localVideoUrl) {
-                URL.revokeObjectURL(localVideoUrl);
             }
 
             if (publishText) {
@@ -22547,11 +22496,14 @@ function renderTrendingVideosOptimized(trendingVideos, renderedVideoIds) {
     const spinner = trendingGrid.querySelector('.spinner');
     if (spinner) spinner.remove();
 
+    // Filter out videos that were removed due to validation (suspicious/ratioed)
+    const validVideos = trendingVideos.filter(v => !trendingRemovedIds.has(v.id));
+
     // Limit cards on homepage - 3 on mobile/tablet, 4 on desktop
     const isMobile = window.innerWidth <= 480;
     const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
     const maxInitialCards = (isMobile || isTablet) ? 3 : 4;
-    const videosToRender = trendingVideos.slice(0, maxInitialCards);
+    const videosToRender = validVideos.slice(0, maxInitialCards);
 
     // Handle empty state
     if (videosToRender.length === 0) {
@@ -22733,6 +22685,8 @@ const FEATURED_TOPICS = [
 
 // Storage for section videos (to support View More expansion)
 let cachedTrendingVideos = [];
+// Track trending video IDs that were removed due to validation (suspicious/ratioed)
+let trendingRemovedIds = new Set();
 let cachedRecommendedVideos = [];
 let cachedShorts = [];
 let cachedFeaturedVideos = [[], [], []]; // One array per featured topic
@@ -22956,6 +22910,7 @@ async function loadHomeFeed() {
 
     // Reset caches and expanded state for fresh load
     cachedTrendingVideos = [];
+    trendingRemovedIds = new Set();
     cachedRecommendedVideos = [];
     cachedShorts = [];
     cachedFeaturedVideos = [[], [], []];
@@ -30475,7 +30430,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             <h3>Description</h3>
                             <div class="video-description-container">
                                 <div id="video-description" class="video-description ${videoData.description && videoData.description.length > 300 ? 'collapsed' : ''}">
-                                    <p style="white-space: pre-wrap; margin-top: 0.5rem;">${videoData.description ? processTextWithLinks(videoData.description) : 'No description provided.'}</p>
+                                    <p style="white-space: pre-wrap; margin-top: 0.5rem;">${videoData.description ? processTextWithLinks(videoData.description) : t('video.noDescription')}</p>
                                 </div>
                                 ${videoData.description && videoData.description.length > 300 ? `
                                     <button id="description-toggle" class="description-toggle-btn" onclick="toggleDescription()">
@@ -33052,8 +33007,6 @@ async function processAndUploadVideo(file) {
 
             uploadState.video.size = fileToUpload.size;
             uploadState.video.type = fileToUpload.type;
-            // Update file reference to the compressed file for preview/thumbnail generation
-            uploadState.video.file = fileToUpload;
         } catch (error) {
             console.error('Compression failed:', error);
             uploadState.video.status = 'error';
@@ -34358,11 +34311,31 @@ function applyValidationToCard(card, isSuspiciousProfile) {
 
     // Remove trending cards with suspicious profiles
     if (isTrending && (isRatioed || isSuspiciousProfile)) {
+        // Track removed ID for filtering
+        trendingRemovedIds.add(eventId);
         card.remove();
-        const trendingGrid = document.getElementById('trendingGrid');
-        if (trendingGrid && trendingGrid.querySelector('.video-card')) {
-            setTimeout(() => initializeCarousel(), 100);
-        }
+
+        // Only attempt to refill if cache has videos to draw from
+        // Compute filteredVideos inside timeout to get latest cache state
+        setTimeout(() => {
+            const trendingGrid = document.getElementById('trendingGrid');
+            if (!trendingGrid) return;
+
+            const filteredVideos = cachedTrendingVideos.filter(v => !trendingRemovedIds.has(v.id));
+            const currentCardCount = trendingGrid.querySelectorAll('.video-card').length;
+
+            // Only re-render if we have videos to refill with and need more cards
+            const isMobile = window.innerWidth <= 480;
+            const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
+            const maxCards = (isMobile || isTablet) ? 3 : 4;
+
+            if (filteredVideos.length > 0 && currentCardCount < maxCards) {
+                renderTrendingVideosOptimized(filteredVideos, new Set());
+            } else if (currentCardCount > 0) {
+                // Just reinitialize carousel if we still have cards but don't need to refill
+                initializeCarousel();
+            }
+        }, 50);
         return;
     }
 
@@ -35370,21 +35343,19 @@ async function playLiveStream(eventId, skipNSFWCheck = false, skipRatioedCheck =
                             ` : ''}
                         </div>
 
-                        ${liveData.summary ? `
-                            <div style="margin-top: 1.5rem;">
-                                <h3>Description</h3>
-                                <div class="video-description-container">
-                                    <div id="video-description" class="video-description ${liveData.summary.length > 300 ? 'collapsed' : ''}">
-                                        <p style="white-space: pre-wrap; margin-top: 0.5rem;">${processTextWithLinks(liveData.summary)}</p>
-                                    </div>
-                                    ${liveData.summary.length > 300 ? `
-                                        <button id="description-toggle" class="description-toggle-btn" onclick="toggleDescription()">
-                                            Show More
-                                        </button>
-                                    ` : ''}
+                        <div style="margin-top: 1.5rem;">
+                            <h3>Description</h3>
+                            <div class="video-description-container">
+                                <div id="video-description" class="video-description ${liveData.summary && liveData.summary.length > 300 ? 'collapsed' : ''}">
+                                    <p style="white-space: pre-wrap; margin-top: 0.5rem;">${liveData.summary ? processTextWithLinks(liveData.summary) : t('live.noDescription')}</p>
                                 </div>
+                                ${liveData.summary && liveData.summary.length > 300 ? `
+                                    <button id="description-toggle" class="description-toggle-btn" onclick="toggleDescription()">
+                                        Show More
+                                    </button>
+                                ` : ''}
                             </div>
-                        ` : ''}
+                        </div>
                         ${liveData.tags.length > 0 ? `
                             <div class="tags" style="margin-top: 0.5rem;">
                                 ${liveData.tags.map(tag => `<span class="tag" onclick="navigateTo('/tag/${tag.toLowerCase()}')">#${tag}</span>`).join('')}

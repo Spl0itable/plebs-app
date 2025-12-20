@@ -947,8 +947,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label><span data-i18n="upload.description">Description</span> <span class="required-indicator">*</span></label>
-                    <textarea id="videoDescription" placeholder="Tell viewers about your video" data-i18n-placeholder="upload.descriptionPlaceholder" required></textarea>
+                    <label><span data-i18n="upload.description">Description</span> <span style="font-weight: normal; color: var(--text-secondary);" data-i18n="upload.optional">(optional)</span></label>
+                    <textarea id="videoDescription" placeholder="Tell viewers about your video" data-i18n-placeholder="upload.descriptionPlaceholder"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -1139,8 +1139,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label><span data-i18n="goLive.description">Description</span> <span class="required-indicator">*</span></label>
-                    <textarea id="streamDescription" placeholder="Tell viewers what your stream is about" data-i18n-placeholder="goLive.descriptionPlaceholder" rows="3" required></textarea>
+                    <label><span data-i18n="goLive.description">Description</span> <span style="font-weight: normal; color: var(--text-secondary);" data-i18n="upload.optional">(optional)</span></label>
+                    <textarea id="streamDescription" placeholder="Tell viewers what your stream is about" data-i18n-placeholder="goLive.descriptionPlaceholder" rows="3"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -1157,7 +1157,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label data-i18n="goLive.zapGoal">Zap Goal (optional)</label>
+                    <label><span data-i18n="goLive.zapGoalLabel">Zap Goal</span> <span style="font-weight: normal; color: var(--text-secondary);" data-i18n="upload.optional">(optional)</span></label>
                     <input type="number" id="streamZapGoal" placeholder="e.g. 10000" data-i18n-placeholder="goLive.zapGoalPlaceholder" min="0">
                     <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;" data-i18n="goLive.zapGoalHint">
                         Set a goal for Bitcoin tips (in sats) to be displayed on your stream
@@ -1246,7 +1246,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label data-i18n="goLive.zapGoal">Zap Goal (optional)</label>
+                    <label><span data-i18n="goLive.zapGoalLabel">Zap Goal</span> <span style="font-weight: normal; color: var(--text-secondary);" data-i18n="upload.optional">(optional)</span></label>
                     <input type="number" id="editStreamZapGoal" placeholder="e.g. 10000" data-i18n-placeholder="goLive.zapGoalPlaceholder" min="0">
                     <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.5rem;" data-i18n="goLive.zapGoalHint">
                         Set a goal for Bitcoin tips (in sats) to be displayed on your stream
