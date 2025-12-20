@@ -1,3 +1,7 @@
+## v2.7.31 - 2025-12-20
+
+Hotfix: skeleton count incorrect
+
 ## v2.7.30 - 2025-12-20
 
 Hotfix: broken gif preview generation

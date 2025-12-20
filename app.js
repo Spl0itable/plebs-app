@@ -22656,8 +22656,8 @@ function getCardsPerRow() {
     // Calculate cards that fit: (contentWidth + gap) / (minCardWidth + gap)
     const cardsPerRow = Math.floor((contentWidth + gap) / (minCardWidth + gap));
 
-    // Ensure at least 1 card, max 5 cards
-    return Math.max(1, Math.min(cardsPerRow, 5));
+    // Ensure at least 1 card, max 4 cards
+    return Math.max(1, Math.min(cardsPerRow, 4));
 }
 
 // Calculate cards per row for shorts grid (uses smaller card widths)
@@ -22930,6 +22930,11 @@ async function loadHomeFeed() {
     const shortsCardsPerRow = getShortsCardsPerRow();
 
     // Generate skeleton loaders
+    // Trending section has a max of 4 cards on desktop, 3 on mobile/tablet
+    const isMobile = window.innerWidth <= 480;
+    const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
+    const trendingSkeletonCount = (isMobile || isTablet) ? 3 : 4;
+    const trendingSkeletons = Array(trendingSkeletonCount).fill(createSkeletonCard()).join('');
     const oneRowSkeletons = Array(cardsPerRow).fill(createSkeletonCard()).join('');
     const threeRowSkeletons = Array(cardsPerRow * 3).fill(createSkeletonCard()).join('');
     const fiveRowSkeletons = Array(cardsPerRow * 5).fill(createSkeletonCard()).join('');
@@ -22953,7 +22958,7 @@ async function loadHomeFeed() {
                 </div>
             </div>
             <div class="video-grid" id="trendingGrid">
-                ${oneRowSkeletons}
+                ${trendingSkeletons}
             </div>
             <div class="view-more-container" id="trendingViewMore" style="display: none;">
                 <button class="action-btn view-more-btn" onclick="expandSection('trending')">${t('button.viewMore')}</button>
@@ -24168,8 +24173,11 @@ async function switchTrendingPeriod(period) {
 
     const trendingGrid = document.getElementById('trendingGrid');
     if (trendingGrid) {
-        const cardsPerRow = getCardsPerRow();
-        trendingGrid.innerHTML = Array(cardsPerRow).fill(createSkeletonCard()).join('');
+        // Trending section shows max 4 cards on desktop, 3 on mobile/tablet
+        const isMobile = window.innerWidth <= 480;
+        const isTablet = window.innerWidth > 480 && window.innerWidth <= 768;
+        const maxTrendingCards = (isMobile || isTablet) ? 3 : 4;
+        trendingGrid.innerHTML = Array(maxTrendingCards).fill(createSkeletonCard()).join('');
     }
 
     await loadTrendingSectionGrid();
