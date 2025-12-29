@@ -1,3 +1,8 @@
+## v2.7.32 - 2025-12-20
+
+Hotfix: removed dead nostr.band relay
+Hotfix: added 24242.io blossom host
+
 ## v2.7.31 - 2025-12-20
 
 Hotfix: skeleton count incorrect

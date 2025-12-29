@@ -6454,6 +6454,7 @@ const STORAGE_KEYS = {
 const BLOSSOM_SERVERS = [
     'https://blossom.primal.net',
     'https://blossom.band',
+    'https://24242.io',
     'https://nostr.media'
 ];
 
@@ -6463,7 +6464,7 @@ const PREMIUM_BLOSSOM_SERVER = 'https://nostrmedia.com';
 // Default relay URLs
 const RELAY_URLS = [
     'wss://relay.damus.io',
-    'wss://relay.nostr.band',
+    'wss://relay.coinos.io',
     'wss://nos.lol',
     'wss://relay.primal.net'
 ];
