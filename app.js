@@ -7200,7 +7200,7 @@ function captureVideoFrame(unusedUrl, captureTimeSeconds = 2) {
 // Based on NeuQuant algorithm and LZW compression
 const GIFEncoder = {
     // LZW encoding
-    encode: function(width, height, frames, delay = 100) {
+    encode: function (width, height, frames, delay = 100) {
         const stream = [];
 
         // GIF Header
@@ -7256,18 +7256,18 @@ const GIFEncoder = {
         return new Uint8Array(stream);
     },
 
-    writeString: function(stream, str) {
+    writeString: function (stream, str) {
         for (let i = 0; i < str.length; i++) {
             stream.push(str.charCodeAt(i));
         }
     },
 
-    writeShort: function(stream, val) {
+    writeShort: function (stream, val) {
         stream.push(val & 0xFF);
         stream.push((val >> 8) & 0xFF);
     },
 
-    buildColorTable: function(frames) {
+    buildColorTable: function (frames) {
         // Simple color quantization - sample colors from all frames
         const colorCounts = new Map();
 
@@ -7298,7 +7298,7 @@ const GIFEncoder = {
         return table;
     },
 
-    quantizeFrame: function(frameData, colorTable, width, height) {
+    quantizeFrame: function (frameData, colorTable, width, height) {
         const pixels = new Uint8Array(width * height);
 
         for (let i = 0; i < width * height; i++) {
@@ -7329,7 +7329,7 @@ const GIFEncoder = {
         return pixels;
     },
 
-    writeLZW: function(stream, pixels, minCodeSize) {
+    writeLZW: function (stream, pixels, minCodeSize) {
         stream.push(minCodeSize);
 
         const clearCode = 1 << minCodeSize;
@@ -7550,13 +7550,13 @@ function validateVideoIsVertical(file) {
         const video = document.createElement('video');
         video.preload = 'metadata';
 
-        video.onloadedmetadata = function() {
+        video.onloadedmetadata = function () {
             URL.revokeObjectURL(video.src);
             const isVertical = video.videoHeight > video.videoWidth;
             resolve(isVertical);
         };
 
-        video.onerror = function() {
+        video.onerror = function () {
             URL.revokeObjectURL(video.src);
             // On error, allow upload (let the normal processing handle it)
             resolve(true);
@@ -7976,7 +7976,7 @@ function isVideoEvent(event) {
 async function findLinkedVideoEvents(event) {
     const linkedIds = [];
     const dTag = event.tags?.find(t => t[0] === 'd')?.[1] ||
-                 event.tags?.find(t => t[0] === 'nip71-d')?.[1];
+        event.tags?.find(t => t[0] === 'nip71-d')?.[1];
 
     if (!dTag) return linkedIds;
 
@@ -8193,7 +8193,7 @@ function getAllLinkedEventIds(eventId) {
     const event = allEvents.get(eventId);
     if (event) {
         const dTag = event.tags?.find(t => t[0] === 'd')?.[1] ||
-                     event.tags?.find(t => t[0] === 'nip71-d')?.[1];
+            event.tags?.find(t => t[0] === 'nip71-d')?.[1];
         if (dTag) {
             for (const [id, cachedEvent] of allEvents) {
                 if (ids.has(id)) continue;
@@ -8588,8 +8588,8 @@ function getVideoCanonicalDTag(videoEventId) {
     // Fall back to nip71-d tag or event id
     if (!canonicalDTag) {
         canonicalDTag = event.tags?.find(t => t[0] === 'nip71-d')?.[1] ||
-                       event.tags?.find(t => t[0] === 'd')?.[1] ||
-                       videoEventId;
+            event.tags?.find(t => t[0] === 'd')?.[1] ||
+            videoEventId;
     }
 
     return canonicalDTag;
@@ -9236,7 +9236,7 @@ function loadLazyCard(card) {
             thumbnailImg.classList.add('loaded');
             // Cache for future use if not already cached (same-origin only)
             if (!cachedUrl && !isCrossOrigin(originalUrl)) {
-                fetchAndCacheImage(originalUrl).catch(() => {});
+                fetchAndCacheImage(originalUrl).catch(() => { });
             }
         };
     }
@@ -9256,7 +9256,7 @@ function loadLazyCard(card) {
             card.dataset.previewReady = 'true';
             // Cache for future use if not already cached (same-origin only)
             if (!cachedUrl && !isCrossOrigin(originalUrl)) {
-                fetchAndCacheImage(originalUrl).catch(() => {});
+                fetchAndCacheImage(originalUrl).catch(() => { });
             }
         };
     }
@@ -9357,7 +9357,7 @@ function evictImageCacheIfNeeded(incomingSize = 0) {
     // Check if we need to evict based on entry count or size
     while (
         (imageAssetCache.size >= IMAGE_CACHE_MAX_ENTRIES ||
-         imageCacheTotalSize + incomingSize > IMAGE_CACHE_MAX_SIZE) &&
+            imageCacheTotalSize + incomingSize > IMAGE_CACHE_MAX_SIZE) &&
         imageAssetCache.size > 0
     ) {
         // Find the least recently accessed entry
@@ -9508,7 +9508,7 @@ function updateRelayStatusIndicator() {
 
     const avgLatency = latencyCount > 0 ? Math.round(totalLatency / latencyCount) : null;
     const status = connectedCount === 0 ? 'disconnected' :
-                   connectedCount < displayRelays.length / 2 ? 'connecting' : 'connected';
+        connectedCount < displayRelays.length / 2 ? 'connecting' : 'connected';
 
     indicator.innerHTML = `
         <span class="status-dot ${status}"></span>
@@ -9750,7 +9750,7 @@ async function measureRelayLatency(url) {
                     ws.send(JSON.stringify(['CLOSE', testSubId]));
                     resolve(latency);
                 }
-            } catch (e) {}
+            } catch (e) { }
         };
 
         ws.addEventListener('message', handler);
@@ -11504,7 +11504,7 @@ function generateNostrConnectURI() {
         'wss://relay.nsec.app',
         'wss://relay.damus.io',
         'wss://nos.lol',
-        'wss://relay.nostr.band'
+        'wss://relay.coinos.io'
     ];
 
     // Some apps want base64, others want URL-encoded JSON
@@ -11575,7 +11575,7 @@ async function listenForNostrConnect() {
 
     showConnectionStatus('Waiting for app connection...');
 
-    const relays = ['wss://relay.nsec.app', 'wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.nostr.band'];
+    const relays = ['wss://relay.nsec.app', 'wss://relay.damus.io', 'wss://nos.lol', 'wss://relay.coinos.io'];
     const connections = [];
 
     for (const relay of relays) {
@@ -13674,7 +13674,7 @@ function applySettings() {
         RELAY_URLS.length = 0;
         RELAY_URLS.push(
             'wss://relay.damus.io',
-            'wss://relay.nostr.band',
+            'wss://relay.coinos.io',
             'wss://nos.lol',
             'wss://relay.primal.net'
         );
@@ -13710,6 +13710,7 @@ function applySettings() {
     BLOSSOM_SERVERS.push(
         'https://blossom.primal.net',
         'https://blossom.band',
+        'https://24242.io',
         'https://nostr.media'
     );
 
@@ -14707,7 +14708,7 @@ async function loadNotifications() {
                 videoId = originalVideoId;
                 if (video && (video.kind === 1 || video.kind === NIP71_VIDEO_KIND_LEGACY || video.kind === NIP71_SHORT_KIND_LEGACY)) {
                     const dTag = video.tags?.find(t => t[0] === 'd')?.[1] ||
-                                 video.tags?.find(t => t[0] === 'nip71-d')?.[1];
+                        video.tags?.find(t => t[0] === 'nip71-d')?.[1];
                     if (dTag) {
                         // Find the NIP-71 addressable counterpart with the same d-tag
                         const nip71Video = userVideos.find(v =>
@@ -15249,7 +15250,7 @@ async function loadLikedVideos() {
                             updateVideoCardInPlace(video.id, profile, reactionsCache.get(video.id));
                         }
                     });
-                } catch (e) {}
+                } catch (e) { }
             }, resolve);
         });
     }));
@@ -16667,9 +16668,9 @@ function createSidebarVideoCard(event, profile, reactions) {
             <div class="sidebar-video-thumbnail ${showBlurred ? overlayType : ''}"
                  ${videoData.preview ? `data-preview="${escapeHtml(videoData.preview)}" data-thumbnail="${escapeHtml(videoData.thumbnail || '')}"` : ''}>
                 ${videoData.thumbnail ?
-                    `<img class="thumbnail-img" src="${videoData.thumbnail}" data-original-src="${videoData.thumbnail}" alt="${videoData.title}" onload="cacheLoadedImage(this)" onerror="this.style.display='none'">` :
-                    `<video src="${videoData.url}" preload="metadata"></video>`
-                }
+            `<img class="thumbnail-img" src="${videoData.thumbnail}" data-original-src="${videoData.thumbnail}" alt="${videoData.title}" onload="cacheLoadedImage(this)" onerror="this.style.display='none'">` :
+            `<video src="${videoData.url}" preload="metadata"></video>`
+        }
                 ${showBlurred ? `
                     <div class="${overlayType}-overlay">
                         <div class="${overlayType}-badge" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;">${overlayType === 'nsfw' ? 'NSFW' : 'WARNING'}</div>
@@ -16733,9 +16734,9 @@ function showNextVideoOverlay() {
         <div class="next-video-card" onclick="${clickHandler}">
             <div class="next-video-thumbnail ${hasWarning ? warningType : ''}">
                 ${nextVideoData.thumbnail ?
-                    `<img src="${nextVideoData.thumbnail}" alt="${nextVideoData.title}"${hasWarning ? ' style="filter: blur(10px);"' : ''}>` :
-                    '<div style="width:100%;height:100%;background:var(--bg-primary);"></div>'
-                }
+            `<img src="${nextVideoData.thumbnail}" alt="${nextVideoData.title}"${hasWarning ? ' style="filter: blur(10px);"' : ''}>` :
+            '<div style="width:100%;height:100%;background:var(--bg-primary);"></div>'
+        }
                 ${hasWarning ? `
                     <div class="${warningType}-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
                         <div class="${warningType}-badge" style="font-size:0.7rem;padding:0.2rem 0.4rem;">${showNSFWOverlay ? 'NSFW' : 'WARNING'}</div>
@@ -16984,8 +16985,8 @@ async function loadWatchHistory() {
         const profile = profileCache.get(event.pubkey);
         const reactions = reactionsCache.get(event.id);
         const isFirstRow = type === 'short' ? renderedShortIds.size < cardsPerRow :
-                          type === 'live' ? renderedLiveIds.size < cardsPerRow :
-                          renderedVideoIds.size < cardsPerRow;
+            type === 'live' ? renderedLiveIds.size < cardsPerRow :
+                renderedVideoIds.size < cardsPerRow;
 
         let cardHTML;
         if (type === 'short') {
@@ -17278,8 +17279,8 @@ async function loadWatchHistory() {
                 const tags = (videoData.tags || []).map(t => t.toLowerCase());
 
                 return title.includes(query) ||
-                       description.includes(query) ||
-                       tags.some(tag => tag.includes(query));
+                    description.includes(query) ||
+                    tags.some(tag => tag.includes(query));
             });
 
             const filteredShorts = filteredMedia.filter(e => isNip71ShortKind(e.kind));
@@ -18205,7 +18206,7 @@ async function loadAdminAnalytics() {
                                 if (amount) totalBoostSats += amount;
                             }
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             },
             { timeout: 10000 }
@@ -22725,7 +22726,7 @@ async function expandSection(sectionType, index = 0) {
 
     let videos, gridId, containerId, initialRows, maxRows;
 
-    switch(sectionType) {
+    switch (sectionType) {
         case 'trending':
             videos = cachedTrendingVideos;
             gridId = 'trendingGrid';
@@ -24514,10 +24515,10 @@ async function loadFollowing() {
                 const pubkeyShort = user.pubkey.slice(0, 8).toLowerCase();
 
                 return name.includes(query) ||
-                       displayName.includes(query) ||
-                       nip05.includes(query) ||
-                       about.includes(query) ||
-                       pubkeyShort.includes(query);
+                    displayName.includes(query) ||
+                    nip05.includes(query) ||
+                    about.includes(query) ||
+                    pubkeyShort.includes(query);
             });
         };
 
@@ -25029,9 +25030,9 @@ function createMyLiveStreamCard(event, liveData, profile) {
         <div class="video-card live-stream-card ${statusClass} ${boostClasses}" data-event-id="${event.id}" data-live-event-id="${event.id}" data-pubkey="${event.pubkey}" onclick="navigateTo('/live/${event.id}')">
             <div class="video-thumbnail">
                 ${liveData.thumbnail
-                    ? `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${escapeHtml(liveData.title)}" loading="lazy" onload="cacheLoadedImage(this)">`
-                    : '<div style="width:100%; height:100%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><svg width="48" height="48" viewBox="0 0 24 24" fill="var(--text-secondary)"><circle cx="12" cy="12" r="4"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>'
-                }
+            ? `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${escapeHtml(liveData.title)}" loading="lazy" onload="cacheLoadedImage(this)">`
+            : '<div style="width:100%; height:100%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;"><svg width="48" height="48" viewBox="0 0 24 24" fill="var(--text-secondary)"><circle cx="12" cy="12" r="4"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg></div>'
+        }
                 ${statusBadge}
                 ${isActive ? `
                     <div class="live-viewers" data-event-id="${event.id}">
@@ -25244,7 +25245,7 @@ async function displayVideosStreamWithDrafts(title, filter) {
                             updateVideoCardInPlace(event.id, profile, reactionsCache.get(event.id));
                         }
                     });
-                } catch (e) {}
+                } catch (e) { }
             });
         }));
     };
@@ -25389,8 +25390,8 @@ function setupMyVideosSearch(videoEvents, shortEvents) {
                 const tags = (videoData.tags || []).map(t => t.toLowerCase());
 
                 return title.includes(query) ||
-                       description.includes(query) ||
-                       tags.some(tag => tag.includes(query));
+                    description.includes(query) ||
+                    tags.some(tag => tag.includes(query));
             }) : videoEvents;
 
             // Filter shorts
@@ -25403,8 +25404,8 @@ function setupMyVideosSearch(videoEvents, shortEvents) {
                 const tags = (videoData.tags || []).map(t => t.toLowerCase());
 
                 return title.includes(query) ||
-                       description.includes(query) ||
-                       tags.some(tag => tag.includes(query));
+                    description.includes(query) ||
+                    tags.some(tag => tag.includes(query));
             }) : shortEvents;
 
             // Filter live streams
@@ -25415,8 +25416,8 @@ function setupMyVideosSearch(videoEvents, shortEvents) {
                 const tags = (liveData.tags || []).map(t => t.toLowerCase());
 
                 return title.includes(query) ||
-                       summary.includes(query) ||
-                       tags.some(tag => tag.includes(query));
+                    summary.includes(query) ||
+                    tags.some(tag => tag.includes(query));
             }) : liveStreams;
 
             // Re-render live streams
@@ -25975,7 +25976,7 @@ async function fetchBatchZapsWithTime(eventIds, sinceTimestamp) {
                             if (zapRequest.tags?.some(tag => tag[0] === 'purpose' && tag[1] === 'boost')) {
                                 return;
                             }
-                        } catch (e) {}
+                        } catch (e) { }
                     }
                 }
 
@@ -26072,7 +26073,7 @@ async function fetchBatchBoostsWithTime(eventIds, sinceTimestamp) {
                                 }
                             }
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             }, resolve);
         });
@@ -27296,7 +27297,7 @@ async function loadTag(tag) {
         // For NSFW tag page, also include events with content-warning: nsfw (case-insensitive)
         if (normalizedTag === 'nsfw') {
             return tags.some(t => t[0] === 't' && t[1].toLowerCase() === 'nsfw') ||
-                   tags.some(t => t[0] === 'content-warning' && t[1]?.toLowerCase() === 'nsfw');
+                tags.some(t => t[0] === 'content-warning' && t[1]?.toLowerCase() === 'nsfw');
         }
         return tags.some(t => t[0] === 't' && t[1].toLowerCase() === normalizedTag);
     };
@@ -27330,7 +27331,7 @@ async function loadTag(tag) {
                             updateVideoCardInPlace(event.id, profile, reactionsCache.get(event.id));
                         }
                     });
-                } catch (e) {}
+                } catch (e) { }
             });
         }));
     };
@@ -29502,7 +29503,7 @@ async function loadProfile(pubkey) {
                 for (let i = 0; i < existingCards.length; i++) {
                     const existingCard = existingCards[i];
                     const existingIsLive = existingCard.classList.contains('is-live') &&
-                                           existingCard.querySelector('.live-badge');
+                        existingCard.querySelector('.live-badge');
 
                     // Active streams go before ended ones
                     if (isActive && !existingIsLive) {
@@ -29657,10 +29658,10 @@ async function performSearch(query) {
         return queryWords.every(word => {
             const wordLower = word.toLowerCase();
             return name.includes(wordLower) ||
-                   displayName.includes(wordLower) ||
-                   nip05.includes(wordLower) ||
-                   about.includes(wordLower) ||
-                   pubkeyLower.includes(wordLower);
+                displayName.includes(wordLower) ||
+                nip05.includes(wordLower) ||
+                about.includes(wordLower) ||
+                pubkeyLower.includes(wordLower);
         });
     };
 
@@ -30415,8 +30416,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             ${currentUser && currentUser.pubkey === event.pubkey ? `
                                 <div class="video-owner-actions-row">
                                     ${(() => {
-                                        const editableId = getEditableEventId(event.id);
-                                        return editableId ? `
+                    const editableId = getEditableEventId(event.id);
+                    return editableId ? `
                                             <button class="action-btn edit" onclick="showEditVideoModal('${editableId}')">
                                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                                     <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
@@ -30424,7 +30425,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                                                 Edit
                                             </button>
                                         ` : '';
-                                    })()}
+                })()}
                                     <button class="action-btn delete" onclick="handleDelete('${event.id}')">
                                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
@@ -32463,7 +32464,7 @@ async function toggleRecording() {
                 facingMode: currentFacingMode,
                 width: { ideal: 1080 },
                 height: { ideal: 1920 },
-                aspectRatio: { ideal: 9/16 }
+                aspectRatio: { ideal: 9 / 16 }
             };
 
             recordingStream = await navigator.mediaDevices.getUserMedia({
@@ -32676,7 +32677,7 @@ async function switchCamera() {
             facingMode: currentFacingMode,
             width: { ideal: 1080 },
             height: { ideal: 1920 },
-            aspectRatio: { ideal: 9/16 }
+            aspectRatio: { ideal: 9 / 16 }
         };
 
         recordingStream = await navigator.mediaDevices.getUserMedia({
@@ -32920,8 +32921,8 @@ async function processAndUploadVideo(file) {
     // iOS Safari doesn't support video.captureStream() so cropping would lose audio
     // Skip cropping on iOS Safari to preserve audio
     const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-                       !window.MSStream &&
-                       /Safari/.test(navigator.userAgent);
+        !window.MSStream &&
+        /Safari/.test(navigator.userAgent);
     const needsCrop = (window.cameraRecordingNeedsCrop || false) && !isIOSSafari;
 
     if (isIOSSafari && window.cameraRecordingNeedsCrop) {
@@ -36540,7 +36541,7 @@ async function addZapNotification(event, container, isNew = false) {
             try {
                 const desc = JSON.parse(descTag[1]);
                 senderPubkey = desc.pubkey;
-            } catch (e) {}
+            } catch (e) { }
         }
 
         // Fetch sender profile if not cached
@@ -37219,9 +37220,9 @@ function createLiveStreamCard(event, liveData, profile, isEnded = false, reactio
         <div class="video-card is-live ${boostClasses}" data-live-event-id="${event.id}" data-pubkey="${event.pubkey}" onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playLive', '${event.id}')` : `showRatioedModal('${event.id}', 'live')`) : `navigateTo('/live/${event.id}')`}">
             <div class="video-thumbnail ${showBlurred ? overlayType : ''}">
                 ${liveData.thumbnail ?
-                    `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${liveData.title}" onload="cacheLoadedImage(this)"${showBlurred ? ' style="filter: blur(20px);"' : ''}>` :
-                    '<div style="width:100%; height:100%; background: var(--bg-secondary);"></div>'
-                }
+            `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${liveData.title}" onload="cacheLoadedImage(this)"${showBlurred ? ' style="filter: blur(20px);"' : ''}>` :
+            '<div style="width:100%; height:100%; background: var(--bg-secondary);"></div>'
+        }
                 ${showBlurred ? `
                     <div class="${overlayType}-overlay">
                         <div class="${overlayType}-badge">${overlayType === 'nsfw' ? t('badge.nsfw') : t('badge.communityWarning')}</div>
@@ -37309,9 +37310,9 @@ function createScheduledStreamCard(event, liveData, profile) {
         <div class="scheduled-stream-card" data-event-id="${event.id}" data-pubkey="${event.pubkey}" onclick="${showBlurred ? (overlayType === 'nsfw' ? `showNSFWModal('playLive', '${event.id}')` : `showRatioedModal('${event.id}', 'live')`) : `navigateTo('/live/${event.id}')`}">
             <div class="scheduled-stream-thumbnail ${showBlurred ? overlayType : ''}">
                 ${liveData.thumbnail ?
-                    `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${liveData.title}" onload="cacheLoadedImage(this)"${showBlurred ? ' style="filter: blur(20px);"' : ''}>` :
-                    '<div style="width:100%; height:100%; background: var(--bg-secondary);"></div>'
-                }
+            `<img src="${liveData.thumbnail}" data-original-src="${liveData.thumbnail}" alt="${liveData.title}" onload="cacheLoadedImage(this)"${showBlurred ? ' style="filter: blur(20px);"' : ''}>` :
+            '<div style="width:100%; height:100%; background: var(--bg-secondary);"></div>'
+        }
                 ${showBlurred ? `
                     <div class="${overlayType}-overlay">
                         <div class="${overlayType}-badge">${overlayType === 'nsfw' ? t('badge.nsfw') : t('badge.communityWarning')}</div>
@@ -37547,7 +37548,7 @@ function subscribeLiveStreamZaps(aTagValue, zapGoal, processedZaps, goalSince = 
     if (liveStreamZapSubscription) {
         try {
             liveStreamZapSubscription.close();
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // Subscribe using #a tag for persistence across stream updates
@@ -37590,7 +37591,7 @@ function subscribeLiveStreamZaps(aTagValue, zapGoal, processedZaps, goalSince = 
                 liveStreamZapTotal += amount;
                 updateZapGoalDisplay(liveStreamZapTotal, zapGoal, true);
             }
-        }, () => {});
+        }, () => { });
     }, 5000);
 }
 
