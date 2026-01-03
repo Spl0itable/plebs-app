@@ -850,6 +850,73 @@ header {
     height: 100%;
 }
 
+.video-player .webtorrent-consent {
+    position: absolute;
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    background: rgba(0, 0, 0, 0.72);
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    color: #fff;
+    font-size: 0.9rem;
+    z-index: 6;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.video-player .webtorrent-consent p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.webtorrent-btn {
+    background: #00b894;
+    border: none;
+    color: white;
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.webtorrent-btn:disabled {
+    background: var(--border);
+    cursor: not-allowed;
+}
+
+.webtorrent-consent.webtorrent-active {
+    border-color: var(--success-color);
+}
+
+.peertube-badge {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.video-info .peertube-badge a {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.video-info .peertube-badge .peertube-instance {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.video-info .peertube-badge .peertube-nostr a {
+    color: var(--success-color);
+}
+
 .video-loading-state {
     position: absolute;
     top: 0;

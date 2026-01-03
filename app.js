@@ -23,6 +23,8 @@ const SUPPORTED_LANGUAGES = {
 
 // Current language (default to English, will be updated on init)
 let currentLanguage = 'en';
+let webTorrentClient = null;
+let activeWebTorrentSession = null;
 
 // Translations object - organized by language code
 const translations = {
@@ -7834,6 +7836,87 @@ function getVideoKindsForType(preferShorts) {
     }
 }
 
+// Extract Peertube metadata encoded in event tags (based on our import pipeline)
+function extractPeertubeInfo(tags) {
+    if (!tags || !tags.length) {
+        return null;
+    }
+
+    const info = {
+        source: null,
+        instance: '',
+        videoId: '',
+        watchUrl: '',
+        author: '',
+        nip05: '',
+        nostr: '',
+        nostrRaw: '',
+        nostrPubkey: '',
+        allowWebTorrent: false,
+        magnet: ''
+    };
+
+    for (const tag of tags) {
+        const key = tag[0];
+        const value = tag[1] || '';
+
+        switch (key) {
+            case 'source':
+                info.source = value;
+                break;
+            case 'peertube-instance':
+                info.instance = value;
+                break;
+            case 'peertube-video-id':
+                info.videoId = value;
+                break;
+            case 'peertube-watch':
+                info.watchUrl = value;
+                break;
+            case 'peertube-author':
+                info.author = value;
+                break;
+            case 'peertube-nip05':
+                info.nip05 = value;
+                break;
+            case 'peertube-nostr':
+                info.nostr = value;
+                break;
+            case 'peertube-nostr-raw':
+                info.nostrRaw = value;
+                break;
+            case 'peertube-allow-webtorrent':
+                info.allowWebTorrent = value?.toLowerCase() === 'true';
+                break;
+            case 'peertube-magnet':
+                info.magnet = value;
+                break;
+            case 'p':
+                if (!info.nostrPubkey && value) {
+                    info.nostrPubkey = value;
+                }
+                break;
+        }
+    }
+
+    if (info.source !== 'peertube') {
+        return null;
+    }
+
+    return {
+        source: 'peertube',
+        instance: info.instance,
+        videoId: info.videoId,
+        watchUrl: info.watchUrl,
+        author: info.author,
+        nip05: info.nip05,
+        nostr: info.nostr || info.nostrRaw,
+        nostrPubkey: info.nostrPubkey || null,
+        allowWebTorrent: info.allowWebTorrent,
+        magnet: info.magnet
+    };
+}
+
 // Parse NIP-71 video event (kind 34235/34236 or legacy 21/22)
 function parseNip71VideoEvent(event) {
     if (!isNip71Kind(event.kind)) {
@@ -7865,7 +7948,8 @@ function parseNip71VideoEvent(event) {
         dTag: '',
         publishedAt: event.created_at,
         isShort: isNip71ShortKind(event.kind),
-        kind: event.kind
+        kind: event.kind,
+        peertube: null
     };
 
     for (const tag of tags) {
@@ -7972,11 +8056,13 @@ function parseNip71VideoEvent(event) {
                     videoData.tags.push(tag[1]);
                 }
                 break;
-            case 'content-warning':
-                videoData.isNSFW = tag[1] === 'nsfw';
-                break;
-        }
+        case 'content-warning':
+            videoData.isNSFW = tag[1] === 'nsfw';
+            break;
     }
+}
+
+    videoData.peertube = extractPeertubeInfo(tags);
 
     return videoData.title ? videoData : null;
 }
@@ -21789,8 +21875,131 @@ window.addEventListener('beforeunload', () => {
             ws.close();
         }
     });
+    cleanupWebTorrentSession();
 });
 
+function ensureWebTorrentClient() {
+    if (!window.WebTorrent) {
+        return null;
+    }
+    if (!webTorrentClient) {
+        webTorrentClient = new WebTorrent();
+    }
+    return webTorrentClient;
+}
+
+function cleanupWebTorrentSession() {
+    if (activeWebTorrentSession?.torrent) {
+        try {
+            activeWebTorrentSession.torrent.destroy();
+        } catch (error) {
+            console.error('Failed to destroy WebTorrent session:', error);
+        }
+    }
+    activeWebTorrentSession = null;
+}
+
+function selectWebTorrentFile(files) {
+    if (!files || !files.length) {
+        return null;
+    }
+
+    const preferredExtensions = ['mp4', 'webm', 'mkv', 'mov'];
+    for (const ext of preferredExtensions) {
+        const match = files.find(file => file.name?.toLowerCase().endsWith(`.${ext}`));
+        if (match) return match;
+    }
+
+    return files[0];
+}
+
+async function startPeertubeWebTorrentStream(eventId, magnet, videoElement) {
+    if (!magnet) {
+        throw new Error('Magnet link missing');
+    }
+
+    const client = ensureWebTorrentClient();
+    if (!client) {
+        throw new Error('WebTorrent is not available in this browser');
+    }
+
+    cleanupWebTorrentSession();
+
+    return new Promise((resolve, reject) => {
+        try {
+            const torrent = client.add(magnet, (torrent) => {
+                const file = selectWebTorrentFile(torrent.files);
+                if (!file) {
+                    reject(new Error('No playable file found inside the torrent'));
+                    return;
+                }
+
+                activeWebTorrentSession = { eventId, torrent };
+
+                file.renderTo(videoElement, { autoplay: true }, (error) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(file);
+                    }
+                });
+            });
+
+            torrent.on('error', (err) => {
+                reject(err);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+async function handlePeertubeWebTorrent(eventId, magnet) {
+    const videoElement = document.querySelector('.video-player video');
+    const consentEl = document.getElementById(`webtorrent-consent-${eventId}`);
+    const button = document.getElementById(`webtorrent-btn-${eventId}`);
+
+    if (!videoElement || !magnet) {
+        return;
+    }
+
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'Starting WebTorrent…';
+    }
+    if (consentEl) {
+        consentEl.classList.add('webtorrent-pending');
+    }
+
+    videoElement.pause();
+    videoElement.removeAttribute('src');
+    videoElement.load();
+
+    try {
+        await startPeertubeWebTorrentStream(eventId, magnet, videoElement);
+        if (button) {
+            button.textContent = 'Streaming via WebTorrent';
+        }
+        if (consentEl) {
+            consentEl.classList.add('webtorrent-active');
+            consentEl.classList.remove('webtorrent-pending');
+        }
+        const loadingState = document.getElementById(`video-loading-${eventId}`);
+        if (loadingState) {
+            loadingState.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('WebTorrent stream failed:', error);
+        if (button) {
+            button.disabled = false;
+            button.textContent = 'Stream via WebTorrent';
+        }
+        if (consentEl) {
+            consentEl.classList.remove('webtorrent-pending');
+        }
+        showToast(error.message || 'WebTorrent streaming failed', 'error');
+    }
+}
 // Function to load trending videos with streaming
 async function loadTrendingVideos(period = 'today') {
     const now = Math.floor(Date.now() / 1000);
@@ -30223,6 +30432,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         sidebarPlaceholder = null;
     }
 
+    cleanupWebTorrentSession();
+
     const mainContent = document.getElementById('mainContent');
 
     // Clean up any existing video element to prevent audio from continuing to play
@@ -30267,6 +30478,9 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         // Store event info for potential editing
         videoData.eventId = event.id;
         videoData.eventKind = event.kind;
+
+        const peertubeInfo = videoData.peertube;
+        const canStartWebTorrent = !!(peertubeInfo?.allowWebTorrent && peertubeInfo.magnet);
 
         const profile = await fetchUserProfile(event.pubkey);
         const avatarUrl = profile?.picture || profile?.avatar || '';
@@ -30331,6 +30545,27 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
 
         const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
+        const peertubeWatchUrl = peertubeInfo?.watchUrl ? escapeHtml(peertubeInfo.watchUrl) : '';
+        const peertubeInstanceLabel = peertubeInfo?.instance ? ` (${escapeHtml(peertubeInfo.instance)})` : '';
+        const peertubeAuthorLabel = peertubeInfo?.author ? `by ${escapeHtml(peertubeInfo.author)}` : '';
+        const nostrLinkHtml = peertubeInfo?.nostrPubkey ? `<span class="peertube-nostr">Mapped to <a href="#/profile/${peertubeInfo.nostrPubkey}" data-pubkey="${peertubeInfo.nostrPubkey}">Nostr</a></span>` : '';
+        const peertubeBadgeHtml = peertubeInfo ? `
+            <div class="peertube-badge">
+                <span>${peertubeInfo.author ? peertubeAuthorLabel : 'Original on Peertube'}</span>
+                ${peertubeWatchUrl ? `<a href="${peertubeWatchUrl}" target="_blank" rel="noopener noreferrer">View on Peertube</a>` : ''}
+                ${peertubeInfo.instance ? `<span class="peertube-instance">${peertubeInstanceLabel}</span>` : ''}
+                ${nostrLinkHtml}
+            </div>
+        ` : '';
+        const webTorrentConsentHtml = canStartWebTorrent ? `
+            <div class="webtorrent-consent" id="webtorrent-consent-${eventId}">
+                <div>
+                    <strong>WebTorrent stream available</strong>
+                    <p>WebRTC-powered streaming directly from Peertube peers. Only start if you consent.</p>
+                </div>
+                <button type="button" class="webtorrent-btn" id="webtorrent-btn-${eventId}">Stream via WebTorrent</button>
+            </div>
+        ` : '';
 
         // Render page immediately with video loading state - video URL is resolved async
         mainContent.innerHTML = `
@@ -30343,6 +30578,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     <video controls playsinline>
                         Your browser does not support the video tag.
                     </video>
+                    ${webTorrentConsentHtml}
                 </div>
                 <div class="video-content-wrapper">
                     <div class="video-details">
@@ -30383,6 +30619,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                                     </button>
                                 ` : ''}
                             </div>
+                            ${peertubeBadgeHtml}
                         </div>
                         <div class="video-actions" id="video-actions-${eventId}">
                             <button class="action-btn like ${cachedReactions.userReaction === 'like' ? 'active' : ''}"
@@ -30519,6 +30756,18 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                 </div>
             </div>
         `;
+
+        if (canStartWebTorrent) {
+            const webTorrentButton = document.getElementById(`webtorrent-btn-${eventId}`);
+            if (webTorrentButton) {
+                if (!window.WebTorrent) {
+                    webTorrentButton.disabled = true;
+                    webTorrentButton.textContent = 'WebTorrent unavailable';
+                } else {
+                    webTorrentButton.addEventListener('click', () => handlePeertubeWebTorrent(eventId, peertubeInfo.magnet));
+                }
+            }
+        }
 
         // Validate NIP-05 and add checkmark if valid
         if (nip05) {
@@ -33837,7 +34086,9 @@ function parseVideoEvent(event) {
         thumbnail: '',
         duration: 0,
         tags: [],
-        author: event.pubkey
+        author: event.pubkey,
+        fallbackUrls: [],
+        peertube: null
     };
 
     for (const tag of tags) {
@@ -33860,6 +34111,11 @@ function parseVideoEvent(event) {
             case 't':
                 if (tag[1] && tag[1] !== 'pv69420') {
                     videoData.tags.push(tag[1]);
+                }
+                break;
+            case 'fallback':
+                if (tag[1]) {
+                    videoData.fallbackUrls.push(tag[1]);
                 }
                 break;
         }
@@ -33917,6 +34173,8 @@ function parseVideoEvent(event) {
     if (videoData.url && videoData.description.includes(videoData.url)) {
         videoData.description = videoData.description.replace(videoData.url, '').trim();
     }
+
+    videoData.peertube = extractPeertubeInfo(tags);
 
     return videoData.title ? videoData : null;
 }
