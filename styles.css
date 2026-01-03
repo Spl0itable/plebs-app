@@ -1932,6 +1932,35 @@ nostr-zap {
     cursor: pointer;
 }
 
+.peertube-preview {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.peertube-preview strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+}
+
+#peertubeMetaStatus.success {
+    color: var(--success-color);
+}
+
+#peertubeMetaStatus.error {
+    color: var(--error-color);
+}
+
+#peertubeMetaStatus.info {
+    color: var(--text-secondary);
+}
+
 /* Required field indicator */
 .required-indicator {
     color: #f44336;

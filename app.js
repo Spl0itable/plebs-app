@@ -7637,12 +7637,14 @@ function createNip71VideoEvent(videoData) {
     // Generate or use existing d-tag for parameterized replaceable event
     const dTag = videoData.dTag || generateVideoDTag();
 
+    const extraTags = Array.isArray(videoData.extraTags) ? videoData.extraTags : [];
     const tags = [
         ['d', dTag],
         ['title', videoData.title],
         createImetaTag(videoData),
         ['t', 'pv69420'], // Keep our app identifier for easy filtering
         ...videoData.tags.map(tag => ['t', tag]),
+        ...extraTags,
         ['client', 'Plebs']
     ];
 
@@ -7667,9 +7669,15 @@ function createNip71VideoEvent(videoData) {
     }
 
     // Add legacy tags for broader compatibility
-    tags.push(['x', videoData.hash]);
-    tags.push(['url', videoData.url]);
-    tags.push(['m', videoData.type || 'video/mp4']);
+    if (videoData.hash) {
+        tags.push(['x', videoData.hash]);
+    }
+    if (videoData.url) {
+        tags.push(['url', videoData.url]);
+    }
+    if (videoData.type) {
+        tags.push(['m', videoData.type]);
+    }
     tags.push(['size', (videoData.size || 0).toString()]);
     tags.push(['duration', Math.floor(videoData.duration || 0).toString()]);
 
@@ -7683,18 +7691,32 @@ function createNip71VideoEvent(videoData) {
 
 // Create a kind 1 video event (for backwards compatibility)
 function createKind1VideoEvent(videoData, addressableEventId = null) {
+    const extraTags = Array.isArray(videoData.extraTags) ? videoData.extraTags : [];
     const tags = [
         ['title', videoData.title],
         ['t', 'pv69420'],
         ...videoData.tags.map(tag => ['t', tag]),
-        ['x', videoData.hash],
-        ['url', videoData.url],
-        ['m', videoData.type || 'video/mp4'],
-        ['size', (videoData.size || 0).toString()],
-        ['duration', Math.floor(videoData.duration || 0).toString()],
-        ['thumb', videoData.thumbnail],
+        ...extraTags,
         ['client', 'Plebs']
     ];
+
+    if (videoData.hash) {
+        tags.push(['x', videoData.hash]);
+    }
+    if (videoData.url) {
+        tags.push(['url', videoData.url]);
+    }
+    if (videoData.type) {
+        tags.push(['m', videoData.type]);
+    }
+    tags.push(['size', (videoData.size || 0).toString()]);
+    tags.push(['duration', Math.floor(videoData.duration || 0).toString()]);
+    if (videoData.thumbnail) {
+        tags.push(['thumb', videoData.thumbnail]);
+    }
+    if (videoData.preview) {
+        tags.push(['preview', videoData.preview]);
+    }
 
     if (videoData.isNSFW) {
         tags.push(['content-warning', 'nsfw']);
@@ -7727,12 +7749,14 @@ function createLegacyNip71VideoEvent(videoData) {
     const isShort = isVideoShort(videoData.width, videoData.height, videoData.duration);
     const kind = isShort ? NIP71_SHORT_KIND_LEGACY : NIP71_VIDEO_KIND_LEGACY;
 
+    const extraTags = Array.isArray(videoData.extraTags) ? videoData.extraTags : [];
     const tags = [
         ['d', videoData.dTag || generateVideoDTag()],
         ['title', videoData.title],
         createImetaTag(videoData),
         ['t', 'pv69420'],
         ...videoData.tags.map(tag => ['t', tag]),
+        ...extraTags,
         ['client', 'Plebs']
     ];
 
@@ -7757,9 +7781,15 @@ function createLegacyNip71VideoEvent(videoData) {
     }
 
     // Add legacy tags for broader compatibility
-    tags.push(['x', videoData.hash]);
-    tags.push(['url', videoData.url]);
-    tags.push(['m', videoData.type || 'video/mp4']);
+    if (videoData.hash) {
+        tags.push(['x', videoData.hash]);
+    }
+    if (videoData.url) {
+        tags.push(['url', videoData.url]);
+    }
+    if (videoData.type) {
+        tags.push(['m', videoData.type]);
+    }
     tags.push(['size', (videoData.size || 0).toString()]);
     tags.push(['duration', Math.floor(videoData.duration || 0).toString()]);
 
@@ -21648,20 +21678,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('Failed to publish to any relay');
                 }
 
-                // Link all events in our cache for reaction/zap merging
-                const eventIds = [signedAddressableEvent.id, signedLegacyNip71Event.id, signedKind1Event.id];
-                for (const id1 of eventIds) {
-                    for (const id2 of eventIds) {
-                        if (id1 !== id2) {
-                            videoEventLinks.set(id1, id2);
-                        }
-                    }
-                }
-
-                // Store all events in allEvents cache
-                allEvents.set(signedAddressableEvent.id, signedAddressableEvent);
-                allEvents.set(signedLegacyNip71Event.id, signedLegacyNip71Event);
-                allEvents.set(signedKind1Event.id, signedKind1Event);
+                finalizePublishedVideoEvents(signedAddressableEvent, signedLegacyNip71Event, signedKind1Event);
 
                 const isShort = isVideoShort(videoDimensions.width, videoDimensions.height, videoDuration);
                 if (publishText) {
@@ -34533,6 +34550,426 @@ function showCreateModal() {
     document.getElementById('createModal').classList.add('active');
 }
 
+const peertubeImportState = {
+    metadata: null,
+    lastFetched: null
+};
+
+function showPeertubeModal() {
+    hideCreateModal();
+    if (!currentUser) {
+        ensureLoggedIn();
+        return;
+    }
+    resetPeertubeImportForm();
+    document.getElementById('peertubeModal').classList.add('active');
+}
+
+function hidePeertubeModal() {
+    document.getElementById('peertubeModal').classList.remove('active');
+}
+
+function backToCreateModalFromPeertube() {
+    hidePeertubeModal();
+    showCreateModal();
+}
+
+function resetPeertubeImportForm() {
+    const form = document.getElementById('peertubeImportForm');
+    if (form) {
+        form.reset();
+    }
+    peertubeImportState.metadata = null;
+    peertubeImportState.lastFetched = null;
+    const statusEl = document.getElementById('peertubeMetaStatus');
+    if (statusEl) {
+        statusEl.textContent = '';
+        statusEl.classList.remove('success', 'error', 'info');
+    }
+    const preview = document.getElementById('peertubePreview');
+    if (preview) {
+        preview.innerHTML = '';
+    }
+}
+
+function setPeertubeMetaStatus(message, type = 'info') {
+    const statusEl = document.getElementById('peertubeMetaStatus');
+    if (!statusEl) return;
+    statusEl.textContent = message;
+    ['success', 'error', 'info'].forEach(cls => statusEl.classList.remove(cls));
+    if (type) {
+        statusEl.classList.add(type);
+    }
+}
+
+async function fetchPeertubeMetadata() {
+    const urlInput = document.getElementById('peertubeUrl');
+    if (!urlInput) return;
+    const url = urlInput.value.trim();
+    if (!url) {
+        setPeertubeMetaStatus('Enter a Peertube URL to fetch metadata.', 'error');
+        return;
+    }
+
+    const parsed = parsePeertubeVideoUrl(url);
+    if (!parsed || !parsed.id) {
+        setPeertubeMetaStatus('Could not determine the video ID. Please check the URL.', 'error');
+        return;
+    }
+
+    setPeertubeMetaStatus('Fetching metadata from the instance…', 'info');
+    try {
+        const response = await fetch(`${parsed.origin}/api/v1/videos/${parsed.id}`);
+        if (!response.ok) {
+            throw new Error(`Status ${response.status}`);
+        }
+        const data = await response.json();
+        peertubeImportState.metadata = data;
+        peertubeImportState.lastFetched = Date.now();
+
+        const titleInput = document.getElementById('peertubeTitle');
+        const descriptionInput = document.getElementById('peertubeDescription');
+        const tagsInput = document.getElementById('peertubeTags');
+        const authorInput = document.getElementById('peertubeAuthor');
+        const thumbnailInput = document.getElementById('peertubeThumbnail');
+
+        if (titleInput && data.name) {
+            titleInput.value = data.name;
+        }
+        if (descriptionInput && data.description) {
+            descriptionInput.value = data.description;
+        }
+        if (tagsInput && Array.isArray(data.tags)) {
+            tagsInput.value = data.tags.join(',');
+        }
+
+        if (authorInput) {
+            const owner = data.account || data.owner || data.user;
+            let creator = '';
+            if (owner?.displayName) {
+                creator = owner.displayName;
+            } else if (owner?.username) {
+                creator = owner.username;
+            }
+            if (owner?.host) {
+                creator = creator ? `${creator}@${owner.host}` : `${owner.username}@${owner.host}`;
+            }
+            if (creator) {
+                authorInput.value = creator;
+            }
+        }
+
+        if (thumbnailInput) {
+            const thumb = data.snapshotUrl || data.thumbnail || data.previewUrl;
+            if (thumb) {
+                thumbnailInput.value = thumb;
+            }
+        }
+
+        const preview = document.getElementById('peertubePreview');
+        if (preview) {
+            preview.innerHTML = `
+                <strong>${data.name || 'Peertube Video'}</strong>
+                <div style="margin-top:0.35rem;">
+                    ${data.description ? data.description.slice(0, 150) + (data.description.length > 150 ? '…' : '') : 'No description available.'}
+                </div>
+                <div style="margin-top:0.5rem; color: var(--text-secondary); font-size:0.85rem;">
+                    Instance: ${parsed.host || parsed.origin}
+                </div>
+            `;
+        }
+
+        setPeertubeMetaStatus(`Metadata loaded from ${parsed.origin}`, 'success');
+    } catch (error) {
+        console.error('Peertube metadata fetch failed:', error);
+        setPeertubeMetaStatus('Unable to fetch metadata (CORS or network). Fill fields manually if needed.', 'error');
+    }
+}
+
+function parsePeertubeVideoUrl(value) {
+    try {
+        const parsedUrl = new URL(value);
+        const segments = parsedUrl.pathname.split('/').filter(Boolean);
+        let videoId = null;
+        const watchIndex = segments.indexOf('watch');
+        const videosIndex = segments.indexOf('videos');
+
+        if (watchIndex !== -1 && segments.length > watchIndex + 1) {
+            videoId = segments[watchIndex + 1];
+        } else if (segments.length > 0) {
+            videoId = segments[segments.length - 1];
+        }
+
+        return {
+            origin: parsedUrl.origin,
+            host: parsedUrl.host,
+            id: videoId
+        };
+    } catch (e) {
+        return null;
+    }
+}
+
+async function handlePeertubeImport(e) {
+    e.preventDefault();
+    if (!currentUser) {
+        ensureLoggedIn();
+        return;
+    }
+
+    const url = document.getElementById('peertubeUrl')?.value.trim();
+    const title = document.getElementById('peertubeTitle')?.value.trim();
+    const description = document.getElementById('peertubeDescription')?.value.trim();
+    const tagsValue = document.getElementById('peertubeTags')?.value || '';
+    const author = document.getElementById('peertubeAuthor')?.value.trim();
+    const nostr = document.getElementById('peertubeNostr')?.value.trim();
+    const magnet = document.getElementById('peertubeMagnet')?.value.trim();
+    const allowTorrent = document.getElementById('peertubeAllowWebTorrent')?.checked;
+    const thumbnail = document.getElementById('peertubeThumbnail')?.value.trim();
+
+    if (!url || !title) {
+        alert('Please provide both a Peertube URL and a title.');
+        return;
+    }
+
+    const parsed = parsePeertubeVideoUrl(url);
+    if (!parsed || !parsed.id) {
+        alert('Invalid Peertube URL. Please double-check the link.');
+        return;
+    }
+
+    const tags = tagsValue.split(',').map(tag => tag.trim()).filter(tag => tag);
+
+    const importData = {
+        url,
+        title,
+        description,
+        tags,
+        author,
+        nostr,
+        magnet,
+        allowTorrent,
+        thumbnail,
+        metadata: peertubeImportState.metadata,
+        parsedInstance: parsed.origin,
+        parsedHost: parsed.host,
+        videoId: parsed.id
+    };
+
+    try {
+        await publishPeertubeVideo(importData);
+        showToast('Peertube video imported successfully!', 'success');
+        setTimeout(() => {
+            resetPeertubeImportForm();
+            hidePeertubeModal();
+            navigateTo('/my-videos');
+        }, 1500);
+    } catch (error) {
+        console.error('Peertube import failed:', error);
+        showToast(error.message || 'Failed to import Peertube video.', 'error');
+    }
+}
+
+// Adds published video events to caches and links them together
+function finalizePublishedVideoEvents(addressableEvent, legacyEvent, kind1Event) {
+    const eventIds = [addressableEvent.id, legacyEvent.id, kind1Event.id];
+    for (const id1 of eventIds) {
+        for (const id2 of eventIds) {
+            if (id1 !== id2) {
+                videoEventLinks.set(id1, id2);
+            }
+        }
+    }
+
+    allEvents.set(addressableEvent.id, addressableEvent);
+    allEvents.set(legacyEvent.id, legacyEvent);
+    allEvents.set(kind1Event.id, kind1Event);
+}
+
+async function publishPeertubeVideo(importData) {
+    const submitButton = document.querySelector('#peertubeImportForm button[type="submit"]');
+    const buttonText = submitButton ? submitButton.textContent : '';
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Importing…';
+    }
+
+    setPeertubeMetaStatus('Publishing Peertube video to Nostr…', 'info');
+
+    try {
+        const videoData = buildPeertubeVideoData(importData);
+        videoData.dTag = generateVideoDTag();
+
+        const addressableEvent = createNip71VideoEvent(videoData);
+        const signedAddressableEvent = await signEvent(addressableEvent);
+
+        const legacyNip71Event = createLegacyNip71VideoEvent(videoData);
+        const signedLegacyEvent = await signEvent(legacyNip71Event);
+
+        const kind1Event = createKind1VideoEvent(videoData, signedAddressableEvent.id);
+        const signedKind1Event = await signEvent(kind1Event);
+
+        const [addressablePublished, legacyPublished, kind1Published] = await Promise.all([
+            publishEvent(signedAddressableEvent),
+            publishEvent(signedLegacyEvent),
+            publishEvent(signedKind1Event)
+        ]);
+
+        if (!addressablePublished && !legacyPublished && !kind1Published) {
+            throw new Error('Failed to publish to any relay');
+        }
+
+        finalizePublishedVideoEvents(signedAddressableEvent, signedLegacyEvent, signedKind1Event);
+        setPeertubeMetaStatus('Peertube video published successfully!', 'success');
+    } catch (error) {
+        setPeertubeMetaStatus(error.message || 'Failed to publish Peertube video.', 'error');
+        throw error;
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = buttonText;
+        }
+    }
+}
+
+function buildPeertubeVideoData(importData) {
+    const metadata = importData.metadata || {};
+    const primaryFile = selectPeertubePrimaryFile(metadata);
+    const streamUrl = primaryFile?.url || metadata.streamingUrl || metadata.streamUrl || importData.url;
+    const fallbackSourceUrls = Array.from(new Set([
+        ...(metadata.files || []).map(file => file.url).filter(Boolean),
+        ...(metadata.sourceFiles || []).map(file => file.url).filter(Boolean),
+        metadata.streamingUrl,
+        metadata.streamUrl
+    ].filter(Boolean)));
+    const fallbackUrls = fallbackSourceUrls.filter(url => url !== streamUrl);
+    const mirrors = fallbackUrls.map(url => ({ url }));
+    const tags = (importData.tags || []).map(tag => tag.toLowerCase()).filter(tag => tag);
+    if (!tags.includes('peertube')) {
+        tags.push('peertube');
+    }
+    const duration = Math.floor(metadata.duration || primaryFile?.duration || 0);
+    const size = primaryFile?.size || metadata.fileSize || 0;
+    const width = primaryFile?.width || metadata.width || 0;
+    const height = primaryFile?.height || metadata.height || 0;
+    const hash = primaryFile?.sha256 || metadata.hash || metadata.sha256 || '';
+    const preview = metadata.previewUrl || metadata.snapshotUrl || '';
+    const thumbnail = importData.thumbnail || metadata.snapshotUrl || metadata.thumbnail || '';
+
+    return {
+        title: importData.title,
+        description: importData.description,
+        url: streamUrl,
+        thumbnail: thumbnail,
+        preview: preview,
+        duration: duration,
+        size: size,
+        type: primaryFile?.mime || metadata.mime || 'video/mp4',
+        width: width,
+        height: height,
+        mirrors: mirrors,
+        fallbackUrls: fallbackUrls,
+        tags: tags,
+        isNSFW: false,
+        hash: hash,
+        extraTags: buildPeertubeExtraTags(importData, metadata)
+    };
+}
+
+function selectPeertubePrimaryFile(metadata) {
+    if (!metadata) return null;
+
+    const candidates = [];
+    if (Array.isArray(metadata.files)) {
+        candidates.push(...metadata.files);
+    }
+    if (Array.isArray(metadata.sourceFiles)) {
+        candidates.push(...metadata.sourceFiles);
+    }
+
+    const validFiles = candidates.filter(file => file && file.url);
+    if (!validFiles.length) {
+        return null;
+    }
+
+    validFiles.sort((a, b) => {
+        const widthDiff = (b.width || 0) - (a.width || 0);
+        if (widthDiff !== 0) return widthDiff;
+        return (b.size || 0) - (a.size || 0);
+    });
+
+    return validFiles[0];
+}
+
+function buildPeertubeExtraTags(importData, metadata) {
+    const tags = [['source', 'peertube']];
+
+    if (importData.parsedInstance) {
+        tags.push(['peertube-instance', importData.parsedInstance]);
+    }
+    if (importData.videoId) {
+        tags.push(['peertube-video-id', importData.videoId]);
+    }
+    if (importData.url) {
+        tags.push(['peertube-watch', importData.url]);
+    }
+    const account = metadata.account || metadata.owner || metadata.user || null;
+    let accountCreator = '';
+    if (account) {
+        const usernamePart = account.username || '';
+        const hostPart = account.host ? `@${account.host}` : '';
+        if (usernamePart || hostPart) {
+            accountCreator = `${usernamePart}${hostPart}`;
+        }
+    }
+    const creator = importData.author || accountCreator;
+    if (creator) {
+        tags.push(['peertube-author', creator]);
+    }
+    if (metadata.account?.nip05) {
+        tags.push(['peertube-nip05', metadata.account.nip05]);
+    }
+    const normalizedPubkey = normalizeNostrPubkey(importData.nostr);
+    if (normalizedPubkey) {
+        tags.push(['p', normalizedPubkey]);
+        tags.push(['peertube-nostr', normalizedPubkey]);
+    } else if (importData.nostr) {
+        tags.push(['peertube-nostr-raw', importData.nostr]);
+    }
+
+    if (importData.allowTorrent) {
+        tags.push(['peertube-allow-webtorrent', 'true']);
+        if (importData.magnet) {
+            tags.push(['peertube-magnet', importData.magnet]);
+        }
+    }
+
+    return tags;
+}
+
+function normalizeNostrPubkey(value) {
+    if (!value) return null;
+    const trimmed = value.trim();
+
+    try {
+        const decoded = window.NostrTools.nip19.decode(trimmed);
+        if (decoded?.type === 'npub') {
+            return decoded.data;
+        }
+        if (decoded?.type === 'nprofile' && decoded?.data?.pubkey) {
+            return decoded.data.pubkey;
+        }
+    } catch (error) {
+        // ignore
+    }
+
+    if (/^[0-9A-Fa-f]{64}$/.test(trimmed)) {
+        return trimmed.toLowerCase();
+    }
+
+    return null;
+}
+
 function hideCreateModal() {
     document.getElementById('createModal').classList.remove('active');
 }
@@ -34680,6 +35117,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const goLiveForm = document.getElementById('goLiveForm');
     if (goLiveForm) {
         goLiveForm.addEventListener('submit', handleGoLive);
+    }
+    const peertubeForm = document.getElementById('peertubeImportForm');
+    if (peertubeForm) {
+        peertubeForm.addEventListener('submit', handlePeertubeImport);
     }
 });
 
