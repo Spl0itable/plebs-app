@@ -1086,11 +1086,6 @@
                     <small class="form-hint">Plebs will attempt to fetch metadata and attribute the author.</small>
                 </div>
                 <div class="form-group">
-                    <label for="peertubeMagnet">Magnet / Torrent (optional)</label>
-                    <input type="text" id="peertubeMagnet" class="form-control" placeholder="magnet:?xt=urn:btih:...">
-                    <p class="form-hint">Used only if you allow WebTorrent playback.</p>
-                </div>
-                <div class="form-group">
                     <label for="peertubeTitle">Title</label>
                     <input type="text" id="peertubeTitle" class="form-control" placeholder="Video Title">
                 </div>
@@ -1118,13 +1113,16 @@
                 <div class="form-group checkbox-group">
                     <input type="checkbox" id="peertubeAllowWebTorrent">
                     <label for="peertubeAllowWebTorrent">Allow WebTorrent playback for this video</label>
+                    <div id="peertubeWebTorrentHint" class="form-hint" style="font-size:0.85rem; margin-top: -0.25rem;"></div>
                 </div>
                 <div id="peertubeMetaStatus" class="form-hint" style="min-height:1.3rem;"></div>
                 <div id="peertubePreview" class="peertube-preview"></div>
                 <div class="upload-actions" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                    <button type="button" class="btn-secondary" style="flex:1;" onclick="fetchPeertubeMetadata()">Fetch metadata</button>
+                    <button type="button" class="fetch-metadata-btn test-stream-btn" id="peertubeTestStreamBtn" style="flex:1;" onclick="testPeertubeStream()" disabled>Test stream</button>
                     <button type="submit" class="upload-btn" style="flex:2;">Import Video</button>
                 </div>
+                <input type="hidden" id="peertubeStreamUrl">
+                <video id="peertubeStreamTester" preload="metadata" playsinline muted style="display:none;"></video>
             </form>
         </div>
     </div>

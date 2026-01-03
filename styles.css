@@ -2213,6 +2213,15 @@ nostr-zap {
     border-color: var(--text-primary);
 }
 
+.test-stream-btn {
+    font-weight: 500;
+}
+
+.test-stream-btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .form-group label {
     font-weight: 500;
 }
