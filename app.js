@@ -30905,14 +30905,17 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             : [];
 
                         const VIDEO_STREAM_SKIP_EXTENSIONS = ['.m3u8'];
+                        const VIDEO_STREAM_ALLOWED_EXTENSIONS = ['.mp4', '.webm', '.m4v'];
 
                 const shouldSkipStreamUrl = (url) => {
                     if (!url || typeof url !== 'string') return true;
                     const cleanPath = url.split('?')[0].split('#')[0];
                     const extensionIndex = cleanPath.lastIndexOf('.');
-                    if (extensionIndex === -1) return false;
+                    if (extensionIndex === -1) return true;
                     const extension = cleanPath.substring(extensionIndex).toLowerCase();
-                    return VIDEO_STREAM_SKIP_EXTENSIONS.includes(extension);
+                    if (VIDEO_STREAM_SKIP_EXTENSIONS.includes(extension)) return true;
+                    if (!VIDEO_STREAM_ALLOWED_EXTENSIONS.includes(extension)) return true;
+                    return false;
                 };
 
                 const buildCandidateList = (metaCandidates = []) => {
@@ -30933,7 +30936,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     };
 
                     metaCandidates.forEach(candidate => addCandidate(candidate.url, candidate.label));
-
                     addCandidate(resolvedVideoUrl, 'Primary stream');
                     addCandidate(videoData.url, 'Primary stream');
                     addCandidate(videoData.streamUrl, 'Stream URL');
@@ -30945,7 +30947,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             playlist?.files?.forEach((file, idx) => addCandidate(file?.fileUrl || file?.playlistUrl, `Playlist ${idx + 1}`));
                         });
                     }
-                    metaCandidates.forEach(candidate => addCandidate(candidate.url, candidate.label));
                     return list;
                 };
 

@@ -280,6 +280,13 @@ function gatherPeertubeStreamCandidates(metadata) {
     const seen = new Set();
     const candidates = [];
 
+    const normalizeDownloadUrl = (url) => {
+        if (!url || typeof url !== 'string') return null;
+        const trimmed = url.trim();
+        if (!trimmed) return null;
+        return trimmed.replace(/-fragmented(?=\.mp4)/i, '');
+    };
+
     const addCandidate = (url, label = '') => {
         if (!url || typeof url !== 'string') return;
         const trimmed = url.trim();
@@ -287,37 +294,29 @@ function gatherPeertubeStreamCandidates(metadata) {
         const cleanPath = trimmed.split('?')[0].split('#')[0];
         const extensionIndex = cleanPath.lastIndexOf('.');
         const extension = extensionIndex !== -1 ? cleanPath.substring(extensionIndex).toLowerCase() : '';
-        if (PEERTUBE_STREAM_SKIP_EXTENSIONS.includes(extension)) return;
+        if (extension && PEERTUBE_STREAM_SKIP_EXTENSIONS.includes(extension)) return;
         seen.add(trimmed);
         candidates.push({ url: trimmed, label });
     };
 
-    const stripFragmentedVariant = (value) => {
-        if (!value || typeof value !== 'string') return null;
-        const fragmentRegex = /-fragmented(?=\.mp4)/i;
-        if (!fragmentRegex.test(value)) return null;
-        return value.replace(fragmentRegex, '');
-    };
-
-    const addCandidateWithVariants = (url, label = '') => {
-        addCandidate(url, label);
-        const fragmentless = stripFragmentedVariant(url);
-        if (fragmentless) {
-            const variantLabel = label ? `${label} (static)` : 'Static stream';
-            addCandidate(fragmentless, variantLabel);
-        }
-    };
-
     const addFileVariants = (file, prefixLabel) => {
-        if (!file) return;
+        if (!file || !file.fileDownloadUrl) return;
         const resolution = file.resolution?.label || file.resolution?.id || 'stream';
         const baseLabel = prefixLabel ? `${resolution} · ${prefixLabel}` : resolution;
-        addCandidateWithVariants(file.fileUrl, baseLabel);
-        addCandidateWithVariants(file.fileDownloadUrl, baseLabel);
-        if (file?.playlistUrl) {
-            addCandidate(file.playlistUrl, `${baseLabel} (playlist)`);
+        const normalizedDownloadUrl = normalizeDownloadUrl(file.fileDownloadUrl);
+        if (normalizedDownloadUrl) {
+            addCandidate(normalizedDownloadUrl, `${baseLabel} (download)`);
+        } else {
+            addCandidate(file.fileDownloadUrl, `${baseLabel} (download)`);
         }
     };
+
+    if (Array.isArray(metadata.streamingPlaylists)) {
+        metadata.streamingPlaylists.forEach(playlist => {
+            if (!playlist || !Array.isArray(playlist.files)) return;
+            playlist.files.forEach(file => addFileVariants(file, 'streaming playlist'));
+        });
+    }
 
     if (Array.isArray(metadata.files)) {
         metadata.files.forEach(file => addFileVariants(file, 'metadata file'));
@@ -325,17 +324,9 @@ function gatherPeertubeStreamCandidates(metadata) {
     if (Array.isArray(metadata.sourceFiles)) {
         metadata.sourceFiles.forEach(file => addFileVariants(file, 'source file'));
     }
-    if (Array.isArray(metadata.streamingPlaylists)) {
-        metadata.streamingPlaylists.forEach(playlist => {
-            if (!playlist || !Array.isArray(playlist.files)) return;
-            playlist.files.forEach(file => {
-                addFileVariants(file, 'streaming playlist');
-            });
-        });
-    }
 
-    addCandidateWithVariants(metadata.streamingUrl, 'streamingUrl');
-    addCandidateWithVariants(metadata.streamUrl, 'streamUrl');
+    addCandidate(metadata.streamUrl, 'streamUrl');
+    addCandidate(metadata.streamingUrl, 'streamingUrl');
 
     return candidates;
 }
