@@ -1079,7 +1079,10 @@
             <form class="upload-form" id="peertubeImportForm">
                 <div class="form-group">
                     <label for="peertubeUrl">Peertube Video URL</label>
-                    <input type="url" id="peertubeUrl" class="form-control" placeholder="https://instance/videos/watch/abc123" required>
+                    <div class="input-with-action">
+                        <input type="url" id="peertubeUrl" class="form-control" placeholder="https://instance/videos/watch/abc123" required>
+                        <button type="button" class="btn-link fetch-metadata-btn" onclick="fetchPeertubeMetadata()">Fetch metadata</button>
+                    </div>
                     <small class="form-hint">Plebs will attempt to fetch metadata and attribute the author.</small>
                 </div>
                 <div class="form-group">

@@ -2188,6 +2188,31 @@ nostr-zap {
     gap: 0.5rem;
 }
 
+.input-with-action {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.input-with-action .form-control {
+    flex: 1;
+}
+
+.fetch-metadata-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0 0.75rem;
+    border-radius: 999px;
+    cursor: pointer;
+    align-self: center;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.fetch-metadata-btn:hover {
+    border-color: var(--text-primary);
+}
+
 .form-group label {
     font-weight: 500;
 }

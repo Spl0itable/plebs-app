@@ -34808,10 +34808,13 @@ function showCreateModal() {
     document.getElementById('createModal').classList.add('active');
 }
 
-const peertubeImportState = {
-    metadata: null,
-    lastFetched: null
-};
+    const peertubeImportState = {
+        metadata: null,
+        lastFetched: null
+    };
+    let peertubeAutoFetchTimer = null;
+    let lastPeertubeUrlRequested = '';
+    let peertubeAutoFetchInitialized = false;
 
 function showPeertubeModal() {
     hideCreateModal();
@@ -34821,6 +34824,7 @@ function showPeertubeModal() {
     }
     resetPeertubeImportForm();
     document.getElementById('peertubeModal').classList.add('active');
+    setupPeertubeUrlAutoFetch();
 }
 
 function hidePeertubeModal() {
@@ -34839,6 +34843,7 @@ function resetPeertubeImportForm() {
     }
     peertubeImportState.metadata = null;
     peertubeImportState.lastFetched = null;
+    lastPeertubeUrlRequested = '';
     const statusEl = document.getElementById('peertubeMetaStatus');
     if (statusEl) {
         statusEl.textContent = '';
@@ -34860,6 +34865,32 @@ function setPeertubeMetaStatus(message, type = 'info') {
     }
 }
 
+function setupPeertubeUrlAutoFetch() {
+    const urlInput = document.getElementById('peertubeUrl');
+    if (!urlInput) return;
+
+    if (peertubeAutoFetchInitialized) {
+        return;
+    }
+    peertubeAutoFetchInitialized = true;
+
+    urlInput.addEventListener('input', () => {
+        clearTimeout(peertubeAutoFetchTimer);
+        const value = urlInput.value.trim();
+        if (!value) {
+            setPeertubeMetaStatus('');
+            lastPeertubeUrlRequested = '';
+            return;
+        }
+
+        peertubeAutoFetchTimer = setTimeout(() => {
+            if (value && value !== lastPeertubeUrlRequested) {
+                fetchPeertubeMetadata();
+            }
+        }, 600);
+    });
+}
+
 async function fetchPeertubeMetadata() {
     const urlInput = document.getElementById('peertubeUrl');
     if (!urlInput) return;
@@ -34874,6 +34905,8 @@ async function fetchPeertubeMetadata() {
         setPeertubeMetaStatus('Could not determine the video ID. Please check the URL.', 'error');
         return;
     }
+
+    lastPeertubeUrlRequested = url;
 
     setPeertubeMetaStatus('Fetching metadata from the instance…', 'info');
     try {
