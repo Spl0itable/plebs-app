@@ -30567,8 +30567,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             </div>
         ` : '';
         const webTorrentConsentHtml = canStartWebTorrent ? `
-            <div class="webtorrent-consent" id="webtorrent-consent-${eventId}">
-                <div>
+            <div class="webtorrent-consent" id="webtorrent-consent-${eventId}" aria-hidden="true">
+                <div class="webtorrent-consent-content">
                     <strong>WebTorrent stream available</strong>
                     <p>WebRTC-powered streaming directly from Peertube peers. Only start if you consent.</p>
                 </div>
@@ -30587,6 +30587,13 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     <video controls playsinline>
                         Your browser does not support the video tag.
                     </video>
+                    <div class="resolution-indicator" id="resolution-indicator-${eventId}" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
+                        <span id="resolution-indicator-label-${eventId}">Auto</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                    </div>
+                    <div class="resolution-menu" id="resolution-menu-${eventId}" hidden></div>
                     ${webTorrentConsentHtml}
                 </div>
                 <div class="video-content-wrapper">
@@ -30801,72 +30808,332 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const video = mainContent.querySelector('video');
         const videoLoadingState = document.getElementById(`video-loading-${eventId}`);
         const downloadBtn = document.getElementById(`download-btn-${eventId}`);
+        const resolutionSwitcher = document.getElementById(`resolution-switcher-${eventId}`);
+        const resolutionButton = document.getElementById(`resolution-btn-${eventId}`);
+        const resolutionMenu = document.getElementById(`resolution-menu-${eventId}`);
+        const webtorrentConsent = document.getElementById(`webtorrent-consent-${eventId}`);
+        const videoPlayerElement = mainContent.querySelector('.video-player');
 
-        // Async video URL resolution - doesn't block page render
-        (async () => {
-            try {
-                const videoUrl = await getVideoUrl(videoData.hash) || videoData.url;
+        const STALLED_PLAYBACK_THRESHOLD_MS = 20000;
+        const WEBTORRENT_CONSENT_HIDE_MS = 1200;
+        let webtorrentConsentHideTimer = null;
 
-                if (!videoUrl) {
-                    if (videoLoadingState) {
-                        videoLoadingState.innerHTML = `<p class="error-message">${t('error.videoNotAvailable')}</p>`;
-                    }
-                    return;
-                }
+        const showVideoErrorState = (messageKey) => {
+            if (!videoLoadingState) return;
+            videoLoadingState.style.display = 'flex';
+            videoLoadingState.innerHTML = `<p class="error-message">${t(messageKey)}</p>`;
+        };
 
-                // Set up error handler before setting source
-                video.onerror = async () => {
-                    const fallbackUrl = await getVideoUrl(videoData.hash, BLOSSOM_SERVERS.slice(1));
-                    if (fallbackUrl && fallbackUrl !== videoUrl) {
-                        video.src = fallbackUrl;
-                        // Update download button with fallback URL
-                        if (downloadBtn) {
-                            downloadBtn.onclick = () => downloadVideo(fallbackUrl, { title: videoData.title });
-                            downloadBtn.disabled = false;
-                            downloadBtn.title = '';
-                        }
-                    } else {
-                        // Show error state - recreate loading state if it was removed
-                        const videoPlayer = video.parentElement;
-                        let errorState = videoLoadingState;
-                        if (!errorState || !errorState.parentElement) {
-                            errorState = document.createElement('div');
-                            errorState.className = 'video-loading-state';
-                            videoPlayer.insertBefore(errorState, video);
-                        }
-                        errorState.style.display = 'flex';
-                        errorState.innerHTML = `<p class="error-message">${t('error.failedLoadVideo')}</p>`;
-                    }
-                };
-
-                // Video loaded successfully - remove loading state from DOM entirely
-                video.onloadeddata = () => {
+                const clearLoadingState = () => {
                     if (videoLoadingState) {
                         videoLoadingState.remove();
                     }
                 };
 
-                // Show auto-play next video overlay when video ends
-                video.onended = () => {
-                    showNextVideoOverlay();
+                const setLoadingMessage = (message) => {
+                    if (!videoLoadingState) return;
+                    videoLoadingState.style.display = 'flex';
+                    videoLoadingState.innerHTML = `
+                        <div class="spinner"></div>
+                        <p>${message}</p>
+                    `;
                 };
 
-                // Record view when video starts playing (works for both logged-in and anonymous)
-                video.onplay = () => {
-                    recordVideoView(eventId);
+        const guessLabelForUrl = (url, fallbackLabel, index) => {
+            const lower = url.toLowerCase();
+            const resolutionMatch = lower.match(/(\\d{3,4}p)/);
+            if (resolutionMatch) {
+                return resolutionMatch[1];
+            }
+            const dashMatch = lower.match(/-(\\d{3,4})[px]?-/);
+            if (dashMatch) {
+                return `${dashMatch[1]}p`;
+            }
+            if (fallbackLabel) {
+                return fallbackLabel;
+            }
+            return `Stream ${index + 1}`;
+        };
+
+                const showWebTorrentConsentOverlay = () => {
+                    if (!webtorrentConsent || !videoPlayerElement) return;
+                    clearTimeout(webtorrentConsentHideTimer);
+                    videoPlayerElement.classList.add('webtorrent-visible');
+                    webtorrentConsent.removeAttribute('aria-hidden');
                 };
 
-                // Set the video source
-                video.src = videoUrl;
-                video.autoplay = true;
-                video.playsInline = true;
+                const scheduleHideWebTorrentConsentOverlay = () => {
+                    if (!webtorrentConsent || !videoPlayerElement) return;
+                    clearTimeout(webtorrentConsentHideTimer);
+                    webtorrentConsentHideTimer = setTimeout(() => {
+                        videoPlayerElement.classList.remove('webtorrent-visible');
+                        webtorrentConsent.setAttribute('aria-hidden', 'true');
+                    }, WEBTORRENT_CONSENT_HIDE_MS);
+                };
 
-                // Enable download button
-                if (downloadBtn) {
-                    downloadBtn.onclick = () => downloadVideo(videoUrl, { title: videoData.title });
-                    downloadBtn.disabled = false;
-                    downloadBtn.title = '';
+                const registerConsentVisibilityHandlers = () => {
+                    if (!webtorrentConsent || !videoPlayerElement || !video) return;
+                    videoPlayerElement.addEventListener('mouseenter', showWebTorrentConsentOverlay);
+                    videoPlayerElement.addEventListener('mouseleave', scheduleHideWebTorrentConsentOverlay);
+                    videoPlayerElement.addEventListener('focusin', showWebTorrentConsentOverlay);
+                    videoPlayerElement.addEventListener('focusout', scheduleHideWebTorrentConsentOverlay);
+                    videoPlayerElement.addEventListener('touchstart', showWebTorrentConsentOverlay, { passive: true });
+                    video.addEventListener('focus', showWebTorrentConsentOverlay);
+                    video.addEventListener('blur', scheduleHideWebTorrentConsentOverlay);
+                };
+
+                if (webtorrentConsent && videoPlayerElement && video) {
+                    registerConsentVisibilityHandlers();
                 }
+
+                (async () => {
+                    try {
+                        let peertubeMetadata = null;
+                        if (peertubeInfo?.instance && peertubeInfo?.videoId && typeof fetchPeertubeVideoMetadataFromApi === 'function') {
+                            setLoadingMessage('Checking Peertube streams…');
+                            try {
+                                const metadataResult = await fetchPeertubeVideoMetadataFromApi(peertubeInfo.instance, peertubeInfo.videoId);
+                                peertubeMetadata = metadataResult?.metadata || null;
+                                console.info('[Peertube] metadata fetched for', peertubeInfo.videoId, peertubeInfo.instance);
+                            } catch (metaError) {
+                                console.warn('[Peertube] stream metadata lookup failed:', metaError);
+                            }
+                        }
+                        const resolvedVideoUrl = await getVideoUrl(videoData.hash) || videoData.url;
+                        const metadataCandidates = (peertubeMetadata && typeof gatherPeertubeStreamCandidates === 'function')
+                            ? gatherPeertubeStreamCandidates(peertubeMetadata)
+                            : [];
+
+                        const VIDEO_STREAM_SKIP_EXTENSIONS = ['.m3u8'];
+
+                const shouldSkipStreamUrl = (url) => {
+                    if (!url || typeof url !== 'string') return true;
+                    const cleanPath = url.split('?')[0].split('#')[0];
+                    const extensionIndex = cleanPath.lastIndexOf('.');
+                    if (extensionIndex === -1) return false;
+                    const extension = cleanPath.substring(extensionIndex).toLowerCase();
+                    return VIDEO_STREAM_SKIP_EXTENSIONS.includes(extension);
+                };
+
+                const buildCandidateList = (metaCandidates = []) => {
+                    const fallbackUrls = Array.isArray(videoData.fallbackUrls) ? videoData.fallbackUrls : [];
+                    const uniqueUrls = new Set();
+                    const list = [];
+                    const addCandidate = (url, label) => {
+                        if (!url) return;
+                        const trimmed = url.trim();
+                        if (!trimmed || uniqueUrls.has(trimmed)) return;
+                        if (shouldSkipStreamUrl(trimmed)) return;
+                        uniqueUrls.add(trimmed);
+                        list.push({
+                            url: trimmed,
+                            label: guessLabelForUrl(trimmed, label, list.length),
+                            descriptor: label
+                        });
+                    };
+
+                    metaCandidates.forEach(candidate => addCandidate(candidate.url, candidate.label));
+
+                    addCandidate(resolvedVideoUrl, 'Primary stream');
+                    addCandidate(videoData.url, 'Primary stream');
+                    addCandidate(videoData.streamUrl, 'Stream URL');
+                    for (const fallbackUrl of fallbackUrls) {
+                        addCandidate(fallbackUrl, 'Fallback stream');
+                    }
+                    if (videoData.metadata?.streamingPlaylists) {
+                        videoData.metadata.streamingPlaylists.forEach(playlist => {
+                            playlist?.files?.forEach((file, idx) => addCandidate(file?.fileUrl || file?.playlistUrl, `Playlist ${idx + 1}`));
+                        });
+                    }
+                    metaCandidates.forEach(candidate => addCandidate(candidate.url, candidate.label));
+                    return list;
+                };
+
+                let streamCandidates = buildCandidateList(metadataCandidates);
+
+                if (videoData.hash) {
+                    const alternateBlossomUrl = await getVideoUrl(videoData.hash, BLOSSOM_SERVERS.slice(1));
+                    if (alternateBlossomUrl && !streamCandidates.some(candidate => candidate.url === alternateBlossomUrl)) {
+                        streamCandidates.push({
+                            url: alternateBlossomUrl,
+                            label: 'Blossom fallback',
+                            descriptor: 'Blossom fallback'
+                        });
+                    }
+                }
+                if (peertubeInfo) {
+                    console.info('[Peertube] streamCandidates', streamCandidates.map(candidate => ({
+                        label: candidate.label,
+                        url: candidate.url
+                    })));
+                }
+
+                if (!streamCandidates.length) {
+                    showVideoErrorState('error.videoNotAvailable');
+                    return;
+                }
+
+                const showResolutionIndicator = streamCandidates.length > 1;
+                if (resolutionIndicator) {
+                    resolutionIndicator.style.display = showResolutionIndicator ? 'flex' : 'none';
+                }
+
+                let resolutionCloseListener = null;
+
+                const closeResolutionMenu = () => {
+                    if (resolutionMenu) {
+                        resolutionMenu.hidden = true;
+                    }
+                    if (resolutionIndicator) {
+                        resolutionIndicator.setAttribute('aria-expanded', 'false');
+                    }
+                    if (resolutionCloseListener) {
+                        document.removeEventListener('click', resolutionCloseListener);
+                        resolutionCloseListener = null;
+                    }
+                };
+
+                const openResolutionMenu = () => {
+                    if (!resolutionMenu || !resolutionIndicator) return;
+                    resolutionMenu.hidden = false;
+                    resolutionIndicator.setAttribute('aria-expanded', 'true');
+                    resolutionCloseListener = (event) => {
+                        if (!resolutionIndicator.contains(event.target)) {
+                            closeResolutionMenu();
+                        }
+                    };
+                    document.addEventListener('click', resolutionCloseListener);
+                };
+
+                const updateResolutionIndicatorLabel = (candidate) => {
+                    if (!resolutionIndicatorLabel) return;
+                    resolutionIndicatorLabel.textContent = candidate ? candidate.label : 'Auto';
+                };
+
+                let currentCandidateIndex = 0;
+
+                const highlightResolutionOption = (index) => {
+                    if (!resolutionMenu) return;
+                    const buttons = Array.from(resolutionMenu.querySelectorAll('button'));
+                    buttons.forEach((button, buttonIndex) => {
+                        button.classList.toggle('active', buttonIndex === index);
+                    });
+                };
+
+                if (showResolutionIndicator && resolutionIndicator) {
+                    resolutionIndicator.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        if (!resolutionMenu) return;
+                        resolutionMenu.hidden ? openResolutionMenu() : closeResolutionMenu();
+                    });
+                    resolutionIndicator.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            resolutionIndicator.click();
+                        }
+                    });
+                }
+
+                const attemptCandidate = (index) => {
+                    if (index >= streamCandidates.length) {
+                        showVideoErrorState('error.failedLoadVideo');
+                        return;
+                    }
+
+                    const candidate = streamCandidates[index];
+                    currentCandidateIndex = index;
+                    updateResolutionIndicatorLabel(candidate);
+                    highlightResolutionOption(index);
+                    setLoadingMessage(`Trying ${candidate.label}…`);
+
+                    let stallTimer = null;
+                    let alreadySwitched = false;
+
+                    const clearStallTimer = () => {
+                        if (stallTimer) {
+                            clearTimeout(stallTimer);
+                            stallTimer = null;
+                        }
+                    };
+
+                    const handleWaiting = () => {
+                        clearStallTimer();
+                        stallTimer = setTimeout(() => switchToNext('playback stalled'), STALLED_PLAYBACK_THRESHOLD_MS);
+                    };
+
+                    const handlePlaying = () => {
+                        clearStallTimer();
+                    };
+
+                    const cleanupHandlers = () => {
+                        video.removeEventListener('waiting', handleWaiting);
+                        video.removeEventListener('playing', handlePlaying);
+                        clearStallTimer();
+                    };
+
+                    const switchToNext = (reason) => {
+                        if (alreadySwitched) return;
+                        alreadySwitched = true;
+                        clearStallTimer();
+                        cleanupHandlers();
+                        closeResolutionMenu();
+                        console.warn(`Stream swap triggered (${reason}). Moving to candidate ${index + 2} of ${streamCandidates.length}:`, candidate.url);
+                        attemptCandidate(index + 1);
+                    };
+
+                    video.addEventListener('waiting', handleWaiting);
+                    video.addEventListener('playing', handlePlaying);
+
+                    video.onerror = (event) => {
+                        const errorDetails = video.error || event;
+                        console.error('Video playback error', {
+                            url: candidate.url,
+                            label: candidate.label,
+                            error: errorDetails
+                        });
+                        switchToNext('error');
+                    };
+
+                    video.onloadeddata = () => {
+                        if (alreadySwitched) return;
+                        cleanupHandlers();
+                        clearLoadingState();
+                        if (downloadBtn) {
+                            downloadBtn.onclick = () => downloadVideo(candidate.url, { title: videoData.title });
+                            downloadBtn.disabled = false;
+                            downloadBtn.title = '';
+                        }
+                    };
+
+                    video.src = candidate.url;
+                    video.autoplay = true;
+                    video.playsInline = true;
+                    video.load();
+                };
+
+                const renderResolutionMenu = () => {
+                    if (!resolutionMenu) return;
+                    resolutionMenu.innerHTML = '';
+                    streamCandidates.forEach((candidate, idx) => {
+                        const option = document.createElement('button');
+                        option.type = 'button';
+                        option.className = `resolution-option${idx === currentCandidateIndex ? ' active' : ''}`;
+                        option.textContent = candidate.label;
+                        option.addEventListener('click', () => {
+                            closeResolutionMenu();
+                            attemptCandidate(idx);
+                        });
+                        resolutionMenu.appendChild(option);
+                    });
+                };
+
+                if (showResolutionIndicator) {
+                    renderResolutionMenu();
+                } else if (resolutionMenu) {
+                    resolutionMenu.hidden = true;
+                }
+
+                attemptCandidate(0);
             } catch (error) {
                 console.error('Failed to resolve video URL:', error);
                 if (videoLoadingState) {
@@ -30876,7 +31143,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         })();
 
         const mainCommentInput = createCommentInput();
-        document.getElementById('main-comment-input').replaceWith(mainCommentInput);
 
         // First, try to find linked events (for merging reactions/zaps/comments from legacy events)
         // We await this to ensure we have all linked IDs before loading data

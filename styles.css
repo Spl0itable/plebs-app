@@ -868,6 +868,59 @@ header {
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
+.video-player .resolution-switcher {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+    z-index: 8;
+}
+
+.resolution-btn {
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+    font-weight: 600;
+}
+
+.resolution-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.resolution-menu {
+    background: rgba(18, 18, 18, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 0.5rem 0;
+    min-width: 150px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.resolution-menu button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: #fff;
+    text-align: left;
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.resolution-menu button:hover,
+.resolution-menu button.active {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 .video-player .webtorrent-consent p {
     margin: 0;
     font-size: 0.85rem;

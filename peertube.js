@@ -150,19 +150,14 @@ async function fetchPeertubeMetadata() {
     }, PEERTUBE_METADATA_SLOW_THRESHOLD_MS);
 
     try {
-        const response = await fetch(`${parsed.origin}/api/v1/videos/${parsed.id}`);
-        if (!response.ok) {
-            throw new Error(`Status ${response.status}`);
-        }
-
-        const data = await response.json();
+        const { metadata: data, status } = await fetchPeertubeVideoMetadataFromApi(parsed.origin, parsed.id);
         peertubeImportState.metadata = data;
         peertubeImportState.lastFetched = Date.now();
 
-        const statusNote = response.status === 206
+        const statusNote = status === 206
             ? ' (Partial content response)'
-            : response.status !== 200
-                ? ` (Status ${response.status})`
+            : status !== 200
+                ? ` (Status ${status})`
                 : '';
 
         const titleInput = document.getElementById('peertubeTitle');
@@ -251,6 +246,33 @@ async function fetchPeertubeMetadata() {
 
 const PEERTUBE_STREAM_SKIP_EXTENSIONS = ['.m3u8'];
 const PEERTUBE_METADATA_SLOW_THRESHOLD_MS = 4000;
+const PEERTUBE_API_FETCH_TIMEOUT_MS = 20000;
+const PEERTUBE_STREAM_PROBE_TIMEOUT_MS = 20000;
+
+async function fetchPeertubeVideoMetadataFromApi(origin, videoId, { timeoutMs = PEERTUBE_API_FETCH_TIMEOUT_MS } = {}) {
+    if (!origin || !videoId) {
+        throw new Error('Missing Peertube instance or video ID');
+    }
+
+    const normalizedOrigin = origin.replace(/\/+$/, '');
+    const requestUrl = `${normalizedOrigin}/api/v1/videos/${encodeURIComponent(videoId)}`;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+        const response = await fetch(requestUrl, { signal: controller.signal });
+        if (!response.ok) {
+            throw new Error(`Status ${response.status}`);
+        }
+        const metadata = await response.json();
+        return {
+            metadata,
+            status: response.status
+        };
+    } finally {
+        clearTimeout(timer);
+    }
+}
 
 function gatherPeertubeStreamCandidates(metadata) {
     if (!metadata) return [];
@@ -270,12 +292,28 @@ function gatherPeertubeStreamCandidates(metadata) {
         candidates.push({ url: trimmed, label });
     };
 
+    const stripFragmentedVariant = (value) => {
+        if (!value || typeof value !== 'string') return null;
+        const fragmentRegex = /-fragmented(?=\.mp4)/i;
+        if (!fragmentRegex.test(value)) return null;
+        return value.replace(fragmentRegex, '');
+    };
+
+    const addCandidateWithVariants = (url, label = '') => {
+        addCandidate(url, label);
+        const fragmentless = stripFragmentedVariant(url);
+        if (fragmentless) {
+            const variantLabel = label ? `${label} (static)` : 'Static stream';
+            addCandidate(fragmentless, variantLabel);
+        }
+    };
+
     const addFileVariants = (file, prefixLabel) => {
         if (!file) return;
         const resolution = file.resolution?.label || file.resolution?.id || 'stream';
         const baseLabel = prefixLabel ? `${resolution} · ${prefixLabel}` : resolution;
-        addCandidate(file.fileUrl, baseLabel);
-        addCandidate(file.fileDownloadUrl, baseLabel);
+        addCandidateWithVariants(file.fileUrl, baseLabel);
+        addCandidateWithVariants(file.fileDownloadUrl, baseLabel);
         if (file?.playlistUrl) {
             addCandidate(file.playlistUrl, `${baseLabel} (playlist)`);
         }
@@ -296,8 +334,8 @@ function gatherPeertubeStreamCandidates(metadata) {
         });
     }
 
-    addCandidate(metadata.streamingUrl, 'streamingUrl');
-    addCandidate(metadata.streamUrl, 'streamUrl');
+    addCandidateWithVariants(metadata.streamingUrl, 'streamingUrl');
+    addCandidateWithVariants(metadata.streamUrl, 'streamUrl');
 
     return candidates;
 }
@@ -330,7 +368,7 @@ function findPeertubeMagnet(metadata) {
     return '';
 }
 
-function probePeertubeStreamUrl(videoElement, url, timeoutMs = 12000) {
+function probePeertubeStreamUrl(videoElement, url, timeoutMs = PEERTUBE_STREAM_PROBE_TIMEOUT_MS) {
     return new Promise((resolve, reject) => {
         let settled = false;
         const settle = (success, error) => {
@@ -597,6 +635,7 @@ async function buildPeertubeVideoData(importData) {
         title: importData.title,
         description: importData.description,
         url: streamUrl,
+        streamUrl: streamUrl,
         thumbnail: thumbnail,
         preview: preview,
         duration: duration,
