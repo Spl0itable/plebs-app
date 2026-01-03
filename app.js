@@ -35088,7 +35088,7 @@ async function publishPeertubeVideo(importData) {
     setPeertubeMetaStatus('Publishing Peertube video to Nostr…', 'info');
 
     try {
-        const videoData = buildPeertubeVideoData(importData);
+        const videoData = await buildPeertubeVideoData(importData);
         videoData.dTag = generateVideoDTag();
 
         const addressableEvent = createNip71VideoEvent(videoData);
@@ -35123,7 +35123,7 @@ async function publishPeertubeVideo(importData) {
     }
 }
 
-function buildPeertubeVideoData(importData) {
+async function buildPeertubeVideoData(importData) {
     const metadata = importData.metadata || {};
     const primaryFile = selectPeertubePrimaryFile(metadata);
     const streamUrl = primaryFile?.url || metadata.streamingUrl || metadata.streamUrl || importData.url;
@@ -35143,7 +35143,7 @@ function buildPeertubeVideoData(importData) {
     const size = primaryFile?.size || metadata.fileSize || 0;
     const width = primaryFile?.width || metadata.width || 0;
     const height = primaryFile?.height || metadata.height || 0;
-    const hash = primaryFile?.sha256 || metadata.hash || metadata.sha256 || '';
+    const hash = await derivePeertubeHash(importData, metadata, primaryFile?.sha256);
     const preview = metadata.previewUrl || metadata.snapshotUrl || '';
     const thumbnail = importData.thumbnail || metadata.snapshotUrl || metadata.thumbnail || '';
 
@@ -35259,6 +35259,25 @@ function normalizeNostrPubkey(value) {
     }
 
     return null;
+}
+
+async function derivePeertubeHash(importData, metadata, primaryHash) {
+    if (primaryHash) return primaryHash;
+    const candidate = metadata.hash || metadata.sha256 || metadata.videoHash || '';
+    if (candidate) return candidate;
+
+    const fallbackInput = importData.url || metadata.watchUrl || metadata.streamUrl || metadata.snapshotUrl || '';
+    if (!fallbackInput) return '';
+
+    try {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(fallbackInput);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hashBuffer)).map(byte => byte.toString(16).padStart(2, '0')).join('');
+    } catch (error) {
+        console.error('Failed to derive Peertube hash:', error);
+        return '';
+    }
 }
 
 function hideCreateModal() {
