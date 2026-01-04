@@ -39,6 +39,8 @@
             }
         })();
     </script>
+    <!-- HLS.js -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.12/dist/hls.min.js"></script>
 </head>
 
 <body>
@@ -1118,11 +1120,9 @@
                 <div id="peertubeMetaStatus" class="form-hint" style="min-height:1.3rem;"></div>
                 <div id="peertubePreview" class="peertube-preview"></div>
                 <div class="upload-actions" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                    <button type="button" class="fetch-metadata-btn test-stream-btn" id="peertubeTestStreamBtn" style="flex:1;" onclick="testPeertubeStream()" disabled>Test stream</button>
                     <button type="submit" class="upload-btn" style="flex:2;">Import Video</button>
                 </div>
                 <input type="hidden" id="peertubeStreamUrl">
-                <video id="peertubeStreamTester" preload="metadata" playsinline muted style="display:none;"></video>
             </form>
         </div>
     </div>

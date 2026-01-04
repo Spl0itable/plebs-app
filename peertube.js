@@ -1,3 +1,4 @@
+/* global hideCreateModal, currentUser, ensureLoggedIn, showCreateModal, showToast, navigateTo, videoEventLinks, allEvents, generateVideoDTag, createNip71VideoEvent, signEvent, createLegacyNip71VideoEvent, createKind1VideoEvent, publishEvent */
 const peertubeImportState = {
     metadata: null,
     lastFetched: null,
@@ -55,20 +56,9 @@ function resetPeertubeImportForm() {
         streamInput.value = '';
     }
 
-    const testBtn = document.getElementById('peertubeTestStreamBtn');
-    if (testBtn) {
-        testBtn.disabled = true;
-    }
-
     peertubeImportState.magnet = '';
     updatePeertubeWebTorrentHint('WebTorrent will only run if a magnet is available.', 'info');
     configurePeertubeWebTorrentCheckbox(false);
-
-    const testerVideo = document.getElementById('peertubeStreamTester');
-    if (testerVideo) {
-        testerVideo.pause();
-        testerVideo.removeAttribute('src');
-    }
 }
 
 function setPeertubeMetaStatus(message, type = 'info') {
@@ -215,11 +205,6 @@ async function fetchPeertubeMetadata() {
         setPeertubeMetaStatus(`Metadata loaded from ${parsed.origin}${statusNote}`, 'success');
         console.log('[Peertube] metadata loaded:', parsed.origin, parsed.id, data);
 
-        const testBtn = document.getElementById('peertubeTestStreamBtn');
-        if (testBtn) {
-            testBtn.disabled = false;
-        }
-
         const extractedMagnet = findPeertubeMagnet(data);
         peertubeImportState.magnet = extractedMagnet;
         if (extractedMagnet) {
@@ -232,10 +217,6 @@ async function fetchPeertubeMetadata() {
     } catch (error) {
         console.error('Peertube metadata fetch failed:', error);
         setPeertubeMetaStatus(`Unable to fetch metadata (${error.message}). Fill fields manually if needed.`, 'error');
-        const testBtn = document.getElementById('peertubeTestStreamBtn');
-        if (testBtn) {
-            testBtn.disabled = true;
-        }
         updatePeertubeWebTorrentHint('Unable to determine torrent metadata while fetching.', 'error');
         configurePeertubeWebTorrentCheckbox(false);
         peertubeImportState.magnet = '';
@@ -244,10 +225,9 @@ async function fetchPeertubeMetadata() {
     }
 }
 
-const PEERTUBE_STREAM_SKIP_EXTENSIONS = ['.m3u8'];
+const PEERTUBE_STREAM_SKIP_EXTENSIONS = [];
 const PEERTUBE_METADATA_SLOW_THRESHOLD_MS = 4000;
 const PEERTUBE_API_FETCH_TIMEOUT_MS = 20000;
-const PEERTUBE_STREAM_PROBE_TIMEOUT_MS = 20000;
 
 async function fetchPeertubeVideoMetadataFromApi(origin, videoId, { timeoutMs = PEERTUBE_API_FETCH_TIMEOUT_MS } = {}) {
     if (!origin || !videoId) {
@@ -300,21 +280,33 @@ function gatherPeertubeStreamCandidates(metadata) {
     };
 
     const addFileVariants = (file, prefixLabel) => {
-        if (!file || !file.fileDownloadUrl) return;
+        if (!file) return;
         const resolution = file.resolution?.label || file.resolution?.id || 'stream';
         const baseLabel = prefixLabel ? `${resolution} · ${prefixLabel}` : resolution;
-        const normalizedDownloadUrl = normalizeDownloadUrl(file.fileDownloadUrl);
-        if (normalizedDownloadUrl) {
-            addCandidate(normalizedDownloadUrl, `${baseLabel} (download)`);
-        } else {
-            addCandidate(file.fileDownloadUrl, `${baseLabel} (download)`);
+
+        if (file.fileUrl) {
+            addCandidate(file.fileUrl, `${baseLabel} (direct)`);
+        }
+
+        if (file.fileDownloadUrl) {
+            const normalizedDownloadUrl = normalizeDownloadUrl(file.fileDownloadUrl);
+            if (normalizedDownloadUrl) {
+                addCandidate(normalizedDownloadUrl, `${baseLabel} (download)`);
+            } else {
+                addCandidate(file.fileDownloadUrl, `${baseLabel} (download)`);
+            }
         }
     };
 
     if (Array.isArray(metadata.streamingPlaylists)) {
         metadata.streamingPlaylists.forEach(playlist => {
-            if (!playlist || !Array.isArray(playlist.files)) return;
-            playlist.files.forEach(file => addFileVariants(file, 'streaming playlist'));
+            if (!playlist) return;
+            if (playlist.playlistUrl) {
+                addCandidate(playlist.playlistUrl, 'HLS playlist');
+            }
+            if (Array.isArray(playlist.files)) {
+                playlist.files.forEach(file => addFileVariants(file, 'streaming playlist'));
+            }
         });
     }
 
@@ -357,95 +349,6 @@ function findPeertubeMagnet(metadata) {
         }
     }
     return '';
-}
-
-function probePeertubeStreamUrl(videoElement, url, timeoutMs = PEERTUBE_STREAM_PROBE_TIMEOUT_MS) {
-    return new Promise((resolve, reject) => {
-        let settled = false;
-        const settle = (success, error) => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            videoElement.oncanplay = null;
-            videoElement.onloadedmetadata = null;
-            videoElement.onerror = null;
-            videoElement.pause();
-            videoElement.removeAttribute('src');
-            if (success) {
-                resolve(url);
-            } else {
-                reject(error);
-            }
-        };
-
-        const timer = setTimeout(() => {
-            settle(false, new Error('Timed out while checking stream'));
-        }, timeoutMs);
-
-        videoElement.oncanplay = () => settle(true);
-        videoElement.onloadedmetadata = () => settle(true);
-        videoElement.onerror = () => settle(false, new Error('Stream load failed'));
-
-        videoElement.src = url;
-        videoElement.load();
-    });
-}
-
-async function testPeertubeStream() {
-    const metadata = peertubeImportState.metadata;
-    if (!metadata) {
-        setPeertubeMetaStatus('Fetch metadata first to discover candidate streams.', 'error');
-        return;
-    }
-
-    const candidates = gatherPeertubeStreamCandidates(metadata);
-    if (!candidates.length) {
-        setPeertubeMetaStatus('No direct MP4/WebM URLs detected in the metadata.', 'error');
-        return;
-    }
-
-    const testerVideo = document.getElementById('peertubeStreamTester');
-    if (!testerVideo) return;
-
-    const testBtn = document.getElementById('peertubeTestStreamBtn');
-    if (testBtn) {
-        testBtn.disabled = true;
-        testBtn.textContent = 'Testing…';
-    }
-
-    let detectedCandidate = null;
-    try {
-        for (let i = 0; i < candidates.length; i++) {
-            const candidate = candidates[i];
-            setPeertubeMetaStatus(`Testing stream ${candidate.label || (i + 1)}/${candidates.length}…`, 'info');
-            try {
-                await probePeertubeStreamUrl(testerVideo, candidate.url);
-                detectedCandidate = candidate;
-                break;
-            } catch (error) {
-                console.warn('Peertube stream test failed:', error);
-            }
-        }
-    } finally {
-        if (testBtn) {
-            testBtn.disabled = false;
-            testBtn.textContent = 'Test stream';
-        }
-        testerVideo.pause();
-        testerVideo.removeAttribute('src');
-    }
-
-    if (detectedCandidate) {
-        setPeertubeMetaStatus(`Playable stream found: ${detectedCandidate.url} ${detectedCandidate.label ? `(${detectedCandidate.label})` : ''}`, 'success');
-        peertubeImportState.streamUrlOverride = detectedCandidate.url;
-        const streamInput = document.getElementById('peertubeStreamUrl');
-        if (streamInput) {
-            streamInput.value = detectedCandidate.url;
-        }
-        return;
-    }
-
-    setPeertubeMetaStatus('No playable HTTP streams detected; you can still rely on WebTorrent.', 'error');
 }
 
 function parsePeertubeVideoUrl(value) {
