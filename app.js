@@ -26,6 +26,7 @@ const SUPPORTED_LANGUAGES = {
 let currentLanguage = 'en';
 let webTorrentClient = null;
 let activeWebTorrentSession = null;
+let currentWebTorrentAbort = null;
 
 // Translations object - organized by language code
 const translations = {
@@ -21897,13 +21898,15 @@ function selectWebTorrentFile(files) {
     const preferredExtensions = ['mp4', 'webm', 'mkv', 'mov'];
     for (const ext of preferredExtensions) {
         const match = files.find(file => file.name?.toLowerCase().endsWith(`.${ext}`));
-        if (match) return match;
+        if (match) {
+            return match;
+        }
     }
 
     return files[0];
 }
 
-async function startPeertubeWebTorrentStream(eventId, magnet, videoElement) {
+async function startPeertubeWebTorrentStream(eventId, magnet, videoElement, onStatusUpdate) {
     if (!magnet) {
         throw new Error('Magnet link missing');
     }
@@ -21919,14 +21922,16 @@ async function startPeertubeWebTorrentStream(eventId, magnet, videoElement) {
         try {
             const torrent = client.add(magnet, (torrent) => {
                 const file = selectWebTorrentFile(torrent.files);
+                
                 if (!file) {
-                    reject(new Error('No playable file found inside the torrent'));
+                    const err = new Error('No playable file found inside the torrent');
+                    reject(err);
                     return;
                 }
 
                 activeWebTorrentSession = { eventId, torrent };
 
-                file.renderTo(videoElement, { autoplay: true }, (error) => {
+                file.renderTo(videoElement, { autoplay: false, controls: true }, (error) => {
                     if (error) {
                         reject(error);
                     } else {
@@ -21934,6 +21939,29 @@ async function startPeertubeWebTorrentStream(eventId, magnet, videoElement) {
                     }
                 });
             });
+
+            if (onStatusUpdate) {
+                onStatusUpdate('Searching for peers...');
+                
+                torrent.on('wire', () => {
+                     onStatusUpdate(`Peers: ${torrent.numPeers}`);
+                });
+
+                torrent.on('download', () => {
+                     const progress = (torrent.progress * 100).toFixed(1);
+                     const peers = torrent.numPeers;
+                     const speed = (torrent.downloadSpeed / 1024 / 1024).toFixed(2); // MB/s
+                     onStatusUpdate(`Buffering ${progress}% · ${peers} peers · ${speed} MB/s`);
+                });
+                
+                torrent.on('metadata', () => {
+                     onStatusUpdate('Metadata received, finding peers...');
+                });
+                
+                torrent.on('noPeers', () => {
+                     onStatusUpdate('No peers found yet...');
+                });
+            }
 
             torrent.on('error', (err) => {
                 reject(err);
@@ -21953,19 +21981,143 @@ async function handlePeertubeWebTorrent(eventId, magnet) {
         return;
     }
 
+    // Cancellation check: If already pending, abort it
+    if (consentEl && consentEl.classList.contains('webtorrent-pending')) {
+        console.log('[WebTorrent] User requested cancellation of pending load');
+        if (typeof currentWebTorrentAbort === 'function') {
+            currentWebTorrentAbort();
+        }
+        return;
+    }
+
     if (button) {
-        button.disabled = true;
         button.textContent = 'Starting WebTorrent…';
     }
     if (consentEl) {
         consentEl.classList.add('webtorrent-pending');
     }
 
-    videoElement.pause();
-    videoElement.removeAttribute('src');
+    // Create a temporary hidden video element to pre-buffer WebTorrent
+    const tempVideo = document.createElement('video');
+    tempVideo.style.display = 'none';
+    tempVideo.muted = true;
+    const initialTime = videoElement.currentTime;
+    document.body.appendChild(tempVideo);
+
+    let pendingTorrent = null;
+
+    currentWebTorrentAbort = () => {
+        console.log('[WebTorrent] Aborting pending load');
+        if (pendingTorrent) {
+            try { pendingTorrent.destroy(); } catch (e) {}
+        }
+        if (tempVideo.parentNode) {
+            document.body.removeChild(tempVideo);
+        }
+        if (consentEl) {
+            consentEl.classList.remove('webtorrent-pending');
+        }
+        if (button) {
+            button.disabled = false;
+            button.textContent = 'Stream via WebTorrent';
+        }
+        currentWebTorrentAbort = null;
+    };
 
     try {
-        await startPeertubeWebTorrentStream(eventId, magnet, videoElement);
+        await new Promise((resolve, reject) => {
+            let hasResolved = false;
+            let metadataLoaded = false;
+
+            const checkBuffer = () => {
+                if (hasResolved) return;
+                
+                // We need metadata to know where we are in the stream
+                if (!metadataLoaded) return;
+
+                // Check if we have a decent buffer ahead of our target start time
+                // We look for at least 25 seconds of buffered data
+                const buffered = tempVideo.buffered;
+                const MIN_BUFFER_SEC = 25;
+                
+                for (let i = 0; i < buffered.length; i++) {
+                    const start = buffered.start(i);
+                    const end = buffered.end(i);
+                    
+                    // If the current time is within or very close to this range
+                    if (initialTime >= start - 1 && initialTime < end) {
+                        const bufferAhead = end - initialTime;
+                        if (bufferAhead >= MIN_BUFFER_SEC) {
+                            console.log(`[WebTorrent] Buffer ready: ${bufferAhead.toFixed(1)}s ahead`);
+                            onReady();
+                            return;
+                        }
+                    }
+                }
+            };
+
+            const onReady = () => {
+                if (hasResolved) return;
+                hasResolved = true;
+                currentWebTorrentAbort = null;
+                console.log('[WebTorrent] Ready to switch - substantial buffer acquired');
+                
+                const currentTime = videoElement.currentTime;
+                
+                if (typeof videoElement.abortStandardPlayback === 'function') {
+                    videoElement.abortStandardPlayback();
+                }
+                
+                const torrentSrc = tempVideo.src;
+                videoElement.pause();
+                videoElement.src = torrentSrc;
+                videoElement.load();
+                
+                videoElement.addEventListener('loadedmetadata', () => {
+                    if (currentTime > 0) {
+                        videoElement.currentTime = currentTime;
+                    }
+                    videoElement.play().catch(e => console.warn('Autoplay failed:', e));
+                }, { once: true });
+
+                if (tempVideo.parentNode) {
+                    document.body.removeChild(tempVideo);
+                }
+                resolve();
+            };
+
+            tempVideo.addEventListener('loadedmetadata', () => {
+                metadataLoaded = true;
+                // Set the current time on the temp video so WebTorrent knows where to prioritize pieces
+                if (initialTime > 0) {
+                    try { tempVideo.currentTime = initialTime; } catch(e) {}
+                }
+                checkBuffer();
+            });
+
+            tempVideo.addEventListener('progress', checkBuffer);
+            tempVideo.addEventListener('canplay', checkBuffer);
+            
+            startPeertubeWebTorrentStream(eventId, magnet, tempVideo, (status) => {
+                if (button) button.textContent = status + ' (Click to cancel)';
+            }).then(file => {
+                pendingTorrent = activeWebTorrentSession?.torrent;
+            }).catch(err => {
+                if (tempVideo.parentNode) {
+                    document.body.removeChild(tempVideo);
+                }
+                reject(err);
+            });
+
+            // Safety fallback: if we have downloaded at least 5MB and 40s have passed, switch anyway
+            setTimeout(() => {
+                if (!hasResolved && pendingTorrent && pendingTorrent.downloaded > 5 * 1024 * 1024) {
+                    console.log('[WebTorrent] Safety timeout reached with data, switching...');
+                    onReady();
+                }
+            }, 40000);
+        });
+
         if (button) {
             button.textContent = 'Streaming via WebTorrent';
         }
@@ -21987,6 +22139,12 @@ async function handlePeertubeWebTorrent(eventId, magnet) {
             consentEl.classList.remove('webtorrent-pending');
         }
         showToast(error.message || 'WebTorrent streaming failed', 'error');
+
+        // Fallback to standard playback if available
+        if (typeof videoElement.restartStandardPlayback === 'function') {
+            console.log('Falling back to standard playback...');
+            videoElement.restartStandardPlayback();
+        }
     }
 }
 // Function to load trending videos with streaming
@@ -30435,6 +30593,10 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
 
     const mainContent = document.getElementById('mainContent');
 
+    // State for stream switching (resolution/candidate)
+    let isSwitching = false;
+    let savedTime = 0;
+
     // Clean up any existing video element to prevent audio from continuing to play
     // when the video is replaced (fixes double audio bug)
     const existingVideo = mainContent.querySelector('video');
@@ -30879,8 +31041,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                 }
 
                 (async () => {
-                    console.log('[PlaybackDebug] Starting playback flow IIFE');
-                    if (!video) console.error('[PlaybackDebug] Video element not found!');
+                    if (!video) console.error('Video element not found!');
 
                     try {
                         let peertubeMetadata = null;
@@ -30974,7 +31135,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                 }
 
                 if (!streamCandidates.length) {
-                    console.warn('[PlaybackDebug] No stream candidates found');
                     showVideoErrorState('error.videoNotAvailable');
                     return;
                 }
@@ -31002,6 +31162,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                         } else {
                             // Cycle standard candidates
                             const nextIndex = (currentCandidateIndex + 1) % streamCandidates.length;
+                            isSwitching = true;
+                            savedTime = video.currentTime;
                             attemptCandidate(nextIndex);
                         }
                     });
@@ -31017,20 +31179,12 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                 let currentHls = null;
 
                 const attemptCandidate = (index) => {
-                    console.log(`[PlaybackDebug] attemptCandidate called for index ${index}`);
                     if (index >= streamCandidates.length) {
-                        console.warn('[PlaybackDebug] Exhausted all candidates');
                         showVideoErrorState('error.failedLoadVideo');
                         return;
                     }
 
                     const candidate = streamCandidates[index];
-                    console.log(`[Playback] Attempting candidate ${index}/${streamCandidates.length}:`, candidate.url);
-                    
-                    // Save current time for seamless switching (if not initial load)
-                    const savedTime = video.currentTime;
-                    const isSwitching = currentCandidateIndex !== index || video.src;
-                    
                     currentCandidateIndex = index;
                     updateResolutionIndicatorLabel(candidate);
                     setLoadingMessage(`Trying ${candidate.label}…`);
@@ -31063,7 +31217,26 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     const cleanupHandlers = () => {
                         video.removeEventListener('waiting', handleWaiting);
                         video.removeEventListener('playing', handlePlaying);
+                        video.onerror = null;
+                        video.onloadeddata = null;
                         clearStallTimer();
+                        // Remove the abort hook so we don't leak or call it later
+                        delete video.abortStandardPlayback;
+                    };
+
+                    // Expose abort mechanism for WebTorrent or other overrides
+                    video.abortStandardPlayback = () => {
+                        console.log('Standard playback aborted by external request');
+                        alreadySwitched = true;
+                        clearStallTimer();
+                        video.removeEventListener('waiting', handleWaiting);
+                        video.removeEventListener('playing', handlePlaying);
+                        video.onerror = null;
+                        video.onloadeddata = null;
+                        if (currentHls) {
+                            currentHls.destroy();
+                            currentHls = null;
+                        }
                     };
 
                     const switchToNext = (reason) => {
@@ -31094,12 +31267,12 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     };
 
                     video.onloadeddata = () => {
-                        console.log('[PlaybackDebug] Video loaded data');
                         if (alreadySwitched) return;
                         
                         // Restore time if switching
                         if (isSwitching && savedTime > 0) {
                             video.currentTime = savedTime;
+                            isSwitching = false;
                         }
                         
                         cleanupHandlers();
@@ -31156,26 +31329,30 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     }
                 };
 
+                // Expose restart mechanism for WebTorrent fallback
+                video.restartStandardPlayback = () => {
+                    console.log('Restarting standard playback...');
+                    attemptCandidate(0);
+                };
+
                 try {
-                    console.log('[PlaybackDebug] Trying initial attemptCandidate(0)');
                     attemptCandidate(0);
                 } catch (e) {
-                    console.warn('[PlaybackDebug] Playback attempt failed synchronously:', e);
+                    console.warn('Playback attempt failed synchronously:', e);
                     // Emergency fallback: directly set src and play
                     if (streamCandidates && streamCandidates.length > 0) {
-                        console.warn('[PlaybackDebug] Attempting emergency fallback playback with:', streamCandidates[0].url);
-                        video.onerror = (e) => console.error('[PlaybackDebug] Emergency fallback video error:', video.error, e);
+                        console.warn('Attempting emergency fallback playback with:', streamCandidates[0].url);
+                        video.onerror = (e) => console.error('Emergency fallback video error:', video.error, e);
                         video.src = streamCandidates[0].url;
                         video.controls = true;
-                        video.play().catch(pErr => console.error('[PlaybackDebug] Emergency play failed:', pErr));
+                        video.play().catch(pErr => console.error('Emergency play failed:', pErr));
                         if (videoLoadingState) videoLoadingState.style.display = 'none';
                     } else {
                         throw e;
                     }
                 }
             } catch (error) {
-                console.log('[PlaybackDebug] Critical catch block reached!', error);
-                console.error('[PlaybackDebug] Failed to resolve video URL (CRITICAL):', error);
+                console.error('Failed to resolve video URL (CRITICAL):', error);
                 if (videoLoadingState) {
                     videoLoadingState.innerHTML = `<p class="error-message">${t('error.failedLoadVideoShort')}</p>`;
                 }

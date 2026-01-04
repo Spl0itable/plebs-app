@@ -56,6 +56,11 @@ function resetPeertubeImportForm() {
         streamInput.value = '';
     }
 
+    const nsfwCheckbox = document.getElementById('peertubeNSFW');
+    if (nsfwCheckbox) {
+        nsfwCheckbox.checked = false;
+    }
+
     peertubeImportState.magnet = '';
     updatePeertubeWebTorrentHint('WebTorrent will only run if a magnet is available.', 'info');
     configurePeertubeWebTorrentCheckbox(false);
@@ -183,10 +188,21 @@ async function fetchPeertubeMetadata() {
         }
 
         if (thumbnailInput) {
-            const thumb = data.snapshotUrl || data.thumbnail || data.previewUrl;
+            const owner = data.account || data.owner || data.user;
+            const thumb = data.snapshotUrl || data.thumbnailPath || data.thumbnailUrl || data.previewPath || data.previewUrl || owner?.avatarPath || owner?.avatarUrl;
             if (thumb) {
-                thumbnailInput.value = thumb;
+                // Ensure absolute URL if it starts with /
+                if (thumb.startsWith('/')) {
+                    thumbnailInput.value = parsed.origin + thumb;
+                } else {
+                    thumbnailInput.value = thumb;
+                }
             }
+        }
+
+        const nsfwCheckbox = document.getElementById('peertubeNSFW');
+        if (nsfwCheckbox) {
+            nsfwCheckbox.checked = !!data.nsfw;
         }
 
         const preview = document.getElementById('peertubePreview');
@@ -390,6 +406,7 @@ async function handlePeertubeImport(e) {
     const nostr = document.getElementById('peertubeNostr')?.value.trim();
     const magnet = peertubeImportState.magnet;
     const allowTorrent = document.getElementById('peertubeAllowWebTorrent')?.checked;
+    const isNSFW = document.getElementById('peertubeNSFW')?.checked;
     const thumbnail = document.getElementById('peertubeThumbnail')?.value.trim();
     const streamUrlOverride = document.getElementById('peertubeStreamUrl')?.value.trim();
 
@@ -415,6 +432,7 @@ async function handlePeertubeImport(e) {
         nostr,
         magnet,
         allowTorrent,
+        isNSFW,
         thumbnail,
         metadata: peertubeImportState.metadata,
         streamUrl: streamUrlOverride,
@@ -540,7 +558,7 @@ async function buildPeertubeVideoData(importData) {
         mirrors: mirrors,
         fallbackUrls: fallbackUrls,
         tags: tags,
-        isNSFW: false,
+        isNSFW: !!importData.isNSFW,
         hash: hash,
         extraTags: buildPeertubeExtraTags(importData, metadata)
     };
