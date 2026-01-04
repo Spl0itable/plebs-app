@@ -21943,6 +21943,15 @@ async function startPeertubeWebTorrentStream(eventId, magnet, videoElement, onSt
                 });
             });
 
+            // Prevent 'Unhandled error' crashes by catching all torrent-level errors
+            torrent.on('error', (err) => {
+                console.warn('[WebTorrent Torrent Error]', err);
+                if (activeWebTorrentSession?.torrent === torrent) {
+                    activeWebTorrentSession = null;
+                }
+                reject(err);
+            });
+
             if (onStatusUpdate) {
                 onStatusUpdate('Searching for peers...');
                 
@@ -22156,6 +22165,10 @@ async function handlePeertubeWebTorrent(eventId, magnet) {
             loadingState.style.display = 'none';
         }
     } catch (error) {
+        if (abortRequested) {
+            console.log('[WebTorrent] Abort handled, staying on standard playback');
+            return;
+        }
         console.error('WebTorrent stream failed:', error);
         if (button) {
             button.disabled = false;
@@ -31042,15 +31055,21 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     webtorrentConsent.removeAttribute('aria-hidden');
                 };
 
-                const scheduleHideWebTorrentConsentOverlay = () => {
-                    if (!webtorrentConsent || !videoPlayerElement) return;
-                    clearTimeout(webtorrentConsentHideTimer);
-                    webtorrentConsentHideTimer = setTimeout(() => {
-                        videoPlayerElement.classList.remove('webtorrent-visible');
-                        webtorrentConsent.setAttribute('aria-hidden', 'true');
-                    }, WEBTORRENT_CONSENT_HIDE_MS);
-                };
-
+                        const scheduleHideWebTorrentConsentOverlay = () => {
+                            if (!webtorrentConsent || !videoPlayerElement) return;
+                            clearTimeout(webtorrentConsentHideTimer);
+                            webtorrentConsentHideTimer = setTimeout(() => {
+                                // Don't hide if the button has focus or we're currently loading a torrent
+                                const webTorrentButton = document.getElementById(`webtorrent-btn-${eventId}`);
+                                const isFocused = document.activeElement === webTorrentButton;
+                                const isPending = webtorrentConsent.classList.contains('webtorrent-pending');
+                                
+                                if (!isFocused && !isPending) {
+                                    videoPlayerElement.classList.remove('webtorrent-visible');
+                                    webtorrentConsent.setAttribute('aria-hidden', 'true');
+                                }
+                            }, WEBTORRENT_CONSENT_HIDE_MS);
+                        };
                 const registerConsentVisibilityHandlers = () => {
                     if (!webtorrentConsent || !videoPlayerElement || !video) return;
                     videoPlayerElement.addEventListener('mouseenter', showWebTorrentConsentOverlay);
@@ -31358,6 +31377,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                 // Expose restart mechanism for WebTorrent fallback
                 video.restartStandardPlayback = () => {
                     console.log('Restarting standard playback...');
+                    isSwitching = true;
+                    savedTime = video.currentTime;
                     attemptCandidate(0);
                 };
 
