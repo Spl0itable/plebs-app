@@ -30577,14 +30577,14 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     <video controls playsinline>
                         Your browser does not support the video tag.
                     </video>
-                    <div class="resolution-indicator" id="resolution-indicator-${eventId}" tabindex="0" role="button" aria-haspopup="true" aria-expanded="false">
-                        <span id="resolution-indicator-label-${eventId}">Auto</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M6 9l6 6 6-6"/>
-                        </svg>
+                    <div class="peertube-toolbar">
+                        ${webTorrentConsentHtml}
+                        <div class="resolution-wrapper" style="position: relative;">
+                            <div class="resolution-indicator" id="resolution-indicator-${eventId}" tabindex="0" role="button" aria-haspopup="false" aria-expanded="false" title="Click to change resolution">
+                                <span id="resolution-indicator-label-${eventId}">Auto</span>
+                            </div>
+                        </div>
                     </div>
-                    <div class="resolution-menu" id="resolution-menu-${eventId}" hidden></div>
-                    ${webTorrentConsentHtml}
                 </div>
                 <div class="video-content-wrapper">
                     <div class="video-details">
@@ -30901,6 +30901,13 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
 
                         const VIDEO_STREAM_SKIP_EXTENSIONS = [];
 
+                let currentCandidateIndex = 0;
+
+                const updateResolutionIndicatorLabel = (candidate) => {
+                    if (!resolutionIndicatorLabel) return;
+                    resolutionIndicatorLabel.textContent = candidate ? (candidate.label || candidate.descriptor || 'Auto') : 'Auto';
+                };
+
                 const shouldSkipStreamUrl = (url) => {
                     if (!url || typeof url !== 'string') return true;
                     const cleanPath = url.split('?')[0].split('#')[0];
@@ -30977,53 +30984,26 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     resolutionIndicator.style.display = showResolutionIndicator ? 'flex' : 'none';
                 }
 
-                let resolutionCloseListener = null;
-
-                const closeResolutionMenu = () => {
-                    if (resolutionMenu) {
-                        resolutionMenu.hidden = true;
-                    }
-                    if (resolutionIndicator) {
-                        resolutionIndicator.setAttribute('aria-expanded', 'false');
-                    }
-                    if (resolutionCloseListener) {
-                        document.removeEventListener('click', resolutionCloseListener);
-                        resolutionCloseListener = null;
-                    }
-                };
-
-                const openResolutionMenu = () => {
-                    if (!resolutionMenu || !resolutionIndicator) return;
-                    resolutionMenu.hidden = false;
-                    resolutionIndicator.setAttribute('aria-expanded', 'true');
-                    resolutionCloseListener = (event) => {
-                        if (!resolutionIndicator.contains(event.target)) {
-                            closeResolutionMenu();
-                        }
-                    };
-                    document.addEventListener('click', resolutionCloseListener);
-                };
-
-                const updateResolutionIndicatorLabel = (candidate) => {
-                    if (!resolutionIndicatorLabel) return;
-                    resolutionIndicatorLabel.textContent = candidate ? candidate.label : 'Auto';
-                };
-
-                let currentCandidateIndex = 0;
-
-                const highlightResolutionOption = (index) => {
-                    if (!resolutionMenu) return;
-                    const buttons = Array.from(resolutionMenu.querySelectorAll('button'));
-                    buttons.forEach((button, buttonIndex) => {
-                        button.classList.toggle('active', buttonIndex === index);
-                    });
-                };
-
                 if (showResolutionIndicator && resolutionIndicator) {
                     resolutionIndicator.addEventListener('click', (event) => {
                         event.stopPropagation();
-                        if (!resolutionMenu) return;
-                        resolutionMenu.hidden ? openResolutionMenu() : closeResolutionMenu();
+                        
+                        if (currentHls) {
+                            // Cycle HLS levels: Auto (-1) -> Level 0 -> Level 1 ... -> Auto
+                            const levels = currentHls.levels;
+                            let nextLevel = currentHls.currentLevel + 1;
+                            if (nextLevel >= levels.length) {
+                                nextLevel = -1; // Back to Auto
+                            }
+                            currentHls.currentLevel = nextLevel;
+                            
+                            const label = nextLevel === -1 ? 'Auto' : (levels[nextLevel].height ? `${levels[nextLevel].height}p` : `Level ${nextLevel}`);
+                            updateResolutionIndicatorLabel({ label });
+                        } else {
+                            // Cycle standard candidates
+                            const nextIndex = (currentCandidateIndex + 1) % streamCandidates.length;
+                            attemptCandidate(nextIndex);
+                        }
                     });
                     resolutionIndicator.addEventListener('keydown', (event) => {
                         if (event.key === 'Enter' || event.key === ' ') {
@@ -31053,7 +31033,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     
                     currentCandidateIndex = index;
                     updateResolutionIndicatorLabel(candidate);
-                    highlightResolutionOption(index);
                     setLoadingMessage(`Trying ${candidate.label}…`);
 
                     // Clean up previous HLS instance if exists
@@ -31097,7 +31076,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                             currentHls.destroy();
                             currentHls = null;
                         }
-                        closeResolutionMenu();
                         console.warn(`Stream swap triggered (${reason}). Moving to candidate ${index + 2} of ${streamCandidates.length}:`, candidate.url);
                         attemptCandidate(index + 1);
                     };
@@ -31147,44 +31125,8 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                         hls.attachMedia(video);
                         hls.on(window.Hls.Events.MANIFEST_PARSED, (event, data) => {
                             video.play().catch(e => console.warn('Autoplay prevented:', e));
-                            
-                            // Rebuild resolution menu with HLS levels
-                            if (resolutionMenu && data.levels.length > 0) {
-                                resolutionMenu.innerHTML = '';
-                                
-                                // Auto option
-                                const autoBtn = document.createElement('button');
-                                autoBtn.textContent = 'Auto';
-                                autoBtn.className = hls.autoLevelEnabled ? 'active' : '';
-                                autoBtn.onclick = () => {
-                                    hls.currentLevel = -1;
-                                    closeResolutionMenu();
-                                    updateResolutionIndicatorLabel({ label: 'Auto' });
-                                    Array.from(resolutionMenu.children).forEach(b => b.classList.remove('active'));
-                                    autoBtn.classList.add('active');
-                                };
-                                resolutionMenu.appendChild(autoBtn);
-
-                                // Level options
-                                data.levels.forEach((level, levelIndex) => {
-                                    const btn = document.createElement('button');
-                                    const label = level.height ? `${level.height}p` : `Level ${levelIndex}`;
-                                    btn.textContent = label;
-                                    btn.onclick = () => {
-                                        hls.currentLevel = levelIndex;
-                                        closeResolutionMenu();
-                                        updateResolutionIndicatorLabel({ label: label });
-                                        Array.from(resolutionMenu.children).forEach(b => b.classList.remove('active'));
-                                        btn.classList.add('active');
-                                    };
-                                    resolutionMenu.appendChild(btn);
-                                });
-                                
-                                // Show menu if hidden
-                                if (showResolutionIndicator && resolutionIndicator) {
-                                    resolutionIndicator.style.display = 'flex';
-                                }
-                            }
+                            // Ensure label is Auto initially
+                            updateResolutionIndicatorLabel({ label: 'Auto' });
                         });
                         hls.on(window.Hls.Events.ERROR, (event, data) => {
                             if (data.fatal) {
@@ -31213,32 +31155,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                         video.load();
                     }
                 };
-
-                const renderResolutionMenu = () => {
-                    if (!resolutionMenu) return;
-                    resolutionMenu.innerHTML = '';
-                    streamCandidates.forEach((candidate, idx) => {
-                        const option = document.createElement('button');
-                        option.type = 'button';
-                        option.className = `resolution-option${idx === currentCandidateIndex ? ' active' : ''}`;
-                        option.textContent = candidate.label;
-                        option.addEventListener('click', () => {
-                            closeResolutionMenu();
-                            attemptCandidate(idx);
-                        });
-                        resolutionMenu.appendChild(option);
-                    });
-                };
-
-                if (showResolutionIndicator) {
-                    try {
-                        renderResolutionMenu();
-                    } catch (renderErr) {
-                        console.error('[PlaybackDebug] renderResolutionMenu failed:', renderErr);
-                    }
-                } else if (resolutionMenu) {
-                    resolutionMenu.hidden = true;
-                }
 
                 try {
                     console.log('[PlaybackDebug] Trying initial attemptCandidate(0)');

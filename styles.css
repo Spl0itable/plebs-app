@@ -850,124 +850,115 @@ header {
     height: 100%;
 }
 
-.video-player .webtorrent-consent {
+/* PeerTube Toolbar */
+.peertube-toolbar {
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 48px;
-    background: rgba(0, 0, 0, 0.86);
-    border-radius: 0 0 12px 12px;
-    padding: 0 1rem;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    color: #fff;
-    font-size: 0.9rem;
-    z-index: 8;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    z-index: 20;
     opacity: 0;
+    transition: opacity 0.3s ease;
     pointer-events: none;
-    transition: opacity 0.2s ease;
 }
 
-.video-player .webtorrent-consent-content {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.resolution-indicator {
-    position: absolute;
-    bottom: 24px;
-    right: 12px;
-    padding: 0.25rem 0.65rem;
-    border-radius: 999px;
-    background: rgba(0, 0, 0, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    color: #fff;
-    font-size: 0.75rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    cursor: pointer;
-    z-index: 8;
-    transition: transform 0.2s ease;
-}
-
-.resolution-indicator svg {
-    display: block;
-}
-
-.resolution-indicator:hover {
-    transform: translateY(-1px);
-}
-
-.resolution-menu {
-    background: rgba(18, 18, 18, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    padding: 0.5rem;
-    min-width: 180px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-}
-
-.resolution-menu button {
-    width: 100%;
-    border: none;
-    background: transparent;
-    color: #fff;
-    text-align: left;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: background 0.15s ease;
-    border-radius: 4px;
-}
-
-.resolution-menu button:hover,
-.resolution-menu button.active {
-    background: var(--accent);
-}
-
-@media (max-width: 640px) {
-    .video-player .webtorrent-consent {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.8rem;
-        bottom: 8px;
-    }
-
-    .video-player .webtorrent-consent p {
-        font-size: 0.75rem;
-        line-height: 1.2;
-    }
-
-    .resolution-indicator {
-        bottom: 48px;
-    }
-}
-
-.video-player.webtorrent-visible .webtorrent-consent {
+.video-player:hover .peertube-toolbar,
+.video-player:focus-within .peertube-toolbar {
     opacity: 1;
     pointer-events: auto;
 }
 
-.video-player .webtorrent-consent p {
-    margin: 0;
+/* Resolution Indicator in Toolbar */
+.resolution-indicator {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    background: var(--bg-secondary);
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.resolution-indicator:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-1px);
+}
+
+/* WebTorrent Consent in Toolbar */
+.webtorrent-consent {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
     font-size: 0.85rem;
-    color: rgba(255, 255, 255, 0.85);
+    opacity: 1; /* Managed by parent toolbar */
+    pointer-events: auto; /* Managed by parent toolbar */
+}
+
+.webtorrent-consent-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.webtorrent-consent-content p {
+    display: none; /* Hide long text in toolbar */
+}
+
+.webtorrent-consent-content strong {
+    font-weight: normal;
+    font-size: 0.8rem;
+    opacity: 0.9;
 }
 
 .webtorrent-btn {
-    background: #00b894;
-    border: none;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 20px;
+    background: var(--accent);
     color: white;
-    padding: 0.45rem 0.9rem;
-    border-radius: 8px;
+    border: none;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: all 0.2s ease;
+}
+
+.webtorrent-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+    .video-player .webtorrent-consent {
+        padding: 0;
+        font-size: 0.8rem;
+        bottom: auto;
+    }
+    
+    .resolution-indicator {
+        bottom: auto;
+    }
 }
 
 .webtorrent-btn:disabled {
