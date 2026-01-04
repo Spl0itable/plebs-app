@@ -850,6 +850,149 @@ header {
     height: 100%;
 }
 
+/* PeerTube Toolbar */
+.peertube-toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    z-index: 20;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.video-player:hover .peertube-toolbar,
+.video-player:focus-within .peertube-toolbar {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Resolution Indicator in Toolbar */
+.resolution-indicator {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    background: var(--bg-secondary);
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s, transform 0.2s;
+}
+
+.resolution-indicator:hover {
+    background: var(--bg-tertiary);
+    transform: translateY(-1px);
+}
+
+/* WebTorrent Consent in Toolbar */
+.webtorrent-consent {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    height: auto;
+    background: transparent;
+    border: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: white;
+    font-size: 0.85rem;
+    opacity: 1; /* Managed by parent toolbar */
+    pointer-events: auto; /* Managed by parent toolbar */
+}
+
+.webtorrent-consent-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.webtorrent-consent-content p {
+    display: none; /* Hide long text in toolbar */
+}
+
+.webtorrent-consent-content strong {
+    font-weight: normal;
+    font-size: 0.8rem;
+    opacity: 0.9;
+}
+
+.webtorrent-btn {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 20px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.webtorrent-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+    .video-player .webtorrent-consent {
+        padding: 0;
+        font-size: 0.8rem;
+        bottom: auto;
+    }
+    
+    .resolution-indicator {
+        bottom: auto;
+    }
+}
+
+.webtorrent-btn:disabled {
+    background: var(--border);
+    cursor: not-allowed;
+}
+
+.webtorrent-consent.webtorrent-active {
+    border-color: var(--success-color);
+}
+
+.peertube-badge {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.video-info .peertube-badge a {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+.video-info .peertube-badge .peertube-instance {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.video-info .peertube-badge .peertube-nostr a {
+    color: var(--success-color);
+}
+
 .video-loading-state {
     position: absolute;
     top: 0;
@@ -1932,6 +2075,35 @@ nostr-zap {
     cursor: pointer;
 }
 
+.peertube-preview {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.peertube-preview strong {
+    display: block;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+}
+
+#peertubeMetaStatus.success {
+    color: var(--success-color);
+}
+
+#peertubeMetaStatus.error {
+    color: var(--error-color);
+}
+
+#peertubeMetaStatus.info {
+    color: var(--text-secondary);
+}
+
 /* Required field indicator */
 .required-indicator {
     color: #f44336;
@@ -2090,6 +2262,40 @@ nostr-zap {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+.input-with-action {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.input-with-action .form-control {
+    flex: 1;
+}
+
+.fetch-metadata-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0 0.75rem;
+    border-radius: 999px;
+    cursor: pointer;
+    align-self: center;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.fetch-metadata-btn:hover {
+    border-color: var(--text-primary);
+}
+
+.test-stream-btn {
+    font-weight: 500;
+}
+
+.test-stream-btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .form-group label {

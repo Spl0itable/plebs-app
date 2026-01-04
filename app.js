@@ -1,3 +1,4 @@
+/* global fetchPeertubeVideoMetadataFromApi, gatherPeertubeStreamCandidates, finalizePublishedVideoEvents, WebTorrent, QRCode, getUserColor */
 //          ____  _      _
 //  ┌───┐  |  _ \| | ___| |__  ___
 //  │ ▷ │  | |_) | |/ _ \ '_ \/ __|
@@ -23,6 +24,9 @@ const SUPPORTED_LANGUAGES = {
 
 // Current language (default to English, will be updated on init)
 let currentLanguage = 'en';
+let webTorrentClient = null;
+let activeWebTorrentSession = null;
+let currentWebTorrentAbort = null;
 
 // Translations object - organized by language code
 const translations = {
@@ -1342,14 +1346,8 @@ const translations = {
         'channel.videos': 'videos',
         'channel.follower': 'seguidor',
         'channel.followers': 'seguidores',
-        'button.follow': 'Seguir',
         'button.following': 'Siguiendo',
-        'button.unfollow': 'Dejar de seguir',
-        'button.mute': 'Silenciar',
-        'button.unmute': 'Desilenciar',
         'button.report': 'Reportar',
-        'button.muteUser': 'Silenciar usuario',
-        'button.unmuteUser': 'Desilenciar usuario',
         'button.reportComment': 'Reportar comentario',
         'button.reportUser': 'Reportar este usuario',
         'live.goalReached': '¡Meta Alcanzada!',
@@ -1630,8 +1628,9 @@ const translations = {
         'section.trending': 'Tendencias', 'section.recommended': 'Recomendado Para Ti', 'section.shorts': 'Shorts', 'section.live': 'En Vivo', 'section.liveNow': 'En Vivo Ahora', 'section.latestVideos': 'Últimos Videos', 'section.videos': 'Videos', 'section.usersYouFollow': 'Usuarios que Sigues',
         // Trending Period
         'trending.thisWeek': 'Esta Semana', 'trending.today': 'Hoy',
-        // Buttons
-        'button.viewMore': 'Ver Más', 'button.clearAll': 'Borrar Todo', 'button.showAnyway': 'Mostrar de todos modos',
+                // Buttons
+                'button.clearAll': 'Borrar Todo',
+                'button.showAnyway': 'Mostrar de todos modos',
         // Confirmation Modals
         'confirm.logout': 'Cerrar Sesión', 'confirm.logoutMessage': '¿Estás seguro de que quieres cerrar sesión?', 'confirm.resetSettings': 'Restablecer Configuración', 'confirm.resetSettingsMessage': '¿Estás seguro de que quieres restablecer toda la configuración a los valores predeterminados?', 'confirm.reset': 'Restablecer', 'confirm.clearHistory': 'Borrar Historial', 'confirm.clearHistoryMessage': '¿Estás seguro de que quieres borrar todo tu historial de reproducción? Esto no se puede deshacer.', 'confirm.deleteDraft': 'Eliminar Borrador', 'confirm.deleteDraftMessage': '¿Estás seguro de que quieres eliminar este borrador?', 'confirm.delete': 'Eliminar', 'confirm.deleteVideo': 'Eliminar Video', 'confirm.deleteVideoMessage': '¿Estás seguro de que quieres eliminar este video? Esta acción no se puede deshacer.', 'confirm.endStream': 'Finalizar Transmisión en Vivo', 'confirm.endStreamMessage': '¿Estás seguro de que quieres finalizar esta transmisión en vivo? Esta acción no se puede deshacer.', 'confirm.endStreamButton': 'Finalizar Transmisión',
         // Content Filters
@@ -1702,7 +1701,7 @@ const translations = {
         'empty.noMutedUsers': 'Aucun utilisateur en sourdine.', 'empty.noVideosToMonitor': 'Aucune vidéo à surveiller.', 'empty.noRecentActivity': 'Aucune activité récente.', 'empty.failedLoadNotifications': 'Échec du chargement des notifications', 'empty.loginToViewLiked': 'Veuillez <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">vous connecter</a> pour voir vos vidéos aimées.', 'empty.loginToViewFollowing': 'Veuillez <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">vous connecter</a> pour voir qui vous suivez.', 'empty.loginToViewVideos': 'Veuillez <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">vous connecter</a> pour voir vos vidéos.', 'empty.loginToViewAnalytics': 'Veuillez <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">vous connecter</a> pour voir vos statistiques.', 'empty.noLikedVideosYet': 'Vous n\'avez encore aimé aucune vidéo.', 'empty.noLikedVideosFound': 'Aucune vidéo aimée trouvée.', 'empty.noFullLengthLikedVideos': 'Aucune vidéo longue aimée trouvée.', 'empty.noWatchHistory': 'Pas d\'historique. Commencez à regarder des vidéos.', 'empty.noVideosInHistory': 'Aucune vidéo dans l\'historique.', 'empty.noFullLengthHistory': 'Aucune vidéo longue dans l\'historique.', 'empty.noMatchingVideos': 'Aucune vidéo correspondante trouvée.', 'empty.noFullLengthVideos': 'Aucune vidéo longue trouvée.', 'empty.failedLoadTrending': 'Échec du chargement des tendances.', 'empty.noTrendingVideos': 'Aucune vidéo tendance trouvée.', 'empty.noMatchingUsers': 'Aucun utilisateur correspondant trouvé.', 'empty.unableLoadProfiles': 'Impossible de charger les profils.', 'empty.noFollowingVideos': 'Pas encore de vidéos des utilisateurs que vous suivez.', 'empty.noFullLengthFollowing': 'Pas de vidéos longues des utilisateurs que vous suivez.', 'empty.failedLoadFollowing': 'Échec du chargement. Veuillez réessayer.', 'empty.noVideosUploadFirst': 'Aucune vidéo. Téléchargez votre première vidéo!', 'empty.noFullLengthUploaded': 'Aucune vidéo longue trouvée.', 'empty.noMatchingLiveStreams': 'Aucune diffusion correspondante trouvée.', 'empty.noMatchingShorts': 'Aucun short correspondant trouvé.', 'empty.noVideosForTag': 'Aucune vidéo pour ce tag.', 'empty.noFullLengthForTag': 'Aucune vidéo longue pour ce tag.', 'empty.noUploadedVideos': 'Pas encore de vidéos téléchargées.', 'empty.noVideosFound': 'Aucune vidéo trouvée.', 'empty.failedLoadProfile': 'Échec du chargement du profil. Réessayez.', 'empty.noComments': 'Pas encore de commentaires. Soyez le premier!', 'empty.failedLoadComments': 'Échec du chargement des commentaires', 'empty.noLiveNow': 'Personne n\'est en direct. Soyez le premier!',
         'error.videoNotFound': 'Vidéo non trouvée.', 'error.contentNotAvailable': 'Ce contenu n\'est pas disponible.', 'error.invalidVideoData': 'Données vidéo invalides.', 'error.videoNotAvailable': 'Vidéo non disponible. Le fichier a peut-être été supprimé.', 'error.failedLoadVideo': 'Échec du chargement. Veuillez réessayer.', 'error.failedLoadVideoShort': 'Échec du chargement. Fichier peut-être supprimé.', 'error.liveStreamNotFound': 'Diffusion en direct non trouvée.', 'error.invalidLiveStreamData': 'Données de diffusion invalides.', 'error.failedLoadLiveStream': 'Échec du chargement de la diffusion.',
         // New Button & Action Labels
-        'button.follow': 'Suivre', 'button.unfollow': 'Ne plus suivre', 'button.mute': 'Mettre en sourdine', 'button.unmute': 'Réactiver le son', 'button.muteUser': 'Mettre l\'utilisateur en sourdine', 'button.unmuteUser': 'Réactiver l\'utilisateur', 'button.confirm': 'Confirmer', 'button.cancel': 'Annuler', 'button.close': 'Fermer', 'button.boost': 'Booster', 'button.zap': 'Zap', 'button.viewMore': 'Voir plus', 'button.viewAnalytics': 'Voir les statistiques', 'button.backToMyVideos': 'Retour à Mes Vidéos', 'button.editDraft': 'Modifier le brouillon', 'button.deleteDraft': 'Supprimer le brouillon', 'button.editVideo': 'Modifier la vidéo', 'button.deleteVideo': 'Supprimer la vidéo', 'button.editShort': 'Modifier le short', 'button.deleteShort': 'Supprimer le short', 'button.editStream': 'Modifier la diffusion', 'button.endStream': 'Terminer la diffusion', 'button.reset': 'Réinitialiser', 'button.download': 'Télécharger', 'button.watchRecording': 'Regarder l\'enregistrement', 'button.show': 'Afficher', 'button.login': 'Connexion', 'button.toggleChat': 'Basculer le chat', 'button.blockVideo': 'Bloquer la vidéo', 'button.blockUser': 'Bloquer l\'utilisateur', 'button.unblock': 'Débloquer', 'button.removeFromHistory': 'Supprimer de l\'historique',
+        'button.confirm': 'Confirmer', 'button.cancel': 'Annuler', 'button.close': 'Fermer', 'button.boost': 'Booster', 'button.zap': 'Zap', 'button.viewMore': 'Voir plus', 'button.viewAnalytics': 'Voir les statistiques', 'button.backToMyVideos': 'Retour à Mes Vidéos', 'button.editDraft': 'Modifier le brouillon', 'button.deleteDraft': 'Supprimer le brouillon', 'button.editVideo': 'Modifier la vidéo', 'button.deleteVideo': 'Supprimer la vidéo', 'button.editShort': 'Modifier le short', 'button.deleteShort': 'Supprimer le short', 'button.editStream': 'Modifier la diffusion', 'button.endStream': 'Terminer la diffusion', 'button.reset': 'Réinitialiser', 'button.download': 'Télécharger', 'button.watchRecording': 'Regarder l\'enregistrement', 'button.show': 'Afficher', 'button.login': 'Connexion', 'button.toggleChat': 'Basculer le chat', 'button.blockVideo': 'Bloquer la vidéo', 'button.blockUser': 'Bloquer l\'utilisateur', 'button.unblock': 'Débloquer', 'button.removeFromHistory': 'Supprimer de l\'historique',
         // New Stats & Counts
         'stat.views': 'vues', 'stat.viewsCount': '{count} vues', 'stat.videos': 'vidéos', 'stat.video': 'vidéo', 'stat.followers': 'abonnés', 'stat.follower': 'abonné', 'stat.following': 'Abonnements', 'stat.subscribers': 'abonnés', 'stat.comments': 'Commentaires', 'stat.liveCount': '{count} en direct', 'stat.percentOfGoal': '{percent}% de l\'objectif', 'stat.netGrowth': 'Croissance nette', 'stat.newFollowers': 'Nouveaux abonnés', 'stat.unfollowed': 'Désabonnements', 'stat.lastUpdated': 'Dernière mise à jour: {date}',
         // New Content Badges
@@ -2101,8 +2100,9 @@ const translations = {
         'section.trending': 'Tendances', 'section.recommended': 'Recommandé Pour Vous', 'section.shorts': 'Shorts', 'section.live': 'En Direct', 'section.liveNow': 'En Direct Maintenant', 'section.latestVideos': 'Dernières Vidéos', 'section.videos': 'Vidéos', 'section.usersYouFollow': 'Utilisateurs Que Vous Suivez',
         // Trending Period
         'trending.thisWeek': 'Cette Semaine', 'trending.today': 'Aujourd\'hui',
-        // Buttons
-        'button.viewMore': 'Voir Plus', 'button.clearAll': 'Tout Effacer', 'button.showAnyway': 'Afficher quand même',
+                // Buttons
+                'button.clearAll': 'Tout Effacer',
+                'button.showAnyway': 'Afficher quand même',
         // Confirmation Modals
         'confirm.logout': 'Déconnexion', 'confirm.logoutMessage': 'Êtes-vous sûr de vouloir vous déconnecter?', 'confirm.resetSettings': 'Réinitialiser les Paramètres', 'confirm.resetSettingsMessage': 'Êtes-vous sûr de vouloir réinitialiser tous les paramètres aux valeurs par défaut?', 'confirm.reset': 'Réinitialiser', 'confirm.clearHistory': 'Effacer l\'Historique', 'confirm.clearHistoryMessage': 'Êtes-vous sûr de vouloir effacer tout votre historique de visionnage? Cette action ne peut pas être annulée.', 'confirm.deleteDraft': 'Supprimer le Brouillon', 'confirm.deleteDraftMessage': 'Êtes-vous sûr de vouloir supprimer ce brouillon?', 'confirm.delete': 'Supprimer', 'confirm.deleteVideo': 'Supprimer la Vidéo', 'confirm.deleteVideoMessage': 'Êtes-vous sûr de vouloir supprimer cette vidéo? Cette action ne peut pas être annulée.', 'confirm.endStream': 'Terminer la Diffusion en Direct', 'confirm.endStreamMessage': 'Êtes-vous sûr de vouloir terminer cette diffusion en direct? Cette action ne peut pas être annulée.', 'confirm.endStreamButton': 'Terminer la Diffusion',
         // Content Filters
@@ -2174,7 +2174,7 @@ const translations = {
         'empty.noMutedUsers': 'Keine stummgeschalteten Benutzer.', 'empty.noVideosToMonitor': 'Keine Videos zum Überwachen gefunden.', 'empty.noRecentActivity': 'Keine aktuelle Aktivität.', 'empty.failedLoadNotifications': 'Benachrichtigungen konnten nicht geladen werden', 'empty.loginToViewLiked': 'Bitte <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">anmelden</a>, um Ihre gelikten Videos zu sehen.', 'empty.loginToViewFollowing': 'Bitte <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">anmelden</a>, um zu sehen, wem Sie folgen.', 'empty.loginToViewVideos': 'Bitte <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">anmelden</a>, um Ihre Videos zu sehen.', 'empty.loginToViewAnalytics': 'Bitte <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">anmelden</a>, um Ihre Statistiken zu sehen.', 'empty.noLikedVideosYet': 'Sie haben noch keine Videos geliked.', 'empty.noLikedVideosFound': 'Keine gelikten Videos gefunden.', 'empty.noFullLengthLikedVideos': 'Keine langen gelikten Videos gefunden.', 'empty.noWatchHistory': 'Kein Verlauf. Beginnen Sie Videos anzusehen.', 'empty.noVideosInHistory': 'Keine Videos im Verlauf gefunden.', 'empty.noFullLengthHistory': 'Keine langen Videos im Verlauf.', 'empty.noMatchingVideos': 'Keine passenden Videos gefunden.', 'empty.noFullLengthVideos': 'Keine langen Videos gefunden.', 'empty.failedLoadTrending': 'Trending konnte nicht geladen werden.', 'empty.noTrendingVideos': 'Keine Trend-Videos gefunden.', 'empty.noMatchingUsers': 'Keine passenden Benutzer gefunden.', 'empty.unableLoadProfiles': 'Profile konnten nicht geladen werden.', 'empty.noFollowingVideos': 'Noch keine Videos von Benutzern, denen Sie folgen.', 'empty.noFullLengthFollowing': 'Keine langen Videos von gefolgten Benutzern.', 'empty.failedLoadFollowing': 'Laden fehlgeschlagen. Bitte erneut versuchen.', 'empty.noVideosUploadFirst': 'Keine Videos gefunden. Laden Sie Ihr erstes Video hoch!', 'empty.noFullLengthUploaded': 'Keine langen Videos gefunden.', 'empty.noMatchingLiveStreams': 'Keine passenden Livestreams gefunden.', 'empty.noMatchingShorts': 'Keine passenden Shorts gefunden.', 'empty.noVideosForTag': 'Keine Videos für diesen Tag gefunden.', 'empty.noFullLengthForTag': 'Keine langen Videos für diesen Tag.', 'empty.noUploadedVideos': 'Noch keine Videos hochgeladen.', 'empty.noVideosFound': 'Keine Videos gefunden.', 'empty.failedLoadProfile': 'Profil konnte nicht geladen werden. Erneut versuchen.', 'empty.noComments': 'Noch keine Kommentare. Seien Sie der Erste!', 'empty.failedLoadComments': 'Kommentare konnten nicht geladen werden', 'empty.noLiveNow': 'Niemand ist gerade live. Seien Sie der Erste!',
         'error.videoNotFound': 'Video nicht gefunden.', 'error.contentNotAvailable': 'Dieser Inhalt ist nicht verfügbar.', 'error.invalidVideoData': 'Ungültige Videodaten.', 'error.videoNotAvailable': 'Video nicht verfügbar. Die Datei wurde möglicherweise entfernt.', 'error.failedLoadVideo': 'Video konnte nicht geladen werden. Bitte erneut versuchen.', 'error.failedLoadVideoShort': 'Video konnte nicht geladen werden. Datei möglicherweise entfernt.', 'error.liveStreamNotFound': 'Livestream nicht gefunden.', 'error.invalidLiveStreamData': 'Ungültige Livestream-Daten.', 'error.failedLoadLiveStream': 'Livestream konnte nicht geladen werden.',
         // New Button & Action Labels
-        'button.follow': 'Folgen', 'button.unfollow': 'Entfolgen', 'button.mute': 'Stummschalten', 'button.unmute': 'Stummschaltung aufheben', 'button.muteUser': 'Benutzer stummschalten', 'button.unmuteUser': 'Stummschaltung aufheben', 'button.confirm': 'Bestätigen', 'button.cancel': 'Abbrechen', 'button.close': 'Schließen', 'button.boost': 'Boosten', 'button.zap': 'Zap', 'button.viewMore': 'Mehr anzeigen', 'button.viewAnalytics': 'Statistiken anzeigen', 'button.backToMyVideos': 'Zurück zu Meinen Videos', 'button.editDraft': 'Entwurf bearbeiten', 'button.deleteDraft': 'Entwurf löschen', 'button.editVideo': 'Video bearbeiten', 'button.deleteVideo': 'Video löschen', 'button.editShort': 'Short bearbeiten', 'button.deleteShort': 'Short löschen', 'button.editStream': 'Stream bearbeiten', 'button.endStream': 'Stream beenden', 'button.reset': 'Zurücksetzen', 'button.download': 'Herunterladen', 'button.watchRecording': 'Aufnahme ansehen', 'button.show': 'Anzeigen', 'button.login': 'Anmelden', 'button.toggleChat': 'Chat umschalten', 'button.blockVideo': 'Video blockieren', 'button.blockUser': 'Benutzer blockieren', 'button.unblock': 'Entsperren', 'button.removeFromHistory': 'Aus Verlauf entfernen',
+        'button.confirm': 'Bestätigen', 'button.cancel': 'Abbrechen', 'button.close': 'Schließen', 'button.boost': 'Boosten', 'button.zap': 'Zap', 'button.viewMore': 'Mehr anzeigen', 'button.viewAnalytics': 'Statistiken anzeigen', 'button.backToMyVideos': 'Zurück zu Meinen Videos', 'button.editDraft': 'Entwurf bearbeiten', 'button.deleteDraft': 'Entwurf löschen', 'button.editVideo': 'Video bearbeiten', 'button.deleteVideo': 'Video löschen', 'button.editShort': 'Short bearbeiten', 'button.deleteShort': 'Short löschen', 'button.editStream': 'Stream bearbeiten', 'button.endStream': 'Stream beenden', 'button.reset': 'Zurücksetzen', 'button.download': 'Herunterladen', 'button.watchRecording': 'Aufnahme ansehen', 'button.show': 'Anzeigen', 'button.login': 'Anmelden', 'button.toggleChat': 'Chat umschalten', 'button.blockVideo': 'Video blockieren', 'button.blockUser': 'Benutzer blockieren', 'button.unblock': 'Entsperren', 'button.removeFromHistory': 'Aus Verlauf entfernen',
         // New Stats & Counts
         'stat.views': 'Aufrufe', 'stat.viewsCount': '{count} Aufrufe', 'stat.videos': 'Videos', 'stat.video': 'Video', 'stat.followers': 'Abonnenten', 'stat.follower': 'Abonnent', 'stat.following': 'Abonniert', 'stat.subscribers': 'Abonnenten', 'stat.comments': 'Kommentare', 'stat.liveCount': '{count} live', 'stat.percentOfGoal': '{percent}% des Ziels', 'stat.netGrowth': 'Nettowachstum', 'stat.newFollowers': 'Neue Abonnenten', 'stat.unfollowed': 'Entfolgt', 'stat.lastUpdated': 'Zuletzt aktualisiert: {date}',
         // New Content Badges
@@ -2573,8 +2573,9 @@ const translations = {
         'section.trending': 'Trends', 'section.recommended': 'Für Dich Empfohlen', 'section.shorts': 'Shorts', 'section.live': 'Live', 'section.liveNow': 'Jetzt Live', 'section.latestVideos': 'Neueste Videos', 'section.videos': 'Videos', 'section.usersYouFollow': 'Benutzer, Denen Du Folgst',
         // Trending Period
         'trending.thisWeek': 'Diese Woche', 'trending.today': 'Heute',
-        // Buttons
-        'button.viewMore': 'Mehr anzeigen', 'button.clearAll': 'Alles löschen', 'button.showAnyway': 'Trotzdem anzeigen',
+                // Buttons
+                'button.clearAll': 'Alles löschen',
+                'button.showAnyway': 'Trotzdem anzeigen',
         // Confirmation Modals
         'confirm.logout': 'Abmelden', 'confirm.logoutMessage': 'Sind Sie sicher, dass Sie sich abmelden möchten?', 'confirm.resetSettings': 'Einstellungen zurücksetzen', 'confirm.resetSettingsMessage': 'Sind Sie sicher, dass Sie alle Einstellungen auf die Standardwerte zurücksetzen möchten?', 'confirm.reset': 'Zurücksetzen', 'confirm.clearHistory': 'Verlauf löschen', 'confirm.clearHistoryMessage': 'Sind Sie sicher, dass Sie Ihren gesamten Wiedergabeverlauf löschen möchten? Dies kann nicht rückgängig gemacht werden.', 'confirm.deleteDraft': 'Entwurf löschen', 'confirm.deleteDraftMessage': 'Sind Sie sicher, dass Sie diesen Entwurf löschen möchten?', 'confirm.delete': 'Löschen', 'confirm.deleteVideo': 'Video löschen', 'confirm.deleteVideoMessage': 'Sind Sie sicher, dass Sie dieses Video löschen möchten? Diese Aktion kann nicht rückgängig gemacht werden.', 'confirm.endStream': 'Livestream beenden', 'confirm.endStreamMessage': 'Sind Sie sicher, dass Sie diesen Livestream beenden möchten? Diese Aktion kann nicht rückgängig gemacht werden.', 'confirm.endStreamButton': 'Stream beenden',
         // Content Filters
@@ -2646,7 +2647,7 @@ const translations = {
         'empty.noMutedUsers': 'Sem usuários silenciados.', 'empty.noVideosToMonitor': 'Nenhum vídeo para monitorar.', 'empty.noRecentActivity': 'Sem atividade recente.', 'empty.failedLoadNotifications': 'Falha ao carregar notificações', 'empty.loginToViewLiked': 'Por favor <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">faça login</a> para ver seus vídeos curtidos.', 'empty.loginToViewFollowing': 'Por favor <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">faça login</a> para ver quem você segue.', 'empty.loginToViewVideos': 'Por favor <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">faça login</a> para ver seus vídeos.', 'empty.loginToViewAnalytics': 'Por favor <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">faça login</a> para ver suas estatísticas.', 'empty.noLikedVideosYet': 'Você ainda não curtiu nenhum vídeo.', 'empty.noLikedVideosFound': 'Nenhum vídeo curtido encontrado.', 'empty.noFullLengthLikedVideos': 'Nenhum vídeo longo curtido encontrado.', 'empty.noWatchHistory': 'Sem histórico. Comece a assistir vídeos.', 'empty.noVideosInHistory': 'Nenhum vídeo no histórico.', 'empty.noFullLengthHistory': 'Nenhum vídeo longo no histórico.', 'empty.noMatchingVideos': 'Nenhum vídeo correspondente encontrado.', 'empty.noFullLengthVideos': 'Nenhum vídeo longo encontrado.', 'empty.failedLoadTrending': 'Falha ao carregar tendências.', 'empty.noTrendingVideos': 'Nenhum vídeo em alta encontrado.', 'empty.noMatchingUsers': 'Nenhum usuário correspondente encontrado.', 'empty.unableLoadProfiles': 'Não foi possível carregar perfis.', 'empty.noFollowingVideos': 'Ainda não há vídeos de quem você segue.', 'empty.noFullLengthFollowing': 'Nenhum vídeo longo de quem você segue.', 'empty.failedLoadFollowing': 'Falha ao carregar. Tente novamente.', 'empty.noVideosUploadFirst': 'Nenhum vídeo. Envie seu primeiro vídeo!', 'empty.noFullLengthUploaded': 'Nenhum vídeo longo encontrado.', 'empty.noMatchingLiveStreams': 'Nenhuma transmissão correspondente.', 'empty.noMatchingShorts': 'Nenhum short correspondente.', 'empty.noVideosForTag': 'Nenhum vídeo para esta tag.', 'empty.noFullLengthForTag': 'Nenhum vídeo longo para esta tag.', 'empty.noUploadedVideos': 'Nenhum vídeo enviado ainda.', 'empty.noVideosFound': 'Nenhum vídeo encontrado.', 'empty.failedLoadProfile': 'Falha ao carregar perfil. Tente novamente.', 'empty.noComments': 'Sem comentários ainda. Seja o primeiro!', 'empty.failedLoadComments': 'Falha ao carregar comentários', 'empty.noLiveNow': 'Ninguém está ao vivo. Seja o primeiro!',
         'error.videoNotFound': 'Vídeo não encontrado.', 'error.contentNotAvailable': 'Este conteúdo não está disponível.', 'error.invalidVideoData': 'Dados de vídeo inválidos.', 'error.videoNotAvailable': 'Vídeo não disponível. O arquivo pode ter sido removido.', 'error.failedLoadVideo': 'Falha ao carregar vídeo. Tente novamente.', 'error.failedLoadVideoShort': 'Falha ao carregar. Arquivo pode ter sido removido.', 'error.liveStreamNotFound': 'Transmissão ao vivo não encontrada.', 'error.invalidLiveStreamData': 'Dados de transmissão inválidos.', 'error.failedLoadLiveStream': 'Falha ao carregar transmissão.',
         // New Button & Action Labels
-        'button.follow': 'Seguir', 'button.unfollow': 'Deixar de seguir', 'button.mute': 'Silenciar', 'button.unmute': 'Reativar som', 'button.muteUser': 'Silenciar usuário', 'button.unmuteUser': 'Reativar usuário', 'button.confirm': 'Confirmar', 'button.cancel': 'Cancelar', 'button.close': 'Fechar', 'button.boost': 'Impulsionar', 'button.zap': 'Zap', 'button.viewMore': 'Ver mais', 'button.viewAnalytics': 'Ver estatísticas', 'button.backToMyVideos': 'Voltar aos Meus Vídeos', 'button.editDraft': 'Editar rascunho', 'button.deleteDraft': 'Excluir rascunho', 'button.editVideo': 'Editar vídeo', 'button.deleteVideo': 'Excluir vídeo', 'button.editShort': 'Editar short', 'button.deleteShort': 'Excluir short', 'button.editStream': 'Editar transmissão', 'button.endStream': 'Encerrar transmissão', 'button.reset': 'Redefinir', 'button.download': 'Baixar', 'button.watchRecording': 'Assistir gravação', 'button.show': 'Mostrar', 'button.login': 'Entrar', 'button.toggleChat': 'Alternar chat', 'button.blockVideo': 'Bloquear vídeo', 'button.blockUser': 'Bloquear usuário', 'button.unblock': 'Desbloquear', 'button.removeFromHistory': 'Remover do histórico',
+        'button.confirm': 'Confirmar', 'button.cancel': 'Cancelar', 'button.close': 'Fechar', 'button.boost': 'Impulsionar', 'button.zap': 'Zap', 'button.viewMore': 'Ver mais', 'button.viewAnalytics': 'Ver estatísticas', 'button.backToMyVideos': 'Voltar aos Meus Vídeos', 'button.editDraft': 'Editar rascunho', 'button.deleteDraft': 'Excluir rascunho', 'button.editVideo': 'Editar vídeo', 'button.deleteVideo': 'Excluir vídeo', 'button.editShort': 'Editar short', 'button.deleteShort': 'Excluir short', 'button.editStream': 'Editar transmissão', 'button.endStream': 'Encerrar transmissão', 'button.reset': 'Redefinir', 'button.download': 'Baixar', 'button.watchRecording': 'Assistir gravação', 'button.show': 'Mostrar', 'button.login': 'Entrar', 'button.toggleChat': 'Alternar chat', 'button.blockVideo': 'Bloquear vídeo', 'button.blockUser': 'Bloquear usuário', 'button.unblock': 'Desbloquear', 'button.removeFromHistory': 'Remover do histórico',
         // New Stats & Counts
         'stat.views': 'visualizações', 'stat.viewsCount': '{count} visualizações', 'stat.videos': 'vídeos', 'stat.video': 'vídeo', 'stat.followers': 'seguidores', 'stat.follower': 'seguidor', 'stat.following': 'Seguindo', 'stat.subscribers': 'inscritos', 'stat.comments': 'Comentários', 'stat.liveCount': '{count} ao vivo', 'stat.percentOfGoal': '{percent}% da meta', 'stat.netGrowth': 'Crescimento líquido', 'stat.newFollowers': 'Novos seguidores', 'stat.unfollowed': 'Deixaram de seguir', 'stat.lastUpdated': 'Última atualização: {date}',
         // New Content Badges
@@ -3060,7 +3061,6 @@ const translations = {
         'trending.thisWeek': 'Esta Semana',
         'trending.today': 'Hoje',
         // Buttons
-        'button.viewMore': 'Ver Mais',
         'button.clearAll': 'Limpar Tudo',
         'button.showAnyway': 'Mostrar mesmo assim',
         // Confirmation Modals
@@ -3151,7 +3151,7 @@ const translations = {
         'empty.noMutedUsers': 'Нет заглушенных пользователей.', 'empty.noVideosToMonitor': 'Нет видео для мониторинга.', 'empty.noRecentActivity': 'Нет недавней активности.', 'empty.failedLoadNotifications': 'Не удалось загрузить уведомления', 'empty.loginToViewLiked': 'Пожалуйста <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">войдите</a>, чтобы увидеть понравившиеся видео.', 'empty.loginToViewFollowing': 'Пожалуйста <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">войдите</a>, чтобы увидеть подписки.', 'empty.loginToViewVideos': 'Пожалуйста <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">войдите</a>, чтобы увидеть ваши видео.', 'empty.loginToViewAnalytics': 'Пожалуйста <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">войдите</a>, чтобы увидеть статистику.', 'empty.noLikedVideosYet': 'Вы ещё не лайкнули ни одного видео.', 'empty.noLikedVideosFound': 'Понравившиеся видео не найдены.', 'empty.noFullLengthLikedVideos': 'Длинные понравившиеся видео не найдены.', 'empty.noWatchHistory': 'Нет истории. Начните смотреть видео.', 'empty.noVideosInHistory': 'Видео в истории не найдены.', 'empty.noFullLengthHistory': 'Длинные видео в истории не найдены.', 'empty.noMatchingVideos': 'Подходящие видео не найдены.', 'empty.noFullLengthVideos': 'Длинные видео не найдены.', 'empty.failedLoadTrending': 'Не удалось загрузить тренды.', 'empty.noTrendingVideos': 'Трендовые видео не найдены.', 'empty.noMatchingUsers': 'Подходящие пользователи не найдены.', 'empty.unableLoadProfiles': 'Не удалось загрузить профили.', 'empty.noFollowingVideos': 'Пока нет видео от подписок.', 'empty.noFullLengthFollowing': 'Нет длинных видео от подписок.', 'empty.failedLoadFollowing': 'Не удалось загрузить. Попробуйте снова.', 'empty.noVideosUploadFirst': 'Нет видео. Загрузите первое видео!', 'empty.noFullLengthUploaded': 'Длинные видео не найдены.', 'empty.noMatchingLiveStreams': 'Подходящие трансляции не найдены.', 'empty.noMatchingShorts': 'Подходящие шортсы не найдены.', 'empty.noVideosForTag': 'Нет видео для этого тега.', 'empty.noFullLengthForTag': 'Нет длинных видео для этого тега.', 'empty.noUploadedVideos': 'Видео ещё не загружены.', 'empty.noVideosFound': 'Видео не найдены.', 'empty.failedLoadProfile': 'Не удалось загрузить профиль. Попробуйте снова.', 'empty.noComments': 'Пока нет комментариев. Будьте первым!', 'empty.failedLoadComments': 'Не удалось загрузить комментарии', 'empty.noLiveNow': 'Сейчас никто не в эфире. Будьте первым!',
         'error.videoNotFound': 'Видео не найдено.', 'error.contentNotAvailable': 'Этот контент недоступен.', 'error.invalidVideoData': 'Неверные данные видео.', 'error.videoNotAvailable': 'Видео недоступно. Файл мог быть удалён.', 'error.failedLoadVideo': 'Не удалось загрузить видео. Попробуйте снова.', 'error.failedLoadVideoShort': 'Не удалось загрузить. Файл мог быть удалён.', 'error.liveStreamNotFound': 'Трансляция не найдена.', 'error.invalidLiveStreamData': 'Неверные данные трансляции.', 'error.failedLoadLiveStream': 'Не удалось загрузить трансляцию.',
         // New Button & Action Labels
-        'button.follow': 'Подписаться', 'button.unfollow': 'Отписаться', 'button.mute': 'Заглушить', 'button.unmute': 'Включить звук', 'button.muteUser': 'Заглушить пользователя', 'button.unmuteUser': 'Включить пользователя', 'button.confirm': 'Подтвердить', 'button.cancel': 'Отмена', 'button.close': 'Закрыть', 'button.boost': 'Продвинуть', 'button.zap': 'Zap', 'button.viewMore': 'Показать ещё', 'button.viewAnalytics': 'Статистика', 'button.backToMyVideos': 'Назад к Моим Видео', 'button.editDraft': 'Редактировать черновик', 'button.deleteDraft': 'Удалить черновик', 'button.editVideo': 'Редактировать видео', 'button.deleteVideo': 'Удалить видео', 'button.editShort': 'Редактировать short', 'button.deleteShort': 'Удалить short', 'button.editStream': 'Редактировать трансляцию', 'button.endStream': 'Завершить трансляцию', 'button.reset': 'Сбросить', 'button.download': 'Скачать', 'button.watchRecording': 'Смотреть запись', 'button.show': 'Показать', 'button.login': 'Войти', 'button.toggleChat': 'Переключить чат', 'button.blockVideo': 'Заблокировать видео', 'button.blockUser': 'Заблокировать пользователя', 'button.unblock': 'Разблокировать', 'button.removeFromHistory': 'Удалить из истории',
+        'button.confirm': 'Подтвердить', 'button.cancel': 'Отмена', 'button.close': 'Закрыть', 'button.boost': 'Продвинуть', 'button.zap': 'Zap', 'button.viewMore': 'Показать ещё', 'button.viewAnalytics': 'Статистика', 'button.backToMyVideos': 'Назад к Моим Видео', 'button.editDraft': 'Редактировать черновик', 'button.deleteDraft': 'Удалить черновик', 'button.editVideo': 'Редактировать видео', 'button.deleteVideo': 'Удалить видео', 'button.editShort': 'Редактировать short', 'button.deleteShort': 'Удалить short', 'button.editStream': 'Редактировать трансляцию', 'button.endStream': 'Завершить трансляцию', 'button.reset': 'Сбросить', 'button.download': 'Скачать', 'button.watchRecording': 'Смотреть запись', 'button.show': 'Показать', 'button.login': 'Войти', 'button.toggleChat': 'Переключить чат', 'button.blockVideo': 'Заблокировать видео', 'button.blockUser': 'Заблокировать пользователя', 'button.unblock': 'Разблокировать', 'button.removeFromHistory': 'Удалить из истории',
         // New Stats & Counts
         'stat.views': 'просмотров', 'stat.viewsCount': '{count} просмотров', 'stat.videos': 'видео', 'stat.video': 'видео', 'stat.followers': 'подписчиков', 'stat.follower': 'подписчик', 'stat.following': 'Подписки', 'stat.subscribers': 'подписчиков', 'stat.comments': 'Комментарии', 'stat.liveCount': '{count} в эфире', 'stat.percentOfGoal': '{percent}% от цели', 'stat.netGrowth': 'Чистый рост', 'stat.newFollowers': 'Новые подписчики', 'stat.unfollowed': 'Отписались', 'stat.lastUpdated': 'Обновлено: {date}',
         // New Content Badges
@@ -3565,7 +3565,6 @@ const translations = {
         'trending.thisWeek': 'На этой неделе',
         'trending.today': 'Сегодня',
         // Buttons
-        'button.viewMore': 'Посмотреть больше',
         'button.clearAll': 'Очистить всё',
         'button.showAnyway': 'Показать в любом случае',
         // Confirmation Modals
@@ -3658,7 +3657,7 @@ const translations = {
         'empty.noMutedUsers': '没有屏蔽的用户。', 'empty.noVideosToMonitor': '没有要监控的视频。', 'empty.noRecentActivity': '没有最近活动。', 'empty.failedLoadNotifications': '加载通知失败', 'empty.loginToViewLiked': '请<a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">登录</a>查看您喜欢的视频。', 'empty.loginToViewFollowing': '请<a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">登录</a>查看您的关注。', 'empty.loginToViewVideos': '请<a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">登录</a>查看您的视频。', 'empty.loginToViewAnalytics': '请<a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">登录</a>查看您的统计数据。', 'empty.noLikedVideosYet': '您还没有喜欢任何视频。', 'empty.noLikedVideosFound': '未找到喜欢的视频。', 'empty.noFullLengthLikedVideos': '未找到喜欢的长视频。', 'empty.noWatchHistory': '没有观看历史。开始观看视频吧。', 'empty.noVideosInHistory': '历史记录中没有视频。', 'empty.noFullLengthHistory': '历史记录中没有长视频。', 'empty.noMatchingVideos': '未找到匹配的视频。', 'empty.noFullLengthVideos': '未找到长视频。', 'empty.failedLoadTrending': '加载热门视频失败。', 'empty.noTrendingVideos': '未找到热门视频。', 'empty.noMatchingUsers': '未找到匹配的用户。', 'empty.unableLoadProfiles': '无法加载用户资料。', 'empty.noFollowingVideos': '您关注的用户还没有视频。', 'empty.noFullLengthFollowing': '关注用户没有长视频。', 'empty.failedLoadFollowing': '加载失败，请重试。', 'empty.noVideosUploadFirst': '没有视频。上传您的第一个视频！', 'empty.noFullLengthUploaded': '未找到长视频。', 'empty.noMatchingLiveStreams': '未找到匹配的直播。', 'empty.noMatchingShorts': '未找到匹配的短视频。', 'empty.noVideosForTag': '此标签没有视频。', 'empty.noFullLengthForTag': '此标签没有长视频。', 'empty.noUploadedVideos': '还没有上传视频。', 'empty.noVideosFound': '未找到视频。', 'empty.failedLoadProfile': '加载个人资料失败，请重试。', 'empty.noComments': '还没有评论，成为第一个！', 'empty.failedLoadComments': '加载评论失败', 'empty.noLiveNow': '现在没有人在直播，成为第一个！',
         'error.videoNotFound': '视频未找到。', 'error.contentNotAvailable': '此内容不可用。', 'error.invalidVideoData': '视频数据无效。', 'error.videoNotAvailable': '视频不可用，文件可能已被删除。', 'error.failedLoadVideo': '加载视频失败，请重试。', 'error.failedLoadVideoShort': '加载失败，文件可能已被删除。', 'error.liveStreamNotFound': '直播未找到。', 'error.invalidLiveStreamData': '直播数据无效。', 'error.failedLoadLiveStream': '加载直播失败。',
         // New Button & Action Labels
-        'button.follow': '关注', 'button.unfollow': '取消关注', 'button.mute': '静音', 'button.unmute': '取消静音', 'button.muteUser': '屏蔽用户', 'button.unmuteUser': '取消屏蔽', 'button.confirm': '确认', 'button.cancel': '取消', 'button.close': '关闭', 'button.boost': '推广', 'button.zap': 'Zap', 'button.viewMore': '查看更多', 'button.viewAnalytics': '查看统计', 'button.backToMyVideos': '返回我的视频', 'button.editDraft': '编辑草稿', 'button.deleteDraft': '删除草稿', 'button.editVideo': '编辑视频', 'button.deleteVideo': '删除视频', 'button.editShort': '编辑短视频', 'button.deleteShort': '删除短视频', 'button.editStream': '编辑直播', 'button.endStream': '结束直播', 'button.reset': '重置', 'button.download': '下载', 'button.watchRecording': '观看录像', 'button.show': '显示', 'button.login': '登录', 'button.toggleChat': '切换聊天', 'button.blockVideo': '屏蔽视频', 'button.blockUser': '屏蔽用户', 'button.unblock': '解除屏蔽', 'button.removeFromHistory': '从历史记录中删除',
+        'button.confirm': '确认', 'button.cancel': '取消', 'button.close': '关闭', 'button.boost': '推广', 'button.zap': 'Zap', 'button.viewMore': '查看更多', 'button.viewAnalytics': '查看统计', 'button.backToMyVideos': '返回我的视频', 'button.editDraft': '编辑草稿', 'button.deleteDraft': '删除草稿', 'button.editVideo': '编辑视频', 'button.deleteVideo': '删除视频', 'button.editShort': '编辑短视频', 'button.deleteShort': '删除短视频', 'button.editStream': '编辑直播', 'button.endStream': '结束直播', 'button.reset': '重置', 'button.download': '下载', 'button.watchRecording': '观看录像', 'button.show': '显示', 'button.login': '登录', 'button.toggleChat': '切换聊天', 'button.blockVideo': '屏蔽视频', 'button.blockUser': '屏蔽用户', 'button.unblock': '解除屏蔽', 'button.removeFromHistory': '从历史记录中删除',
         // New Stats & Counts
         'stat.views': '次观看', 'stat.viewsCount': '{count} 次观看', 'stat.videos': '个视频', 'stat.video': '个视频', 'stat.followers': '位粉丝', 'stat.follower': '位粉丝', 'stat.following': '关注中', 'stat.subscribers': '位订阅者', 'stat.comments': '评论', 'stat.liveCount': '{count} 直播中', 'stat.percentOfGoal': '目标的{percent}%', 'stat.netGrowth': '净增长', 'stat.newFollowers': '新粉丝', 'stat.unfollowed': '取消关注', 'stat.lastUpdated': '最后更新: {date}',
         // New Content Badges
@@ -3956,7 +3955,6 @@ const translations = {
         'trending.thisWeek': '本周',
         'trending.today': '今天',
         // Buttons
-        'button.viewMore': '查看更多',
         'button.clearAll': '全部清除',
         'button.showAnyway': '仍然显示',
         // Confirmation Modals
@@ -4049,7 +4047,7 @@ const translations = {
         'empty.noMutedUsers': 'ミュートしているユーザーはいません。', 'empty.noVideosToMonitor': '監視する動画がありません。', 'empty.noRecentActivity': '最近のアクティビティはありません。', 'empty.failedLoadNotifications': '通知の読み込みに失敗しました', 'empty.loginToViewLiked': '<a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">ログイン</a>していいねした動画を見る。', 'empty.loginToViewFollowing': '<a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">ログイン</a>してフォローを見る。', 'empty.loginToViewVideos': '<a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">ログイン</a>して動画を見る。', 'empty.loginToViewAnalytics': '<a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">ログイン</a>して統計を見る。', 'empty.noLikedVideosYet': 'まだ動画にいいねしていません。', 'empty.noLikedVideosFound': 'いいねした動画が見つかりません。', 'empty.noFullLengthLikedVideos': 'いいねした長編動画が見つかりません。', 'empty.noWatchHistory': '視聴履歴がありません。動画を見てみましょう。', 'empty.noVideosInHistory': '履歴に動画がありません。', 'empty.noFullLengthHistory': '履歴に長編動画がありません。', 'empty.noMatchingVideos': '一致する動画が見つかりません。', 'empty.noFullLengthVideos': '長編動画が見つかりません。', 'empty.failedLoadTrending': 'トレンドの読み込みに失敗しました。', 'empty.noTrendingVideos': 'トレンド動画が見つかりません。', 'empty.noMatchingUsers': '一致するユーザーが見つかりません。', 'empty.unableLoadProfiles': 'プロフィールを読み込めません。', 'empty.noFollowingVideos': 'フォロー中のユーザーの動画がまだありません。', 'empty.noFullLengthFollowing': 'フォロー中の長編動画がありません。', 'empty.failedLoadFollowing': '読み込みに失敗しました。再試行してください。', 'empty.noVideosUploadFirst': '動画がありません。最初の動画をアップロード！', 'empty.noFullLengthUploaded': '長編動画が見つかりません。', 'empty.noMatchingLiveStreams': '一致するライブ配信が見つかりません。', 'empty.noMatchingShorts': '一致するショート動画が見つかりません。', 'empty.noVideosForTag': 'このタグの動画がありません。', 'empty.noFullLengthForTag': 'このタグの長編動画がありません。', 'empty.noUploadedVideos': 'まだ動画がアップロードされていません。', 'empty.noVideosFound': '動画が見つかりません。', 'empty.failedLoadProfile': 'プロフィールの読み込みに失敗しました。再試行してください。', 'empty.noComments': 'まだコメントがありません。最初のコメントを！', 'empty.failedLoadComments': 'コメントの読み込みに失敗しました', 'empty.noLiveNow': '今は誰もライブしていません。最初になりましょう！',
         'error.videoNotFound': '動画が見つかりません。', 'error.contentNotAvailable': 'このコンテンツは利用できません。', 'error.invalidVideoData': '無効な動画データです。', 'error.videoNotAvailable': '動画が利用できません。ファイルが削除された可能性があります。', 'error.failedLoadVideo': '動画の読み込みに失敗しました。再試行してください。', 'error.failedLoadVideoShort': '読み込みに失敗。ファイルが削除された可能性があります。', 'error.liveStreamNotFound': 'ライブ配信が見つかりません。', 'error.invalidLiveStreamData': '無効なライブ配信データです。', 'error.failedLoadLiveStream': 'ライブ配信の読み込みに失敗しました。',
         // New Button & Action Labels
-        'button.follow': 'フォロー', 'button.unfollow': 'フォロー解除', 'button.mute': 'ミュート', 'button.unmute': 'ミュート解除', 'button.muteUser': 'ユーザーをミュート', 'button.unmuteUser': 'ミュート解除', 'button.confirm': '確認', 'button.cancel': 'キャンセル', 'button.close': '閉じる', 'button.boost': 'ブースト', 'button.zap': 'Zap', 'button.viewMore': 'もっと見る', 'button.viewAnalytics': '統計を見る', 'button.backToMyVideos': 'マイ動画に戻る', 'button.editDraft': '下書きを編集', 'button.deleteDraft': '下書きを削除', 'button.editVideo': '動画を編集', 'button.deleteVideo': '動画を削除', 'button.editShort': 'ショートを編集', 'button.deleteShort': 'ショートを削除', 'button.editStream': '配信を編集', 'button.endStream': '配信を終了', 'button.reset': 'リセット', 'button.download': 'ダウンロード', 'button.watchRecording': '録画を見る', 'button.show': '表示', 'button.login': 'ログイン', 'button.toggleChat': 'チャット切替', 'button.blockVideo': '動画をブロック', 'button.blockUser': 'ユーザーをブロック', 'button.unblock': 'ブロック解除', 'button.removeFromHistory': '履歴から削除',
+        'button.confirm': '確認', 'button.cancel': 'キャンセル', 'button.close': '閉じる', 'button.boost': 'ブースト', 'button.zap': 'Zap', 'button.viewMore': 'もっと見る', 'button.viewAnalytics': '統計を見る', 'button.backToMyVideos': 'マイ動画に戻る', 'button.editDraft': '下書きを編集', 'button.deleteDraft': '下書きを削除', 'button.editVideo': '動画を編集', 'button.deleteVideo': '動画を削除', 'button.editShort': 'ショートを編集', 'button.deleteShort': 'ショートを削除', 'button.editStream': '配信を編集', 'button.endStream': '配信を終了', 'button.reset': 'リセット', 'button.download': 'ダウンロード', 'button.watchRecording': '録画を見る', 'button.show': '表示', 'button.login': 'ログイン', 'button.toggleChat': 'チャット切替', 'button.blockVideo': '動画をブロック', 'button.blockUser': 'ユーザーをブロック', 'button.unblock': 'ブロック解除', 'button.removeFromHistory': '履歴から削除',
         // New Stats & Counts
         'stat.views': '回視聴', 'stat.viewsCount': '{count}回視聴', 'stat.videos': '本の動画', 'stat.video': '本の動画', 'stat.followers': '人のフォロワー', 'stat.follower': '人のフォロワー', 'stat.following': 'フォロー中', 'stat.subscribers': '人の登録者', 'stat.comments': 'コメント', 'stat.liveCount': '{count}件ライブ中', 'stat.percentOfGoal': '目標の{percent}%', 'stat.netGrowth': '純増', 'stat.newFollowers': '新規フォロワー', 'stat.unfollowed': 'フォロー解除', 'stat.lastUpdated': '最終更新: {date}',
         // New Content Badges
@@ -4348,7 +4346,6 @@ const translations = {
         'trending.thisWeek': '今週',
         'trending.today': '今日',
         // Buttons
-        'button.viewMore': 'もっと見る',
         'button.clearAll': 'すべてクリア',
         'button.showAnyway': 'とにかく表示',
         // Confirmation Modals
@@ -4441,7 +4438,7 @@ const translations = {
         'empty.noMutedUsers': '뮤트된 사용자가 없습니다.', 'empty.noVideosToMonitor': '모니터링할 동영상이 없습니다.', 'empty.noRecentActivity': '최근 활동이 없습니다.', 'empty.failedLoadNotifications': '알림 로드 실패', 'empty.loginToViewLiked': '좋아요한 동영상을 보려면 <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">로그인</a>하세요.', 'empty.loginToViewFollowing': '팔로잉을 보려면 <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">로그인</a>하세요.', 'empty.loginToViewVideos': '동영상을 보려면 <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">로그인</a>하세요.', 'empty.loginToViewAnalytics': '통계를 보려면 <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">로그인</a>하세요.', 'empty.noLikedVideosYet': '아직 좋아요한 동영상이 없습니다.', 'empty.noLikedVideosFound': '좋아요한 동영상을 찾을 수 없습니다.', 'empty.noFullLengthLikedVideos': '좋아요한 긴 동영상을 찾을 수 없습니다.', 'empty.noWatchHistory': '시청 기록이 없습니다. 동영상을 시청해보세요.', 'empty.noVideosInHistory': '기록에 동영상이 없습니다.', 'empty.noFullLengthHistory': '기록에 긴 동영상이 없습니다.', 'empty.noMatchingVideos': '일치하는 동영상을 찾을 수 없습니다.', 'empty.noFullLengthVideos': '긴 동영상을 찾을 수 없습니다.', 'empty.failedLoadTrending': '트렌딩 로드 실패.', 'empty.noTrendingVideos': '트렌딩 동영상을 찾을 수 없습니다.', 'empty.noMatchingUsers': '일치하는 사용자를 찾을 수 없습니다.', 'empty.unableLoadProfiles': '프로필을 로드할 수 없습니다.', 'empty.noFollowingVideos': '팔로우하는 사용자의 동영상이 없습니다.', 'empty.noFullLengthFollowing': '팔로우하는 사용자의 긴 동영상이 없습니다.', 'empty.failedLoadFollowing': '로드 실패. 다시 시도하세요.', 'empty.noVideosUploadFirst': '동영상이 없습니다. 첫 동영상을 업로드하세요!', 'empty.noFullLengthUploaded': '긴 동영상을 찾을 수 없습니다.', 'empty.noMatchingLiveStreams': '일치하는 라이브 스트림을 찾을 수 없습니다.', 'empty.noMatchingShorts': '일치하는 쇼츠를 찾을 수 없습니다.', 'empty.noVideosForTag': '이 태그의 동영상이 없습니다.', 'empty.noFullLengthForTag': '이 태그의 긴 동영상이 없습니다.', 'empty.noUploadedVideos': '아직 업로드된 동영상이 없습니다.', 'empty.noVideosFound': '동영상을 찾을 수 없습니다.', 'empty.failedLoadProfile': '프로필 로드 실패. 다시 시도하세요.', 'empty.noComments': '아직 댓글이 없습니다. 첫 댓글을 달아보세요!', 'empty.failedLoadComments': '댓글 로드 실패', 'empty.noLiveNow': '현재 라이브 중인 사람이 없습니다. 첫 번째가 되어보세요!',
         'error.videoNotFound': '동영상을 찾을 수 없습니다.', 'error.contentNotAvailable': '이 콘텐츠를 사용할 수 없습니다.', 'error.invalidVideoData': '잘못된 동영상 데이터입니다.', 'error.videoNotAvailable': '동영상을 사용할 수 없습니다. 파일이 삭제되었을 수 있습니다.', 'error.failedLoadVideo': '동영상 로드 실패. 다시 시도하세요.', 'error.failedLoadVideoShort': '로드 실패. 파일이 삭제되었을 수 있습니다.', 'error.liveStreamNotFound': '라이브 스트림을 찾을 수 없습니다.', 'error.invalidLiveStreamData': '잘못된 라이브 스트림 데이터입니다.', 'error.failedLoadLiveStream': '라이브 스트림 로드 실패.',
         // New Button & Action Labels
-        'button.follow': '팔로우', 'button.unfollow': '언팔로우', 'button.mute': '음소거', 'button.unmute': '음소거 해제', 'button.muteUser': '사용자 음소거', 'button.unmuteUser': '음소거 해제', 'button.confirm': '확인', 'button.cancel': '취소', 'button.close': '닫기', 'button.boost': '부스트', 'button.zap': 'Zap', 'button.viewMore': '더 보기', 'button.viewAnalytics': '통계 보기', 'button.backToMyVideos': '내 동영상으로 돌아가기', 'button.editDraft': '초안 편집', 'button.deleteDraft': '초안 삭제', 'button.editVideo': '동영상 편집', 'button.deleteVideo': '동영상 삭제', 'button.editShort': '쇼츠 편집', 'button.deleteShort': '쇼츠 삭제', 'button.editStream': '방송 편집', 'button.endStream': '방송 종료', 'button.reset': '초기화', 'button.download': '다운로드', 'button.watchRecording': '녹화 보기', 'button.show': '표시', 'button.login': '로그인', 'button.toggleChat': '채팅 전환', 'button.blockVideo': '동영상 차단', 'button.blockUser': '사용자 차단', 'button.unblock': '차단 해제', 'button.removeFromHistory': '기록에서 삭제',
+        'button.confirm': '확인', 'button.cancel': '취소', 'button.close': '닫기', 'button.boost': '부스트', 'button.zap': 'Zap', 'button.viewMore': '더 보기', 'button.viewAnalytics': '통계 보기', 'button.backToMyVideos': '내 동영상으로 돌아가기', 'button.editDraft': '초안 편집', 'button.deleteDraft': '초안 삭제', 'button.editVideo': '동영상 편집', 'button.deleteVideo': '동영상 삭제', 'button.editShort': '쇼츠 편집', 'button.deleteShort': '쇼츠 삭제', 'button.editStream': '방송 편집', 'button.endStream': '방송 종료', 'button.reset': '초기화', 'button.download': '다운로드', 'button.watchRecording': '녹화 보기', 'button.show': '표시', 'button.login': '로그인', 'button.toggleChat': '채팅 전환', 'button.blockVideo': '동영상 차단', 'button.blockUser': '사용자 차단', 'button.unblock': '차단 해제', 'button.removeFromHistory': '기록에서 삭제',
         // New Stats & Counts
         'stat.views': '조회', 'stat.viewsCount': '{count}회 조회', 'stat.videos': '개 동영상', 'stat.video': '개 동영상', 'stat.followers': '팔로워', 'stat.follower': '팔로워', 'stat.following': '팔로잉', 'stat.subscribers': '구독자', 'stat.comments': '댓글', 'stat.liveCount': '{count}개 라이브', 'stat.percentOfGoal': '목표의 {percent}%', 'stat.netGrowth': '순증가', 'stat.newFollowers': '신규 팔로워', 'stat.unfollowed': '언팔로우', 'stat.lastUpdated': '최종 업데이트: {date}',
         // New Content Badges
@@ -4740,7 +4737,6 @@ const translations = {
         'trending.thisWeek': '이번 주',
         'trending.today': '오늘',
         // Buttons
-        'button.viewMore': '더보기',
         'button.clearAll': '모두 지우기',
         'button.showAnyway': '그래도 표시',
         // Confirmation Modals
@@ -4831,7 +4827,7 @@ const translations = {
         'empty.noMutedUsers': 'لا يوجد مستخدمون مكتومون.', 'empty.noVideosToMonitor': 'لا توجد فيديوهات للمراقبة.', 'empty.noRecentActivity': 'لا يوجد نشاط حديث.', 'empty.failedLoadNotifications': 'فشل تحميل الإشعارات', 'empty.loginToViewLiked': 'يرجى <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">تسجيل الدخول</a> لعرض الفيديوهات المفضلة.', 'empty.loginToViewFollowing': 'يرجى <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">تسجيل الدخول</a> لعرض المتابَعين.', 'empty.loginToViewVideos': 'يرجى <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">تسجيل الدخول</a> لعرض فيديوهاتك.', 'empty.loginToViewAnalytics': 'يرجى <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">تسجيل الدخول</a> لعرض الإحصائيات.', 'empty.noLikedVideosYet': 'لم تعجب بأي فيديو بعد.', 'empty.noLikedVideosFound': 'لم يتم العثور على فيديوهات مفضلة.', 'empty.noFullLengthLikedVideos': 'لم يتم العثور على فيديوهات طويلة مفضلة.', 'empty.noWatchHistory': 'لا يوجد سجل مشاهدة. ابدأ مشاهدة الفيديوهات.', 'empty.noVideosInHistory': 'لا توجد فيديوهات في السجل.', 'empty.noFullLengthHistory': 'لا توجد فيديوهات طويلة في السجل.', 'empty.noMatchingVideos': 'لم يتم العثور على فيديوهات مطابقة.', 'empty.noFullLengthVideos': 'لم يتم العثور على فيديوهات طويلة.', 'empty.failedLoadTrending': 'فشل تحميل الرائج.', 'empty.noTrendingVideos': 'لم يتم العثور على فيديوهات رائجة.', 'empty.noMatchingUsers': 'لم يتم العثور على مستخدمين مطابقين.', 'empty.unableLoadProfiles': 'تعذر تحميل الملفات الشخصية.', 'empty.noFollowingVideos': 'لا توجد فيديوهات من المتابَعين.', 'empty.noFullLengthFollowing': 'لا توجد فيديوهات طويلة من المتابَعين.', 'empty.failedLoadFollowing': 'فشل التحميل. حاول مجدداً.', 'empty.noVideosUploadFirst': 'لا توجد فيديوهات. ارفع أول فيديو!', 'empty.noFullLengthUploaded': 'لم يتم العثور على فيديوهات طويلة.', 'empty.noMatchingLiveStreams': 'لم يتم العثور على بث مباشر مطابق.', 'empty.noMatchingShorts': 'لم يتم العثور على فيديوهات قصيرة مطابقة.', 'empty.noVideosForTag': 'لا توجد فيديوهات لهذا الوسم.', 'empty.noFullLengthForTag': 'لا توجد فيديوهات طويلة لهذا الوسم.', 'empty.noUploadedVideos': 'لم يتم رفع فيديوهات بعد.', 'empty.noVideosFound': 'لم يتم العثور على فيديوهات.', 'empty.failedLoadProfile': 'فشل تحميل الملف الشخصي. حاول مجدداً.', 'empty.noComments': 'لا توجد تعليقات بعد. كن أول من يعلق!', 'empty.failedLoadComments': 'فشل تحميل التعليقات', 'empty.noLiveNow': 'لا أحد يبث مباشرة الآن. كن الأول!',
         'error.videoNotFound': 'الفيديو غير موجود.', 'error.contentNotAvailable': 'هذا المحتوى غير متاح.', 'error.invalidVideoData': 'بيانات الفيديو غير صالحة.', 'error.videoNotAvailable': 'الفيديو غير متاح. ربما تم حذف الملف.', 'error.failedLoadVideo': 'فشل تحميل الفيديو. حاول مجدداً.', 'error.failedLoadVideoShort': 'فشل التحميل. ربما تم حذف الملف.', 'error.liveStreamNotFound': 'البث المباشر غير موجود.', 'error.invalidLiveStreamData': 'بيانات البث المباشر غير صالحة.', 'error.failedLoadLiveStream': 'فشل تحميل البث المباشر.',
         // New Button & Action Labels
-        'button.follow': 'متابعة', 'button.unfollow': 'إلغاء المتابعة', 'button.mute': 'كتم', 'button.unmute': 'إلغاء الكتم', 'button.muteUser': 'كتم المستخدم', 'button.unmuteUser': 'إلغاء كتم المستخدم', 'button.confirm': 'تأكيد', 'button.cancel': 'إلغاء', 'button.close': 'إغلاق', 'button.boost': 'تعزيز', 'button.zap': 'Zap', 'button.viewMore': 'عرض المزيد', 'button.viewAnalytics': 'عرض الإحصائيات', 'button.backToMyVideos': 'العودة إلى فيديوهاتي', 'button.editDraft': 'تعديل المسودة', 'button.deleteDraft': 'حذف المسودة', 'button.editVideo': 'تعديل الفيديو', 'button.deleteVideo': 'حذف الفيديو', 'button.editShort': 'تعديل الشورت', 'button.deleteShort': 'حذف الشورت', 'button.editStream': 'تعديل البث', 'button.endStream': 'إنهاء البث', 'button.reset': 'إعادة تعيين', 'button.download': 'تحميل', 'button.watchRecording': 'مشاهدة التسجيل', 'button.show': 'عرض', 'button.login': 'تسجيل الدخول', 'button.toggleChat': 'تبديل الدردشة', 'button.blockVideo': 'حظر الفيديو', 'button.blockUser': 'حظر المستخدم', 'button.unblock': 'إلغاء الحظر', 'button.removeFromHistory': 'إزالة من السجل',
+        'button.confirm': 'تأكيد', 'button.cancel': 'إلغاء', 'button.close': 'إغلاق', 'button.boost': 'تعزيز', 'button.zap': 'Zap', 'button.viewMore': 'عرض المزيد', 'button.viewAnalytics': 'عرض الإحصائيات', 'button.backToMyVideos': 'العودة إلى فيديوهاتي', 'button.editDraft': 'تعديل المسودة', 'button.deleteDraft': 'حذف المسودة', 'button.editVideo': 'تعديل الفيديو', 'button.deleteVideo': 'حذف الفيديو', 'button.editShort': 'تعديل الشورت', 'button.deleteShort': 'حذف الشورت', 'button.editStream': 'تعديل البث', 'button.endStream': 'إنهاء البث', 'button.reset': 'إعادة تعيين', 'button.download': 'تحميل', 'button.watchRecording': 'مشاهدة التسجيل', 'button.show': 'عرض', 'button.login': 'تسجيل الدخول', 'button.toggleChat': 'تبديل الدردشة', 'button.blockVideo': 'حظر الفيديو', 'button.blockUser': 'حظر المستخدم', 'button.unblock': 'إلغاء الحظر', 'button.removeFromHistory': 'إزالة من السجل',
         // New Stats & Counts
         'stat.views': 'مشاهدات', 'stat.viewsCount': '{count} مشاهدة', 'stat.videos': 'فيديوهات', 'stat.video': 'فيديو', 'stat.followers': 'متابعين', 'stat.follower': 'متابع', 'stat.following': 'متابَعون', 'stat.subscribers': 'مشتركين', 'stat.comments': 'تعليقات', 'stat.liveCount': '{count} مباشر', 'stat.percentOfGoal': '{percent}% من الهدف', 'stat.netGrowth': 'النمو الصافي', 'stat.newFollowers': 'متابعون جدد', 'stat.unfollowed': 'إلغاء المتابعة', 'stat.lastUpdated': 'آخر تحديث: {date}',
         // New Content Badges
@@ -5179,7 +5175,6 @@ const translations = {
         'trending.thisWeek': 'هذا الأسبوع',
         'trending.today': 'اليوم',
         // Buttons
-        'button.viewMore': 'عرض المزيد',
         'button.clearAll': 'مسح الكل',
         'button.showAnyway': 'إظهار على أي حال',
         // Confirmation Modals
@@ -5271,7 +5266,7 @@ const translations = {
         'empty.noMutedUsers': 'कोई म्यूट किए गए उपयोगकर्ता नहीं।', 'empty.noVideosToMonitor': 'मॉनिटर करने के लिए कोई वीडियो नहीं।', 'empty.noRecentActivity': 'कोई हाल की गतिविधि नहीं।', 'empty.failedLoadNotifications': 'सूचनाएं लोड करने में विफल', 'empty.loginToViewLiked': 'पसंद किए गए वीडियो देखने के लिए कृपया <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">लॉग इन करें</a>।', 'empty.loginToViewFollowing': 'फॉलोइंग देखने के लिए कृपया <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">लॉग इन करें</a>।', 'empty.loginToViewVideos': 'अपने वीडियो देखने के लिए कृपया <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">लॉग इन करें</a>।', 'empty.loginToViewAnalytics': 'आंकड़े देखने के लिए कृपया <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">लॉग इन करें</a>।', 'empty.noLikedVideosYet': 'आपने अभी तक कोई वीडियो पसंद नहीं किया।', 'empty.noLikedVideosFound': 'पसंद किए गए वीडियो नहीं मिले।', 'empty.noFullLengthLikedVideos': 'पसंद किए गए लंबे वीडियो नहीं मिले।', 'empty.noWatchHistory': 'कोई देखने का इतिहास नहीं। वीडियो देखना शुरू करें।', 'empty.noVideosInHistory': 'इतिहास में कोई वीडियो नहीं।', 'empty.noFullLengthHistory': 'इतिहास में लंबे वीडियो नहीं।', 'empty.noMatchingVideos': 'मिलते-जुलते वीडियो नहीं मिले।', 'empty.noFullLengthVideos': 'लंबे वीडियो नहीं मिले।', 'empty.failedLoadTrending': 'ट्रेंडिंग लोड करने में विफल।', 'empty.noTrendingVideos': 'ट्रेंडिंग वीडियो नहीं मिले।', 'empty.noMatchingUsers': 'मिलते-जुलते उपयोगकर्ता नहीं मिले।', 'empty.unableLoadProfiles': 'प्रोफाइल लोड करने में असमर्थ।', 'empty.noFollowingVideos': 'फॉलो किए गए लोगों के वीडियो अभी नहीं।', 'empty.noFullLengthFollowing': 'फॉलो किए गए लोगों के लंबे वीडियो नहीं।', 'empty.failedLoadFollowing': 'लोड करने में विफल। फिर से प्रयास करें।', 'empty.noVideosUploadFirst': 'कोई वीडियो नहीं। पहला वीडियो अपलोड करें!', 'empty.noFullLengthUploaded': 'लंबे वीडियो नहीं मिले।', 'empty.noMatchingLiveStreams': 'मिलती-जुलती लाइव स्ट्रीम नहीं मिली।', 'empty.noMatchingShorts': 'मिलते-जुलते शॉर्ट्स नहीं मिले।', 'empty.noVideosForTag': 'इस टैग के लिए कोई वीडियो नहीं।', 'empty.noFullLengthForTag': 'इस टैग के लिए लंबे वीडियो नहीं।', 'empty.noUploadedVideos': 'अभी तक कोई वीडियो अपलोड नहीं।', 'empty.noVideosFound': 'कोई वीडियो नहीं मिला।', 'empty.failedLoadProfile': 'प्रोफाइल लोड करने में विफल। फिर से प्रयास करें।', 'empty.noComments': 'अभी कोई टिप्पणी नहीं। पहले टिप्पणी करें!', 'empty.failedLoadComments': 'टिप्पणियां लोड करने में विफल', 'empty.noLiveNow': 'अभी कोई लाइव नहीं। पहले बनें!',
         'error.videoNotFound': 'वीडियो नहीं मिला।', 'error.contentNotAvailable': 'यह सामग्री उपलब्ध नहीं है।', 'error.invalidVideoData': 'अमान्य वीडियो डेटा।', 'error.videoNotAvailable': 'वीडियो उपलब्ध नहीं। फाइल हटाई जा सकती है।', 'error.failedLoadVideo': 'वीडियो लोड करने में विफल। फिर से प्रयास करें।', 'error.failedLoadVideoShort': 'लोड करने में विफल। फाइल हटाई जा सकती है।', 'error.liveStreamNotFound': 'लाइव स्ट्रीम नहीं मिली।', 'error.invalidLiveStreamData': 'अमान्य लाइव स्ट्रीम डेटा।', 'error.failedLoadLiveStream': 'लाइव स्ट्रीम लोड करने में विफल।',
         // New Button & Action Labels
-        'button.follow': 'फॉलो करें', 'button.unfollow': 'अनफॉलो करें', 'button.mute': 'म्यूट करें', 'button.unmute': 'अनम्यूट करें', 'button.muteUser': 'उपयोगकर्ता को म्यूट करें', 'button.unmuteUser': 'उपयोगकर्ता को अनम्यूट करें', 'button.confirm': 'पुष्टि करें', 'button.cancel': 'रद्द करें', 'button.close': 'बंद करें', 'button.boost': 'बूस्ट', 'button.zap': 'Zap', 'button.viewMore': 'और देखें', 'button.viewAnalytics': 'विश्लेषण देखें', 'button.backToMyVideos': 'मेरे वीडियो पर वापस जाएं', 'button.editDraft': 'ड्राफ्ट संपादित करें', 'button.deleteDraft': 'ड्राफ्ट हटाएं', 'button.editVideo': 'वीडियो संपादित करें', 'button.deleteVideo': 'वीडियो हटाएं', 'button.editShort': 'शॉर्ट संपादित करें', 'button.deleteShort': 'शॉर्ट हटाएं', 'button.editStream': 'स्ट्रीम संपादित करें', 'button.endStream': 'स्ट्रीम समाप्त करें', 'button.reset': 'रीसेट करें', 'button.download': 'डाउनलोड करें', 'button.watchRecording': 'रिकॉर्डिंग देखें', 'button.show': 'दिखाएं', 'button.login': 'लॉगिन करें', 'button.toggleChat': 'चैट टॉगल करें', 'button.blockVideo': 'वीडियो ब्लॉक करें', 'button.blockUser': 'उपयोगकर्ता ब्लॉक करें', 'button.unblock': 'अनब्लॉक करें', 'button.removeFromHistory': 'इतिहास से हटाएं',
+        'button.confirm': 'पुष्टि करें', 'button.cancel': 'रद्द करें', 'button.close': 'बंद करें', 'button.boost': 'बूस्ट', 'button.zap': 'Zap', 'button.viewMore': 'और देखें', 'button.viewAnalytics': 'विश्लेषण देखें', 'button.backToMyVideos': 'मेरे वीडियो पर वापस जाएं', 'button.editDraft': 'ड्राफ्ट संपादित करें', 'button.deleteDraft': 'ड्राफ्ट हटाएं', 'button.editVideo': 'वीडियो संपादित करें', 'button.deleteVideo': 'वीडियो हटाएं', 'button.editShort': 'शॉर्ट संपादित करें', 'button.deleteShort': 'शॉर्ट हटाएं', 'button.editStream': 'स्ट्रीम संपादित करें', 'button.endStream': 'स्ट्रीम समाप्त करें', 'button.reset': 'रीसेट करें', 'button.download': 'डाउनलोड करें', 'button.watchRecording': 'रिकॉर्डिंग देखें', 'button.show': 'दिखाएं', 'button.login': 'लॉगिन करें', 'button.toggleChat': 'चैट टॉगल करें', 'button.blockVideo': 'वीडियो ब्लॉक करें', 'button.blockUser': 'उपयोगकर्ता ब्लॉक करें', 'button.unblock': 'अनब्लॉक करें', 'button.removeFromHistory': 'इतिहास से हटाएं',
         // New Stats & Counts
         'stat.views': 'बार देखा गया', 'stat.viewsCount': '{count} बार देखा गया', 'stat.videos': 'वीडियो', 'stat.video': 'वीडियो', 'stat.followers': 'फॉलोअर्स', 'stat.follower': 'फॉलोअर', 'stat.following': 'फॉलो कर रहे हैं', 'stat.subscribers': 'सब्सक्राइबर्स', 'stat.comments': 'टिप्पणियां', 'stat.liveCount': '{count} लाइव', 'stat.percentOfGoal': 'लक्ष्य का {percent}%', 'stat.netGrowth': 'शुद्ध वृद्धि', 'stat.newFollowers': 'नए फॉलोअर्स', 'stat.unfollowed': 'अनफॉलो', 'stat.lastUpdated': 'अंतिम अपडेट: {date}',
         // New Content Badges
@@ -5592,7 +5587,6 @@ const translations = {
         'trending.thisWeek': 'इस सप्ताह',
         'trending.today': 'आज',
         // Buttons
-        'button.viewMore': 'और देखें',
         'button.clearAll': 'सभी साफ़ करें',
         'button.showAnyway': 'वैसे भी दिखाएं',
         // Confirmation Modals
@@ -5711,7 +5705,7 @@ const translations = {
         'empty.noMutedUsers': 'Nessun utente silenziato.', 'empty.noVideosToMonitor': 'Nessun video da monitorare.', 'empty.noRecentActivity': 'Nessuna attività recente.', 'empty.failedLoadNotifications': 'Impossibile caricare le notifiche', 'empty.loginToViewLiked': 'Per favore <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">accedi</a> per vedere i video che ti piacciono.', 'empty.loginToViewFollowing': 'Per favore <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">accedi</a> per vedere chi segui.', 'empty.loginToViewVideos': 'Per favore <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">accedi</a> per vedere i tuoi video.', 'empty.loginToViewAnalytics': 'Per favore <a href="#" onclick="showLoginModal(); return false;" style="color: var(--accent); text-decoration: underline; cursor: pointer;">accedi</a> per vedere le tue statistiche.', 'empty.noLikedVideosYet': 'Non hai ancora messo mi piace a nessun video.', 'empty.noLikedVideosFound': 'Nessun video piaciuto trovato.', 'empty.noFullLengthLikedVideos': 'Nessun video lungo piaciuto trovato.', 'empty.noWatchHistory': 'Nessuna cronologia. Inizia a guardare video.', 'empty.noVideosInHistory': 'Nessun video nella cronologia.', 'empty.noFullLengthHistory': 'Nessun video lungo nella cronologia.', 'empty.noMatchingVideos': 'Nessun video corrispondente trovato.', 'empty.noFullLengthVideos': 'Nessun video lungo trovato.', 'empty.failedLoadTrending': 'Impossibile caricare le tendenze.', 'empty.noTrendingVideos': 'Nessun video di tendenza trovato.', 'empty.noMatchingUsers': 'Nessun utente corrispondente trovato.', 'empty.unableLoadProfiles': 'Impossibile caricare i profili.', 'empty.noFollowingVideos': 'Nessun video dagli utenti che segui.', 'empty.noFullLengthFollowing': 'Nessun video lungo dagli utenti che segui.', 'empty.failedLoadFollowing': 'Caricamento fallito. Riprova.', 'empty.noVideosUploadFirst': 'Nessun video. Carica il tuo primo video!', 'empty.noFullLengthUploaded': 'Nessun video lungo trovato.', 'empty.noMatchingLiveStreams': 'Nessun live stream corrispondente trovato.', 'empty.noMatchingShorts': 'Nessun short corrispondente trovato.', 'empty.noVideosForTag': 'Nessun video per questo tag.', 'empty.noFullLengthForTag': 'Nessun video lungo per questo tag.', 'empty.noUploadedVideos': 'Nessun video caricato ancora.', 'empty.noVideosFound': 'Nessun video trovato.', 'empty.failedLoadProfile': 'Impossibile caricare il profilo. Riprova.', 'empty.noComments': 'Nessun commento ancora. Sii il primo!', 'empty.failedLoadComments': 'Impossibile caricare i commenti', 'empty.noLiveNow': 'Nessuno in diretta ora. Sii il primo!',
         'error.videoNotFound': 'Video non trovato.', 'error.contentNotAvailable': 'Questo contenuto non è disponibile.', 'error.invalidVideoData': 'Dati video non validi.', 'error.videoNotAvailable': 'Video non disponibile. Il file potrebbe essere stato rimosso.', 'error.failedLoadVideo': 'Impossibile caricare il video. Riprova.', 'error.failedLoadVideoShort': 'Caricamento fallito. File potrebbe essere rimosso.', 'error.liveStreamNotFound': 'Live stream non trovato.', 'error.invalidLiveStreamData': 'Dati live stream non validi.', 'error.failedLoadLiveStream': 'Impossibile caricare il live stream.',
         // New Button & Action Labels
-        'button.follow': 'Segui', 'button.unfollow': 'Non seguire', 'button.mute': 'Silenzia', 'button.unmute': 'Riattiva audio', 'button.muteUser': 'Silenzia utente', 'button.unmuteUser': 'Riattiva utente', 'button.confirm': 'Conferma', 'button.cancel': 'Annulla', 'button.close': 'Chiudi', 'button.boost': 'Potenzia', 'button.zap': 'Zap', 'button.viewMore': 'Mostra altro', 'button.viewAnalytics': 'Visualizza statistiche', 'button.backToMyVideos': 'Torna ai Miei Video', 'button.editDraft': 'Modifica bozza', 'button.deleteDraft': 'Elimina bozza', 'button.editVideo': 'Modifica video', 'button.deleteVideo': 'Elimina video', 'button.editShort': 'Modifica short', 'button.deleteShort': 'Elimina short', 'button.editStream': 'Modifica diretta', 'button.endStream': 'Termina diretta', 'button.reset': 'Reimposta', 'button.download': 'Scarica', 'button.watchRecording': 'Guarda registrazione', 'button.show': 'Mostra', 'button.login': 'Accedi', 'button.toggleChat': 'Attiva/disattiva chat', 'button.blockVideo': 'Blocca video', 'button.blockUser': 'Blocca utente', 'button.unblock': 'Sblocca', 'button.removeFromHistory': 'Rimuovi dalla cronologia',
+        'button.confirm': 'Conferma', 'button.cancel': 'Annulla', 'button.close': 'Chiudi', 'button.boost': 'Potenzia', 'button.zap': 'Zap', 'button.viewMore': 'Mostra altro', 'button.viewAnalytics': 'Visualizza statistiche', 'button.backToMyVideos': 'Torna ai Miei Video', 'button.editDraft': 'Modifica bozza', 'button.deleteDraft': 'Elimina bozza', 'button.editVideo': 'Modifica video', 'button.deleteVideo': 'Elimina video', 'button.editShort': 'Modifica short', 'button.deleteShort': 'Elimina short', 'button.editStream': 'Modifica diretta', 'button.endStream': 'Termina diretta', 'button.reset': 'Reimposta', 'button.download': 'Scarica', 'button.watchRecording': 'Guarda registrazione', 'button.show': 'Mostra', 'button.login': 'Accedi', 'button.toggleChat': 'Attiva/disattiva chat', 'button.blockVideo': 'Blocca video', 'button.blockUser': 'Blocca utente', 'button.unblock': 'Sblocca', 'button.removeFromHistory': 'Rimuovi dalla cronologia',
         // New Stats & Counts
         'stat.views': 'visualizzazioni', 'stat.viewsCount': '{count} visualizzazioni', 'stat.videos': 'video', 'stat.video': 'video', 'stat.followers': 'follower', 'stat.follower': 'follower', 'stat.following': 'Seguiti', 'stat.subscribers': 'iscritti', 'stat.comments': 'Commenti', 'stat.liveCount': '{count} in diretta', 'stat.percentOfGoal': '{percent}% dell\'obiettivo', 'stat.netGrowth': 'Crescita netta', 'stat.newFollowers': 'Nuovi follower', 'stat.unfollowed': 'Non seguono più', 'stat.lastUpdated': 'Ultimo aggiornamento: {date}',
         // New Content Badges
@@ -6013,7 +6007,6 @@ const translations = {
         'trending.thisWeek': 'Questa Settimana',
         'trending.today': 'Oggi',
         // Buttons
-        'button.viewMore': 'Mostra Altro',
         'button.clearAll': 'Cancella Tutto',
         'button.showAnyway': 'Mostra comunque',
         // Confirmation Modals
@@ -7637,12 +7630,14 @@ function createNip71VideoEvent(videoData) {
     // Generate or use existing d-tag for parameterized replaceable event
     const dTag = videoData.dTag || generateVideoDTag();
 
+    const extraTags = Array.isArray(videoData.extraTags) ? videoData.extraTags : [];
     const tags = [
         ['d', dTag],
         ['title', videoData.title],
         createImetaTag(videoData),
         ['t', 'pv69420'], // Keep our app identifier for easy filtering
         ...videoData.tags.map(tag => ['t', tag]),
+        ...extraTags,
         ['client', 'Plebs']
     ];
 
@@ -7667,9 +7662,15 @@ function createNip71VideoEvent(videoData) {
     }
 
     // Add legacy tags for broader compatibility
-    tags.push(['x', videoData.hash]);
-    tags.push(['url', videoData.url]);
-    tags.push(['m', videoData.type || 'video/mp4']);
+    if (videoData.hash) {
+        tags.push(['x', videoData.hash]);
+    }
+    if (videoData.url) {
+        tags.push(['url', videoData.url]);
+    }
+    if (videoData.type) {
+        tags.push(['m', videoData.type]);
+    }
     tags.push(['size', (videoData.size || 0).toString()]);
     tags.push(['duration', Math.floor(videoData.duration || 0).toString()]);
 
@@ -7683,18 +7684,32 @@ function createNip71VideoEvent(videoData) {
 
 // Create a kind 1 video event (for backwards compatibility)
 function createKind1VideoEvent(videoData, addressableEventId = null) {
+    const extraTags = Array.isArray(videoData.extraTags) ? videoData.extraTags : [];
     const tags = [
         ['title', videoData.title],
         ['t', 'pv69420'],
         ...videoData.tags.map(tag => ['t', tag]),
-        ['x', videoData.hash],
-        ['url', videoData.url],
-        ['m', videoData.type || 'video/mp4'],
-        ['size', (videoData.size || 0).toString()],
-        ['duration', Math.floor(videoData.duration || 0).toString()],
-        ['thumb', videoData.thumbnail],
+        ...extraTags,
         ['client', 'Plebs']
     ];
+
+    if (videoData.hash) {
+        tags.push(['x', videoData.hash]);
+    }
+    if (videoData.url) {
+        tags.push(['url', videoData.url]);
+    }
+    if (videoData.type) {
+        tags.push(['m', videoData.type]);
+    }
+    tags.push(['size', (videoData.size || 0).toString()]);
+    tags.push(['duration', Math.floor(videoData.duration || 0).toString()]);
+    if (videoData.thumbnail) {
+        tags.push(['thumb', videoData.thumbnail]);
+    }
+    if (videoData.preview) {
+        tags.push(['preview', videoData.preview]);
+    }
 
     if (videoData.isNSFW) {
         tags.push(['content-warning', 'nsfw']);
@@ -7727,12 +7742,14 @@ function createLegacyNip71VideoEvent(videoData) {
     const isShort = isVideoShort(videoData.width, videoData.height, videoData.duration);
     const kind = isShort ? NIP71_SHORT_KIND_LEGACY : NIP71_VIDEO_KIND_LEGACY;
 
+    const extraTags = Array.isArray(videoData.extraTags) ? videoData.extraTags : [];
     const tags = [
         ['d', videoData.dTag || generateVideoDTag()],
         ['title', videoData.title],
         createImetaTag(videoData),
         ['t', 'pv69420'],
         ...videoData.tags.map(tag => ['t', tag]),
+        ...extraTags,
         ['client', 'Plebs']
     ];
 
@@ -7757,9 +7774,15 @@ function createLegacyNip71VideoEvent(videoData) {
     }
 
     // Add legacy tags for broader compatibility
-    tags.push(['x', videoData.hash]);
-    tags.push(['url', videoData.url]);
-    tags.push(['m', videoData.type || 'video/mp4']);
+    if (videoData.hash) {
+        tags.push(['x', videoData.hash]);
+    }
+    if (videoData.url) {
+        tags.push(['url', videoData.url]);
+    }
+    if (videoData.type) {
+        tags.push(['m', videoData.type]);
+    }
     tags.push(['size', (videoData.size || 0).toString()]);
     tags.push(['duration', Math.floor(videoData.duration || 0).toString()]);
 
@@ -7804,6 +7827,87 @@ function getVideoKindsForType(preferShorts) {
     }
 }
 
+// Extract Peertube metadata encoded in event tags (based on our import pipeline)
+function extractPeertubeInfo(tags) {
+    if (!tags || !tags.length) {
+        return null;
+    }
+
+    const info = {
+        source: null,
+        instance: '',
+        videoId: '',
+        watchUrl: '',
+        author: '',
+        nip05: '',
+        nostr: '',
+        nostrRaw: '',
+        nostrPubkey: '',
+        allowWebTorrent: false,
+        magnet: ''
+    };
+
+    for (const tag of tags) {
+        const key = tag[0];
+        const value = tag[1] || '';
+
+        switch (key) {
+            case 'source':
+                info.source = value;
+                break;
+            case 'peertube-instance':
+                info.instance = value;
+                break;
+            case 'peertube-video-id':
+                info.videoId = value;
+                break;
+            case 'peertube-watch':
+                info.watchUrl = value;
+                break;
+            case 'peertube-author':
+                info.author = value;
+                break;
+            case 'peertube-nip05':
+                info.nip05 = value;
+                break;
+            case 'peertube-nostr':
+                info.nostr = value;
+                break;
+            case 'peertube-nostr-raw':
+                info.nostrRaw = value;
+                break;
+            case 'peertube-allow-webtorrent':
+                info.allowWebTorrent = value?.toLowerCase() === 'true';
+                break;
+            case 'peertube-magnet':
+                info.magnet = value;
+                break;
+            case 'p':
+                if (!info.nostrPubkey && value) {
+                    info.nostrPubkey = value;
+                }
+                break;
+        }
+    }
+
+    if (info.source !== 'peertube') {
+        return null;
+    }
+
+    return {
+        source: 'peertube',
+        instance: info.instance,
+        videoId: info.videoId,
+        watchUrl: info.watchUrl,
+        author: info.author,
+        nip05: info.nip05,
+        nostr: info.nostr || info.nostrRaw,
+        nostrPubkey: info.nostrPubkey || null,
+        allowWebTorrent: info.allowWebTorrent,
+        magnet: info.magnet
+    };
+}
+
 // Parse NIP-71 video event (kind 34235/34236 or legacy 21/22)
 function parseNip71VideoEvent(event) {
     if (!isNip71Kind(event.kind)) {
@@ -7835,7 +7939,8 @@ function parseNip71VideoEvent(event) {
         dTag: '',
         publishedAt: event.created_at,
         isShort: isNip71ShortKind(event.kind),
-        kind: event.kind
+        kind: event.kind,
+        peertube: null
     };
 
     for (const tag of tags) {
@@ -7942,11 +8047,13 @@ function parseNip71VideoEvent(event) {
                     videoData.tags.push(tag[1]);
                 }
                 break;
-            case 'content-warning':
-                videoData.isNSFW = tag[1] === 'nsfw';
-                break;
-        }
+        case 'content-warning':
+            videoData.isNSFW = tag[1] === 'nsfw';
+            break;
     }
+}
+
+    videoData.peertube = extractPeertubeInfo(tags);
 
     return videoData.title ? videoData : null;
 }
@@ -21648,20 +21755,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('Failed to publish to any relay');
                 }
 
-                // Link all events in our cache for reaction/zap merging
-                const eventIds = [signedAddressableEvent.id, signedLegacyNip71Event.id, signedKind1Event.id];
-                for (const id1 of eventIds) {
-                    for (const id2 of eventIds) {
-                        if (id1 !== id2) {
-                            videoEventLinks.set(id1, id2);
-                        }
-                    }
-                }
-
-                // Store all events in allEvents cache
-                allEvents.set(signedAddressableEvent.id, signedAddressableEvent);
-                allEvents.set(signedLegacyNip71Event.id, signedLegacyNip71Event);
-                allEvents.set(signedKind1Event.id, signedKind1Event);
+                finalizePublishedVideoEvents(signedAddressableEvent, signedLegacyNip71Event, signedKind1Event);
 
                 const isShort = isVideoShort(videoDimensions.width, videoDimensions.height, videoDuration);
                 if (publishText) {
@@ -21772,8 +21866,326 @@ window.addEventListener('beforeunload', () => {
             ws.close();
         }
     });
+    cleanupWebTorrentSession();
 });
 
+function ensureWebTorrentClient() {
+    if (!window.WebTorrent) {
+        return null;
+    }
+    if (!webTorrentClient) {
+        webTorrentClient = new WebTorrent();
+        webTorrentClient.on('error', (err) => {
+            console.error('[WebTorrent Client Error]', err);
+        });
+    }
+    return webTorrentClient;
+}
+
+function cleanupWebTorrentSession() {
+    if (activeWebTorrentSession?.torrent) {
+        try {
+            activeWebTorrentSession.torrent.destroy();
+        } catch (error) {
+            console.error('Failed to destroy WebTorrent session:', error);
+        }
+    }
+    activeWebTorrentSession = null;
+}
+
+function selectWebTorrentFile(files) {
+    if (!files || !files.length) {
+        return null;
+    }
+
+    const preferredExtensions = ['mp4', 'webm', 'mkv', 'mov'];
+    for (const ext of preferredExtensions) {
+        const match = files.find(file => file.name?.toLowerCase().endsWith(`.${ext}`));
+        if (match) {
+            return match;
+        }
+    }
+
+    return files[0];
+}
+
+async function startPeertubeWebTorrentStream(eventId, magnet, videoElement, onStatusUpdate) {
+    if (!magnet) {
+        throw new Error('Magnet link missing');
+    }
+
+    const client = ensureWebTorrentClient();
+    if (!client) {
+        throw new Error('WebTorrent is not available in this browser');
+    }
+
+    cleanupWebTorrentSession();
+
+    return new Promise((resolve, reject) => {
+        try {
+            const torrent = client.add(magnet, (torrent) => {
+                const file = selectWebTorrentFile(torrent.files);
+                
+                if (!file) {
+                    const err = new Error('No playable file found inside the torrent');
+                    reject(err);
+                    return;
+                }
+
+                activeWebTorrentSession = { eventId, torrent };
+
+                file.renderTo(videoElement, { autoplay: false, controls: true }, (error) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(file);
+                    }
+                });
+            });
+
+            // Prevent 'Unhandled error' crashes by catching all torrent-level errors
+            torrent.on('error', (err) => {
+                console.warn('[WebTorrent Torrent Error]', err);
+                if (activeWebTorrentSession?.torrent === torrent) {
+                    activeWebTorrentSession = null;
+                }
+                reject(err);
+            });
+
+            if (onStatusUpdate) {
+                onStatusUpdate('Searching for peers...');
+                
+                torrent.on('wire', () => {
+                     onStatusUpdate(`Peers: ${torrent.numPeers}`);
+                });
+
+                torrent.on('download', () => {
+                     const progress = (torrent.progress * 100).toFixed(1);
+                     const peers = torrent.numPeers;
+                     const speed = (torrent.downloadSpeed / 1024 / 1024).toFixed(2); // MB/s
+                     onStatusUpdate(`Buffering ${progress}% · ${peers} peers · ${speed} MB/s`);
+                });
+                
+                torrent.on('metadata', () => {
+                     onStatusUpdate('Metadata received, finding peers...');
+                });
+                
+                torrent.on('noPeers', () => {
+                     onStatusUpdate('No peers found yet...');
+                });
+            }
+
+            torrent.on('error', (err) => {
+                reject(err);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+async function handlePeertubeWebTorrent(eventId, magnet) {
+    const videoElement = document.querySelector('.video-player video');
+    const consentEl = document.getElementById(`webtorrent-consent-${eventId}`);
+    const button = document.getElementById(`webtorrent-btn-${eventId}`);
+
+    if (!videoElement || !magnet) {
+        return;
+    }
+
+    // Cancellation check: If already pending, abort it
+    if (consentEl && consentEl.classList.contains('webtorrent-pending')) {
+        console.log('[WebTorrent] User requested cancellation of pending load');
+        if (typeof currentWebTorrentAbort === 'function') {
+            currentWebTorrentAbort();
+        }
+        return;
+    }
+
+    if (button) {
+        button.textContent = 'Starting WebTorrent…';
+    }
+    if (consentEl) {
+        consentEl.classList.add('webtorrent-pending');
+    }
+
+    // Create a temporary hidden video element to pre-buffer WebTorrent
+    // We use off-screen instead of display:none to ensure MSE initializes correctly
+    const tempVideo = document.createElement('video');
+    tempVideo.style.position = 'absolute';
+    tempVideo.style.left = '-9999px';
+    tempVideo.style.top = '0';
+    tempVideo.style.width = '1px';
+    tempVideo.style.height = '1px';
+    tempVideo.muted = true;
+    const initialTime = videoElement.currentTime;
+    document.body.appendChild(tempVideo);
+
+    let pendingTorrent = null;
+    let torrentFile = null;
+    let abortRequested = false;
+    let safetyTimeout = null;
+
+    currentWebTorrentAbort = () => {
+        console.log('[WebTorrent] Aborting pending load');
+        abortRequested = true;
+        clearTimeout(safetyTimeout);
+        if (pendingTorrent) {
+            try { pendingTorrent.destroy(); } catch (e) {}
+        }
+        if (tempVideo.parentNode) {
+            document.body.removeChild(tempVideo);
+        }
+        if (consentEl) {
+            consentEl.classList.remove('webtorrent-pending');
+        }
+        if (button) {
+            button.disabled = false;
+            button.textContent = 'Stream via WebTorrent';
+        }
+        currentWebTorrentAbort = null;
+    };
+
+    try {
+        await new Promise((resolve, reject) => {
+            let hasResolved = false;
+            let metadataLoaded = false;
+
+            const checkBuffer = () => {
+                if (hasResolved || abortRequested) return;
+                
+                // We need metadata to know where we are in the stream
+                if (!metadataLoaded) return;
+
+                const buffered = tempVideo.buffered;
+                const MIN_BUFFER_SEC = 25;
+                
+                for (let i = 0; i < buffered.length; i++) {
+                    const start = buffered.start(i);
+                    const end = buffered.end(i);
+                    
+                    if (initialTime >= start - 1 && initialTime < end) {
+                        const bufferAhead = end - initialTime;
+                        if (bufferAhead >= MIN_BUFFER_SEC) {
+                            console.log(`[WebTorrent] Buffer ready: ${bufferAhead.toFixed(1)}s ahead`);
+                            onReady();
+                            return;
+                        }
+                    }
+                }
+            };
+
+            const onReady = () => {
+                if (hasResolved || abortRequested) return;
+                hasResolved = true;
+                currentWebTorrentAbort = null;
+                clearTimeout(safetyTimeout);
+                console.log('[WebTorrent] Ready to switch - substantial buffer acquired');
+                
+                const currentTime = videoElement.currentTime;
+                
+                // Stop standard playback first to free up element
+                if (typeof videoElement.abortStandardPlayback === 'function') {
+                    videoElement.abortStandardPlayback();
+                }
+                
+                videoElement.pause();
+                videoElement.removeAttribute('src');
+                try { videoElement.load(); } catch (e) {} // Reset element state
+
+                if (torrentFile && !abortRequested) {
+                    console.log('[WebTorrent] Rendering to main video element');
+                    torrentFile.renderTo(videoElement, { autoplay: true, controls: true }, (error) => {
+                        if (error) {
+                            console.error('[WebTorrent] Final render failed:', error);
+                            if (!abortRequested) reject(error);
+                        } else {
+                            if (currentTime > 0) {
+                                setTimeout(() => {
+                                    try {
+                                        console.log('[WebTorrent] Restoring time to:', currentTime);
+                                        videoElement.currentTime = currentTime;
+                                    } catch (e) { console.warn('Seek failed:', e); }
+                                }, 150);
+                            }
+                            resolve();
+                        }
+                    });
+                } else if (!abortRequested) {
+                    reject(new Error('Torrent file lost during transition'));
+                }
+
+                if (tempVideo.parentNode) {
+                    document.body.removeChild(tempVideo);
+                }
+            };
+
+            tempVideo.addEventListener('loadedmetadata', () => {
+                metadataLoaded = true;
+                if (initialTime > 0) {
+                    try { tempVideo.currentTime = initialTime; } catch(e) {}
+                }
+                checkBuffer();
+            });
+
+            tempVideo.addEventListener('progress', checkBuffer);
+            tempVideo.addEventListener('canplay', checkBuffer);
+            
+            startPeertubeWebTorrentStream(eventId, magnet, tempVideo, (status) => {
+                if (button && !abortRequested) button.textContent = status + ' (Click to cancel)';
+            }).then(file => {
+                if (abortRequested) return;
+                pendingTorrent = activeWebTorrentSession?.torrent;
+                torrentFile = file;
+            }).catch(err => {
+                if (!abortRequested) {
+                    if (tempVideo.parentNode) document.body.removeChild(tempVideo);
+                    reject(err);
+                }
+            });
+
+            // Safety fallback: if we have downloaded at least 5MB and 40s have passed, switch anyway
+            safetyTimeout = setTimeout(() => {
+                if (!hasResolved && !abortRequested && pendingTorrent && pendingTorrent.downloaded > 5 * 1024 * 1024) {
+                    console.log('[WebTorrent] Safety timeout reached with data, switching...');
+                    onReady();
+                }
+            }, 40000);
+        });
+
+        if (button) {
+            button.textContent = 'Streaming via WebTorrent';
+        }
+        if (consentEl) {
+            consentEl.classList.add('webtorrent-active');
+            consentEl.classList.remove('webtorrent-pending');
+        }
+        const loadingState = document.getElementById(`video-loading-${eventId}`);
+        if (loadingState) {
+            loadingState.style.display = 'none';
+        }
+    } catch (error) {
+        if (abortRequested) {
+            console.log('[WebTorrent] Abort handled, staying on standard playback');
+            return;
+        }
+        console.error('WebTorrent stream failed:', error);
+        if (button) {
+            button.disabled = false;
+            button.textContent = 'Stream via WebTorrent';
+        }
+        if (consentEl) {
+            consentEl.classList.remove('webtorrent-pending');
+        }
+        showToast(error.message || 'WebTorrent streaming failed', 'error');
+
+        // Fallback to standard playback if available
+        if (typeof videoElement.restartStandardPlayback === 'function') {
+            console.log('Falling back to standard playback...');
+            videoElement.restartStandardPlayback();
+        }
+    }
+}
 // Function to load trending videos with streaming
 async function loadTrendingVideos(period = 'today') {
     const now = Math.floor(Date.now() / 1000);
@@ -24880,9 +25292,19 @@ async function loadFollowing() {
 
 // Load my videos with streaming
 async function loadMyVideos() {
+    console.log('[My Videos] loadMyVideos triggered (currentUser?):', currentUser?.pubkey || 'none');
     if (!currentUser) {
-        await checkStoredLogin(); // Wait for login check
+        if (loginCheckPromise) {
+            console.log('[My Videos] waiting for loginCheckPromise...');
+            await loginCheckPromise;
+            console.log('[My Videos] loginCheckPromise resolved, currentUser:', currentUser?.pubkey);
+        } else {
+            console.log('[My Videos] no loginCheckPromise, falling back to checkStoredLogin()');
+            await checkStoredLogin();
+            console.log('[My Videos] checkStoredLogin finished, currentUser:', currentUser?.pubkey);
+        }
         if (!currentUser) {
+            console.log('[My Videos] still no user after login attempt, showing login prompt');
             document.getElementById('mainContent').innerHTML = `<p style="text-align: center; color: var(--text-secondary);">${t('empty.loginToViewVideos')}</p>`;
             return;
         }
@@ -30206,7 +30628,13 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         sidebarPlaceholder = null;
     }
 
+    cleanupWebTorrentSession();
+
     const mainContent = document.getElementById('mainContent');
+
+    // State for stream switching (resolution/candidate)
+    let isSwitching = false;
+    let savedTime = 0;
 
     // Clean up any existing video element to prevent audio from continuing to play
     // when the video is replaced (fixes double audio bug)
@@ -30250,6 +30678,9 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         // Store event info for potential editing
         videoData.eventId = event.id;
         videoData.eventKind = event.kind;
+
+        const peertubeInfo = videoData.peertube;
+        const canStartWebTorrent = !!(peertubeInfo?.allowWebTorrent && peertubeInfo.magnet);
 
         const profile = await fetchUserProfile(event.pubkey);
         const avatarUrl = profile?.picture || profile?.avatar || '';
@@ -30314,6 +30745,27 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const userNpub = currentUser ? window.NostrTools.nip19.npubEncode(currentUser.pubkey) : '';
 
         const displayName = profile?.name || profile?.display_name || `User ${event.pubkey.slice(0, 8)}`;
+        const peertubeWatchUrl = peertubeInfo?.watchUrl ? escapeHtml(peertubeInfo.watchUrl) : '';
+        const peertubeInstanceLabel = peertubeInfo?.instance ? ` (${escapeHtml(peertubeInfo.instance)})` : '';
+        const peertubeAuthorLabel = peertubeInfo?.author ? `by ${escapeHtml(peertubeInfo.author)}` : '';
+        const nostrLinkHtml = peertubeInfo?.nostrPubkey ? `<span class="peertube-nostr">Mapped to <a href="#/profile/${peertubeInfo.nostrPubkey}" data-pubkey="${peertubeInfo.nostrPubkey}">Nostr</a></span>` : '';
+        const peertubeBadgeHtml = peertubeInfo ? `
+            <div class="peertube-badge">
+                <span>${peertubeInfo.author ? peertubeAuthorLabel : 'Original on Peertube'}</span>
+                ${peertubeWatchUrl ? `<a href="${peertubeWatchUrl}" target="_blank" rel="noopener noreferrer">View on Peertube</a>` : ''}
+                ${peertubeInfo.instance ? `<span class="peertube-instance">${peertubeInstanceLabel}</span>` : ''}
+                ${nostrLinkHtml}
+            </div>
+        ` : '';
+        const webTorrentConsentHtml = canStartWebTorrent ? `
+            <div class="webtorrent-consent" id="webtorrent-consent-${eventId}" aria-hidden="true">
+                <div class="webtorrent-consent-content">
+                    <strong>WebTorrent stream available</strong>
+                    <p>WebRTC-powered streaming directly from Peertube peers. Only start if you consent.</p>
+                </div>
+                <button type="button" class="webtorrent-btn" id="webtorrent-btn-${eventId}">Stream via WebTorrent</button>
+            </div>
+        ` : '';
 
         // Render page immediately with video loading state - video URL is resolved async
         mainContent.innerHTML = `
@@ -30326,6 +30778,14 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                     <video controls playsinline>
                         Your browser does not support the video tag.
                     </video>
+                    <div class="peertube-toolbar">
+                        ${webTorrentConsentHtml}
+                        <div class="resolution-wrapper" style="position: relative;">
+                            <div class="resolution-indicator" id="resolution-indicator-${eventId}" tabindex="0" role="button" aria-haspopup="false" aria-expanded="false" title="Click to change resolution">
+                                <span id="resolution-indicator-label-${eventId}">Auto</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="video-content-wrapper">
                     <div class="video-details">
@@ -30366,6 +30826,7 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
                                     </button>
                                 ` : ''}
                             </div>
+                            ${peertubeBadgeHtml}
                         </div>
                         <div class="video-actions" id="video-actions-${eventId}">
                             <button class="action-btn like ${cachedReactions.userReaction === 'like' ? 'active' : ''}"
@@ -30503,6 +30964,18 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
             </div>
         `;
 
+        if (canStartWebTorrent) {
+            const webTorrentButton = document.getElementById(`webtorrent-btn-${eventId}`);
+            if (webTorrentButton) {
+                if (!window.WebTorrent) {
+                    webTorrentButton.disabled = true;
+                    webTorrentButton.textContent = 'WebTorrent unavailable';
+                } else {
+                    webTorrentButton.addEventListener('click', () => handlePeertubeWebTorrent(eventId, peertubeInfo.magnet));
+                }
+            }
+        }
+
         // Validate NIP-05 and add checkmark if valid
         if (nip05) {
             // Check cache first
@@ -30526,74 +30999,407 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         const video = mainContent.querySelector('video');
         const videoLoadingState = document.getElementById(`video-loading-${eventId}`);
         const downloadBtn = document.getElementById(`download-btn-${eventId}`);
+        const resolutionSwitcher = document.getElementById(`resolution-switcher-${eventId}`);
+        const resolutionButton = document.getElementById(`resolution-btn-${eventId}`);
+        const resolutionMenu = document.getElementById(`resolution-menu-${eventId}`);
+        const resolutionIndicator = document.getElementById(`resolution-indicator-${eventId}`);
+        const resolutionIndicatorLabel = document.getElementById(`resolution-indicator-label-${eventId}`);
+        const webtorrentConsent = document.getElementById(`webtorrent-consent-${eventId}`);
+        const videoPlayerElement = mainContent.querySelector('.video-player');
 
-        // Async video URL resolution - doesn't block page render
-        (async () => {
-            try {
-                const videoUrl = await getVideoUrl(videoData.hash) || videoData.url;
+        const STALLED_PLAYBACK_THRESHOLD_MS = 40000;
+        const WEBTORRENT_CONSENT_HIDE_MS = 1200;
+        let webtorrentConsentHideTimer = null;
 
-                if (!videoUrl) {
-                    if (videoLoadingState) {
-                        videoLoadingState.innerHTML = `<p class="error-message">${t('error.videoNotAvailable')}</p>`;
-                    }
-                    return;
-                }
+        const showVideoErrorState = (messageKey) => {
+            if (!videoLoadingState) return;
+            videoLoadingState.style.display = 'flex';
+            videoLoadingState.innerHTML = `<p class="error-message">${t(messageKey)}</p>`;
+        };
 
-                // Set up error handler before setting source
-                video.onerror = async () => {
-                    const fallbackUrl = await getVideoUrl(videoData.hash, BLOSSOM_SERVERS.slice(1));
-                    if (fallbackUrl && fallbackUrl !== videoUrl) {
-                        video.src = fallbackUrl;
-                        // Update download button with fallback URL
-                        if (downloadBtn) {
-                            downloadBtn.onclick = () => downloadVideo(fallbackUrl, { title: videoData.title });
-                            downloadBtn.disabled = false;
-                            downloadBtn.title = '';
-                        }
-                    } else {
-                        // Show error state - recreate loading state if it was removed
-                        const videoPlayer = video.parentElement;
-                        let errorState = videoLoadingState;
-                        if (!errorState || !errorState.parentElement) {
-                            errorState = document.createElement('div');
-                            errorState.className = 'video-loading-state';
-                            videoPlayer.insertBefore(errorState, video);
-                        }
-                        errorState.style.display = 'flex';
-                        errorState.innerHTML = `<p class="error-message">${t('error.failedLoadVideo')}</p>`;
-                    }
-                };
-
-                // Video loaded successfully - remove loading state from DOM entirely
-                video.onloadeddata = () => {
+                const clearLoadingState = () => {
                     if (videoLoadingState) {
                         videoLoadingState.remove();
                     }
                 };
 
-                // Show auto-play next video overlay when video ends
-                video.onended = () => {
-                    showNextVideoOverlay();
+                const setLoadingMessage = (message) => {
+                    if (!videoLoadingState) return;
+                    videoLoadingState.style.display = 'flex';
+                    videoLoadingState.innerHTML = `
+                        <div class="spinner"></div>
+                        <p>${message}</p>
+                    `;
                 };
 
-                // Record view when video starts playing (works for both logged-in and anonymous)
-                video.onplay = () => {
-                    recordVideoView(eventId);
+        const guessLabelForUrl = (url, fallbackLabel, index) => {
+            const lower = url.toLowerCase();
+            const resolutionMatch = lower.match(/(\\d{3,4}p)/);
+            if (resolutionMatch) {
+                return resolutionMatch[1];
+            }
+            const dashMatch = lower.match(/-(\\d{3,4})[px]?-/);
+            if (dashMatch) {
+                return `${dashMatch[1]}p`;
+            }
+            if (fallbackLabel) {
+                return fallbackLabel;
+            }
+            return `Stream ${index + 1}`;
+        };
+
+                const showWebTorrentConsentOverlay = () => {
+                    if (!webtorrentConsent || !videoPlayerElement) return;
+                    clearTimeout(webtorrentConsentHideTimer);
+                    videoPlayerElement.classList.add('webtorrent-visible');
+                    webtorrentConsent.removeAttribute('aria-hidden');
                 };
 
-                // Set the video source
-                video.src = videoUrl;
-                video.autoplay = true;
-                video.playsInline = true;
+                        const scheduleHideWebTorrentConsentOverlay = () => {
+                            if (!webtorrentConsent || !videoPlayerElement) return;
+                            clearTimeout(webtorrentConsentHideTimer);
+                            webtorrentConsentHideTimer = setTimeout(() => {
+                                // Don't hide if the button has focus or we're currently loading a torrent
+                                const webTorrentButton = document.getElementById(`webtorrent-btn-${eventId}`);
+                                const isFocused = document.activeElement === webTorrentButton;
+                                const isPending = webtorrentConsent.classList.contains('webtorrent-pending');
+                                
+                                if (!isFocused && !isPending) {
+                                    videoPlayerElement.classList.remove('webtorrent-visible');
+                                    webtorrentConsent.setAttribute('aria-hidden', 'true');
+                                }
+                            }, WEBTORRENT_CONSENT_HIDE_MS);
+                        };
+                const registerConsentVisibilityHandlers = () => {
+                    if (!webtorrentConsent || !videoPlayerElement || !video) return;
+                    videoPlayerElement.addEventListener('mouseenter', showWebTorrentConsentOverlay);
+                    videoPlayerElement.addEventListener('mouseleave', scheduleHideWebTorrentConsentOverlay);
+                    videoPlayerElement.addEventListener('focusin', showWebTorrentConsentOverlay);
+                    videoPlayerElement.addEventListener('focusout', scheduleHideWebTorrentConsentOverlay);
+                    videoPlayerElement.addEventListener('touchstart', showWebTorrentConsentOverlay, { passive: true });
+                    video.addEventListener('focus', showWebTorrentConsentOverlay);
+                    video.addEventListener('blur', scheduleHideWebTorrentConsentOverlay);
+                };
 
-                // Enable download button
-                if (downloadBtn) {
-                    downloadBtn.onclick = () => downloadVideo(videoUrl, { title: videoData.title });
-                    downloadBtn.disabled = false;
-                    downloadBtn.title = '';
+                if (webtorrentConsent && videoPlayerElement && video) {
+                    registerConsentVisibilityHandlers();
+                }
+
+                (async () => {
+                    if (!video) console.error('Video element not found!');
+
+                    try {
+                        let peertubeMetadata = null;
+                        if (peertubeInfo?.instance && peertubeInfo?.videoId && typeof fetchPeertubeVideoMetadataFromApi === 'function') {
+                            setLoadingMessage('Checking Peertube streams…');
+                            try {
+                                const metadataResult = await fetchPeertubeVideoMetadataFromApi(peertubeInfo.instance, peertubeInfo.videoId);
+                                peertubeMetadata = metadataResult?.metadata || null;
+                                console.info('[Peertube] metadata fetched for', peertubeInfo.videoId, peertubeInfo.instance);
+                            } catch (metaError) {
+                                console.warn('[Peertube] stream metadata lookup failed:', metaError);
+                            }
+                        }
+                        const resolvedVideoUrl = await getVideoUrl(videoData.hash) || videoData.url;
+                        const metadataCandidates = (peertubeMetadata && typeof gatherPeertubeStreamCandidates === 'function')
+                            ? gatherPeertubeStreamCandidates(peertubeMetadata)
+                            : [];
+
+                        const VIDEO_STREAM_SKIP_EXTENSIONS = [];
+
+                let currentCandidateIndex = 0;
+
+                const updateResolutionIndicatorLabel = (candidate) => {
+                    if (!resolutionIndicatorLabel) return;
+                    resolutionIndicatorLabel.textContent = candidate ? (candidate.label || candidate.descriptor || 'Auto') : 'Auto';
+                };
+
+                const shouldSkipStreamUrl = (url) => {
+                    if (!url || typeof url !== 'string') return true;
+                    const cleanPath = url.split('?')[0].split('#')[0];
+                    const extensionIndex = cleanPath.lastIndexOf('.');
+                    if (extensionIndex !== -1) {
+                        const extension = cleanPath.substring(extensionIndex).toLowerCase();
+                        if (VIDEO_STREAM_SKIP_EXTENSIONS.includes(extension)) return true;
+                    }
+                    return false;
+                };
+
+                const buildCandidateList = (metaCandidates = []) => {
+                    const fallbackUrls = Array.isArray(videoData.fallbackUrls) ? videoData.fallbackUrls : [];
+                    const uniqueUrls = new Set();
+                    const list = [];
+                    const addCandidate = (url, label) => {
+                        if (!url) return;
+                        const trimmed = url.trim();
+                        if (!trimmed || uniqueUrls.has(trimmed)) return;
+                        if (shouldSkipStreamUrl(trimmed)) return;
+                        uniqueUrls.add(trimmed);
+                        list.push({
+                            url: trimmed,
+                            label: guessLabelForUrl(trimmed, label, list.length),
+                            descriptor: label
+                        });
+                    };
+
+                    metaCandidates.forEach(candidate => addCandidate(candidate.url, candidate.label));
+                    addCandidate(resolvedVideoUrl, 'Primary stream');
+                    addCandidate(videoData.url, 'Primary stream');
+                    addCandidate(videoData.streamUrl, 'Stream URL');
+                    for (const fallbackUrl of fallbackUrls) {
+                        addCandidate(fallbackUrl, 'Fallback stream');
+                    }
+                    if (videoData.metadata?.streamingPlaylists) {
+                        videoData.metadata.streamingPlaylists.forEach(playlist => {
+                            if (playlist.playlistUrl) {
+                                addCandidate(playlist.playlistUrl, 'HLS playlist');
+                            }
+                            playlist?.files?.forEach((file, idx) => addCandidate(file?.fileUrl || file?.playlistUrl, `Playlist ${idx + 1}`));
+                        });
+                    }
+                    return list;
+                };
+
+                let streamCandidates = buildCandidateList(metadataCandidates);
+
+                if (videoData.hash) {
+                    const alternateBlossomUrl = await getVideoUrl(videoData.hash, BLOSSOM_SERVERS.slice(1));
+                    if (alternateBlossomUrl && !streamCandidates.some(candidate => candidate.url === alternateBlossomUrl)) {
+                        streamCandidates.push({
+                            url: alternateBlossomUrl,
+                            label: 'Blossom fallback',
+                            descriptor: 'Blossom fallback'
+                        });
+                    }
+                }
+                if (peertubeInfo) {
+                    console.info('[Peertube] streamCandidates', streamCandidates.map(candidate => ({
+                        label: candidate.label,
+                        url: candidate.url
+                    })));
+                }
+
+                if (!streamCandidates.length) {
+                    showVideoErrorState('error.videoNotAvailable');
+                    return;
+                }
+
+                const showResolutionIndicator = streamCandidates.length > 1;
+                if (resolutionIndicator) {
+                    resolutionIndicator.style.display = showResolutionIndicator ? 'flex' : 'none';
+                }
+
+                if (showResolutionIndicator && resolutionIndicator) {
+                    resolutionIndicator.addEventListener('click', (event) => {
+                        event.stopPropagation();
+                        
+                        if (currentHls) {
+                            // Cycle HLS levels: Auto (-1) -> Level 0 -> Level 1 ... -> Auto
+                            const levels = currentHls.levels;
+                            let nextLevel = currentHls.currentLevel + 1;
+                            if (nextLevel >= levels.length) {
+                                nextLevel = -1; // Back to Auto
+                            }
+                            currentHls.currentLevel = nextLevel;
+                            
+                            const label = nextLevel === -1 ? 'Auto' : (levels[nextLevel].height ? `${levels[nextLevel].height}p` : `Level ${nextLevel}`);
+                            updateResolutionIndicatorLabel({ label });
+                        } else {
+                            // Cycle standard candidates
+                            const nextIndex = (currentCandidateIndex + 1) % streamCandidates.length;
+                            isSwitching = true;
+                            savedTime = video.currentTime;
+                            attemptCandidate(nextIndex);
+                        }
+                    });
+                    resolutionIndicator.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            resolutionIndicator.click();
+                        }
+                    });
+                }
+
+                // HLS instance tracker
+                let currentHls = null;
+
+                const attemptCandidate = (index) => {
+                    if (index >= streamCandidates.length) {
+                        showVideoErrorState('error.failedLoadVideo');
+                        return;
+                    }
+
+                    const candidate = streamCandidates[index];
+                    currentCandidateIndex = index;
+                    updateResolutionIndicatorLabel(candidate);
+                    setLoadingMessage(`Trying ${candidate.label}…`);
+
+                    // Clean up previous HLS instance if exists
+                    if (currentHls) {
+                        currentHls.destroy();
+                        currentHls = null;
+                    }
+
+                    let stallTimer = null;
+                    let alreadySwitched = false;
+
+                    const clearStallTimer = () => {
+                        if (stallTimer) {
+                            clearTimeout(stallTimer);
+                            stallTimer = null;
+                        }
+                    };
+
+                    const handleWaiting = () => {
+                        clearStallTimer();
+                        stallTimer = setTimeout(() => switchToNext('playback stalled'), STALLED_PLAYBACK_THRESHOLD_MS);
+                    };
+
+                    const handlePlaying = () => {
+                        clearStallTimer();
+                    };
+
+                    const cleanupHandlers = () => {
+                        video.removeEventListener('waiting', handleWaiting);
+                        video.removeEventListener('playing', handlePlaying);
+                        video.onerror = null;
+                        video.onloadeddata = null;
+                        clearStallTimer();
+                        // Remove the abort hook so we don't leak or call it later
+                        delete video.abortStandardPlayback;
+                    };
+
+                    // Expose abort mechanism for WebTorrent or other overrides
+                    video.abortStandardPlayback = () => {
+                        console.log('Standard playback aborted by external request');
+                        alreadySwitched = true;
+                        clearStallTimer();
+                        video.removeEventListener('waiting', handleWaiting);
+                        video.removeEventListener('playing', handlePlaying);
+                        video.onerror = null;
+                        video.onloadeddata = null;
+                        if (currentHls) {
+                            currentHls.destroy();
+                            currentHls = null;
+                        }
+                    };
+
+                    const switchToNext = (reason) => {
+                        if (alreadySwitched) return;
+                        alreadySwitched = true;
+                        clearStallTimer();
+                        cleanupHandlers();
+                        // Clean up HLS on switch
+                        if (currentHls) {
+                            currentHls.destroy();
+                            currentHls = null;
+                        }
+                        console.warn(`Stream swap triggered (${reason}). Moving to candidate ${index + 2} of ${streamCandidates.length}:`, candidate.url);
+                        attemptCandidate(index + 1);
+                    };
+
+                    video.addEventListener('waiting', handleWaiting);
+                    video.addEventListener('playing', handlePlaying);
+
+                    video.onerror = (event) => {
+                        const errorDetails = video.error || event;
+                        console.error('Video playback error', {
+                            url: candidate.url,
+                            label: candidate.label,
+                            error: errorDetails
+                        });
+                        switchToNext('error');
+                    };
+
+                    video.onloadeddata = () => {
+                        if (alreadySwitched) return;
+                        
+                        // Restore time if switching
+                        if (isSwitching && savedTime > 0) {
+                            video.currentTime = savedTime;
+                            isSwitching = false;
+                        }
+                        
+                        cleanupHandlers();
+                        clearLoadingState();
+                        if (downloadBtn) {
+                            downloadBtn.onclick = () => downloadVideo(candidate.url, { title: videoData.title });
+                            downloadBtn.disabled = false;
+                            downloadBtn.title = '';
+                        }
+                    };
+
+                    // Check for HLS
+                    const isHls = candidate.url.includes('.m3u8') || (candidate.type === 'application/x-mpegURL');
+
+                    if (isHls && window.Hls && window.Hls.isSupported()) {
+                        console.log('[Playback] Using HLS.js for playback');
+                        const hls = new window.Hls({
+                            maxBufferLength: 30,
+                            maxMaxBufferLength: 600
+                        });
+                        currentHls = hls;
+                        hls.loadSource(candidate.url);
+                        hls.attachMedia(video);
+                        hls.on(window.Hls.Events.MANIFEST_PARSED, (event, data) => {
+                            video.play().catch(e => console.warn('Autoplay prevented:', e));
+                            // Ensure label is Auto initially
+                            updateResolutionIndicatorLabel({ label: 'Auto' });
+                        });
+                        hls.on(window.Hls.Events.ERROR, (event, data) => {
+                            if (data.fatal) {
+                                switch (data.type) {
+                                    case window.Hls.ErrorTypes.NETWORK_ERROR:
+                                        console.warn('[HLS] Network error, trying to recover...');
+                                        hls.startLoad();
+                                        break;
+                                    case window.Hls.ErrorTypes.MEDIA_ERROR:
+                                        console.warn('[HLS] Media error, trying to recover...');
+                                        hls.recoverMediaError();
+                                        break;
+                                    default:
+                                        console.error('[HLS] Fatal error, switching candidate:', data);
+                                        switchToNext('hls fatal error');
+                                        break;
+                                }
+                            }
+                        });
+                    } else {
+                        // Native playback (progressive MP4 or native HLS like Safari)
+                        console.log('[Playback] Using native video playback');
+                        video.src = candidate.url;
+                        video.autoplay = true;
+                        video.playsInline = true;
+                        video.load();
+                    }
+                };
+
+                // Expose restart mechanism for WebTorrent fallback
+                video.restartStandardPlayback = () => {
+                    console.log('Restarting standard playback...');
+                    isSwitching = true;
+                    savedTime = video.currentTime;
+                    attemptCandidate(0);
+                };
+
+                try {
+                    attemptCandidate(0);
+                } catch (e) {
+                    console.warn('Playback attempt failed synchronously:', e);
+                    // Emergency fallback: directly set src and play
+                    if (streamCandidates && streamCandidates.length > 0) {
+                        console.warn('Attempting emergency fallback playback with:', streamCandidates[0].url);
+                        video.onerror = (e) => console.error('Emergency fallback video error:', video.error, e);
+                        video.src = streamCandidates[0].url;
+                        video.controls = true;
+                        video.play().catch(pErr => console.error('Emergency play failed:', pErr));
+                        if (videoLoadingState) videoLoadingState.style.display = 'none';
+                    } else {
+                        throw e;
+                    }
                 }
             } catch (error) {
-                console.error('Failed to resolve video URL:', error);
+                console.error('Failed to resolve video URL (CRITICAL):', error);
                 if (videoLoadingState) {
                     videoLoadingState.innerHTML = `<p class="error-message">${t('error.failedLoadVideoShort')}</p>`;
                 }
@@ -30601,7 +31407,6 @@ async function playVideo(eventId, skipNSFWCheck = false, skipRatioedCheck = fals
         })();
 
         const mainCommentInput = createCommentInput();
-        document.getElementById('main-comment-input').replaceWith(mainCommentInput);
 
         // First, try to find linked events (for merging reactions/zaps/comments from legacy events)
         // We await this to ensure we have all linked IDs before loading data
@@ -33820,7 +34625,9 @@ function parseVideoEvent(event) {
         thumbnail: '',
         duration: 0,
         tags: [],
-        author: event.pubkey
+        author: event.pubkey,
+        fallbackUrls: [],
+        peertube: null
     };
 
     for (const tag of tags) {
@@ -33843,6 +34650,11 @@ function parseVideoEvent(event) {
             case 't':
                 if (tag[1] && tag[1] !== 'pv69420') {
                     videoData.tags.push(tag[1]);
+                }
+                break;
+            case 'fallback':
+                if (tag[1]) {
+                    videoData.fallbackUrls.push(tag[1]);
                 }
                 break;
         }
@@ -33900,6 +34712,8 @@ function parseVideoEvent(event) {
     if (videoData.url && videoData.description.includes(videoData.url)) {
         videoData.description = videoData.description.replace(videoData.url, '').trim();
     }
+
+    videoData.peertube = extractPeertubeInfo(tags);
 
     return videoData.title ? videoData : null;
 }
@@ -37336,15 +38150,7 @@ function createScheduledStreamCard(event, liveData, profile) {
     `;
 }
 
-// Format sats for display
-function formatSats(sats) {
-    if (sats >= 1000000) {
-        return `${(sats / 1000000).toFixed(1)}M`;
-    } else if (sats >= 1000) {
-        return `${(sats / 1000).toFixed(1)}K`;
-    }
-    return sats.toString();
-}
+
 
 // ===== Live Stream Action Functions =====
 
@@ -38057,4 +38863,71 @@ function shouldFilterLiveContent(event, liveData) {
     }
 
     return { filtered: false };
+}
+
+// Missing functions added by fix script
+
+async function uploadToNostrBuild(file, onProgress) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://nostr.build/api/v2/upload/files');
+
+        if (onProgress) {
+            xhr.upload.onprogress = (e) => {
+                if (e.lengthComputable) {
+                    const percentComplete = (e.loaded / e.total) * 100;
+                    onProgress(percentComplete);
+                }
+            };
+        }
+
+        xhr.onload = () => {
+            if (xhr.status === 200) {
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.data && response.data.length > 0) {
+                        resolve(response.data[0].url);
+                    } else {
+                        reject(new Error('Upload failed: No URL returned'));
+                    }
+                } catch (e) {
+                    reject(new Error('Invalid response from server'));
+                }
+            } else {
+                reject(new Error(`Upload failed with status ${xhr.status}`));
+            }
+        };
+
+        xhr.onerror = () => reject(new Error('Network error during upload'));
+        xhr.send(formData);
+    });
+}
+
+function renderChatMessage(event, container) {
+    const div = document.createElement('div');
+    div.className = 'chat-message';
+    div.dataset.eventId = event.id;
+    
+    const profile = profileCache.get(event.pubkey) || { name: event.pubkey.slice(0, 8) };
+    const name = profile.name || profile.display_name || event.pubkey.slice(0, 8);
+    // getUserColor might be missing too, use fallback
+    const color = (typeof getUserColor === 'function') ? getUserColor(event.pubkey) : '#888';
+    
+    div.innerHTML = `
+        <span class="chat-author" style="color: ${color}">${escapeHtml(name)}</span>: 
+        <span class="chat-content">${escapeHtml(event.content)}</span>
+    `;
+    container.appendChild(div);
+}
+
+function getUserColor(pubkey) {
+    let hash = 0;
+    for (let i = 0; i < pubkey.length; i++) {
+        hash = pubkey.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const c = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return '#' + '00000'.substring(0, 6 - c.length) + c;
 }
