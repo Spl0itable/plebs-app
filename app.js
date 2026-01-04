@@ -21875,6 +21875,9 @@ function ensureWebTorrentClient() {
     }
     if (!webTorrentClient) {
         webTorrentClient = new WebTorrent();
+        webTorrentClient.on('error', (err) => {
+            console.error('[WebTorrent Client Error]', err);
+        });
     }
     return webTorrentClient;
 }
@@ -21998,16 +22001,26 @@ async function handlePeertubeWebTorrent(eventId, magnet) {
     }
 
     // Create a temporary hidden video element to pre-buffer WebTorrent
+    // We use off-screen instead of display:none to ensure MSE initializes correctly
     const tempVideo = document.createElement('video');
-    tempVideo.style.display = 'none';
+    tempVideo.style.position = 'absolute';
+    tempVideo.style.left = '-9999px';
+    tempVideo.style.top = '0';
+    tempVideo.style.width = '1px';
+    tempVideo.style.height = '1px';
     tempVideo.muted = true;
     const initialTime = videoElement.currentTime;
     document.body.appendChild(tempVideo);
 
     let pendingTorrent = null;
+    let torrentFile = null;
+    let abortRequested = false;
+    let safetyTimeout = null;
 
     currentWebTorrentAbort = () => {
         console.log('[WebTorrent] Aborting pending load');
+        abortRequested = true;
+        clearTimeout(safetyTimeout);
         if (pendingTorrent) {
             try { pendingTorrent.destroy(); } catch (e) {}
         }
@@ -22030,13 +22043,11 @@ async function handlePeertubeWebTorrent(eventId, magnet) {
             let metadataLoaded = false;
 
             const checkBuffer = () => {
-                if (hasResolved) return;
+                if (hasResolved || abortRequested) return;
                 
                 // We need metadata to know where we are in the stream
                 if (!metadataLoaded) return;
 
-                // Check if we have a decent buffer ahead of our target start time
-                // We look for at least 25 seconds of buffered data
                 const buffered = tempVideo.buffered;
                 const MIN_BUFFER_SEC = 25;
                 
@@ -22044,7 +22055,6 @@ async function handlePeertubeWebTorrent(eventId, magnet) {
                     const start = buffered.start(i);
                     const end = buffered.end(i);
                     
-                    // If the current time is within or very close to this range
                     if (initialTime >= start - 1 && initialTime < end) {
                         const bufferAhead = end - initialTime;
                         if (bufferAhead >= MIN_BUFFER_SEC) {
@@ -22057,38 +22067,52 @@ async function handlePeertubeWebTorrent(eventId, magnet) {
             };
 
             const onReady = () => {
-                if (hasResolved) return;
+                if (hasResolved || abortRequested) return;
                 hasResolved = true;
                 currentWebTorrentAbort = null;
+                clearTimeout(safetyTimeout);
                 console.log('[WebTorrent] Ready to switch - substantial buffer acquired');
                 
                 const currentTime = videoElement.currentTime;
                 
+                // Stop standard playback first to free up element
                 if (typeof videoElement.abortStandardPlayback === 'function') {
                     videoElement.abortStandardPlayback();
                 }
                 
-                const torrentSrc = tempVideo.src;
                 videoElement.pause();
-                videoElement.src = torrentSrc;
-                videoElement.load();
-                
-                videoElement.addEventListener('loadedmetadata', () => {
-                    if (currentTime > 0) {
-                        videoElement.currentTime = currentTime;
-                    }
-                    videoElement.play().catch(e => console.warn('Autoplay failed:', e));
-                }, { once: true });
+                videoElement.removeAttribute('src');
+                try { videoElement.load(); } catch (e) {} // Reset element state
+
+                if (torrentFile && !abortRequested) {
+                    console.log('[WebTorrent] Rendering to main video element');
+                    torrentFile.renderTo(videoElement, { autoplay: true, controls: true }, (error) => {
+                        if (error) {
+                            console.error('[WebTorrent] Final render failed:', error);
+                            if (!abortRequested) reject(error);
+                        } else {
+                            if (currentTime > 0) {
+                                setTimeout(() => {
+                                    try {
+                                        console.log('[WebTorrent] Restoring time to:', currentTime);
+                                        videoElement.currentTime = currentTime;
+                                    } catch (e) { console.warn('Seek failed:', e); }
+                                }, 150);
+                            }
+                            resolve();
+                        }
+                    });
+                } else if (!abortRequested) {
+                    reject(new Error('Torrent file lost during transition'));
+                }
 
                 if (tempVideo.parentNode) {
                     document.body.removeChild(tempVideo);
                 }
-                resolve();
             };
 
             tempVideo.addEventListener('loadedmetadata', () => {
                 metadataLoaded = true;
-                // Set the current time on the temp video so WebTorrent knows where to prioritize pieces
                 if (initialTime > 0) {
                     try { tempVideo.currentTime = initialTime; } catch(e) {}
                 }
@@ -22099,19 +22123,21 @@ async function handlePeertubeWebTorrent(eventId, magnet) {
             tempVideo.addEventListener('canplay', checkBuffer);
             
             startPeertubeWebTorrentStream(eventId, magnet, tempVideo, (status) => {
-                if (button) button.textContent = status + ' (Click to cancel)';
+                if (button && !abortRequested) button.textContent = status + ' (Click to cancel)';
             }).then(file => {
+                if (abortRequested) return;
                 pendingTorrent = activeWebTorrentSession?.torrent;
+                torrentFile = file;
             }).catch(err => {
-                if (tempVideo.parentNode) {
-                    document.body.removeChild(tempVideo);
+                if (!abortRequested) {
+                    if (tempVideo.parentNode) document.body.removeChild(tempVideo);
+                    reject(err);
                 }
-                reject(err);
             });
 
             // Safety fallback: if we have downloaded at least 5MB and 40s have passed, switch anyway
-            setTimeout(() => {
-                if (!hasResolved && pendingTorrent && pendingTorrent.downloaded > 5 * 1024 * 1024) {
+            safetyTimeout = setTimeout(() => {
+                if (!hasResolved && !abortRequested && pendingTorrent && pendingTorrent.downloaded > 5 * 1024 * 1024) {
                     console.log('[WebTorrent] Safety timeout reached with data, switching...');
                     onReady();
                 }
