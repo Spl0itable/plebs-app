@@ -1,0 +1,27 @@
+{
+  "name": "plebs-app",
+  "version": "1.0.0",
+  "description": "![Plebs Logo](https://plebs.app/images/plebs-og.png)",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imattau/plebs-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/imattau/plebs-app/issues"
+  },
+  "homepage": "https://github.com/imattau/plebs-app#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0"
+  }
+}
