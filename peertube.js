@@ -49,6 +49,7 @@ function resetPeertubeImportForm() {
     const preview = document.getElementById('peertubePreview');
     if (preview) {
         preview.innerHTML = '';
+        preview.style.display = 'none';
     }
 
     const streamInput = document.getElementById('peertubeStreamUrl');
@@ -207,13 +208,21 @@ async function fetchPeertubeMetadata() {
 
         const preview = document.getElementById('peertubePreview');
         if (preview) {
+            preview.style.display = 'block';
             preview.innerHTML = `
-                <strong>${data.name || 'Peertube Video'}</strong>
-                <div style="margin-top:0.35rem;">
-                    ${data.description ? data.description.slice(0, 150) + (data.description.length > 150 ? '…' : '') : 'No description available.'}
-                </div>
-                <div style="margin-top:0.5rem; color: var(--text-secondary); font-size:0.85rem;">
-                    Instance: ${parsed.host || parsed.origin}
+                <div style="display: flex; gap: 1rem; align-items: flex-start;">
+                    ${thumbnailInput.value ? `<div style="width: 120px; height: 68px; flex-shrink: 0; border-radius: 4px; overflow: hidden; background: #000;">
+                        <img src="${thumbnailInput.value}" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>` : ''}
+                    <div style="flex: 1; min-width: 0;">
+                        <strong style="display: block; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${data.name || 'Peertube Video'}</strong>
+                        <div style="font-size: 0.8rem; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                            ${data.description || 'No description available.'}
+                        </div>
+                        <div style="margin-top: 0.5rem; color: var(--accent); font-size: 0.75rem; font-weight: 600;">
+                            Instance: ${parsed.host || parsed.origin}
+                        </div>
+                    </div>
                 </div>
             `;
         }
