@@ -1,3 +1,7 @@
+## v2.7.33 - 2026-01-20
+
+Hotfix: removed nostr.media
+
 ## v2.7.32 - 2025-12-20
 
 Hotfix: removed dead nostr.band relay

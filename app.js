@@ -6454,8 +6454,7 @@ const STORAGE_KEYS = {
 const BLOSSOM_SERVERS = [
     'https://blossom.primal.net',
     'https://blossom.band',
-    'https://24242.io',
-    'https://nostr.media'
+    'https://24242.io'
 ];
 
 // Premium Blossom server
@@ -13710,8 +13709,7 @@ function applySettings() {
     BLOSSOM_SERVERS.push(
         'https://blossom.primal.net',
         'https://blossom.band',
-        'https://24242.io',
-        'https://nostr.media'
+        'https://24242.io'
     );
 
     if (userSettings.usePremiumBlossom) {
